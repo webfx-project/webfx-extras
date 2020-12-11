@@ -19,12 +19,6 @@
         <module>webfx-extras-label</module>
         <module>webfx-extras-imagestore</module>
 
-        <module>webfx-extras-webtext-controls</module>
-        <module>webfx-extras-webtext-controls-registry</module>
-        <module>webfx-extras-webtext-controls-peers-base</module>
-        <module>webfx-extras-webtext-controls-peers-gwt</module>
-        <module>webfx-extras-webtext-controls-peers-javafx</module>
-
         <module>webfx-extras-visual-controls-grid</module>
         <module>webfx-extras-visual-controls-grid-registry</module>
 
@@ -34,7 +28,6 @@
 
         <module>webfx-extras-visual-controls-charts-registry</module>
         <module>webfx-extras-visual-controls-charts-registry-spi</module>
-        <module>webfx-extras-webtext-controls-registry-spi</module>
         <module>webfx-extras-visual</module>
         <module>webfx-extras-cell</module>
         <module>webfx-extras-visual-controls</module>

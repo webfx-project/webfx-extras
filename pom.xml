@@ -19,8 +19,6 @@
         <module>webfx-extras-label</module>
         <module>webfx-extras-imagestore</module>
 
-        <module>webfx-extras-cell</module>
-
     </modules>
 
 </project>

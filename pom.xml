@@ -19,24 +19,7 @@
         <module>webfx-extras-label</module>
         <module>webfx-extras-imagestore</module>
 
-        <module>webfx-extras-visual-controls-grid</module>
-        <module>webfx-extras-visual-controls-grid-registry</module>
-
-        <module>webfx-extras-visual-controls-charts-peers-base</module>
-        <module>webfx-extras-visual-controls-charts-peers-gwt-charba</module>
-        <module>webfx-extras-visual-controls-charts-peers-javafx</module>
-
-        <module>webfx-extras-visual-controls-charts-registry</module>
-        <module>webfx-extras-visual-controls-charts-registry-spi</module>
-        <module>webfx-extras-visual</module>
         <module>webfx-extras-cell</module>
-        <module>webfx-extras-visual-controls</module>
-        <module>webfx-extras-visual-controls-charts</module>
-        <module>webfx-extras-visual-controls-grid-peers-base</module>
-        <module>webfx-extras-visual-controls-peers-base</module>
-        <module>webfx-extras-visual-controls-grid-peers-gwt</module>
-        <module>webfx-extras-visual-controls-grid-registry-spi</module>
-        <module>webfx-extras-visual-controls-grid-peers-javafx</module>
 
     </modules>
 

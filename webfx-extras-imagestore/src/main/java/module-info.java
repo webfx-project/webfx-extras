@@ -9,6 +9,6 @@ module webfx.extras.imagestore {
     requires webfx.kit.launcher;
 
     // Exported packages
-    exports webfx.extras.imagestore;
+    exports dev.webfx.extras.imagestore;
 
 }

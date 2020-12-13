@@ -6,6 +6,6 @@ module webfx.extras.type {
     requires java.base;
 
     // Exported packages
-    exports webfx.extras.type;
+    exports dev.webfx.extras.type;
 
 }

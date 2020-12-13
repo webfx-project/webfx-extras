@@ -3,6 +3,6 @@
 module webfx.extras.label {
 
     // Exported packages
-    exports webfx.extras.label;
+    exports dev.webfx.extras.label;
 
 }

@@ -1,10 +1,10 @@
-package webfx.extras.imagestore;
+package dev.webfx.extras.imagestore;
 
 import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
-import webfx.kit.launcher.WebFxKitLauncher;
+import dev.webfx.kit.launcher.WebFxKitLauncher;
 
 import java.util.HashMap;
 import java.util.Map;

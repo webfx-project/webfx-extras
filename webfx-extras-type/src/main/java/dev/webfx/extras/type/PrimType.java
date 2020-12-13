@@ -1,4 +1,4 @@
-package webfx.extras.type;
+package dev.webfx.extras.type;
 
 import java.util.Date;
 

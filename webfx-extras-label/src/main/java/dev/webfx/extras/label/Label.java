@@ -1,4 +1,4 @@
-package webfx.extras.label;
+package dev.webfx.extras.label;
 
 /**
  * @author Bruno Salmon

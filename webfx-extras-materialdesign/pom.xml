@@ -3,24 +3,12 @@
     <modelVersion>4.0.0</modelVersion>
 
     <parent>
-        <artifactId>webfx-parent</artifactId>
+        <artifactId>webfx-extras</artifactId>
         <groupId>dev.webfx</groupId>
         <version>0.1.0-SNAPSHOT</version>
     </parent>
 
     <artifactId>webfx-extras-materialdesign</artifactId>
-
-    <repositories>
-
-        <!-- For WebFX snapshots download (including webfx-parent) -->
-        <repository>
-            <id>webfx-snapshots</id>
-            <url>https://oss.sonatype.org/content/repositories/snapshots/</url>
-            <releases><enabled>false</enabled></releases>
-            <snapshots><enabled>true</enabled></snapshots>
-        </repository>
-
-    </repositories>
 
     <dependencies> <!-- Dependencies managed by WebFX (DO NOT EDIT MANUALLY) -->
 

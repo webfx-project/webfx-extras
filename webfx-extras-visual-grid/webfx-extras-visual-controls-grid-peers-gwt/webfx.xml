@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<project>
+
+    <implements>
+        <module>webfx-extras-visual-controls-grid-registry</module>
+    </implements>
+
+    <dependencies>
+        <used-by-source-modules>
+            <undiscovered-used-by-source-module>webfx-kit-javafxcontrols-emul</undiscovered-used-by-source-module>
+        </used-by-source-modules>
+    </dependencies>
+
+</project>

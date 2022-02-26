@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<project>
+
+    <exported-packages>
+        <source-packages/>
+    </exported-packages>
+
+    <providers>
+        <dev.webfx.extras.webtext.controls.registry.spi.WebTextRegistryProvider>dev.webfx.extras.webtext.controls.registry.spi.impl.openjfx.JavaFxWebTextRegistryProvider</dev.webfx.extras.webtext.controls.registry.spi.WebTextRegistryProvider>
+    </providers>
+
+    <dependencies>
+        <used-by-source-modules/>
+    </dependencies>
+
+    <libraries>
+
+        <library name="jdk-jsobject">
+            <exported-packages>
+                <package>netscape.javascript</package>
+            </exported-packages>
+        </library>
+
+    </libraries>
+</project>

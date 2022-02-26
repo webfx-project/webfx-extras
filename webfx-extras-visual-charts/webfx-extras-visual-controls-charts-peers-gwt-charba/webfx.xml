@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<project>
+
+    <implements>
+        <module>webfx-extras-visual-controls-charts-registry</module>
+    </implements>
+
+    <dependencies>
+        <used-by-source-modules>
+            <undiscovered-used-by-source-module>javafx-controls</undiscovered-used-by-source-module>
+        </used-by-source-modules>
+    </dependencies>
+
+    <libraries>
+
+        <library name="charba">
+            <groupId>org.pepstock</groupId>
+            <artifactId>charba</artifactId>
+            <version>5.1-gwt</version>
+            <exported-packages>
+                <package>org.pepstock.charba.client</package>
+                <package>org.pepstock.charba.client.callbacks</package>
+                <package>org.pepstock.charba.client.configuration</package>
+                <package>org.pepstock.charba.client.data</package>
+                <package>org.pepstock.charba.client.enums</package>
+                <package>org.pepstock.charba.client.options</package>
+                <package>org.pepstock.charba.client.resources</package>
+            </exported-packages>
+        </library>
+
+    </libraries>
+
+</project>

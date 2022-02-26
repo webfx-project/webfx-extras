@@ -10,13 +10,13 @@
         <version>0.1.0-SNAPSHOT</version>
     </parent>
 
-    <artifactId>webfx-extras</artifactId>
+    <artifactId>webfx-extras-webtext</artifactId>
 
     <packaging>pom</packaging>
 
     <repositories>
 
-        <!-- For WebFx snapshots download (including webfx-parent) -->
+        <!-- For WebFX snapshots download (including webfx-parent) -->
         <repository>
             <id>webfx-snapshots</id>
             <url>https://oss.sonatype.org/content/repositories/snapshots/</url>
@@ -28,16 +28,12 @@
 
     <modules>
 
-        <module>webfx-extras-type</module>
-        <module>webfx-extras-label</module>
-        <module>webfx-extras-imagestore</module>
-        <module>webfx-extras-flexbox</module>
-        <module>webfx-extras-materialdesign</module>
-        <module>webfx-extras-webtext</module>
-        <module>webfx-extras-visual</module>
-        <module>webfx-extras-visual-charts</module>
-        <module>webfx-extras-visual-grid</module>
-        <module>webfx-extras-cell</module>
+        <module>webfx-extras-webtext-controls</module>
+        <module>webfx-extras-webtext-controls-peers-base</module>
+        <module>webfx-extras-webtext-controls-peers-gwt</module>
+        <module>webfx-extras-webtext-controls-peers-openjfx</module>
+        <module>webfx-extras-webtext-controls-registry</module>
+        <module>webfx-extras-webtext-controls-registry-spi</module>
 
     </modules>
 

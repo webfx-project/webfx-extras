@@ -46,6 +46,6 @@ public final class ImageTextRenderer implements ValueRenderer {
 
     private Text getTextNode(Object[] array) {
         String text = getText(array);
-        return (Text) TextRenderer.SINGLETON.renderValue(text, ValueRenderingContext.DEFAULT_READONLY_CONTEXT);
+        return (Text) TextRenderer.SINGLETON.renderValue(text);
     }
 }

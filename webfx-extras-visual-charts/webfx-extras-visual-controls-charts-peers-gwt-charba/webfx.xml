@@ -16,7 +16,7 @@
         <library name="charba">
             <groupId>org.pepstock</groupId>
             <artifactId>charba</artifactId>
-            <version>5.1-gwt</version>
+            <version>5.2-gwt</version>
             <exported-packages>
                 <package>org.pepstock.charba.client</package>
                 <package>org.pepstock.charba.client.callbacks</package>

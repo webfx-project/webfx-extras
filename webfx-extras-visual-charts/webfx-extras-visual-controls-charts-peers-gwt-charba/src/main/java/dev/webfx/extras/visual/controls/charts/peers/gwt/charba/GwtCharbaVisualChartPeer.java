@@ -30,7 +30,6 @@ import org.pepstock.charba.client.configuration.*;
 import org.pepstock.charba.client.data.*;
 import org.pepstock.charba.client.enums.InteractionMode;
 import org.pepstock.charba.client.enums.Position;
-import org.pepstock.charba.client.options.HasFill;
 
 import java.util.Date;
 import java.util.List;
@@ -184,8 +183,6 @@ abstract class GwtCharbaVisualChartPeer
         else if (dataset instanceof LiningDataset)
             ((LiningDataset) dataset).setBorderWidth(context -> borderWidth);
         dataset.setBackgroundColor(backgroundColorCallback);
-        if (dataset instanceof HasFill)
-            ((HasFill) dataset).setFill(true); // Necessary to see the background color in Charba 5.1 (maybe not in next version according to the maintainer).
         return dataset;
     }
 

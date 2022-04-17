@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<?xml version="1.0" encoding="UTF-8"?>
 <project>
 
     <exported-packages>
@@ -13,13 +13,4 @@
         <used-by-source-modules/>
     </dependencies>
 
-    <libraries>
-
-        <library name="jdk-jsobject">
-            <exported-packages>
-                <package>netscape.javascript</package>
-            </exported-packages>
-        </library>
-
-    </libraries>
 </project>

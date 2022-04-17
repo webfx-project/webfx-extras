@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<?xml version="1.0" encoding="UTF-8"?>
 <project>
 
     <implements>
@@ -11,23 +11,8 @@
         </used-by-source-modules>
     </dependencies>
 
-    <libraries>
-
-        <library name="charba">
-            <groupId>org.pepstock</groupId>
-            <artifactId>charba</artifactId>
-            <version>5.2-gwt</version>
-            <exported-packages>
-                <package>org.pepstock.charba.client</package>
-                <package>org.pepstock.charba.client.callbacks</package>
-                <package>org.pepstock.charba.client.configuration</package>
-                <package>org.pepstock.charba.client.data</package>
-                <package>org.pepstock.charba.client.enums</package>
-                <package>org.pepstock.charba.client.options</package>
-                <package>org.pepstock.charba.client.resources</package>
-            </exported-packages>
-        </library>
-
-    </libraries>
+    <required-libraries>
+        <library artifact="org.pepstock:charba:5.2-gwt"/>
+    </required-libraries>
 
 </project>

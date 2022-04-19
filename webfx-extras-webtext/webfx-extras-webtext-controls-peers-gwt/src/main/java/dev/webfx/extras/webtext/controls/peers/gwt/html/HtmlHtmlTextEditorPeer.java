@@ -41,7 +41,7 @@ public final class HtmlHtmlTextEditorPeer
     @Override
     public void bind(N node, SceneRequester sceneRequester) {
         super.bind(node, sceneRequester);
-        HtmlUtil.loadScript(ckEditorUrl).setHandler(ar -> recreateCKEditorIfRequired());
+        HtmlUtil.loadScript(ckEditorUrl, this::recreateCKEditorIfRequired);
     }
 
     @Override

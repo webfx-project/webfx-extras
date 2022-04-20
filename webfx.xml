@@ -2,7 +2,7 @@
 <project>
 
     <required-libraries>
-        <library artifact="dev.webfx:webfx:0.1.0-SNAPSHOT"/>
+        <webfx-library artifact="dev.webfx:webfx:0.1.0-SNAPSHOT"/>
     </required-libraries>
 
     <modules>

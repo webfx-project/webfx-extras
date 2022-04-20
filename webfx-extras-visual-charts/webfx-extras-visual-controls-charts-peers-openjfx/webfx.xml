@@ -11,9 +11,9 @@
 
     <dependencies>
         <used-by-source-modules>
-            <undetected-used-by-source-module>javafx-controls</undetected-used-by-source-module>
-            <undetected-used-by-source-module>javafx-web</undetected-used-by-source-module>
-            <undetected-used-by-source-module>webfx-platform-shared-util</undetected-used-by-source-module>
+            <undetected-module>javafx-controls</undetected-module>
+            <undetected-module>javafx-web</undetected-module>
+            <undetected-module>webfx-platform-shared-util</undetected-module>
         </used-by-source-modules>
     </dependencies>
 

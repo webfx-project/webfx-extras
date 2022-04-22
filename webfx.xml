@@ -1,6 +1,10 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project>
 
+    <update-options>
+        <generate-export-snapshot/>
+    </update-options>
+
     <required-libraries>
         <webfx-library artifact="dev.webfx:webfx:0.1.0-SNAPSHOT"/>
     </required-libraries>
@@ -8,5 +12,842 @@
     <modules>
         <subdirectories-modules/>
     </modules>
+
+    <!--
+
+     ******************************************************************************************************************* 
+     ******************************* Section managed by WebFX (DO NOT EDIT MANUALLY) *********************************** 
+     ******************************************************************************************************************* 
+
+     <export-snapshot> allows a much faster import of this WebFX library into another project. It's a self-contained
+     image of this and children modules. All information required for the import of this library is present in this
+     single file. The export snapshot is optional, and a WebFX library that doesn't generate it can still be imported
+     into another project, but WebFX will then need to download all individual webfx.xml files for every children
+     modules, together with their pom and sources. Knowing that each download requires a maven invocation that takes
+     at least 3s (sometimes 10s or more), the export snapshot brings a significant performance improvement in the
+     import process.
+
+     -->
+
+    <export-snapshot>
+
+        <project name="webfx-extras">
+
+            <required-libraries>
+                <webfx-library artifact="dev.webfx:webfx:0.1.0-SNAPSHOT"/>
+            </required-libraries>
+
+            <modules>
+                <module>webfx-extras-cell</module>
+                <module>webfx-extras-flexbox</module>
+                <module>webfx-extras-imagestore</module>
+                <module>webfx-extras-label</module>
+                <module>webfx-extras-materialdesign</module>
+                <module>webfx-extras-type</module>
+                <module>webfx-extras-visual</module>
+                <module>webfx-extras-visual-charts</module>
+                <module>webfx-extras-visual-grid</module>
+                <module>webfx-extras-webtext</module>
+            </modules>
+
+        </project>
+
+        <project name="webfx-extras-cell">
+
+            <exported-packages>
+                <source-packages/>
+            </exported-packages>
+
+            <dependencies>
+                <used-by-source-modules>
+                    <module>java.base</module>
+                    <module>webfx-extras-imagestore</module>
+                    <module>webfx-extras-label</module>
+                    <module>webfx-extras-type</module>
+                    <module>webfx-extras-webtext-controls</module>
+                    <module>webfx-kit-javafxbase-emul</module>
+                    <module>webfx-kit-javafxcontrols-emul</module>
+                    <module>webfx-kit-javafxgraphics-emul</module>
+                    <module>webfx-kit-util</module>
+                    <module>webfx-platform-shared-util</module>
+                </used-by-source-modules>
+            </dependencies>
+
+            <source-packages>
+                <package>dev.webfx.extras.cell.renderer</package>
+                <package>dev.webfx.extras.cell.rowstyle</package>
+                <package>dev.webfx.extras.cell.collator</package>
+            </source-packages>
+
+        </project>
+
+        <project name="webfx-extras-flexbox">
+
+            <exported-packages>
+                <source-packages/>
+            </exported-packages>
+
+            <dependencies>
+                <used-by-source-modules>
+                    <module>java.base</module>
+                    <module>webfx-kit-javafxbase-emul</module>
+                    <module>webfx-kit-javafxgraphics-emul</module>
+                    <module>webfx-platform-shared-util</module>
+                </used-by-source-modules>
+            </dependencies>
+
+            <source-packages>
+                <package>dev.webfx.extras.flexbox</package>
+            </source-packages>
+
+        </project>
+
+        <project name="webfx-extras-imagestore">
+
+            <exported-packages>
+                <source-packages/>
+            </exported-packages>
+
+            <dependencies>
+                <used-by-source-modules>
+                    <module>java.base</module>
+                    <module>webfx-kit-javafxbase-emul</module>
+                    <module>webfx-kit-javafxgraphics-emul</module>
+                    <module>webfx-kit-launcher</module>
+                </used-by-source-modules>
+            </dependencies>
+
+            <source-packages>
+                <package>dev.webfx.extras.imagestore</package>
+            </source-packages>
+
+        </project>
+
+        <project name="webfx-extras-label">
+
+            <exported-packages>
+                <source-packages/>
+            </exported-packages>
+
+            <dependencies>
+                <used-by-source-modules/>
+            </dependencies>
+
+            <source-packages>
+                <package>dev.webfx.extras.label</package>
+            </source-packages>
+
+        </project>
+
+        <project name="webfx-extras-materialdesign">
+
+            <exported-packages>
+                <source-packages/>
+            </exported-packages>
+
+            <dependencies>
+                <used-by-source-modules>
+                    <module>java.base</module>
+                    <module>webfx-kit-javafxbase-emul</module>
+                    <module>webfx-kit-javafxcontrols-emul</module>
+                    <module>webfx-kit-javafxgraphics-emul</module>
+                    <module>webfx-kit-util</module>
+                    <module>webfx-platform-shared-util</module>
+                </used-by-source-modules>
+            </dependencies>
+
+            <source-packages>
+                <package>dev.webfx.extras.materialdesign.util.background</package>
+                <package>dev.webfx.extras.materialdesign.util.layout</package>
+                <package>dev.webfx.extras.materialdesign.util</package>
+                <package>dev.webfx.extras.materialdesign.util.scene</package>
+                <package>dev.webfx.extras.materialdesign.textfield</package>
+            </source-packages>
+
+        </project>
+
+        <project name="webfx-extras-type">
+
+            <exported-packages>
+                <source-packages/>
+            </exported-packages>
+
+            <dependencies>
+                <used-by-source-modules>
+                    <module>java.base</module>
+                </used-by-source-modules>
+            </dependencies>
+
+            <source-packages>
+                <package>dev.webfx.extras.type</package>
+            </source-packages>
+
+        </project>
+
+        <project name="webfx-extras-visual-base">
+
+            <exported-packages>
+                <source-packages/>
+            </exported-packages>
+
+            <dependencies>
+                <used-by-source-modules>
+                    <module>java.base</module>
+                    <module>webfx-extras-cell</module>
+                    <module>webfx-extras-label</module>
+                    <module>webfx-extras-type</module>
+                    <module>webfx-kit-javafxbase-emul</module>
+                    <module>webfx-kit-javafxgraphics-emul</module>
+                    <module>webfx-platform-shared-util</module>
+                </used-by-source-modules>
+            </dependencies>
+
+            <source-packages>
+                <package>dev.webfx.extras.visual.impl</package>
+                <package>dev.webfx.extras.visual</package>
+            </source-packages>
+
+        </project>
+
+        <project name="webfx-extras-visual-controls">
+
+            <exported-packages>
+                <source-packages/>
+            </exported-packages>
+
+            <dependencies>
+                <used-by-source-modules>
+                    <module>webfx-extras-cell</module>
+                    <module>webfx-extras-label</module>
+                    <module>webfx-extras-visual-base</module>
+                    <module>webfx-kit-javafxbase-emul</module>
+                    <module>webfx-kit-javafxcontrols-emul</module>
+                    <module>webfx-kit-javafxgraphics-emul</module>
+                    <module>webfx-kit-util</module>
+                    <module>webfx-platform-client-uischeduler</module>
+                </used-by-source-modules>
+            </dependencies>
+
+            <source-packages>
+                <package>dev.webfx.extras.visual.controls</package>
+            </source-packages>
+
+        </project>
+
+        <project name="webfx-extras-visual-controls-peers-base">
+
+            <exported-packages>
+                <source-packages/>
+            </exported-packages>
+
+            <dependencies>
+                <used-by-source-modules>
+                    <undetected-module>webfx-kit-javafxcontrols-emul</undetected-module>
+                    <module>webfx-extras-visual-base</module>
+                    <module>webfx-extras-visual-controls</module>
+                    <module>webfx-kit-javafxbase-emul</module>
+                    <module>webfx-kit-javafxcontrols-peers-base</module>
+                    <module>webfx-kit-javafxgraphics-peers</module>
+                </used-by-source-modules>
+            </dependencies>
+
+            <source-packages>
+                <package>dev.webfx.extras.visual.controls.peers.base</package>
+            </source-packages>
+
+        </project>
+
+        <project name="webfx-extras-visual-charts">
+
+            <modules>
+                <module>webfx-extras-visual-controls-charts</module>
+                <module>webfx-extras-visual-controls-charts-peers-base</module>
+                <module>webfx-extras-visual-controls-charts-peers-gwt-charba</module>
+                <module>webfx-extras-visual-controls-charts-peers-openjfx</module>
+                <module>webfx-extras-visual-controls-charts-registry</module>
+                <module>webfx-extras-visual-controls-charts-registry-spi</module>
+            </modules>
+
+        </project>
+
+        <project name="webfx-extras-visual-controls-charts">
+
+            <exported-packages>
+                <source-packages/>
+            </exported-packages>
+
+            <dependencies>
+                <used-by-source-modules>
+                    <undetected-module>webfx-kit-javafxcontrols-emul</undetected-module>
+                    <module>webfx-extras-visual-controls</module>
+                    <module>webfx-extras-visual-controls-charts-registry</module>
+                </used-by-source-modules>
+            </dependencies>
+
+            <source-packages>
+                <package>dev.webfx.extras.visual.controls.charts</package>
+            </source-packages>
+
+        </project>
+
+        <project name="webfx-extras-visual-controls-charts-peers-base">
+
+            <exported-packages>
+                <source-packages/>
+            </exported-packages>
+
+            <dependencies>
+                <used-by-source-modules>
+                    <undetected-module>javafx-controls</undetected-module>
+                    <module>java.base</module>
+                    <module>webfx-extras-type</module>
+                    <module>webfx-extras-visual-base</module>
+                    <module>webfx-extras-visual-controls-charts</module>
+                    <module>webfx-extras-visual-controls-peers-base</module>
+                    <module>webfx-platform-shared-util</module>
+                </used-by-source-modules>
+            </dependencies>
+
+            <source-packages>
+                <package>dev.webfx.extras.visual.controls.charts.peers.base</package>
+            </source-packages>
+
+        </project>
+
+        <project name="webfx-extras-visual-controls-charts-peers-gwt-charba">
+
+            <implements>
+                <module>webfx-extras-visual-controls-charts-registry</module>
+            </implements>
+
+            <dependencies>
+                <used-by-source-modules>
+                    <undetected-module>javafx-controls</undetected-module>
+                    <module>charba</module>
+                    <module>java.base</module>
+                    <module>webfx-extras-type</module>
+                    <module>webfx-extras-visual-base</module>
+                    <module>webfx-extras-visual-controls-charts</module>
+                    <module>webfx-extras-visual-controls-charts-peers-base</module>
+                    <module>webfx-kit-javafxgraphics-emul</module>
+                    <module>webfx-kit-javafxgraphics-peers</module>
+                    <module>webfx-kit-javafxgraphics-peers-gwt</module>
+                    <module>webfx-platform-client-uischeduler</module>
+                    <module>webfx-platform-shared-log</module>
+                    <module>webfx-platform-shared-util</module>
+                </used-by-source-modules>
+            </dependencies>
+
+            <required-libraries>
+                <library artifact="org.pepstock:charba:5.2-gwt">
+
+                    <exported-packages>
+                        <package>org.pepstock.charba.client</package>
+                        <package>org.pepstock.charba.client.zoom</package>
+                        <package>org.pepstock.charba.client.zoom.enums</package>
+                        <package>org.pepstock.charba.client.zoom.callbacks</package>
+                        <package>org.pepstock.charba.client.utils</package>
+                        <package>org.pepstock.charba.client.utils.toast</package>
+                        <package>org.pepstock.charba.client.utils.toast.handlers</package>
+                        <package>org.pepstock.charba.client.utils.toast.enums</package>
+                        <package>org.pepstock.charba.client.treemap</package>
+                        <package>org.pepstock.charba.client.treemap.enums</package>
+                        <package>org.pepstock.charba.client.treemap.callbacks</package>
+                        <package>org.pepstock.charba.client.sankey</package>
+                        <package>org.pepstock.charba.client.sankey.enums</package>
+                        <package>org.pepstock.charba.client.sankey.callbacks</package>
+                        <package>org.pepstock.charba.client.resources</package>
+                        <package>org.pepstock.charba.client.positioner</package>
+                        <package>org.pepstock.charba.client.plugins</package>
+                        <package>org.pepstock.charba.client.options</package>
+                        <package>org.pepstock.charba.client.matrix</package>
+                        <package>org.pepstock.charba.client.matrix.enums</package>
+                        <package>org.pepstock.charba.client.matrix.callbacks</package>
+                        <package>org.pepstock.charba.client.labels</package>
+                        <package>org.pepstock.charba.client.labels.enums</package>
+                        <package>org.pepstock.charba.client.labels.callbacks</package>
+                        <package>org.pepstock.charba.client.items</package>
+                        <package>org.pepstock.charba.client.intl</package>
+                        <package>org.pepstock.charba.client.intl.enums</package>
+                        <package>org.pepstock.charba.client.impl.plugins</package>
+                        <package>org.pepstock.charba.client.impl.plugins.enums</package>
+                        <package>org.pepstock.charba.client.impl.charts</package>
+                        <package>org.pepstock.charba.client.impl.callbacks</package>
+                        <package>org.pepstock.charba.client.gwt</package>
+                        <package>org.pepstock.charba.client.gwt.widgets</package>
+                        <package>org.pepstock.charba.client.gradient</package>
+                        <package>org.pepstock.charba.client.geo</package>
+                        <package>org.pepstock.charba.client.geo.enums</package>
+                        <package>org.pepstock.charba.client.geo.callbacks</package>
+                        <package>org.pepstock.charba.client.events</package>
+                        <package>org.pepstock.charba.client.enums</package>
+                        <package>org.pepstock.charba.client.dom</package>
+                        <package>org.pepstock.charba.client.dom.safehtml</package>
+                        <package>org.pepstock.charba.client.dom.enums</package>
+                        <package>org.pepstock.charba.client.dom.elements</package>
+                        <package>org.pepstock.charba.client.defaults</package>
+                        <package>org.pepstock.charba.client.defaults.globals</package>
+                        <package>org.pepstock.charba.client.defaults.chart</package>
+                        <package>org.pepstock.charba.client.datalabels</package>
+                        <package>org.pepstock.charba.client.datalabels.events</package>
+                        <package>org.pepstock.charba.client.datalabels.enums</package>
+                        <package>org.pepstock.charba.client.datalabels.callbacks</package>
+                        <package>org.pepstock.charba.client.data</package>
+                        <package>org.pepstock.charba.client.controllers</package>
+                        <package>org.pepstock.charba.client.configuration</package>
+                        <package>org.pepstock.charba.client.commons</package>
+                        <package>org.pepstock.charba.client.colors</package>
+                        <package>org.pepstock.charba.client.colors.tiles</package>
+                        <package>org.pepstock.charba.client.callbacks</package>
+                        <package>org.pepstock.charba.client.annotation</package>
+                        <package>org.pepstock.charba.client.annotation.listeners</package>
+                        <package>org.pepstock.charba.client.annotation.enums</package>
+                        <package>org.pepstock.charba.client.annotation.elements</package>
+                        <package>org.pepstock.charba.client.annotation.callbacks</package>
+                        <package>org.pepstock.charba.client.adapters</package>
+                    </exported-packages>
+
+                </library>
+            </required-libraries>
+
+            <source-packages>
+                <package>dev.webfx.extras.visual.controls.charts.registry</package>
+                <package>dev.webfx.extras.visual.controls.charts.peers.gwt.charba</package>
+            </source-packages>
+
+        </project>
+
+        <project name="webfx-extras-visual-controls-charts-peers-openjfx">
+
+            <exported-packages>
+                <source-packages/>
+            </exported-packages>
+
+            <providers>
+                <dev.webfx.extras.visual.controls.charts.registry.spi.VisualChartsRegistryProvider>dev.webfx.extras.visual.controls.charts.registry.spi.impl.openjfx.JavaFxVisualChartsRegistryProvider</dev.webfx.extras.visual.controls.charts.registry.spi.VisualChartsRegistryProvider>
+            </providers>
+
+            <dependencies>
+                <used-by-source-modules>
+                    <undetected-module>javafx-controls</undetected-module>
+                    <undetected-module>javafx-web</undetected-module>
+                    <undetected-module>webfx-platform-shared-util</undetected-module>
+                    <module>java.base</module>
+                    <module>javafx-controls</module>
+                    <module>webfx-extras-type</module>
+                    <module>webfx-extras-visual-base</module>
+                    <module>webfx-extras-visual-controls-charts</module>
+                    <module>webfx-extras-visual-controls-charts-peers-base</module>
+                    <module>webfx-extras-visual-controls-charts-registry-spi</module>
+                    <module>webfx-kit-javafxbase-emul</module>
+                    <module>webfx-kit-javafxgraphics-peers</module>
+                    <module>webfx-kit-openjfx</module>
+                    <module>webfx-platform-shared-util</module>
+                </used-by-source-modules>
+            </dependencies>
+
+            <source-packages>
+                <package>dev.webfx.extras.visual.controls.charts.registry.spi.impl.openjfx</package>
+                <package>dev.webfx.extras.visual.controls.charts.peers.openjfx</package>
+            </source-packages>
+
+        </project>
+
+        <project interface="true" name="webfx-extras-visual-controls-charts-registry">
+
+            <exported-packages>
+                <source-packages/>
+            </exported-packages>
+
+            <dependencies>
+                <used-by-source-modules/>
+            </dependencies>
+
+            <source-packages>
+                <package>dev.webfx.extras.visual.controls.charts.registry</package>
+            </source-packages>
+
+        </project>
+
+        <project name="webfx-extras-visual-controls-charts-registry-spi">
+
+            <implements>
+                <module>webfx-extras-visual-controls-charts-registry</module>
+            </implements>
+
+            <exported-packages>
+                <source-packages/>
+            </exported-packages>
+
+            <dependencies>
+                <used-by-source-modules>
+                    <module>java.base</module>
+                    <module>webfx-platform-shared-util</module>
+                </used-by-source-modules>
+            </dependencies>
+
+            <source-packages>
+                <package>dev.webfx.extras.visual.controls.charts.registry.spi</package>
+                <package>dev.webfx.extras.visual.controls.charts.registry</package>
+            </source-packages>
+
+            <used-services>
+                <required-service>dev.webfx.extras.visual.controls.charts.registry.spi.VisualChartsRegistryProvider</required-service>
+            </used-services>
+
+        </project>
+
+        <project name="webfx-extras-visual-grid">
+
+            <modules>
+                <module>webfx-extras-visual-controls-grid</module>
+                <module>webfx-extras-visual-controls-grid-peers-base</module>
+                <module>webfx-extras-visual-controls-grid-peers-gwt</module>
+                <module>webfx-extras-visual-controls-grid-peers-openjfx</module>
+                <module>webfx-extras-visual-controls-grid-registry</module>
+                <module>webfx-extras-visual-controls-grid-registry-spi</module>
+            </modules>
+
+        </project>
+
+        <project name="webfx-extras-visual-controls-grid">
+
+            <exported-packages>
+                <source-packages/>
+            </exported-packages>
+
+            <dependencies>
+                <used-by-source-modules>
+                    <module>java.base</module>
+                    <module>webfx-extras-visual-base</module>
+                    <module>webfx-extras-visual-controls</module>
+                    <module>webfx-extras-visual-controls-grid-registry</module>
+                    <module>webfx-kit-javafxbase-emul</module>
+                    <module>webfx-kit-javafxcontrols-emul</module>
+                    <module>webfx-kit-javafxgraphics-emul</module>
+                    <module>webfx-kit-util</module>
+                    <module>webfx-platform-client-uischeduler</module>
+                    <module>webfx-platform-shared-scheduler</module>
+                    <module>webfx-platform-shared-util</module>
+                </used-by-source-modules>
+            </dependencies>
+
+            <source-packages>
+                <package>dev.webfx.extras.visual.controls.grid</package>
+            </source-packages>
+
+        </project>
+
+        <project name="webfx-extras-visual-controls-grid-peers-base">
+
+            <exported-packages>
+                <source-packages/>
+            </exported-packages>
+
+            <dependencies>
+                <used-by-source-modules>
+                    <undetected-module>webfx-kit-javafxcontrols-emul</undetected-module>
+                    <module>java.base</module>
+                    <module>webfx-extras-cell</module>
+                    <module>webfx-extras-visual-base</module>
+                    <module>webfx-extras-visual-controls-grid</module>
+                    <module>webfx-extras-visual-controls-peers-base</module>
+                    <module>webfx-kit-javafxbase-emul</module>
+                    <module>webfx-kit-javafxgraphics-emul</module>
+                    <module>webfx-kit-javafxgraphics-peers</module>
+                    <module>webfx-platform-shared-util</module>
+                </used-by-source-modules>
+            </dependencies>
+
+            <source-packages>
+                <package>dev.webfx.extras.cell.collator.grid</package>
+                <package>dev.webfx.extras.visual.controls.grid.peers.base</package>
+            </source-packages>
+
+        </project>
+
+        <project name="webfx-extras-visual-controls-grid-peers-gwt">
+
+            <implements>
+                <module>webfx-extras-visual-controls-grid-registry</module>
+            </implements>
+
+            <dependencies>
+                <used-by-source-modules>
+                    <undetected-module>webfx-kit-javafxcontrols-emul</undetected-module>
+                    <module>elemental2-dom</module>
+                    <module>java.base</module>
+                    <module>webfx-extras-cell</module>
+                    <module>webfx-extras-label</module>
+                    <module>webfx-extras-visual-base</module>
+                    <module>webfx-extras-visual-controls-grid</module>
+                    <module>webfx-extras-visual-controls-grid-peers-base</module>
+                    <module>webfx-kit-javafxbase-emul</module>
+                    <module>webfx-kit-javafxcontrols-emul</module>
+                    <module>webfx-kit-javafxgraphics-emul</module>
+                    <module>webfx-kit-javafxgraphics-peers</module>
+                    <module>webfx-kit-javafxgraphics-peers-gwt</module>
+                    <module>webfx-kit-util</module>
+                    <module>webfx-platform-shared-util</module>
+                </used-by-source-modules>
+            </dependencies>
+
+            <source-packages>
+                <package>dev.webfx.extras.cell.collator.grid</package>
+                <package>dev.webfx.extras.visual.controls.grid.registry</package>
+                <package>dev.webfx.extras.visual.controls.grid.peers.gwt.html</package>
+            </source-packages>
+
+        </project>
+
+        <project name="webfx-extras-visual-controls-grid-peers-openjfx">
+
+            <exported-packages>
+                <source-packages/>
+            </exported-packages>
+
+            <providers>
+                <dev.webfx.extras.visual.controls.grid.registry.spi.VisualGridRegistryProvider>dev.webfx.extras.visual.controls.grid.registry.spi.openjfx.JavaFxVisualGridRegistryProvider</dev.webfx.extras.visual.controls.grid.registry.spi.VisualGridRegistryProvider>
+            </providers>
+
+            <dependencies>
+                <used-by-source-modules>
+                    <module>java.base</module>
+                    <module>webfx-extras-cell</module>
+                    <module>webfx-extras-imagestore</module>
+                    <module>webfx-extras-label</module>
+                    <module>webfx-extras-visual-base</module>
+                    <module>webfx-extras-visual-controls-grid</module>
+                    <module>webfx-extras-visual-controls-grid-peers-base</module>
+                    <module>webfx-extras-visual-controls-grid-registry-spi</module>
+                    <module>webfx-kit-javafxbase-emul</module>
+                    <module>webfx-kit-javafxcontrols-emul</module>
+                    <module>webfx-kit-javafxgraphics-emul</module>
+                    <module>webfx-kit-javafxgraphics-peers</module>
+                    <module>webfx-kit-openjfx</module>
+                    <module>webfx-kit-util</module>
+                    <module>webfx-platform-client-uischeduler</module>
+                    <module>webfx-platform-shared-util</module>
+                </used-by-source-modules>
+            </dependencies>
+
+            <source-packages>
+                <package>dev.webfx.extras.visual.controls.grid.registry.spi.openjfx</package>
+                <package>dev.webfx.extras.visual.controls.grid.peers.openjfx</package>
+            </source-packages>
+
+        </project>
+
+        <project interface="true" name="webfx-extras-visual-controls-grid-registry">
+
+            <exported-packages>
+                <source-packages/>
+            </exported-packages>
+
+            <dependencies>
+                <used-by-source-modules/>
+            </dependencies>
+
+            <source-packages>
+                <package>dev.webfx.extras.visual.controls.grid.registry</package>
+            </source-packages>
+
+        </project>
+
+        <project name="webfx-extras-visual-controls-grid-registry-spi">
+
+            <implements>
+                <module>webfx-extras-visual-controls-grid-registry</module>
+            </implements>
+
+            <exported-packages>
+                <source-packages/>
+            </exported-packages>
+
+            <dependencies>
+                <used-by-source-modules>
+                    <module>java.base</module>
+                    <module>webfx-platform-shared-util</module>
+                </used-by-source-modules>
+            </dependencies>
+
+            <source-packages>
+                <package>dev.webfx.extras.visual.controls.grid.registry.spi</package>
+                <package>dev.webfx.extras.visual.controls.grid.registry</package>
+            </source-packages>
+
+            <used-services>
+                <required-service>dev.webfx.extras.visual.controls.grid.registry.spi.VisualGridRegistryProvider</required-service>
+            </used-services>
+
+        </project>
+
+        <project name="webfx-extras-webtext">
+
+            <modules>
+                <module>webfx-extras-webtext-controls</module>
+                <module>webfx-extras-webtext-controls-peers-base</module>
+                <module>webfx-extras-webtext-controls-peers-gwt</module>
+                <module>webfx-extras-webtext-controls-peers-openjfx</module>
+                <module>webfx-extras-webtext-controls-registry</module>
+                <module>webfx-extras-webtext-controls-registry-spi</module>
+            </modules>
+
+        </project>
+
+        <project name="webfx-extras-webtext-controls">
+
+            <exported-packages>
+                <source-packages/>
+            </exported-packages>
+
+            <dependencies>
+                <used-by-source-modules>
+                    <module>java.base</module>
+                    <module>webfx-extras-webtext-controls-registry</module>
+                    <module>webfx-kit-javafxbase-emul</module>
+                    <module>webfx-kit-javafxcontrols-emul</module>
+                    <module>webfx-kit-javafxgraphics-emul</module>
+                    <module>webfx-kit-javafxgraphics-peers</module>
+                </used-by-source-modules>
+            </dependencies>
+
+            <source-packages>
+                <package>dev.webfx.extras.webtext.controls</package>
+            </source-packages>
+
+        </project>
+
+        <project name="webfx-extras-webtext-controls-peers-base">
+
+            <exported-packages>
+                <source-packages/>
+            </exported-packages>
+
+            <dependencies>
+                <used-by-source-modules>
+                    <undetected-module>webfx-kit-javafxcontrols-emul</undetected-module>
+                    <module>webfx-extras-webtext-controls</module>
+                    <module>webfx-kit-javafxbase-emul</module>
+                    <module>webfx-kit-javafxcontrols-peers-base</module>
+                    <module>webfx-kit-javafxgraphics-emul</module>
+                    <module>webfx-kit-javafxgraphics-peers</module>
+                </used-by-source-modules>
+            </dependencies>
+
+            <source-packages>
+                <package>dev.webfx.extras.webtext.controls.peers.base</package>
+            </source-packages>
+
+        </project>
+
+        <project name="webfx-extras-webtext-controls-peers-gwt">
+
+            <implements>
+                <module>webfx-extras-webtext-controls-registry</module>
+            </implements>
+
+            <dependencies>
+                <used-by-source-modules>
+                    <undetected-module>webfx-kit-javafxcontrols-emul</undetected-module>
+                    <module>elemental2-dom</module>
+                    <module>gwt-user</module>
+                    <module>webfx-extras-webtext-controls</module>
+                    <module>webfx-extras-webtext-controls-peers-base</module>
+                    <module>webfx-kit-javafxcontrols-peers-gwt</module>
+                    <module>webfx-kit-javafxgraphics-emul</module>
+                    <module>webfx-kit-javafxgraphics-peers</module>
+                    <module>webfx-kit-javafxgraphics-peers-gwt</module>
+                    <module>webfx-platform-shared-log</module>
+                    <module>webfx-platform-shared-util</module>
+                </used-by-source-modules>
+            </dependencies>
+
+            <source-packages>
+                <package>dev.webfx.extras.webtext.controls.registry</package>
+                <package>dev.webfx.extras.webtext.controls.peers.gwt.html</package>
+            </source-packages>
+
+        </project>
+
+        <project name="webfx-extras-webtext-controls-peers-openjfx">
+
+            <exported-packages>
+                <source-packages/>
+            </exported-packages>
+
+            <providers>
+                <dev.webfx.extras.webtext.controls.registry.spi.WebTextRegistryProvider>dev.webfx.extras.webtext.controls.registry.spi.impl.openjfx.JavaFxWebTextRegistryProvider</dev.webfx.extras.webtext.controls.registry.spi.WebTextRegistryProvider>
+            </providers>
+
+            <dependencies>
+                <used-by-source-modules>
+                    <module>java.base</module>
+                    <module>javafx-graphics</module>
+                    <module>javafx-web</module>
+                    <module>jdk.jsobject</module>
+                    <module>webfx-extras-webtext-controls</module>
+                    <module>webfx-extras-webtext-controls-peers-base</module>
+                    <module>webfx-extras-webtext-controls-registry-spi</module>
+                    <module>webfx-kit-javafxbase-emul</module>
+                    <module>webfx-kit-javafxgraphics-emul</module>
+                    <module>webfx-kit-javafxgraphics-peers</module>
+                    <module>webfx-kit-openjfx</module>
+                    <module>webfx-platform-shared-util</module>
+                </used-by-source-modules>
+            </dependencies>
+
+            <source-packages>
+                <package>dev.webfx.extras.webtext.controls.registry.spi.impl.openjfx</package>
+                <package>dev.webfx.extras.webtext.controls.peers.openjfx</package>
+            </source-packages>
+
+        </project>
+
+        <project interface="true" name="webfx-extras-webtext-controls-registry">
+
+            <exported-packages>
+                <source-packages/>
+            </exported-packages>
+
+            <dependencies>
+                <used-by-source-modules/>
+            </dependencies>
+
+            <source-packages>
+                <package>dev.webfx.extras.webtext.controls.registry</package>
+            </source-packages>
+
+        </project>
+
+        <project name="webfx-extras-webtext-controls-registry-spi">
+
+            <implements>
+                <module>webfx-extras-webtext-controls-registry</module>
+            </implements>
+
+            <exported-packages>
+                <source-packages/>
+            </exported-packages>
+
+            <dependencies>
+                <used-by-source-modules>
+                    <module>java.base</module>
+                    <module>webfx-platform-shared-util</module>
+                </used-by-source-modules>
+            </dependencies>
+
+            <source-packages>
+                <package>dev.webfx.extras.webtext.controls.registry.spi</package>
+                <package>dev.webfx.extras.webtext.controls.registry</package>
+            </source-packages>
+
+            <used-services>
+                <required-service>dev.webfx.extras.webtext.controls.registry.spi.WebTextRegistryProvider</required-service>
+            </used-services>
+
+        </project>
+
+    </export-snapshot>
 
 </project>

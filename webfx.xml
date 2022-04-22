@@ -184,6 +184,16 @@
 
         </project>
 
+        <project name="webfx-extras-visual">
+
+            <modules>
+                <module>webfx-extras-visual-base</module>
+                <module>webfx-extras-visual-controls</module>
+                <module>webfx-extras-visual-controls-peers-base</module>
+            </modules>
+
+        </project>
+
         <project name="webfx-extras-visual-base">
 
             <exported-packages>

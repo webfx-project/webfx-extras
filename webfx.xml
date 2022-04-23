@@ -858,6 +858,14 @@
 
         </project>
 
+        <usages>
+
+            <java-class name="javafx.scene.control.ScrollPane">
+                <module>webfx-extras-visual-controls-grid</module>
+            </java-class>
+
+        </usages>
+
     </export-snapshot>
 
 </project>

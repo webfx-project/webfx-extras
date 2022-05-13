@@ -362,7 +362,7 @@
             </dependencies>
 
             <required-libraries>
-                <library artifact="org.pepstock:charba:5.2-gwt">
+                <library artifact="org.pepstock:charba:5.3-gwt">
 
                     <exported-packages>
                         <package>org.pepstock.charba.client</package>
@@ -382,7 +382,9 @@
                         <package>org.pepstock.charba.client.resources</package>
                         <package>org.pepstock.charba.client.positioner</package>
                         <package>org.pepstock.charba.client.plugins</package>
+                        <package>org.pepstock.charba.client.plugins.hooks</package>
                         <package>org.pepstock.charba.client.options</package>
+                        <package>org.pepstock.charba.client.ml</package>
                         <package>org.pepstock.charba.client.matrix</package>
                         <package>org.pepstock.charba.client.matrix.enums</package>
                         <package>org.pepstock.charba.client.matrix.callbacks</package>

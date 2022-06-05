@@ -105,7 +105,7 @@ public final class FxVisualGridPeer
                                     double prefWidth = cell.prefWidth(-1);
                                     maxWidth = Math.max(maxWidth, prefWidth);
                                     getChildren().remove(cell);
-                                    System.out.println("prefWidth = " + prefWidth + " for " + cell.getText() + ", font = " + cell.getFont());
+                                    //System.out.println("prefWidth = " + prefWidth + " for " + cell.getText() + ", font = " + cell.getFont());
                                 }
                             }
 

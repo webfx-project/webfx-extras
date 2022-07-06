@@ -47,7 +47,7 @@ public final class VisualResultBuilder {
         return new VisualResultBuilder(rowCount, columnCount);
     }
 
-    public static VisualResultBuilder create(int rowCount, VisualColumn[] columns) {
+    public static VisualResultBuilder create(int rowCount, VisualColumn... columns) {
         return new VisualResultBuilder(rowCount, columns);
     }
 

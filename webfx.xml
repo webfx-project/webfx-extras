@@ -63,9 +63,9 @@
             </dependencies>
 
             <source-packages>
+                <package>dev.webfx.extras.cell.collator</package>
                 <package>dev.webfx.extras.cell.renderer</package>
                 <package>dev.webfx.extras.cell.rowstyle</package>
-                <package>dev.webfx.extras.cell.collator</package>
             </source-packages>
 
             <used-by-source-modules>
@@ -158,11 +158,11 @@
             </dependencies>
 
             <source-packages>
+                <package>dev.webfx.extras.materialdesign.textfield</package>
+                <package>dev.webfx.extras.materialdesign.util</package>
                 <package>dev.webfx.extras.materialdesign.util.background</package>
                 <package>dev.webfx.extras.materialdesign.util.layout</package>
-                <package>dev.webfx.extras.materialdesign.util</package>
                 <package>dev.webfx.extras.materialdesign.util.scene</package>
-                <package>dev.webfx.extras.materialdesign.textfield</package>
             </source-packages>
 
             <used-by-source-modules>
@@ -217,8 +217,8 @@
             </dependencies>
 
             <source-packages>
-                <package>dev.webfx.extras.visual.impl</package>
                 <package>dev.webfx.extras.visual</package>
+                <package>dev.webfx.extras.visual.impl</package>
             </source-packages>
 
             <used-by-source-modules>
@@ -436,8 +436,8 @@
             </required-libraries>
 
             <source-packages>
-                <package>dev.webfx.extras.visual.controls.charts.registry</package>
                 <package>dev.webfx.extras.visual.controls.charts.peers.gwt.charba</package>
+                <package>dev.webfx.extras.visual.controls.charts.registry</package>
             </source-packages>
 
             <used-by-source-modules>
@@ -476,8 +476,8 @@
             </dependencies>
 
             <source-packages>
-                <package>dev.webfx.extras.visual.controls.charts.registry.spi.impl.openjfx</package>
                 <package>dev.webfx.extras.visual.controls.charts.peers.openjfx</package>
+                <package>dev.webfx.extras.visual.controls.charts.registry.spi.impl.openjfx</package>
             </source-packages>
 
             <used-by-source-modules>
@@ -529,8 +529,8 @@
             </dependencies>
 
             <source-packages>
-                <package>dev.webfx.extras.visual.controls.charts.registry.spi</package>
                 <package>dev.webfx.extras.visual.controls.charts.registry</package>
+                <package>dev.webfx.extras.visual.controls.charts.registry.spi</package>
             </source-packages>
 
             <used-by-source-modules>
@@ -632,8 +632,8 @@
 
             <source-packages>
                 <package>dev.webfx.extras.cell.collator.grid</package>
-                <package>dev.webfx.extras.visual.controls.grid.registry</package>
                 <package>dev.webfx.extras.visual.controls.grid.peers.gwt.html</package>
+                <package>dev.webfx.extras.visual.controls.grid.registry</package>
             </source-packages>
 
             <used-by-source-modules>
@@ -670,8 +670,8 @@
             </dependencies>
 
             <source-packages>
-                <package>dev.webfx.extras.visual.controls.grid.registry.spi.openjfx</package>
                 <package>dev.webfx.extras.visual.controls.grid.peers.openjfx</package>
+                <package>dev.webfx.extras.visual.controls.grid.registry.spi.openjfx</package>
             </source-packages>
 
             <used-by-source-modules>
@@ -728,8 +728,8 @@
             </dependencies>
 
             <source-packages>
-                <package>dev.webfx.extras.visual.controls.grid.registry.spi</package>
                 <package>dev.webfx.extras.visual.controls.grid.registry</package>
+                <package>dev.webfx.extras.visual.controls.grid.registry.spi</package>
             </source-packages>
 
             <used-by-source-modules>
@@ -820,8 +820,8 @@
             </dependencies>
 
             <source-packages>
-                <package>dev.webfx.extras.webtext.controls.registry</package>
                 <package>dev.webfx.extras.webtext.controls.peers.gwt.html</package>
+                <package>dev.webfx.extras.webtext.controls.registry</package>
             </source-packages>
 
             <used-by-source-modules>
@@ -854,8 +854,8 @@
             </dependencies>
 
             <source-packages>
-                <package>dev.webfx.extras.webtext.controls.registry.spi.impl.openjfx</package>
                 <package>dev.webfx.extras.webtext.controls.peers.openjfx</package>
+                <package>dev.webfx.extras.webtext.controls.registry.spi.impl.openjfx</package>
             </source-packages>
 
             <used-by-source-modules>
@@ -908,8 +908,8 @@
             </dependencies>
 
             <source-packages>
-                <package>dev.webfx.extras.webtext.controls.registry.spi</package>
                 <package>dev.webfx.extras.webtext.controls.registry</package>
+                <package>dev.webfx.extras.webtext.controls.registry.spi</package>
             </source-packages>
 
             <used-by-source-modules>

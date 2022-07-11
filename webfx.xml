@@ -464,7 +464,7 @@
             </exported-packages>
 
             <providers>
-                <dev.webfx.extras.visual.controls.charts.registry.spi.VisualChartsRegistryProvider>dev.webfx.extras.visual.controls.charts.registry.spi.impl.openjfx.JavaFxVisualChartsRegistryProvider</dev.webfx.extras.visual.controls.charts.registry.spi.VisualChartsRegistryProvider>
+                <provider interface="dev.webfx.extras.visual.controls.charts.registry.spi.VisualChartsRegistryProvider">dev.webfx.extras.visual.controls.charts.registry.spi.impl.openjfx.JavaFxVisualChartsRegistryProvider</provider>
             </providers>
 
             <dependencies>
@@ -662,7 +662,7 @@
             </exported-packages>
 
             <providers>
-                <dev.webfx.extras.visual.controls.grid.registry.spi.VisualGridRegistryProvider>dev.webfx.extras.visual.controls.grid.registry.spi.openjfx.JavaFxVisualGridRegistryProvider</dev.webfx.extras.visual.controls.grid.registry.spi.VisualGridRegistryProvider>
+                <provider interface="dev.webfx.extras.visual.controls.grid.registry.spi.VisualGridRegistryProvider">dev.webfx.extras.visual.controls.grid.registry.spi.openjfx.JavaFxVisualGridRegistryProvider</provider>
             </providers>
 
             <dependencies>
@@ -846,7 +846,7 @@
             </exported-packages>
 
             <providers>
-                <dev.webfx.extras.webtext.controls.registry.spi.WebTextRegistryProvider>dev.webfx.extras.webtext.controls.registry.spi.impl.openjfx.JavaFxWebTextRegistryProvider</dev.webfx.extras.webtext.controls.registry.spi.WebTextRegistryProvider>
+                <provider interface="dev.webfx.extras.webtext.controls.registry.spi.WebTextRegistryProvider">dev.webfx.extras.webtext.controls.registry.spi.impl.openjfx.JavaFxWebTextRegistryProvider</provider>
             </providers>
 
             <dependencies>

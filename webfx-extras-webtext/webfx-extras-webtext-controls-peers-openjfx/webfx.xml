@@ -6,7 +6,7 @@
     </exported-packages>
 
     <providers>
-        <dev.webfx.extras.webtext.controls.registry.spi.WebTextRegistryProvider>dev.webfx.extras.webtext.controls.registry.spi.impl.openjfx.JavaFxWebTextRegistryProvider</dev.webfx.extras.webtext.controls.registry.spi.WebTextRegistryProvider>
+        <provider interface="dev.webfx.extras.webtext.controls.registry.spi.WebTextRegistryProvider">dev.webfx.extras.webtext.controls.registry.spi.impl.openjfx.JavaFxWebTextRegistryProvider</provider>
     </providers>
 
     <dependencies>

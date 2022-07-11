@@ -6,7 +6,7 @@
     </exported-packages>
 
     <providers>
-        <dev.webfx.extras.visual.controls.grid.registry.spi.VisualGridRegistryProvider>dev.webfx.extras.visual.controls.grid.registry.spi.openjfx.JavaFxVisualGridRegistryProvider</dev.webfx.extras.visual.controls.grid.registry.spi.VisualGridRegistryProvider>
+        <provider interface="dev.webfx.extras.visual.controls.grid.registry.spi.VisualGridRegistryProvider">dev.webfx.extras.visual.controls.grid.registry.spi.openjfx.JavaFxVisualGridRegistryProvider</provider>
     </providers>
 
     <dependencies>

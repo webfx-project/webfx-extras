@@ -13,7 +13,7 @@ module webfx.extras.webtext.controls.peers.openjfx {
     requires webfx.extras.webtext.controls.registry;
     requires webfx.kit.javafxgraphics.peers;
     requires webfx.kit.openjfx;
-    requires webfx.platform.shared.util;
+    requires webfx.platform.util;
 
     // Exported packages
     exports dev.webfx.extras.webtext.controls.peers.openjfx;

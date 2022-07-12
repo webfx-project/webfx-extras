@@ -12,7 +12,7 @@ module webfx.extras.cell {
     requires webfx.extras.type;
     requires webfx.extras.webtext.controls;
     requires webfx.kit.util;
-    requires webfx.platform.shared.util;
+    requires webfx.platform.util;
 
     // Exported packages
     exports dev.webfx.extras.cell.collator;

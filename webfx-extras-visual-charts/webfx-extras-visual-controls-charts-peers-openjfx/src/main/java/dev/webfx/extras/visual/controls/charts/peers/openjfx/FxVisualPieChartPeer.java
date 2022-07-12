@@ -7,7 +7,7 @@ import dev.webfx.extras.type.Type;
 import dev.webfx.extras.visual.controls.charts.VisualPieChart;
 import dev.webfx.extras.visual.controls.charts.peers.base.VisualPieChartPeerBase;
 import dev.webfx.extras.visual.controls.charts.peers.base.VisualPieChartPeerMixin;
-import dev.webfx.platform.shared.util.Numbers;
+import dev.webfx.platform.util.Numbers;
 
 import java.util.function.Function;
 

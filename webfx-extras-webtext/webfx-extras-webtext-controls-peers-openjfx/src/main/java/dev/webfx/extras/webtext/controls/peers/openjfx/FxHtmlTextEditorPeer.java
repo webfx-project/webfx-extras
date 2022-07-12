@@ -7,7 +7,7 @@ import javafx.scene.web.WebView;
 import dev.webfx.extras.webtext.controls.HtmlTextEditor;
 import dev.webfx.extras.webtext.controls.peers.base.HtmlTextEditorPeerBase;
 import dev.webfx.extras.webtext.controls.peers.base.HtmlTextEditorPeerMixin;
-import dev.webfx.platform.shared.util.Objects;
+import dev.webfx.platform.util.Objects;
 import netscape.javascript.JSObject;
 
 /**

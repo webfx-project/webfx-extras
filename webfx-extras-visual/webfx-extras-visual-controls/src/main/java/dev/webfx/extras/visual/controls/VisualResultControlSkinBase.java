@@ -11,7 +11,7 @@ import dev.webfx.extras.visual.VisualColumn;
 import dev.webfx.extras.visual.VisualResult;
 import dev.webfx.extras.label.Label;
 import dev.webfx.kit.util.properties.Properties;
-import dev.webfx.platform.client.services.uischeduler.UiScheduler;
+import dev.webfx.platform.uischeduler.UiScheduler;
 
 /**
  * @author Bruno Salmon

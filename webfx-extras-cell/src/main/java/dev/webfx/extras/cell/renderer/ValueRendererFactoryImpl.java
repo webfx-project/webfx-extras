@@ -5,7 +5,7 @@ import dev.webfx.extras.type.Type;
 import dev.webfx.extras.type.Types;
 import dev.webfx.extras.cell.collator.NodeCollator;
 import dev.webfx.extras.cell.collator.NodeCollatorRegistry;
-import dev.webfx.platform.shared.util.Arrays;
+import dev.webfx.platform.util.Arrays;
 
 /**
  * @author Bruno Salmon

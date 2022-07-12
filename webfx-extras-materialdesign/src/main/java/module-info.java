@@ -8,7 +8,7 @@ module webfx.extras.materialdesign {
     requires javafx.controls;
     requires javafx.graphics;
     requires webfx.kit.util;
-    requires webfx.platform.shared.util;
+    requires webfx.platform.util;
 
     // Exported packages
     exports dev.webfx.extras.materialdesign.textfield;

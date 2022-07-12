@@ -1,6 +1,6 @@
 package dev.webfx.extras.cell.collator;
 
-import dev.webfx.platform.shared.util.Arrays;
+import dev.webfx.platform.util.Arrays;
 import javafx.geometry.Pos;
 import javafx.scene.layout.FlowPane;
 import javafx.scene.layout.HBox;

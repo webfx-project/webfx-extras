@@ -1,7 +1,7 @@
 package dev.webfx.extras.cell.renderer;
 
 import dev.webfx.extras.webtext.controls.HtmlText;
-import dev.webfx.platform.shared.util.Strings;
+import dev.webfx.platform.util.Strings;
 
 /**
  * @author Bruno Salmon

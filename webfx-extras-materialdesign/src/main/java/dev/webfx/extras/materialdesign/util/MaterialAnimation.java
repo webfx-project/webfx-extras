@@ -10,7 +10,7 @@ import javafx.beans.value.WritableValue;
 import javafx.util.Duration;
 import dev.webfx.kit.util.properties.Properties;
 import dev.webfx.kit.util.properties.Unregisterable;
-import dev.webfx.platform.shared.util.collection.Collections;
+import dev.webfx.platform.util.collection.Collections;
 
 import java.util.ArrayList;
 import java.util.Collection;

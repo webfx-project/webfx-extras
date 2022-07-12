@@ -15,9 +15,9 @@ import javafx.scene.shape.Rectangle;
 import dev.webfx.extras.visual.*;
 import dev.webfx.extras.visual.controls.SelectableVisualResultControlSkinBase;
 import dev.webfx.kit.util.properties.Properties;
-import dev.webfx.platform.client.services.uischeduler.UiScheduler;
-import dev.webfx.platform.shared.services.scheduler.Scheduled;
-import dev.webfx.platform.shared.util.collection.Collections;
+import dev.webfx.platform.uischeduler.UiScheduler;
+import dev.webfx.platform.scheduler.Scheduled;
+import dev.webfx.platform.util.collection.Collections;
 
 import java.util.ArrayList;
 import java.util.List;

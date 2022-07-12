@@ -18,8 +18,8 @@ import dev.webfx.kit.mapper.peers.javafxgraphics.gwt.shared.HtmlSvgNodePeer;
 import dev.webfx.kit.mapper.peers.javafxgraphics.gwt.util.DomType;
 import dev.webfx.kit.mapper.peers.javafxgraphics.gwt.util.HtmlPaints;
 import dev.webfx.kit.mapper.peers.javafxgraphics.gwt.util.HtmlUtil;
-import dev.webfx.platform.shared.util.Strings;
-import dev.webfx.platform.shared.util.tuples.Unit;
+import dev.webfx.platform.util.Strings;
+import dev.webfx.platform.util.tuples.Unit;
 
 import static dev.webfx.kit.mapper.peers.javafxgraphics.gwt.util.HtmlUtil.setStyleAttribute;
 

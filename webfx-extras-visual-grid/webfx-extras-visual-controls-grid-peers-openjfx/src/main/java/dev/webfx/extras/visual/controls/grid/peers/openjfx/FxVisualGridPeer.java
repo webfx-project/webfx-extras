@@ -34,8 +34,8 @@ import dev.webfx.extras.visual.controls.grid.peers.base.VisualGridPeerMixin;
 import dev.webfx.kit.mapper.peers.javafxgraphics.openjfx.FxLayoutMeasurable;
 import dev.webfx.kit.mapper.peers.javafxgraphics.openjfx.FxRegionPeer;
 import dev.webfx.kit.util.properties.Properties;
-import dev.webfx.platform.client.services.uischeduler.UiScheduler;
-import dev.webfx.platform.shared.util.collection.IdentityList;
+import dev.webfx.platform.uischeduler.UiScheduler;
+import dev.webfx.platform.util.collection.IdentityList;
 
 import java.lang.reflect.Method;
 import java.util.ArrayList;

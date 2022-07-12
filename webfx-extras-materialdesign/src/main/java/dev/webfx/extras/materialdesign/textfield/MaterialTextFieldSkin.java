@@ -7,7 +7,7 @@ import javafx.scene.control.skin.TextFieldSkin;
 import javafx.scene.layout.Region;
 import javafx.scene.text.HitInfo;
 import dev.webfx.extras.materialdesign.util.layout.LayoutUtil;
-import dev.webfx.platform.shared.util.collection.Collections;
+import dev.webfx.platform.util.collection.Collections;
 
 
 /**

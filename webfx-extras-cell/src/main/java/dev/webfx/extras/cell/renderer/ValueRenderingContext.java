@@ -3,7 +3,7 @@ package dev.webfx.extras.cell.renderer;
 import javafx.beans.property.Property;
 import javafx.beans.property.SimpleObjectProperty;
 import dev.webfx.kit.util.properties.conversion.ConvertedProperty;
-import dev.webfx.platform.shared.util.function.Converter;
+import dev.webfx.platform.util.function.Converter;
 
 /**
  * @author Bruno Salmon

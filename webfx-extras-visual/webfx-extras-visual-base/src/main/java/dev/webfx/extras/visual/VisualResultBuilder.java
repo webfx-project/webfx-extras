@@ -2,7 +2,7 @@ package dev.webfx.extras.visual;
 
 import dev.webfx.extras.visual.impl.VisualColumnImpl;
 import dev.webfx.extras.visual.impl.VisualResultImpl;
-import dev.webfx.platform.shared.util.function.Converter;
+import dev.webfx.platform.util.function.Converter;
 
 /**
  * @author Bruno Salmon

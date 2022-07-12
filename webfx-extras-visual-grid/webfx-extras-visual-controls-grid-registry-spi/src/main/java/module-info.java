@@ -4,7 +4,7 @@ module webfx.extras.visual.controls.grid.registry {
 
     // Direct dependencies modules
     requires java.base;
-    requires webfx.platform.shared.util;
+    requires webfx.platform.util;
 
     // Exported packages
     exports dev.webfx.extras.visual.controls.grid.registry;

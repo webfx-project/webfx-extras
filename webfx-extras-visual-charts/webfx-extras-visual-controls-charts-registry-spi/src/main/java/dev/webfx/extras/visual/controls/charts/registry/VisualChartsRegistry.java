@@ -1,7 +1,7 @@
 package dev.webfx.extras.visual.controls.charts.registry;
 
 import dev.webfx.extras.visual.controls.charts.registry.spi.VisualChartsRegistryProvider;
-import dev.webfx.platform.shared.util.serviceloader.SingleServiceProvider;
+import dev.webfx.platform.util.serviceloader.SingleServiceProvider;
 
 import java.util.ServiceLoader;
 

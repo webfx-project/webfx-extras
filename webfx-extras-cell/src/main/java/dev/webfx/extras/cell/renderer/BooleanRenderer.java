@@ -5,7 +5,7 @@ import javafx.scene.control.CheckBox;
 import javafx.scene.image.ImageView;
 import dev.webfx.extras.imagestore.ImageStore;
 import dev.webfx.extras.label.Label;
-import dev.webfx.platform.shared.util.Booleans;
+import dev.webfx.platform.util.Booleans;
 
 /**
  * @author Bruno Salmon

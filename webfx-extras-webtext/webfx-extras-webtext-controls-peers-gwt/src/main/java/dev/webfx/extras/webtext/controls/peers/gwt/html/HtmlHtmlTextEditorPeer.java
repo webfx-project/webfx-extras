@@ -1,6 +1,7 @@
 package dev.webfx.extras.webtext.controls.peers.gwt.html;
 
 import com.google.gwt.core.client.JavaScriptObject;
+import dev.webfx.platform.console.Console;
 import elemental2.dom.Element;
 import elemental2.dom.HTMLDivElement;
 import dev.webfx.extras.webtext.controls.HtmlTextEditor;
@@ -10,9 +11,8 @@ import dev.webfx.kit.mapper.peers.javafxgraphics.SceneRequester;
 import dev.webfx.kit.mapper.peers.javafxgraphics.gwt.html.HtmlRegionPeer;
 import dev.webfx.kit.mapper.peers.javafxgraphics.gwt.html.layoutmeasurable.HtmlLayoutMeasurable;
 import dev.webfx.kit.mapper.peers.javafxgraphics.gwt.util.HtmlUtil;
-import dev.webfx.platform.shared.services.log.Logger;
-import dev.webfx.platform.shared.util.Objects;
-import dev.webfx.platform.shared.util.Strings;
+import dev.webfx.platform.util.Objects;
+import dev.webfx.platform.util.Strings;
 import javafx.scene.paint.Paint;
 import javafx.scene.text.Font;
 
@@ -77,7 +77,7 @@ public final class HtmlHtmlTextEditorPeer
     private boolean recreateCKEditorIfRequired() {
         if (ckEditor != null && !Strings.isEmpty(getCKEditorInnerHTML(ckEditor)))
             return false;
-        Logger.log("Recreating CKEditor");
+        Console.log("Recreating CKEditor");
         if (ckEditor != null)
             callCKEditorDestroy(ckEditor);
         else

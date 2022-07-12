@@ -10,7 +10,7 @@ import dev.webfx.extras.visual.controls.peers.base.SelectableVisualResultControl
 import dev.webfx.extras.visual.VisualColumn;
 import dev.webfx.extras.visual.VisualResult;
 import dev.webfx.kit.mapper.peers.javafxgraphics.SceneRequester;
-import dev.webfx.platform.shared.util.Strings;
+import dev.webfx.platform.util.Strings;
 
 /**
  * @author Bruno Salmon

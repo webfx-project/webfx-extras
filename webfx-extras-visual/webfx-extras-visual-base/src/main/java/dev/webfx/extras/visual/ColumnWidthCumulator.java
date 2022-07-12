@@ -3,7 +3,7 @@ package dev.webfx.extras.visual;
 import javafx.collections.ListChangeListener;
 import javafx.collections.ObservableList;
 import javafx.scene.Node;
-import dev.webfx.platform.shared.util.collection.Collections;
+import dev.webfx.platform.util.collection.Collections;
 
 import java.util.ArrayList;
 import java.util.List;

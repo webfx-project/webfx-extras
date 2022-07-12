@@ -15,11 +15,11 @@ import dev.webfx.extras.visual.controls.charts.peers.base.VisualChartPeerMixin;
 import dev.webfx.kit.mapper.peers.javafxgraphics.gwt.html.HtmlRegionPeer;
 import dev.webfx.kit.mapper.peers.javafxgraphics.gwt.html.layoutmeasurable.HtmlLayoutMeasurable;
 import dev.webfx.kit.mapper.peers.javafxgraphics.gwt.util.HtmlUtil;
-import dev.webfx.platform.client.services.uischeduler.UiScheduler;
-import dev.webfx.platform.shared.services.log.Logger;
-import dev.webfx.platform.shared.util.Dates;
-import dev.webfx.platform.shared.util.Numbers;
-import dev.webfx.platform.shared.util.Strings;
+import dev.webfx.platform.console.Console;
+import dev.webfx.platform.uischeduler.UiScheduler;
+import dev.webfx.platform.util.Dates;
+import dev.webfx.platform.util.Numbers;
+import dev.webfx.platform.util.Strings;
 import javafx.scene.paint.Color;
 import org.pepstock.charba.client.AbstractChart;
 import org.pepstock.charba.client.Charba;
@@ -103,7 +103,7 @@ abstract class GwtCharbaVisualChartPeer
 
     @Override
     public void createChartData(Type xType, Type yType, int pointPerSeriesCount, int seriesCount, Function<Integer, String> seriesNameGetter) {
-        Logger.log("xType = " + xType + ", yType = " + yType);
+        Console.log("xType = " + xType + ", yType = " + yType);
         //seriesCount = 1;
         xPrimType = Types.getPrimType(xType);
         yPrimType = Types.getPrimType(yType);
@@ -212,7 +212,7 @@ abstract class GwtCharbaVisualChartPeer
     }
 
     private DataPoint newDataPoint(Object xValue, Object yValue) {
-        Logger.log("x = " + xValue + ", y = " + yValue);
+        Console.log("x = " + xValue + ", y = " + yValue);
         DataPoint dataPoint = new DataPoint();
         if (xPrimType.isNumber())
             dataPoint.setX(Numbers.toDouble(xValue));

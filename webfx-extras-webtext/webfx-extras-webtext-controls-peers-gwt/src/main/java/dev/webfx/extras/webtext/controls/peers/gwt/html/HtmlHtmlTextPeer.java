@@ -12,7 +12,7 @@ import dev.webfx.kit.mapper.peers.javafxcontrols.gwt.html.HtmlControlPeer;
 import dev.webfx.kit.mapper.peers.javafxgraphics.gwt.html.NormalWhiteSpacePeer;
 import dev.webfx.kit.mapper.peers.javafxgraphics.gwt.html.layoutmeasurable.HtmlLayoutMeasurable;
 import dev.webfx.kit.mapper.peers.javafxgraphics.gwt.util.HtmlUtil;
-import dev.webfx.platform.shared.util.Strings;
+import dev.webfx.platform.util.Strings;
 import javafx.scene.paint.Paint;
 import javafx.scene.text.Font;
 

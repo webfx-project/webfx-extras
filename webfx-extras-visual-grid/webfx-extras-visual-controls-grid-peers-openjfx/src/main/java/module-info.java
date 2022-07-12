@@ -17,8 +17,8 @@ module webfx.extras.visual.controls.grid.peers.openjfx {
     requires webfx.kit.javafxgraphics.peers;
     requires webfx.kit.openjfx;
     requires webfx.kit.util;
-    requires webfx.platform.client.uischeduler;
-    requires webfx.platform.shared.util;
+    requires webfx.platform.uischeduler;
+    requires webfx.platform.util;
 
     // Exported packages
     exports dev.webfx.extras.visual.controls.grid.peers.openjfx;

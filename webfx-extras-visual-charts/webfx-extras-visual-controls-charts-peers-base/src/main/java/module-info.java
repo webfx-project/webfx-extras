@@ -9,7 +9,7 @@ module webfx.extras.visual.controls.charts.peers.base {
     requires webfx.extras.visual.base;
     requires webfx.extras.visual.controls.charts;
     requires webfx.extras.visual.controls.peers.base;
-    requires webfx.platform.shared.util;
+    requires webfx.platform.util;
 
     // Exported packages
     exports dev.webfx.extras.visual.controls.charts.peers.base;

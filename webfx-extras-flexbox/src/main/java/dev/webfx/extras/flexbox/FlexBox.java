@@ -8,7 +8,7 @@ import javafx.geometry.Insets;
 import javafx.geometry.VPos;
 import javafx.scene.Node;
 import javafx.scene.layout.Pane;
-import dev.webfx.platform.shared.util.collection.Collections;
+import dev.webfx.platform.util.collection.Collections;
 
 import java.util.ArrayList;
 import java.util.HashMap;

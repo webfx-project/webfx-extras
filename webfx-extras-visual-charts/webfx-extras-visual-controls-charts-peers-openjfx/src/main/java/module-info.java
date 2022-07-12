@@ -14,7 +14,7 @@ module webfx.extras.visual.controls.charts.peers.openjfx {
     requires webfx.extras.visual.controls.charts.registry;
     requires webfx.kit.javafxgraphics.peers;
     requires webfx.kit.openjfx;
-    requires webfx.platform.shared.util;
+    requires webfx.platform.util;
 
     // Exported packages
     exports dev.webfx.extras.visual.controls.charts.peers.openjfx;

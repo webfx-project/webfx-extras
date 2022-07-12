@@ -5,7 +5,7 @@ import dev.webfx.extras.visual.VisualColumn;
 import dev.webfx.extras.visual.VisualResult;
 import dev.webfx.extras.visual.controls.charts.VisualChart;
 import dev.webfx.extras.visual.controls.peers.base.SelectableVisualResultControlPeerBase;
-import dev.webfx.platform.shared.util.Strings;
+import dev.webfx.platform.util.Strings;
 
 /**
  * @author Bruno Salmon

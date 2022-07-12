@@ -20,7 +20,7 @@ import dev.webfx.extras.materialdesign.util.background.BackgroundUtil;
 import dev.webfx.extras.materialdesign.util.layout.LayoutUtil;
 import dev.webfx.extras.materialdesign.util.scene.SceneUtil;
 import dev.webfx.kit.util.properties.Unregisterable;
-import dev.webfx.platform.shared.util.Strings;
+import dev.webfx.platform.util.Strings;
 
 /**
  * @author Bruno Salmon

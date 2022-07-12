@@ -12,7 +12,7 @@ module webfx.extras.visual.controls.grid.peers.base {
     requires webfx.extras.visual.controls.grid;
     requires webfx.extras.visual.controls.peers.base;
     requires webfx.kit.javafxgraphics.peers;
-    requires webfx.platform.shared.util;
+    requires webfx.platform.util;
 
     // Exported packages
     exports dev.webfx.extras.cell.collator.grid;

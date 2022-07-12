@@ -4,7 +4,7 @@ module webfx.extras.webtext.controls.registry {
 
     // Direct dependencies modules
     requires java.base;
-    requires webfx.platform.shared.util;
+    requires webfx.platform.util;
 
     // Exported packages
     exports dev.webfx.extras.webtext.controls.registry;

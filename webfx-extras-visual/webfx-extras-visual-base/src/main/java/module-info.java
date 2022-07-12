@@ -9,7 +9,7 @@ module webfx.extras.visual.base {
     requires webfx.extras.cell;
     requires webfx.extras.label;
     requires webfx.extras.type;
-    requires webfx.platform.shared.util;
+    requires webfx.platform.util;
 
     // Exported packages
     exports dev.webfx.extras.visual;

@@ -2,7 +2,7 @@ package dev.webfx.extras.cell.renderer;
 
 import javafx.scene.image.ImageView;
 import dev.webfx.extras.imagestore.ImageStore;
-import dev.webfx.platform.shared.util.Strings;
+import dev.webfx.platform.util.Strings;
 
 /**
  * @author Bruno Salmon

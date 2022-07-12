@@ -1,7 +1,7 @@
 package dev.webfx.extras.webtext.controls.registry;
 
 import dev.webfx.extras.webtext.controls.registry.spi.WebTextRegistryProvider;
-import dev.webfx.platform.shared.util.serviceloader.SingleServiceProvider;
+import dev.webfx.platform.util.serviceloader.SingleServiceProvider;
 
 import java.util.ServiceLoader;
 

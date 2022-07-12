@@ -6,7 +6,7 @@ import dev.webfx.extras.webtext.controls.peers.base.HtmlTextPeerMixin;
 import dev.webfx.kit.mapper.peers.javafxgraphics.SceneRequester;
 import dev.webfx.kit.mapper.peers.javafxgraphics.openjfx.FxLayoutMeasurable;
 import dev.webfx.kit.mapper.peers.javafxgraphics.openjfx.FxNodePeer;
-import dev.webfx.platform.shared.util.Numbers;
+import dev.webfx.platform.util.Numbers;
 import javafx.geometry.Insets;
 import javafx.scene.Cursor;
 import javafx.scene.layout.Background;

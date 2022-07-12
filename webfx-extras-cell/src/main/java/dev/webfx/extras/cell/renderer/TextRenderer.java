@@ -5,7 +5,7 @@ import javafx.scene.Node;
 import javafx.scene.control.TextField;
 import javafx.scene.text.Text;
 import javafx.scene.text.TextAlignment;
-import dev.webfx.platform.shared.util.Strings;
+import dev.webfx.platform.util.Strings;
 
 import java.util.function.BiFunction;
 

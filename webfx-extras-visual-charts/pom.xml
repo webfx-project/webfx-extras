@@ -13,15 +13,27 @@
 
     <artifactId>webfx-extras-visual-charts</artifactId>
 
-    <packaging>pom</packaging>
+    <dependencies>
 
-    <modules>
-        <module>webfx-extras-visual-controls-charts</module>
-        <module>webfx-extras-visual-controls-charts-peers-base</module>
-        <module>webfx-extras-visual-controls-charts-peers-gwt-charba</module>
-        <module>webfx-extras-visual-controls-charts-peers-openjfx</module>
-        <module>webfx-extras-visual-controls-charts-registry</module>
-        <module>webfx-extras-visual-controls-charts-registry-spi</module>
-    </modules>
+        <dependency>
+            <groupId>org.openjfx</groupId>
+            <artifactId>javafx-controls</artifactId>
+            <scope>provided</scope>
+        </dependency>
+
+        <dependency>
+            <groupId>dev.webfx</groupId>
+            <artifactId>webfx-extras-visual-charts-registry</artifactId>
+            <version>0.1.0-SNAPSHOT</version>
+            <scope>provided</scope>
+        </dependency>
+
+        <dependency>
+            <groupId>dev.webfx</groupId>
+            <artifactId>webfx-extras-visual-controls</artifactId>
+            <version>0.1.0-SNAPSHOT</version>
+        </dependency>
+
+    </dependencies>
 
 </project>

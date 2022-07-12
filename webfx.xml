@@ -46,8 +46,25 @@
                 <module>webfx-extras-type</module>
                 <module>webfx-extras-visual</module>
                 <module>webfx-extras-visual-charts</module>
+                <module>webfx-extras-visual-charts-peers-base</module>
+                <module>webfx-extras-visual-charts-peers-gwt-charba</module>
+                <module>webfx-extras-visual-charts-peers-openjfx</module>
+                <module>webfx-extras-visual-charts-registry</module>
+                <module>webfx-extras-visual-charts-registry-spi</module>
+                <module>webfx-extras-visual-controls</module>
                 <module>webfx-extras-visual-grid</module>
+                <module>webfx-extras-visual-grid-peers-base</module>
+                <module>webfx-extras-visual-grid-peers-gwt</module>
+                <module>webfx-extras-visual-grid-peers-openjfx</module>
+                <module>webfx-extras-visual-grid-registry</module>
+                <module>webfx-extras-visual-grid-registry-spi</module>
+                <module>webfx-extras-visual-peers-base</module>
                 <module>webfx-extras-webtext</module>
+                <module>webfx-extras-webtext-peers-base</module>
+                <module>webfx-extras-webtext-peers-gwt</module>
+                <module>webfx-extras-webtext-peers-openjfx</module>
+                <module>webfx-extras-webtext-registry</module>
+                <module>webfx-extras-webtext-registry-spi</module>
             </modules>
 
         </project>
@@ -73,7 +90,7 @@
                 <module>webfx-extras-imagestore</module>
                 <module>webfx-extras-label</module>
                 <module>webfx-extras-type</module>
-                <module>webfx-extras-webtext-controls</module>
+                <module>webfx-extras-webtext</module>
                 <module>webfx-kit-javafxbase-emul</module>
                 <module>webfx-kit-javafxcontrols-emul</module>
                 <module>webfx-kit-javafxgraphics-emul</module>
@@ -198,16 +215,6 @@
 
         <project name="webfx-extras-visual">
 
-            <modules>
-                <module>webfx-extras-visual-base</module>
-                <module>webfx-extras-visual-controls</module>
-                <module>webfx-extras-visual-controls-peers-base</module>
-            </modules>
-
-        </project>
-
-        <project name="webfx-extras-visual-base">
-
             <exported-packages>
                 <source-packages/>
             </exported-packages>
@@ -233,73 +240,7 @@
 
         </project>
 
-        <project name="webfx-extras-visual-controls">
-
-            <exported-packages>
-                <source-packages/>
-            </exported-packages>
-
-            <dependencies>
-                <used-by-source-modules/>
-            </dependencies>
-
-            <source-packages>
-                <package>dev.webfx.extras.visual.controls</package>
-            </source-packages>
-
-            <used-by-source-modules>
-                <module>webfx-extras-cell</module>
-                <module>webfx-extras-label</module>
-                <module>webfx-extras-visual-base</module>
-                <module>webfx-kit-javafxbase-emul</module>
-                <module>webfx-kit-javafxcontrols-emul</module>
-                <module>webfx-kit-javafxgraphics-emul</module>
-                <module>webfx-kit-util</module>
-                <module>webfx-platform-uischeduler</module>
-            </used-by-source-modules>
-
-        </project>
-
-        <project name="webfx-extras-visual-controls-peers-base">
-
-            <exported-packages>
-                <source-packages/>
-            </exported-packages>
-
-            <dependencies>
-                <used-by-source-modules>
-                    <undetected-module>webfx-kit-javafxcontrols-emul</undetected-module>
-                </used-by-source-modules>
-            </dependencies>
-
-            <source-packages>
-                <package>dev.webfx.extras.visual.controls.peers.base</package>
-            </source-packages>
-
-            <used-by-source-modules>
-                <module>webfx-extras-visual-base</module>
-                <module>webfx-extras-visual-controls</module>
-                <module>webfx-kit-javafxbase-emul</module>
-                <module>webfx-kit-javafxcontrols-peers-base</module>
-                <module>webfx-kit-javafxgraphics-peers</module>
-            </used-by-source-modules>
-
-        </project>
-
         <project name="webfx-extras-visual-charts">
-
-            <modules>
-                <module>webfx-extras-visual-controls-charts</module>
-                <module>webfx-extras-visual-controls-charts-peers-base</module>
-                <module>webfx-extras-visual-controls-charts-peers-gwt-charba</module>
-                <module>webfx-extras-visual-controls-charts-peers-openjfx</module>
-                <module>webfx-extras-visual-controls-charts-registry</module>
-                <module>webfx-extras-visual-controls-charts-registry-spi</module>
-            </modules>
-
-        </project>
-
-        <project name="webfx-extras-visual-controls-charts">
 
             <exported-packages>
                 <source-packages/>
@@ -316,13 +257,13 @@
             </source-packages>
 
             <used-by-source-modules>
+                <module>webfx-extras-visual-charts-registry</module>
                 <module>webfx-extras-visual-controls</module>
-                <module>webfx-extras-visual-controls-charts-registry</module>
             </used-by-source-modules>
 
         </project>
 
-        <project name="webfx-extras-visual-controls-charts-peers-base">
+        <project name="webfx-extras-visual-charts-peers-base">
 
             <exported-packages>
                 <source-packages/>
@@ -341,18 +282,18 @@
             <used-by-source-modules>
                 <module>java.base</module>
                 <module>webfx-extras-type</module>
-                <module>webfx-extras-visual-base</module>
-                <module>webfx-extras-visual-controls-charts</module>
-                <module>webfx-extras-visual-controls-peers-base</module>
+                <module>webfx-extras-visual</module>
+                <module>webfx-extras-visual-charts</module>
+                <module>webfx-extras-visual-peers-base</module>
                 <module>webfx-platform-util</module>
             </used-by-source-modules>
 
         </project>
 
-        <project name="webfx-extras-visual-controls-charts-peers-gwt-charba">
+        <project name="webfx-extras-visual-charts-peers-gwt-charba">
 
             <implements>
-                <module>webfx-extras-visual-controls-charts-registry</module>
+                <module>webfx-extras-visual-charts-registry</module>
             </implements>
 
             <dependencies>
@@ -444,9 +385,9 @@
                 <module>charba</module>
                 <module>java.base</module>
                 <module>webfx-extras-type</module>
-                <module>webfx-extras-visual-base</module>
-                <module>webfx-extras-visual-controls-charts</module>
-                <module>webfx-extras-visual-controls-charts-peers-base</module>
+                <module>webfx-extras-visual</module>
+                <module>webfx-extras-visual-charts</module>
+                <module>webfx-extras-visual-charts-peers-base</module>
                 <module>webfx-kit-javafxgraphics-emul</module>
                 <module>webfx-kit-javafxgraphics-peers</module>
                 <module>webfx-kit-javafxgraphics-peers-gwt</module>
@@ -457,7 +398,7 @@
 
         </project>
 
-        <project name="webfx-extras-visual-controls-charts-peers-openjfx">
+        <project name="webfx-extras-visual-charts-peers-openjfx">
 
             <exported-packages>
                 <source-packages/>
@@ -484,10 +425,10 @@
                 <module>java.base</module>
                 <module>javafx-controls</module>
                 <module>webfx-extras-type</module>
-                <module>webfx-extras-visual-base</module>
-                <module>webfx-extras-visual-controls-charts</module>
-                <module>webfx-extras-visual-controls-charts-peers-base</module>
-                <module>webfx-extras-visual-controls-charts-registry-spi</module>
+                <module>webfx-extras-visual</module>
+                <module>webfx-extras-visual-charts</module>
+                <module>webfx-extras-visual-charts-peers-base</module>
+                <module>webfx-extras-visual-charts-registry-spi</module>
                 <module>webfx-kit-javafxbase-emul</module>
                 <module>webfx-kit-javafxgraphics-peers</module>
                 <module>webfx-kit-openjfx</module>
@@ -496,7 +437,7 @@
 
         </project>
 
-        <project interface="true" name="webfx-extras-visual-controls-charts-registry">
+        <project interface="true" name="webfx-extras-visual-charts-registry">
 
             <exported-packages>
                 <source-packages/>
@@ -514,10 +455,10 @@
 
         </project>
 
-        <project name="webfx-extras-visual-controls-charts-registry-spi">
+        <project name="webfx-extras-visual-charts-registry-spi">
 
             <implements>
-                <module>webfx-extras-visual-controls-charts-registry</module>
+                <module>webfx-extras-visual-charts-registry</module>
             </implements>
 
             <exported-packages>
@@ -544,20 +485,34 @@
 
         </project>
 
-        <project name="webfx-extras-visual-grid">
+        <project name="webfx-extras-visual-controls">
 
-            <modules>
-                <module>webfx-extras-visual-controls-grid</module>
-                <module>webfx-extras-visual-controls-grid-peers-base</module>
-                <module>webfx-extras-visual-controls-grid-peers-gwt</module>
-                <module>webfx-extras-visual-controls-grid-peers-openjfx</module>
-                <module>webfx-extras-visual-controls-grid-registry</module>
-                <module>webfx-extras-visual-controls-grid-registry-spi</module>
-            </modules>
+            <exported-packages>
+                <source-packages/>
+            </exported-packages>
+
+            <dependencies>
+                <used-by-source-modules/>
+            </dependencies>
+
+            <source-packages>
+                <package>dev.webfx.extras.visual.controls</package>
+            </source-packages>
+
+            <used-by-source-modules>
+                <module>webfx-extras-cell</module>
+                <module>webfx-extras-label</module>
+                <module>webfx-extras-visual</module>
+                <module>webfx-kit-javafxbase-emul</module>
+                <module>webfx-kit-javafxcontrols-emul</module>
+                <module>webfx-kit-javafxgraphics-emul</module>
+                <module>webfx-kit-util</module>
+                <module>webfx-platform-uischeduler</module>
+            </used-by-source-modules>
 
         </project>
 
-        <project name="webfx-extras-visual-controls-grid">
+        <project name="webfx-extras-visual-grid">
 
             <exported-packages>
                 <source-packages/>
@@ -573,9 +528,9 @@
 
             <used-by-source-modules>
                 <module>java.base</module>
-                <module>webfx-extras-visual-base</module>
+                <module>webfx-extras-visual</module>
                 <module>webfx-extras-visual-controls</module>
-                <module>webfx-extras-visual-controls-grid-registry</module>
+                <module>webfx-extras-visual-grid-registry</module>
                 <module>webfx-kit-javafxbase-emul</module>
                 <module>webfx-kit-javafxcontrols-emul</module>
                 <module>webfx-kit-javafxgraphics-emul</module>
@@ -587,7 +542,7 @@
 
         </project>
 
-        <project name="webfx-extras-visual-controls-grid-peers-base">
+        <project name="webfx-extras-visual-grid-peers-base">
 
             <exported-packages>
                 <source-packages/>
@@ -607,9 +562,9 @@
             <used-by-source-modules>
                 <module>java.base</module>
                 <module>webfx-extras-cell</module>
-                <module>webfx-extras-visual-base</module>
-                <module>webfx-extras-visual-controls-grid</module>
-                <module>webfx-extras-visual-controls-peers-base</module>
+                <module>webfx-extras-visual</module>
+                <module>webfx-extras-visual-grid</module>
+                <module>webfx-extras-visual-peers-base</module>
                 <module>webfx-kit-javafxbase-emul</module>
                 <module>webfx-kit-javafxgraphics-emul</module>
                 <module>webfx-kit-javafxgraphics-peers</module>
@@ -618,10 +573,10 @@
 
         </project>
 
-        <project name="webfx-extras-visual-controls-grid-peers-gwt">
+        <project name="webfx-extras-visual-grid-peers-gwt">
 
             <implements>
-                <module>webfx-extras-visual-controls-grid-registry</module>
+                <module>webfx-extras-visual-grid-registry</module>
             </implements>
 
             <dependencies>
@@ -641,9 +596,9 @@
                 <module>java.base</module>
                 <module>webfx-extras-cell</module>
                 <module>webfx-extras-label</module>
-                <module>webfx-extras-visual-base</module>
-                <module>webfx-extras-visual-controls-grid</module>
-                <module>webfx-extras-visual-controls-grid-peers-base</module>
+                <module>webfx-extras-visual</module>
+                <module>webfx-extras-visual-grid</module>
+                <module>webfx-extras-visual-grid-peers-base</module>
                 <module>webfx-kit-javafxbase-emul</module>
                 <module>webfx-kit-javafxcontrols-emul</module>
                 <module>webfx-kit-javafxgraphics-emul</module>
@@ -655,7 +610,7 @@
 
         </project>
 
-        <project name="webfx-extras-visual-controls-grid-peers-openjfx">
+        <project name="webfx-extras-visual-grid-peers-openjfx">
 
             <exported-packages>
                 <source-packages/>
@@ -679,10 +634,10 @@
                 <module>webfx-extras-cell</module>
                 <module>webfx-extras-imagestore</module>
                 <module>webfx-extras-label</module>
-                <module>webfx-extras-visual-base</module>
-                <module>webfx-extras-visual-controls-grid</module>
-                <module>webfx-extras-visual-controls-grid-peers-base</module>
-                <module>webfx-extras-visual-controls-grid-registry-spi</module>
+                <module>webfx-extras-visual</module>
+                <module>webfx-extras-visual-grid</module>
+                <module>webfx-extras-visual-grid-peers-base</module>
+                <module>webfx-extras-visual-grid-registry-spi</module>
                 <module>webfx-kit-javafxbase-emul</module>
                 <module>webfx-kit-javafxcontrols-emul</module>
                 <module>webfx-kit-javafxgraphics-emul</module>
@@ -695,7 +650,7 @@
 
         </project>
 
-        <project interface="true" name="webfx-extras-visual-controls-grid-registry">
+        <project interface="true" name="webfx-extras-visual-grid-registry">
 
             <exported-packages>
                 <source-packages/>
@@ -713,10 +668,10 @@
 
         </project>
 
-        <project name="webfx-extras-visual-controls-grid-registry-spi">
+        <project name="webfx-extras-visual-grid-registry-spi">
 
             <implements>
-                <module>webfx-extras-visual-controls-grid-registry</module>
+                <module>webfx-extras-visual-grid-registry</module>
             </implements>
 
             <exported-packages>
@@ -743,20 +698,33 @@
 
         </project>
 
-        <project name="webfx-extras-webtext">
+        <project name="webfx-extras-visual-peers-base">
 
-            <modules>
-                <module>webfx-extras-webtext-controls</module>
-                <module>webfx-extras-webtext-controls-peers-base</module>
-                <module>webfx-extras-webtext-controls-peers-gwt</module>
-                <module>webfx-extras-webtext-controls-peers-openjfx</module>
-                <module>webfx-extras-webtext-controls-registry</module>
-                <module>webfx-extras-webtext-controls-registry-spi</module>
-            </modules>
+            <exported-packages>
+                <source-packages/>
+            </exported-packages>
+
+            <dependencies>
+                <used-by-source-modules>
+                    <undetected-module>webfx-kit-javafxcontrols-emul</undetected-module>
+                </used-by-source-modules>
+            </dependencies>
+
+            <source-packages>
+                <package>dev.webfx.extras.visual.controls.peers.base</package>
+            </source-packages>
+
+            <used-by-source-modules>
+                <module>webfx-extras-visual</module>
+                <module>webfx-extras-visual-controls</module>
+                <module>webfx-kit-javafxbase-emul</module>
+                <module>webfx-kit-javafxcontrols-peers-base</module>
+                <module>webfx-kit-javafxgraphics-peers</module>
+            </used-by-source-modules>
 
         </project>
 
-        <project name="webfx-extras-webtext-controls">
+        <project name="webfx-extras-webtext">
 
             <exported-packages>
                 <source-packages/>
@@ -767,12 +735,12 @@
             </dependencies>
 
             <source-packages>
-                <package>dev.webfx.extras.webtext.controls</package>
+                <package>dev.webfx.extras.webtext</package>
             </source-packages>
 
             <used-by-source-modules>
                 <module>java.base</module>
-                <module>webfx-extras-webtext-controls-registry</module>
+                <module>webfx-extras-webtext-registry</module>
                 <module>webfx-kit-javafxbase-emul</module>
                 <module>webfx-kit-javafxcontrols-emul</module>
                 <module>webfx-kit-javafxgraphics-emul</module>
@@ -781,7 +749,7 @@
 
         </project>
 
-        <project name="webfx-extras-webtext-controls-peers-base">
+        <project name="webfx-extras-webtext-peers-base">
 
             <exported-packages>
                 <source-packages/>
@@ -794,11 +762,11 @@
             </dependencies>
 
             <source-packages>
-                <package>dev.webfx.extras.webtext.controls.peers.base</package>
+                <package>dev.webfx.extras.webtext.peers.base</package>
             </source-packages>
 
             <used-by-source-modules>
-                <module>webfx-extras-webtext-controls</module>
+                <module>webfx-extras-webtext</module>
                 <module>webfx-kit-javafxbase-emul</module>
                 <module>webfx-kit-javafxcontrols-peers-base</module>
                 <module>webfx-kit-javafxgraphics-emul</module>
@@ -807,10 +775,10 @@
 
         </project>
 
-        <project name="webfx-extras-webtext-controls-peers-gwt">
+        <project name="webfx-extras-webtext-peers-gwt">
 
             <implements>
-                <module>webfx-extras-webtext-controls-registry</module>
+                <module>webfx-extras-webtext-registry</module>
             </implements>
 
             <dependencies>
@@ -820,15 +788,15 @@
             </dependencies>
 
             <source-packages>
-                <package>dev.webfx.extras.webtext.controls.peers.gwt.html</package>
-                <package>dev.webfx.extras.webtext.controls.registry</package>
+                <package>dev.webfx.extras.webtext.peers.gwt.html</package>
+                <package>dev.webfx.extras.webtext.registry</package>
             </source-packages>
 
             <used-by-source-modules>
                 <module>elemental2-dom</module>
                 <module>gwt-user</module>
-                <module>webfx-extras-webtext-controls</module>
-                <module>webfx-extras-webtext-controls-peers-base</module>
+                <module>webfx-extras-webtext</module>
+                <module>webfx-extras-webtext-peers-base</module>
                 <module>webfx-kit-javafxcontrols-peers-gwt</module>
                 <module>webfx-kit-javafxgraphics-emul</module>
                 <module>webfx-kit-javafxgraphics-peers</module>
@@ -839,14 +807,14 @@
 
         </project>
 
-        <project name="webfx-extras-webtext-controls-peers-openjfx">
+        <project name="webfx-extras-webtext-peers-openjfx">
 
             <exported-packages>
                 <source-packages/>
             </exported-packages>
 
             <providers>
-                <provider interface="dev.webfx.extras.webtext.controls.registry.spi.WebTextRegistryProvider">dev.webfx.extras.webtext.controls.registry.spi.impl.openjfx.JavaFxWebTextRegistryProvider</provider>
+                <provider interface="dev.webfx.extras.webtext.registry.spi.WebTextRegistryProvider">dev.webfx.extras.webtext.registry.spi.impl.openjfx.JavaFxWebTextRegistryProvider</provider>
             </providers>
 
             <dependencies>
@@ -854,8 +822,8 @@
             </dependencies>
 
             <source-packages>
-                <package>dev.webfx.extras.webtext.controls.peers.openjfx</package>
-                <package>dev.webfx.extras.webtext.controls.registry.spi.impl.openjfx</package>
+                <package>dev.webfx.extras.webtext.peers.openjfx</package>
+                <package>dev.webfx.extras.webtext.registry.spi.impl.openjfx</package>
             </source-packages>
 
             <used-by-source-modules>
@@ -863,9 +831,9 @@
                 <module>javafx-graphics</module>
                 <module>javafx-web</module>
                 <module>jdk.jsobject</module>
-                <module>webfx-extras-webtext-controls</module>
-                <module>webfx-extras-webtext-controls-peers-base</module>
-                <module>webfx-extras-webtext-controls-registry-spi</module>
+                <module>webfx-extras-webtext</module>
+                <module>webfx-extras-webtext-peers-base</module>
+                <module>webfx-extras-webtext-registry-spi</module>
                 <module>webfx-kit-javafxbase-emul</module>
                 <module>webfx-kit-javafxgraphics-emul</module>
                 <module>webfx-kit-javafxgraphics-peers</module>
@@ -875,7 +843,7 @@
 
         </project>
 
-        <project interface="true" name="webfx-extras-webtext-controls-registry">
+        <project interface="true" name="webfx-extras-webtext-registry">
 
             <exported-packages>
                 <source-packages/>
@@ -886,17 +854,17 @@
             </dependencies>
 
             <source-packages>
-                <package>dev.webfx.extras.webtext.controls.registry</package>
+                <package>dev.webfx.extras.webtext.registry</package>
             </source-packages>
 
             <used-by-source-modules/>
 
         </project>
 
-        <project name="webfx-extras-webtext-controls-registry-spi">
+        <project name="webfx-extras-webtext-registry-spi">
 
             <implements>
-                <module>webfx-extras-webtext-controls-registry</module>
+                <module>webfx-extras-webtext-registry</module>
             </implements>
 
             <exported-packages>
@@ -908,8 +876,8 @@
             </dependencies>
 
             <source-packages>
-                <package>dev.webfx.extras.webtext.controls.registry</package>
-                <package>dev.webfx.extras.webtext.controls.registry.spi</package>
+                <package>dev.webfx.extras.webtext.registry</package>
+                <package>dev.webfx.extras.webtext.registry.spi</package>
             </source-packages>
 
             <used-by-source-modules>
@@ -918,7 +886,7 @@
             </used-by-source-modules>
 
             <used-services>
-                <required-service>dev.webfx.extras.webtext.controls.registry.spi.WebTextRegistryProvider</required-service>
+                <required-service>dev.webfx.extras.webtext.registry.spi.WebTextRegistryProvider</required-service>
             </used-services>
 
         </project>
@@ -928,7 +896,7 @@
             <java-package name="java.util.regex"/>
 
             <java-class name="javafx.scene.control.ScrollPane">
-                <module>webfx-extras-visual-controls-grid</module>
+                <module>webfx-extras-visual-grid</module>
             </java-class>
 
         </usages>

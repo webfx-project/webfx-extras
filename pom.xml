@@ -40,8 +40,25 @@
         <module>webfx-extras-type</module>
         <module>webfx-extras-visual</module>
         <module>webfx-extras-visual-charts</module>
+        <module>webfx-extras-visual-charts-peers-base</module>
+        <module>webfx-extras-visual-charts-peers-gwt-charba</module>
+        <module>webfx-extras-visual-charts-peers-openjfx</module>
+        <module>webfx-extras-visual-charts-registry</module>
+        <module>webfx-extras-visual-charts-registry-spi</module>
+        <module>webfx-extras-visual-controls</module>
         <module>webfx-extras-visual-grid</module>
+        <module>webfx-extras-visual-grid-peers-base</module>
+        <module>webfx-extras-visual-grid-peers-gwt</module>
+        <module>webfx-extras-visual-grid-peers-openjfx</module>
+        <module>webfx-extras-visual-grid-registry</module>
+        <module>webfx-extras-visual-grid-registry-spi</module>
+        <module>webfx-extras-visual-peers-base</module>
         <module>webfx-extras-webtext</module>
+        <module>webfx-extras-webtext-peers-base</module>
+        <module>webfx-extras-webtext-peers-gwt</module>
+        <module>webfx-extras-webtext-peers-openjfx</module>
+        <module>webfx-extras-webtext-registry</module>
+        <module>webfx-extras-webtext-registry-spi</module>
     </modules>
 
 </project>

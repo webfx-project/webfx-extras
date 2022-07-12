@@ -46,7 +46,7 @@ public final class ImageStore {
 
     private static boolean loadImageViewImage(ImageView imageView, String iconPath, double w, double h, boolean resetToIntrinsicSizeOnceLoaded) {
         if (iconPath != null) {
-            // Checking the FxKit is ready (especially under JavaFx) because any attempt loading an image before JavaFx is ready results in crash
+            // Checking the FxKit is ready (especially under JavaFX) because any attempt loading an image before JavaFX is ready results in crash
             if (!WebFxKitLauncher.isReady()) { // If not ready, just postponing the image load once it is ready
                 WebFxKitLauncher.onReady(() -> loadImageViewImage(imageView, iconPath, w, h, resetToIntrinsicSizeOnceLoaded));
                 return false;

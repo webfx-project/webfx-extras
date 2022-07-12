@@ -21,7 +21,7 @@ import java.util.Objects;
  */
 public final class MaterialAnimation {
 
-    // Ease out interpolator closer to the web standard than the one proposed in JavaFx (ie Interpolator.EASE_OUT)
+    // Ease out interpolator closer to the web standard than the one proposed in JavaFX (ie Interpolator.EASE_OUT)
     private final static Interpolator EASE_OUT_INTERPOLATOR = Interpolator.SPLINE(0, .75, .25, 1);
     private final static Duration MATERIAL_ANIMATION_DURATION = Duration.millis(400);
 

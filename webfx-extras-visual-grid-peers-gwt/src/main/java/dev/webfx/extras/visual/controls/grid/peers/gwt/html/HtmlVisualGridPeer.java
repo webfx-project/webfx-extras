@@ -202,7 +202,7 @@ public final class HtmlVisualGridPeer
                 setStyleAttribute(childNode, "position", "relative");
                 if (spacing > 0 && i < n - 1)
                     setStyleAttribute(childNode, "margin-right", toPx(spacing));
-                if (childNode instanceof Element) // Added, required in case of JavaFx CheckBox to have the image centered
+                if (childNode instanceof Element) // Added, required in case of JavaFX CheckBox to have the image centered
                     resetChildrenPositionToRelative((Element) childNode, 0);
             }
         }

@@ -210,7 +210,7 @@ public final class FxVisualGridPeer
             currentColumns = newColumns = null;
             tableView.getSelectionModel().clearSelection(); // Clearing selection otherwise an undesired selection event is triggered on new items
             tableView.getItems().setAll(new IdentityList(rowCount));
-            if (rowCount > 0) { // Workaround for the JavaFx wrong resize columns problem when vertical scroll bar appears
+            if (rowCount > 0) { // Workaround for the JavaFX wrong resize columns problem when vertical scroll bar appears
                 tableView.setColumnResizePolicy(TableView.UNCONSTRAINED_RESIZE_POLICY);
                 UiScheduler.scheduleDelay(100, () -> tableView.setColumnResizePolicy(TableView.CONSTRAINED_RESIZE_POLICY));
             }

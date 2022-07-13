@@ -3,7 +3,7 @@ package dev.webfx.extras.materialdesign.util.scene;
 import javafx.beans.value.ObservableValue;
 import javafx.scene.Node;
 import javafx.scene.Scene;
-import dev.webfx.kit.util.properties.Properties;
+import dev.webfx.kit.util.properties.FXProperties;
 
 import java.util.function.Consumer;
 
@@ -17,7 +17,7 @@ public final class SceneUtil {
     }
 
     public static void onSceneReady(ObservableValue<Scene> sceneProperty, Consumer<Scene> sceneConsumer) {
-        Properties.onPropertySet(sceneProperty, sceneConsumer);
+        FXProperties.onPropertySet(sceneProperty, sceneConsumer);
     }
 
     public static boolean isFocusInside(Node node) {

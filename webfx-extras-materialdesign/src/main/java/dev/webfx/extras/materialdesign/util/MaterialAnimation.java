@@ -8,7 +8,7 @@ import javafx.application.Platform;
 import javafx.beans.value.ObservableValue;
 import javafx.beans.value.WritableValue;
 import javafx.util.Duration;
-import dev.webfx.kit.util.properties.Properties;
+import dev.webfx.kit.util.properties.FXProperties;
 import dev.webfx.kit.util.properties.Unregisterable;
 import dev.webfx.platform.util.collection.Collections;
 
@@ -31,7 +31,7 @@ public final class MaterialAnimation {
     private Runnable pendingPlay;
 
     public Unregisterable runNowAndOnPropertiesChange(Runnable runnable, ObservableValue... properties) {
-        return Properties.runNowAndOnPropertiesChange(() -> {
+        return FXProperties.runNowAndOnPropertiesChange(() -> {
             keyValues = null;
             runnable.run();
             play();

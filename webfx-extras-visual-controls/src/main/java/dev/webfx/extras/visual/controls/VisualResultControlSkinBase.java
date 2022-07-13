@@ -10,7 +10,7 @@ import dev.webfx.extras.cell.renderer.ValueRenderer;
 import dev.webfx.extras.visual.VisualColumn;
 import dev.webfx.extras.visual.VisualResult;
 import dev.webfx.extras.label.Label;
-import dev.webfx.kit.util.properties.Properties;
+import dev.webfx.kit.util.properties.FXProperties;
 import dev.webfx.platform.uischeduler.UiScheduler;
 
 /**
@@ -31,7 +31,7 @@ public abstract class VisualResultControlSkinBase<C extends VisualResultControl,
     private int rowBackgroundColumnIndex;
 
     protected void start() {
-        Properties.runNowAndOnPropertiesChange(() -> updateResult(getSkinnable().getVisualResult()), getSkinnable().visualResultProperty());
+        FXProperties.runNowAndOnPropertiesChange(() -> updateResult(getSkinnable().getVisualResult()), getSkinnable().visualResultProperty());
     }
 
     protected void updateResult(VisualResult rs) {

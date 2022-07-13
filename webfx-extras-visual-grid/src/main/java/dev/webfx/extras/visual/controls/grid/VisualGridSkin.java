@@ -14,7 +14,7 @@ import javafx.scene.paint.Paint;
 import javafx.scene.shape.Rectangle;
 import dev.webfx.extras.visual.*;
 import dev.webfx.extras.visual.controls.SelectableVisualResultControlSkinBase;
-import dev.webfx.kit.util.properties.Properties;
+import dev.webfx.kit.util.properties.FXProperties;
 import dev.webfx.platform.uischeduler.UiScheduler;
 import dev.webfx.platform.scheduler.Scheduled;
 import dev.webfx.platform.util.collection.Collections;
@@ -44,7 +44,7 @@ public final class VisualGridSkin extends SelectableVisualResultControlSkinBase<
         visualGrid.getStyleClass().add("grid");
         clipChildren(gridBody);
         gridBody.setBackground(new Background(new BackgroundFill(Color.grayRgb(245), null, null)));
-        Properties.runNowAndOnPropertiesChange(() -> {
+        FXProperties.runNowAndOnPropertiesChange(() -> {
             if (visualGrid.isFullHeight()) {
                 if (bodyScrollPane != null)
                     bodyScrollPane.setContent(null);

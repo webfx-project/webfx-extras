@@ -33,7 +33,7 @@ import dev.webfx.extras.visual.controls.grid.peers.base.VisualGridPeerImageTextM
 import dev.webfx.extras.visual.controls.grid.peers.base.VisualGridPeerMixin;
 import dev.webfx.kit.mapper.peers.javafxgraphics.openjfx.FxLayoutMeasurable;
 import dev.webfx.kit.mapper.peers.javafxgraphics.openjfx.FxRegionPeer;
-import dev.webfx.kit.util.properties.Properties;
+import dev.webfx.kit.util.properties.FXProperties;
 import dev.webfx.platform.uischeduler.UiScheduler;
 import dev.webfx.platform.util.collection.IdentityList;
 
@@ -298,7 +298,7 @@ public final class FxVisualGridPeer
 
     private static void fitHeightToContent(Control control, VisualGrid visualGrid) {
         // Quick ugly hacked code to make the table height fit with the content
-        Properties.onPropertySet(control.skinProperty(), skin -> {
+        FXProperties.onPropertySet(control.skinProperty(), skin -> {
             ObservableList<javafx.scene.Node> children = null;
             if (skin instanceof Parent) // happens in java 7
                 children = ((Parent) skin).getChildrenUnmodifiable();
@@ -331,7 +331,7 @@ public final class FxVisualGridPeer
                         nodePrefHeight = node.prefHeight(-1);
                     h += nodePrefHeight;
                 }
-                Properties.setIfNotBound(visualGrid.prefHeightProperty(), h);
+                FXProperties.setIfNotBound(visualGrid.prefHeightProperty(), h);
             }
         });
     }

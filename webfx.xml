@@ -31,7 +31,7 @@
 
     <export-snapshot>
 
-        <project name="webfx-extras">
+        <project name="webfx-extras-private">
 
             <required-libraries>
                 <webfx-library artifact="dev.webfx:webfx:0.1.0-SNAPSHOT"/>

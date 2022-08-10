@@ -42,6 +42,7 @@
                 <module>webfx-extras-flexbox</module>
                 <module>webfx-extras-imagestore</module>
                 <module>webfx-extras-label</module>
+                <module>webfx-extras-led</module>
                 <module>webfx-extras-materialdesign</module>
                 <module>webfx-extras-type</module>
                 <module>webfx-extras-visual</module>
@@ -161,6 +162,27 @@
             </source-packages>
 
             <used-by-source-modules/>
+
+        </project>
+
+        <project name="webfx-extras-led">
+
+            <exported-packages>
+                <source-packages/>
+            </exported-packages>
+
+            <dependencies>
+                <used-by-source-modules/>
+            </dependencies>
+
+            <source-packages>
+                <package>dev.webfx.extras.led</package>
+            </source-packages>
+
+            <used-by-source-modules>
+                <module>webfx-kit-javafxbase-emul</module>
+                <module>webfx-kit-javafxgraphics-emul</module>
+            </used-by-source-modules>
 
         </project>
 

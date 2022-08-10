@@ -36,6 +36,7 @@
         <module>webfx-extras-flexbox</module>
         <module>webfx-extras-imagestore</module>
         <module>webfx-extras-label</module>
+        <module>webfx-extras-led</module>
         <module>webfx-extras-materialdesign</module>
         <module>webfx-extras-type</module>
         <module>webfx-extras-visual</module>

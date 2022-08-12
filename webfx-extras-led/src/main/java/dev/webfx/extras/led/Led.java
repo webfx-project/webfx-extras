@@ -1,9 +1,12 @@
 package dev.webfx.extras.led;
 
+import javafx.beans.property.BooleanProperty;
+import javafx.beans.property.SimpleBooleanProperty;
 import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
 import javafx.geometry.HPos;
 import javafx.geometry.VPos;
+import javafx.scene.Cursor;
 import javafx.scene.Group;
 import javafx.scene.Node;
 import javafx.scene.effect.BlurType;
@@ -22,7 +25,14 @@ public final class Led extends Region {
 
     private final Circle ledBorder = new Circle(), ledCentre = new Circle(), highlight = new Circle();
     private final Line hLine = new Line(), vLine = new Line();
-    private final Paint pressedFill, releasedFill;
+    private Color ledColor;
+    private Paint pressedFill, releasedFill;
+    private final BooleanProperty highlightedProperty = new SimpleBooleanProperty() {
+        @Override
+        protected void invalidated() {
+            updateHighlight();
+        }
+    };
     private final InnerShadow innerShadow = new InnerShadow(BlurType.TWO_PASS_BOX, Color.rgb(0, 0, 0, 0.65), 0, 0, 0, 0);
 
     Led(Color ledColor, Boolean plus) {
@@ -33,24 +43,7 @@ public final class Led extends Region {
                 new Stop(0.4,  Color.rgb(100, 100, 100, 0.80)),
                 new Stop(1.0,  Color.rgb( 20,  20,  20, 0.65)));
         ledBorder.setFill(borderFill);
-        pressedFill = new LinearGradient(0, 0, 1, 1, true, CycleMethod.NO_CYCLE,
-                new Stop(0.0,  ledColor.deriveColor(0d, 1d, 0.77, 1d)),
-                new Stop(0.49, ledColor.deriveColor(0d, 1d, 0.5,  1d)),
-                new Stop(1.0,  ledColor));
-        releasedFill = new LinearGradient(0, 0, 1, 1, true, CycleMethod.NO_CYCLE,
-                new Stop(0.0,  ledColor.deriveColor(0d, 1d, 0.57, 1d)),
-                new Stop(0.49, ledColor.deriveColor(0d, 1d, 0.4,  1d)),
-                new Stop(1.0,  ledColor.deriveColor(0d, 1d, 0.2,  1d)));
-        ledCentre.setFill(releasedFill);
         ledCentre.setEffect(innerShadow);
-        ledCentre.setOnMousePressed(e -> {
-            ledCentre.setFill(pressedFill);
-            ledCentre.setEffect(new DropShadow(ledCentre.getRadius() * 0.3, ledColor));
-        });
-        ledCentre.setOnMouseReleased(e -> {
-            ledCentre.setFill(releasedFill);
-            ledCentre.setEffect(null);
-        });
 
         Color lineColor = Color.IVORY;
         hLine.setStroke(lineColor);
@@ -64,15 +57,58 @@ public final class Led extends Region {
         sign.setMouseTransparent(true);
         if (plus == null)
             sign.setVisible(false);
+
+        setColor(ledColor);
     }
 
-    void setOnAction(EventHandler<ActionEvent> actionHandler) {
+    public void setColor(Color ledColor) {
+        this.ledColor = ledColor;
+        pressedFill = new LinearGradient(0, 0, 1, 1, true, CycleMethod.NO_CYCLE,
+                new Stop(0.0,  ledColor.deriveColor(0d, 1d, 0.77, 1d)),
+                new Stop(0.49, ledColor.deriveColor(0d, 1d, 0.5,  1d)),
+                new Stop(1.0,  ledColor));
+        releasedFill = new LinearGradient(0, 0, 1, 1, true, CycleMethod.NO_CYCLE,
+                new Stop(0.0,  ledColor.deriveColor(0d, 1d, 0.57, 1d)),
+                new Stop(0.49, ledColor.deriveColor(0d, 1d, 0.4,  1d)),
+                new Stop(1.0,  ledColor.deriveColor(0d, 1d, 0.2,  1d)));
+        ledCentre.setFill(releasedFill);
+        updateHighlight();
+    }
+
+    public BooleanProperty highlightedProperty() {
+        return highlightedProperty;
+    }
+
+    public void setHighlighted(boolean highlighted) {
+        highlightedProperty.set(highlighted);
+    }
+
+    public boolean isHighlighted() {
+        return highlightedProperty.get();
+    }
+
+    private void updateHighlight() {
+        if (isHighlighted()) {
+            ledCentre.setFill(pressedFill);
+            ledCentre.setEffect(new DropShadow(ledCentre.getRadius() * 0.3, ledColor));
+        } else {
+            ledCentre.setFill(releasedFill);
+            ledCentre.setEffect(null);
+        }
+    }
+
+    public void setOnAction(EventHandler<ActionEvent> actionHandler) {
         ledCentre.setOnMouseClicked(e -> actionHandler.handle(new ActionEvent(this, this)));
+        ledCentre.setCursor(Cursor.HAND);
+    }
+
+    public void setHighlightOnClick(boolean highlightOnClick) {
+        ledCentre.setOnMousePressed(e -> { if (highlightOnClick) setHighlighted(true); });
+        ledCentre.setOnMouseReleased(e -> { if (highlightOnClick) setHighlighted(false); });
     }
 
     @Override public void layoutChildren() {
-        double width = getWidth();
-        double height = getHeight();
+        double width = getWidth(), height = getHeight();
         double radius = Math.min(width, height) / 2;
         ledBorder.setRadius(radius);
         ledCentre.setRadius(0.8 * radius);
@@ -93,13 +129,26 @@ public final class Led extends Region {
                 layoutInArea(child, 0, 0, width, height, 0 , HPos.CENTER, VPos.CENTER);
         layoutInArea(hLine, 0, 0, width, height, 0 , HPos.CENTER, VPos.CENTER);
         layoutInArea(vLine, 0, 0, width, height, 0 , HPos.CENTER, VPos.CENTER);
+        updateHighlight();
     }
 
     public static Led create(Color ledColor, Boolean plus, Runnable actionHandler) {
         Led led = new Led(ledColor, plus);
         led.setMaxSize(Double.MAX_VALUE, Double.MAX_VALUE);
-        if (actionHandler != null)
+        if (actionHandler != null) {
             led.setOnAction(e -> actionHandler.run());
+            led.setHighlightOnClick(true);
+        }
+        return led;
+    }
+
+    public static Led create(Color ledColor) {
+        return create(ledColor, null, null);
+    }
+
+    public static Led createHihlighted(Color ledColor) {
+        Led led = create(ledColor);
+        led.setHighlighted(true);
         return led;
     }
 }

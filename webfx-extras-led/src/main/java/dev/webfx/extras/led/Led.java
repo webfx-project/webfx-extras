@@ -68,13 +68,13 @@ public final class Led extends Region {
         if (!ledColor.equals(this.ledColor)) {
             this.ledColor = ledColor;
             pressedFill = new LinearGradient(0, 0, 1, 1, true, CycleMethod.NO_CYCLE,
-                    new Stop(0.0, ledColor.deriveColor(0d, 1d, 0.77, 1d)),
-                    new Stop(0.49, ledColor.deriveColor(0d, 1d, 0.5, 1d)),
-                    new Stop(1.0, ledColor));
+                    new Stop(0.0, ledColor.deriveColor(0d, 1d, 1, 1d)),
+                    new Stop(0.49, ledColor.deriveColor(0d, 1d, 0.65, 1d)),
+                    new Stop(1.0, ledColor.deriveColor(0d, 1d, 1.3, 1d)));
             releasedFill = new LinearGradient(0, 0, 1, 1, true, CycleMethod.NO_CYCLE,
-                    new Stop(0.0, ledColor.deriveColor(0d, 1d, 0.57, 1d)),
-                    new Stop(0.49, ledColor.deriveColor(0d, 1d, 0.4, 1d)),
-                    new Stop(1.0, ledColor.deriveColor(0d, 1d, 0.2, 1d)));
+                    new Stop(0.0, ledColor.deriveColor(0d, 1d, 1, 1d)),
+                    new Stop(0.49, ledColor.deriveColor(0d, 1d, 0.7, 1d)),
+                    new Stop(1.0, ledColor.deriveColor(0d, 1d, 0.35, 1d)));
             ledCentre.setFill(releasedFill);
             updateHighlight();
         }

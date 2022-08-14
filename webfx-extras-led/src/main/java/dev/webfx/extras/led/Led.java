@@ -9,6 +9,7 @@ import javafx.geometry.VPos;
 import javafx.scene.Cursor;
 import javafx.scene.Group;
 import javafx.scene.Node;
+import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.effect.BlurType;
 import javafx.scene.effect.DropShadow;
 import javafx.scene.effect.InnerShadow;
@@ -23,8 +24,15 @@ import javafx.scene.shape.StrokeLineCap;
  */
 public final class Led extends Region {
 
+    private static final Paint BORDER_FILL = new LinearGradient( 0,  0, 1, 1, true, CycleMethod.NO_CYCLE,
+            new Stop(0.0,  Color.rgb( 20,  20,  20, 0.65)),
+            new Stop(0.15, Color.rgb( 20,  20,  20, 0.65)),
+            new Stop(0.26, Color.rgb( 41,  41,  41, 0.65)),
+            new Stop(0.4,  Color.rgb(100, 100, 100, 0.80)),
+            new Stop(1.0,  Color.rgb( 20,  20,  20, 0.65)));
+
     private final Circle ledBorder = new Circle(), ledCentre = new Circle(), reflection = new Circle();
-    private final Line hLine = new Line(), vLine = new Line();
+    private final Line hLine, vLine;
     private final Node sign;
     private Color ledColor;
 
@@ -39,45 +47,46 @@ public final class Led extends Region {
     private final InnerShadow innerShadow = new InnerShadow(BlurType.TWO_PASS_BOX, Color.rgb(0, 0, 0, 0.65), 0, 0, 0, 0);
 
     Led(Color ledColor, Boolean plus) {
-        Paint borderFill = new LinearGradient( 0,  0, 1, 1, true, CycleMethod.NO_CYCLE,
-                new Stop(0.0,  Color.rgb( 20,  20,  20, 0.65)),
-                new Stop(0.15, Color.rgb( 20,  20,  20, 0.65)),
-                new Stop(0.26, Color.rgb( 41,  41,  41, 0.65)),
-                new Stop(0.4,  Color.rgb(100, 100, 100, 0.80)),
-                new Stop(1.0,  Color.rgb( 20,  20,  20, 0.65)));
-        ledBorder.setFill(borderFill);
+        ledBorder.setFill(BORDER_FILL);
         ledCentre.setEffect(innerShadow);
-
-        Color lineColor = Color.IVORY;
-        hLine.setStroke(lineColor);
-        hLine.setStrokeLineCap(StrokeLineCap.ROUND);
-        vLine.setStroke(lineColor);
-        vLine.setStrokeLineCap(StrokeLineCap.ROUND);
-        sign = plus == Boolean.TRUE ? new Group(hLine, vLine) : hLine;
-        sign.setOpacity(0.6);
-        getChildren().setAll(ledBorder, ledCentre, reflection, sign);
-        reflection.setMouseTransparent(true);
-        sign.setMouseTransparent(true);
-        if (plus == null)
-            sign.setVisible(false);
-
+        getChildren().setAll(ledBorder, ledCentre, reflection);
+        if (plus == null) {
+            hLine = vLine = null;
+            sign = null;
+        } else {
+            Color lineColor = Color.IVORY;
+            hLine = new Line();
+            hLine.setStroke(lineColor);
+            hLine.setStrokeLineCap(StrokeLineCap.ROUND);
+            vLine = plus ? new Line() : null;
+            if (vLine != null) {
+                vLine.setStroke(lineColor);
+                vLine.setStrokeLineCap(StrokeLineCap.ROUND);
+                sign = new Group(hLine, vLine);
+            } else
+                sign = hLine;
+            sign.setOpacity(0.6);
+            reflection.setMouseTransparent(true);
+            sign.setMouseTransparent(true);
+            getChildren().add(sign);
+        }
         setColor(ledColor);
     }
 
     public void setColor(Color ledColor) {
         if (!ledColor.equals(this.ledColor)) {
             this.ledColor = ledColor;
-            pressedFill = new LinearGradient(0, 0, 1, 1, true, CycleMethod.NO_CYCLE,
-                    new Stop(0.0, ledColor.deriveColor(0d, 1d, 1, 1d)),
-                    new Stop(0.49, ledColor.deriveColor(0d, 1d, 0.65, 1d)),
-                    new Stop(1.0, ledColor.deriveColor(0d, 1d, 1.3, 1d)));
-            releasedFill = new LinearGradient(0, 0, 1, 1, true, CycleMethod.NO_CYCLE,
-                    new Stop(0.0, ledColor.deriveColor(0d, 1d, 1, 1d)),
-                    new Stop(0.49, ledColor.deriveColor(0d, 1d, 0.7, 1d)),
-                    new Stop(1.0, ledColor.deriveColor(0d, 1d, 0.35, 1d)));
-            ledCentre.setFill(releasedFill);
+            pressedFill = createFillGradient(ledColor, true);
+            releasedFill = createFillGradient(ledColor, false);
             updateHighlight();
         }
+    }
+
+    private static Paint createFillGradient(Color ledColor, boolean pressed) {
+        return new LinearGradient(0, 0, 1, 1, true, CycleMethod.NO_CYCLE,
+                new Stop(0.0, ledColor.deriveColor(0d, 1d, 1, 1d)),
+                new Stop(0.49, ledColor.deriveColor(0d, 1d, pressed ? 0.65 : 0.7, 1d)),
+                new Stop(1.0, ledColor.deriveColor(0d, 1d, pressed ? 1.3 : 0.35, 1d)));
     }
 
     public void setShowBorder(boolean showBorder) {
@@ -122,17 +131,33 @@ public final class Led extends Region {
         ledCentre.setOnMouseReleased(e -> { if (highlightOnClick) setHighlighted(false); });
     }
 
+    private double lastWidth, lastHeight, lastRadius;
     @Override public void layoutChildren() {
-        double width = getWidth(), height = getHeight();
+        updateSize(getWidth(), getHeight(), true);
+    }
+
+    private void updateSize(double width, double height, boolean doLayout) {
         double radius = Math.min(width, height) / 2;
-        ledBorder.setRadius(radius);
-        ledCentre.setRadius((showBorder ? 0.8 : 1.0) * radius);
-        reflection.setRadius(0.9 * ledCentre.getRadius());
-        innerShadow.setRadius(0.8 * 0.075 / 0.15 * radius);
-        Paint highlightFill = new RadialGradient(0, 0, 0 - reflection.getRadius(), 0 - reflection.getRadius(), reflection.getRadius(), false,
-                CycleMethod.NO_CYCLE, new Stop(0.0, Color.WHITE), new Stop(1.0, Color.TRANSPARENT));
-        reflection.setFill(highlightFill);
-        if (sign.isVisible()) {
+        if (radius != lastRadius) {
+            ledBorder.setRadius(radius);
+            ledCentre.setRadius((showBorder ? 0.8 : 1.0) * radius);
+            reflection.setRadius(0.9 * ledCentre.getRadius());
+            innerShadow.setRadius(0.8 * 0.075 / 0.15 * radius);
+            Paint highlightFill = new RadialGradient(0, 0, 0 - reflection.getRadius(), 0 - reflection.getRadius(), reflection.getRadius(), false,
+                    CycleMethod.NO_CYCLE, new Stop(0.0, Color.WHITE), new Stop(1.0, Color.TRANSPARENT));
+            reflection.setFill(highlightFill);
+            lastRadius = radius;
+        }
+        if (!doLayout)
+            return;
+        if (lastWidth != width || lastHeight != height) {
+            for (Node child : getChildren())
+                if (!(child instanceof Group))
+                    layoutInArea(child, 0, 0, width, height, 0, HPos.CENTER, VPos.CENTER);
+            lastWidth = width;
+            lastHeight = height;
+        }
+        if (sign != null) {
             double lineLength = 0.4 * radius;
             hLine.setStartX(width / 2 - lineLength);
             hLine.setEndX(width / 2 + lineLength);
@@ -140,13 +165,25 @@ public final class Led extends Region {
             vLine.setStartY(width / 2 - lineLength);
             vLine.setEndY(width / 2 + lineLength);
             vLine.setStrokeWidth(0.2 * radius);
+            layoutInArea(hLine, 0, 0, width, height, 0 , HPos.CENTER, VPos.CENTER);
+            layoutInArea(vLine, 0, 0, width, height, 0 , HPos.CENTER, VPos.CENTER);
         }
-        for (Node child : getChildren())
-            if (!(child instanceof Group))
-                layoutInArea(child, 0, 0, width, height, 0 , HPos.CENTER, VPos.CENTER);
-        layoutInArea(hLine, 0, 0, width, height, 0 , HPos.CENTER, VPos.CENTER);
-        layoutInArea(vLine, 0, 0, width, height, 0 , HPos.CENTER, VPos.CENTER);
         updateHighlight();
+    }
+
+    // Used by Led clock demo
+    public void drawInCanvas(GraphicsContext ctx, double x, double y, double size) {
+        updateSize(size, size, false);
+        ctx.save();
+        ctx.setFill(ledCentre.getFill());
+        //ctx.setEffect(ledCentre.getEffect()); // Commented as too time-consuming
+        ctx.fillOval(x, y, size, size);
+        if (reflection.isVisible()) {
+            ctx.setFill(reflection.getFill());
+            //ctx.setEffect(reflection.getEffect()); // Commented as too time-consuming
+            ctx.fillOval(x + 0.05 * size, y + 0.05 * size, 0.9 * size, 0.9 * size);
+        }
+        ctx.restore();
     }
 
     public static Led create(Color ledColor, Boolean plus, Runnable actionHandler) {

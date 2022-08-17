@@ -244,6 +244,8 @@ public final class FlexBox extends Pane {
         addToGrid(row, flexBoxRow);
 
         double horizontalSpace = getHorizontalSpace();
+        // Removing the possible left & right space from computation
+        width -= horizontalSpace * ( (isSpaceLeft() ? 1 : 0) + (isSpaceRight() ? 1 : 0) );
         double minWidthSum = 0, previousMinWidthSum = 0;
 
         for (int i = 0, n = flexBoxItems.size(); i < n; i++) {
@@ -251,26 +253,27 @@ public final class FlexBox extends Pane {
             double nodeWidth = flexBoxItem.minWidth;
             minWidthSum += nodeWidth;
 
-            // is there one more node?
-            if (i + 1 < n)
-                minWidthSum += horizontalSpace;
-
-            if (minWidthSum > width) {
+            if (minWidthSum >= width) {
                 previousFlexBoxRow = flexBoxRow;
                 previousMinWidthSum = minWidthSum;
                 addToGrid(++row,  flexBoxRow = new FlexBoxRow());
                 minWidthSum = nodeWidth;
             }
+
             flexBoxRow.addItem(flexBoxItem);
+
+            // Adding space if not the last node
+            if (i + 1 < n)
+                minWidthSum += horizontalSpace;
         }
 
         // Moving tight items to last row to equalize pressure
         if (previousFlexBoxRow != null) {
             List<FlexBoxItem> previousItems = previousFlexBoxRow.items;
-            while (previousItems.size() > 1) {
+            while (previousItems.size() > flexBoxRow.items.size()) {
                 FlexBoxItem lastItem = Collections.last(previousItems);
                 double lastWidth = lastItem.minWidth + horizontalSpace;
-                if (minWidthSum + lastWidth > previousMinWidthSum - lastWidth)
+                if (minWidthSum + lastWidth > Math.min(width, previousMinWidthSum - lastWidth))
                     break;
                 previousFlexBoxRow.removeItem(lastItem);
                 flexBoxRow.addFirstItem(lastItem);
@@ -280,7 +283,8 @@ public final class FlexBox extends Pane {
         }
 
         // iterate rows and calculate width
-        double y = getPadding().getTop() + (spaceTop.get() ? getVerticalSpace() : 0);
+        Insets padding = getPadding();
+        double y = padding.getTop() + (spaceTop.get() ? getVerticalSpace() : 0);
         int i = 0;
         int noGridRows = grid.size();
 
@@ -294,10 +298,10 @@ public final class FlexBox extends Pane {
             List<FlexBoxItem> rowItems = flexBoxRow.getItems();
             int noRowItems = rowItems.size();
 
-            double remainingWidth = width - flexBoxRow.rowMinWidth - (horizontalSpace * (noRowItems - 1 + (spaceLeft.get() ? 1 : 0) + (spaceRight.get() ? 1 : 0))) - getPadding().getLeft() - getPadding().getRight();
+            double remainingWidth = width - flexBoxRow.rowMinWidth - (horizontalSpace * (noRowItems - 1)) - padding.getLeft() - padding.getRight();
             double flexGrowCellWidth = remainingWidth / flexBoxRow.flexGrowSum;
 
-            double x = getPadding().getLeft() + (spaceLeft.get() ? getHorizontalSpace() : 0);
+            double x = padding.getLeft() + (isSpaceLeft() ? horizontalSpace : 0);
             double rowMaxHeight = 0;
 
             // iterate nodes of row
@@ -311,7 +315,7 @@ public final class FlexBox extends Pane {
 
                 double h = rowNode.prefHeight(rowNodeWidth);
                 if (apply)
-                    layoutInArea(rowNode, snapPosition(x), snapPosition(y), snapSize(x + rowNodeWidth) - snapPosition(x), snapSize(h), 0, flexBoxItem.margin, HPos.LEFT, VPos.TOP);
+                    layoutInArea(rowNode, snapPositionX(x), snapPositionY(y), snapSizeX(x + rowNodeWidth) - snapPositionX(x), snapSizeY(h), 0, flexBoxItem.margin, HPos.LEFT, VPos.TOP);
                 rowMaxHeight = Math.max(rowMaxHeight, h);
                 x += rowNodeWidth + horizontalSpace;
             }
@@ -321,7 +325,7 @@ public final class FlexBox extends Pane {
                 y += getVerticalSpace();
             i++;
         }
-        y += getPadding().getBottom();
+        y += padding.getBottom();
 
         computedMinHeight = y;
         //lastComputationWidthInput = width;

@@ -1,7 +1,9 @@
 package dev.webfx.extras.flexbox;
 
 import javafx.beans.InvalidationListener;
+import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.DoubleProperty;
+import javafx.beans.property.SimpleBooleanProperty;
 import javafx.beans.property.SimpleDoubleProperty;
 import javafx.geometry.HPos;
 import javafx.geometry.Insets;
@@ -22,8 +24,34 @@ public final class FlexBox extends Pane {
     private static final String ORDER_CONSTRAINT = "flexbox-order";
     private static final String GROW_CONSTRAINT = "flexbox-grow";
     private static final String MARGIN_CONSTRAINT = "flexbox-margin";
-    private final DoubleProperty horizontalSpace = new SimpleDoubleProperty(0);
-    private final DoubleProperty verticalSpace = new SimpleDoubleProperty(0);
+    private final DoubleProperty horizontalSpace = new SimpleDoubleProperty(0) {
+        @Override
+        protected void invalidated() {
+            requestLayout();
+        }
+    };
+    private final DoubleProperty verticalSpace = new SimpleDoubleProperty(0)  {
+        @Override
+        protected void invalidated() {
+            requestLayout();
+        }
+    };
+
+    private final BooleanProperty spaceTop = new SimpleBooleanProperty() {
+        protected void invalidated() {
+            requestLayout();
+        }
+    };
+    private final BooleanProperty spaceLeft = new SimpleBooleanProperty() {
+        protected void invalidated() {
+            requestLayout();
+        }
+    };
+    private final BooleanProperty spaceRight = new SimpleBooleanProperty() {
+        protected void invalidated() {
+            requestLayout();
+        }
+    };
     private double computedMinHeight;
     private boolean performingLayout;
 
@@ -67,6 +95,42 @@ public final class FlexBox extends Pane {
 
     public void setVerticalSpace(double verticalSpace) {
         this.verticalSpace.set(verticalSpace);
+    }
+
+    public boolean isSpaceTop() {
+        return spaceTop.get();
+    }
+
+    public BooleanProperty spaceTopProperty() {
+        return spaceTop;
+    }
+
+    public void setSpaceTop(boolean spaceTop) {
+        this.spaceTop.set(spaceTop);
+    }
+
+    public boolean isSpaceLeft() {
+        return spaceLeft.get();
+    }
+
+    public BooleanProperty spaceLeftProperty() {
+        return spaceLeft;
+    }
+
+    public void setSpaceLeft(boolean spaceLeft) {
+        this.spaceLeft.set(spaceLeft);
+    }
+
+    public boolean isSpaceRight() {
+        return spaceRight.get();
+    }
+
+    public BooleanProperty spaceRightProperty() {
+        return spaceRight;
+    }
+
+    public void setSpaceRight(boolean spaceRight) {
+        this.spaceRight.set(spaceRight);
     }
 
     private final Map<Integer, FlexBoxRow> grid = new HashMap<>();
@@ -216,7 +280,7 @@ public final class FlexBox extends Pane {
         }
 
         // iterate rows and calculate width
-        double y = getPadding().getTop();
+        double y = getPadding().getTop() + (spaceTop.get() ? getVerticalSpace() : 0);
         int i = 0;
         int noGridRows = grid.size();
 
@@ -230,10 +294,10 @@ public final class FlexBox extends Pane {
             List<FlexBoxItem> rowItems = flexBoxRow.getItems();
             int noRowItems = rowItems.size();
 
-            double remainingWidth = width - flexBoxRow.rowMinWidth - (horizontalSpace * (noRowItems - 1)) - getPadding().getLeft() - getPadding().getRight();
+            double remainingWidth = width - flexBoxRow.rowMinWidth - (horizontalSpace * (noRowItems - 1 + (spaceLeft.get() ? 1 : 0) + (spaceRight.get() ? 1 : 0))) - getPadding().getLeft() - getPadding().getRight();
             double flexGrowCellWidth = remainingWidth / flexBoxRow.flexGrowSum;
 
-            double x = getPadding().getLeft();
+            double x = getPadding().getLeft() + (spaceLeft.get() ? getHorizontalSpace() : 0);
             double rowMaxHeight = 0;
 
             // iterate nodes of row

@@ -66,10 +66,10 @@ public final class Led extends Region {
             } else
                 sign = hLine;
             sign.setOpacity(0.6);
-            reflection.setMouseTransparent(true);
             sign.setMouseTransparent(true);
             getChildren().add(sign);
         }
+        reflection.setMouseTransparent(true);
         setColor(ledColor);
     }
 

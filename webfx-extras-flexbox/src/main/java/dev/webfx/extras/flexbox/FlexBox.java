@@ -52,6 +52,16 @@ public final class FlexBox extends Pane {
             requestLayout();
         }
     };
+    private final BooleanProperty spaceBottom = new SimpleBooleanProperty() {
+        protected void invalidated() {
+            requestLayout();
+        }
+    };
+    private final BooleanProperty flexLastRow = new SimpleBooleanProperty(true) {
+        protected void invalidated() {
+            requestLayout();
+        }
+    };
     private double computedMinHeight;
     private boolean performingLayout;
 
@@ -131,6 +141,30 @@ public final class FlexBox extends Pane {
 
     public void setSpaceRight(boolean spaceRight) {
         this.spaceRight.set(spaceRight);
+    }
+
+    public boolean isSpaceBottom() {
+        return spaceBottom.get();
+    }
+
+    public BooleanProperty spaceBottomProperty() {
+        return spaceBottom;
+    }
+
+    public void setSpaceBottom(boolean spaceBottom) {
+        this.spaceBottom.set(spaceBottom);
+    }
+
+    public boolean isFlexLastRow() {
+        return flexLastRow.get();
+    }
+
+    public BooleanProperty flexLastRowProperty() {
+        return flexLastRow;
+    }
+
+    public void setFlexLastRow(boolean flexLastRow) {
+        this.flexLastRow.set(flexLastRow);
     }
 
     private final Map<Integer, FlexBoxRow> grid = new HashMap<>();
@@ -243,7 +277,7 @@ public final class FlexBox extends Pane {
         FlexBoxRow flexBoxRow = new FlexBoxRow(), previousFlexBoxRow = null;
         addToGrid(row, flexBoxRow);
 
-        double horizontalSpace = getHorizontalSpace();
+        double horizontalSpace = getHorizontalSpace(), verticalSpace = getVerticalSpace();
         // Removing the possible left & right space from computation
         width -= horizontalSpace * ( (isSpaceLeft() ? 1 : 0) + (isSpaceRight() ? 1 : 0) );
         double minWidthSum = 0, previousMinWidthSum = 0;
@@ -268,9 +302,9 @@ public final class FlexBox extends Pane {
         }
 
         // Moving tight items to last row to equalize pressure
-        if (previousFlexBoxRow != null) {
+        if (isFlexLastRow() && previousFlexBoxRow != null) {
             List<FlexBoxItem> previousItems = previousFlexBoxRow.items;
-            while (previousItems.size() > flexBoxRow.items.size()) {
+            while (previousItems.size() > 1) {
                 FlexBoxItem lastItem = Collections.last(previousItems);
                 double lastWidth = lastItem.minWidth + horizontalSpace;
                 if (minWidthSum + lastWidth > Math.min(width, previousMinWidthSum - lastWidth))
@@ -284,7 +318,7 @@ public final class FlexBox extends Pane {
 
         // iterate rows and calculate width
         Insets padding = getPadding();
-        double y = padding.getTop() + (spaceTop.get() ? getVerticalSpace() : 0);
+        double y = padding.getTop() + (isSpaceTop() ? verticalSpace : 0);
         int i = 0;
         int noGridRows = grid.size();
 
@@ -293,6 +327,7 @@ public final class FlexBox extends Pane {
          * iterate grid-rows first
          */
         for (Integer rowIndex : grid.keySet()) {
+            boolean isLastRow = i >= noGridRows - 1;
             // contains all nodes per row
             flexBoxRow = grid.get(rowIndex);
             List<FlexBoxItem> rowItems = flexBoxRow.getItems();
@@ -311,7 +346,7 @@ public final class FlexBox extends Pane {
                 double rowNodeMinWidth = flexBoxItem.minWidth;
                 double rowNodeMaxWidth = rowNode.maxWidth(-1);
                 double rowNodeStretchedWidth = rowNodeMinWidth + (flexGrowCellWidth * flexBoxItem.grow);
-                double rowNodeWidth = Math.min(rowNodeMaxWidth, Math.max(rowNodeStretchedWidth, rowNodeMinWidth));
+                double rowNodeWidth = isLastRow && !isFlexLastRow() ? rowNodeMinWidth : Math.min(rowNodeMaxWidth, Math.max(rowNodeStretchedWidth, rowNodeMinWidth));
 
                 double h = rowNode.prefHeight(rowNodeWidth);
                 if (apply)
@@ -321,13 +356,12 @@ public final class FlexBox extends Pane {
             }
 
             y += rowMaxHeight;
-            if (i + 1 < noGridRows)
-                y += getVerticalSpace();
+            if (!isLastRow)
+                y += verticalSpace;
             i++;
         }
-        y += padding.getBottom();
 
-        computedMinHeight = y;
+        computedMinHeight = y + (spaceBottom.get() ? verticalSpace : 0) + padding.getBottom();
         //lastComputationWidthInput = width;
     }
 

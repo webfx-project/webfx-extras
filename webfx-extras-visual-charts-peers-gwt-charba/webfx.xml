@@ -12,7 +12,7 @@
     </dependencies>
 
     <required-libraries>
-        <library artifact="org.pepstock:charba:5.5-gwt"/>
+        <library artifact="org.pepstock:charba:5.6-gwt"/>
     </required-libraries>
 
 </project>

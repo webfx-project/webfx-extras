@@ -325,7 +325,7 @@
             </dependencies>
 
             <required-libraries>
-                <library artifact="org.pepstock:charba:5.5-gwt">
+                <library artifact="org.pepstock:charba:5.6">
 
                     <exported-packages>
                         <package>org.pepstock.charba.client</package>
@@ -361,8 +361,6 @@
                         <package>org.pepstock.charba.client.impl.plugins.enums</package>
                         <package>org.pepstock.charba.client.impl.charts</package>
                         <package>org.pepstock.charba.client.impl.callbacks</package>
-                        <package>org.pepstock.charba.client.gwt</package>
-                        <package>org.pepstock.charba.client.gwt.widgets</package>
                         <package>org.pepstock.charba.client.gradient</package>
                         <package>org.pepstock.charba.client.geo</package>
                         <package>org.pepstock.charba.client.geo.enums</package>
@@ -371,6 +369,7 @@
                         <package>org.pepstock.charba.client.enums</package>
                         <package>org.pepstock.charba.client.dom</package>
                         <package>org.pepstock.charba.client.dom.safehtml</package>
+                        <package>org.pepstock.charba.client.dom.events</package>
                         <package>org.pepstock.charba.client.dom.enums</package>
                         <package>org.pepstock.charba.client.dom.elements</package>
                         <package>org.pepstock.charba.client.defaults</package>

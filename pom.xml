@@ -33,6 +33,9 @@
 
     <modules>
         <module>webfx-extras-cell</module>
+        <module>webfx-extras-filepicker</module>
+        <module>webfx-extras-filepicker-gwt</module>
+        <module>webfx-extras-filepicker-openjfx</module>
         <module>webfx-extras-flexbox</module>
         <module>webfx-extras-imagestore</module>
         <module>webfx-extras-label</module>

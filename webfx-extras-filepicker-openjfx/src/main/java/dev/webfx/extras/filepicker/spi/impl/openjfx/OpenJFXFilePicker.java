@@ -27,9 +27,9 @@ public class OpenJFXFilePicker extends BaseFilePicker {
                     files = Collections.singletonList(file);
             }
             if (files == null)
-                getSelectedFilesObservableList().clear();
+                getSelectedFiles().clear();
             else
-                getSelectedFilesObservableList().setAll(files.stream()
+                getSelectedFiles().setAll(files.stream()
                         .map(dev.webfx.platform.file.File::create)
                         .toArray(dev.webfx.platform.file.File[]::new));
         });

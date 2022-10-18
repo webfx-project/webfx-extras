@@ -3,10 +3,7 @@ package dev.webfx.extras.filepicker;
 import dev.webfx.extras.filepicker.spi.FilePickerProvider;
 import dev.webfx.platform.file.File;
 import javafx.beans.InvalidationListener;
-import javafx.beans.property.BooleanProperty;
-import javafx.beans.property.ObjectProperty;
-import javafx.beans.property.SimpleBooleanProperty;
-import javafx.beans.property.SimpleObjectProperty;
+import javafx.beans.property.*;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.scene.Node;
@@ -58,11 +55,11 @@ public abstract class FilePicker {
         this.multipleProperty.set(multiple);
     }
 
-    public ObjectProperty<File> selectedFileProperty() {
+    public ReadOnlyObjectProperty<File> selectedFileProperty() {
         return selectedFileProperty;
     }
 
-    public ObservableList<File> getSelectedFilesObservableList() {
+    public ObservableList<File> getSelectedFiles() {
         return selectedFilesObservableList;
     }
 }

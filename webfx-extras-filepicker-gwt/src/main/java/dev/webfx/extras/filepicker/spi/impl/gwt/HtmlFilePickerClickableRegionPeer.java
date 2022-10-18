@@ -37,7 +37,7 @@ public class HtmlFilePickerClickableRegionPeer
             List<dev.webfx.platform.file.File> webFXFiles = new ArrayList<>(webFiles.length);
             for (int i = 0; i < webFiles.length; i++)
                 webFXFiles.add(dev.webfx.platform.file.File.create(webFiles.getAt(i)));
-            getNode().getFileChooser().getSelectedFilesObservableList().setAll(webFXFiles);
+            getNode().getFileChooser().getSelectedFiles().setAll(webFXFiles);
         });
     }
 

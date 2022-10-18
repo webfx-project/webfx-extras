@@ -1,8 +1,5 @@
 // File managed by WebFX (DO NOT EDIT MANUALLY)
 
-import dev.webfx.extras.filepicker.spi.FilePickerProvider;
-import dev.webfx.extras.filepicker.spi.impl.openjfx.OpenJfxFilePickerProvider;
-
 module webfx.extras.filepicker.openjfx {
 
     // Direct dependencies modules
@@ -15,6 +12,6 @@ module webfx.extras.filepicker.openjfx {
     exports dev.webfx.extras.filepicker.spi.impl.openjfx;
 
     // Provided services
-    provides FilePickerProvider with OpenJfxFilePickerProvider;
+    provides dev.webfx.extras.filepicker.spi.FilePickerProvider with dev.webfx.extras.filepicker.spi.impl.openjfx.OpenJfxFilePickerProvider;
 
 }

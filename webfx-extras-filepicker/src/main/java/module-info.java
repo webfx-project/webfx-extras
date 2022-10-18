@@ -1,7 +1,5 @@
 // File managed by WebFX (DO NOT EDIT MANUALLY)
 
-import dev.webfx.extras.filepicker.spi.FilePickerProvider;
-
 module webfx.extras.filepicker {
 
     // Direct dependencies modules
@@ -18,6 +16,6 @@ module webfx.extras.filepicker {
     exports dev.webfx.extras.filepicker.spi.impl;
 
     // Used services
-    uses FilePickerProvider;
+    uses dev.webfx.extras.filepicker.spi.FilePickerProvider;
 
 }

@@ -39,9 +39,6 @@
 
             <modules>
                 <module>webfx-extras-cell</module>
-                <module>webfx-extras-filepicker</module>
-                <module>webfx-extras-filepicker-gwt</module>
-                <module>webfx-extras-filepicker-openjfx</module>
                 <module>webfx-extras-flexbox</module>
                 <module>webfx-extras-imagestore</module>
                 <module>webfx-extras-label</module>
@@ -100,95 +97,6 @@
                 <module>webfx-kit-javafxgraphics-emul</module>
                 <module>webfx-kit-util</module>
                 <module>webfx-platform-util</module>
-            </used-by-source-modules>
-
-        </project>
-
-        <project name="webfx-extras-filepicker">
-
-            <exported-packages>
-                <source-packages/>
-            </exported-packages>
-
-            <dependencies>
-                <used-by-source-modules/>
-            </dependencies>
-
-            <source-packages>
-                <package>dev.webfx.extras.filepicker</package>
-                <package>dev.webfx.extras.filepicker.spi</package>
-                <package>dev.webfx.extras.filepicker.spi.impl</package>
-            </source-packages>
-
-            <used-by-source-modules>
-                <module>java.base</module>
-                <module>webfx-kit-javafxbase-emul</module>
-                <module>webfx-kit-javafxgraphics-emul</module>
-                <module>webfx-kit-util</module>
-                <module>webfx-platform-file</module>
-                <module>webfx-platform-util</module>
-            </used-by-source-modules>
-
-            <used-services>
-                <required-service>dev.webfx.extras.filepicker.spi.FilePickerProvider</required-service>
-            </used-services>
-
-        </project>
-
-        <project name="webfx-extras-filepicker-gwt">
-
-            <providers>
-                <provider interface="dev.webfx.extras.filepicker.spi.FilePickerProvider">dev.webfx.extras.filepicker.spi.impl.gwt.GwtFilePickerProvider</provider>
-            </providers>
-
-            <exported-packages>
-                <source-packages/>
-            </exported-packages>
-
-            <dependencies>
-                <used-by-source-modules/>
-            </dependencies>
-
-            <source-packages>
-                <package>dev.webfx.extras.filepicker.spi.impl.gwt</package>
-            </source-packages>
-
-            <used-by-source-modules>
-                <module>elemental2-dom</module>
-                <module>java.base</module>
-                <module>webfx-extras-filepicker</module>
-                <module>webfx-kit-javafxgraphics-peers</module>
-                <module>webfx-kit-javafxgraphics-peers-base</module>
-                <module>webfx-kit-javafxgraphics-peers-gwt</module>
-                <module>webfx-kit-util</module>
-                <module>webfx-platform-file</module>
-            </used-by-source-modules>
-
-        </project>
-
-        <project name="webfx-extras-filepicker-openjfx">
-
-            <providers>
-                <provider interface="dev.webfx.extras.filepicker.spi.FilePickerProvider">dev.webfx.extras.filepicker.spi.impl.openjfx.OpenJfxFilePickerProvider</provider>
-            </providers>
-
-            <exported-packages>
-                <source-packages/>
-            </exported-packages>
-
-            <dependencies>
-                <used-by-source-modules/>
-            </dependencies>
-
-            <source-packages>
-                <package>dev.webfx.extras.filepicker.spi.impl.openjfx</package>
-            </source-packages>
-
-            <used-by-source-modules>
-                <module>java.base</module>
-                <module>webfx-extras-filepicker</module>
-                <module>webfx-kit-javafxgraphics-emul</module>
-                <module>webfx-platform-file</module>
             </used-by-source-modules>
 
         </project>

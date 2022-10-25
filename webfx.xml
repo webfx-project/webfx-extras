@@ -44,7 +44,6 @@
                 <module>webfx-extras-label</module>
                 <module>webfx-extras-led</module>
                 <module>webfx-extras-materialdesign</module>
-                <module>webfx-extras-scalepane</module>
                 <module>webfx-extras-type</module>
                 <module>webfx-extras-visual</module>
                 <module>webfx-extras-visual-charts</module>
@@ -212,26 +211,6 @@
                 <module>webfx-kit-javafxgraphics-emul</module>
                 <module>webfx-kit-util</module>
                 <module>webfx-platform-util</module>
-            </used-by-source-modules>
-
-        </project>
-
-        <project name="webfx-extras-scalepane">
-
-            <exported-packages>
-                <source-packages/>
-            </exported-packages>
-
-            <dependencies>
-                <used-by-source-modules/>
-            </dependencies>
-
-            <source-packages>
-                <package>dev.webfx.extras.scalepane</package>
-            </source-packages>
-
-            <used-by-source-modules>
-                <module>webfx-kit-javafxgraphics-emul</module>
             </used-by-source-modules>
 
         </project>

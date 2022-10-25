@@ -11,13 +11,6 @@ import javafx.scene.layout.Region;
  */
 public class ScalePane extends Pane {
 
-    public enum ScaleMode {
-        WIDTH, // Scales the nodes so its width
-        HEIGHT,
-        MIN_WIDTH_HEIGHT,
-        MAX_WIDTH_HEIGHT
-    }
-
     private ScaleMode scaleMode;
     private Node node;
     private boolean canGrow = true, canShrink = true;
@@ -33,7 +26,7 @@ public class ScalePane extends Pane {
     }
 
     public ScalePane(Node node) {
-        this(ScaleMode.MIN_WIDTH_HEIGHT, node);
+        this(ScaleMode.BEST_FIT, node);
     }
 
     public ScalePane(ScaleMode scaleMode, Node node) {
@@ -92,10 +85,10 @@ public class ScalePane extends Pane {
         if (tryRescale) {
             double w = node.prefWidth(height), h = node.prefHeight(width);
             switch (scaleMode) {
-                case HEIGHT: scale = height / h; break;
-                case WIDTH:  scale = width  / w; break;
-                case MIN_WIDTH_HEIGHT: scale = Math.min(height / h, width / w); break;
-                case MAX_WIDTH_HEIGHT: scale = Math.max(height / h, width / w); break;
+                case FIT_HEIGHT: scale = height / h; break;
+                case FIT_WIDTH:  scale = width  / w; break;
+                case BEST_FIT: scale = Math.min(height / h, width / w); break;
+                case BEST_ZOOM: scale = Math.max(height / h, width / w); break;
             }
             if (!canShrink && scale < 1 || !canGrow && scale > 1)
                 scale = 1;

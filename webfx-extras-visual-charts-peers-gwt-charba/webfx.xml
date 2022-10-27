@@ -12,7 +12,7 @@
     </dependencies>
 
     <required-libraries>
-        <library artifact="org.pepstock:charba:5.6"/>
+        <library artifact="org.pepstock:charba:5.7"/>
     </required-libraries>
 
 </project>

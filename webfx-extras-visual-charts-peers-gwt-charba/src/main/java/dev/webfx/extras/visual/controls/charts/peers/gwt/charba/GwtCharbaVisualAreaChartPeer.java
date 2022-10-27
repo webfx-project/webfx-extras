@@ -1,12 +1,12 @@
 package dev.webfx.extras.visual.controls.charts.peers.gwt.charba;
 
-import org.pepstock.charba.client.StackedAreaChart;
-import org.pepstock.charba.client.configuration.ConfigurationOptions;
-import org.pepstock.charba.client.configuration.Scales;
-import org.pepstock.charba.client.configuration.StackedOptions;
 import dev.webfx.extras.visual.controls.charts.VisualAreaChart;
 import dev.webfx.extras.visual.controls.charts.peers.base.VisualAreaChartPeerBase;
 import dev.webfx.extras.visual.controls.charts.peers.base.VisualAreaChartPeerMixin;
+import org.pepstock.charba.client.StackedAreaChart;
+import org.pepstock.charba.client.configuration.ConfigurationOptions;
+import org.pepstock.charba.client.configuration.Scales;
+import org.pepstock.charba.client.configuration.ScalesOptions;
 
 /**
  * @author Bruno Salmon
@@ -31,6 +31,6 @@ public final class GwtCharbaVisualAreaChartPeer
 
     @Override
     protected Scales getScales(ConfigurationOptions options) {
-        return ((StackedOptions) options).getScales();
+        return ((ScalesOptions) options).getScales();
     }
 }

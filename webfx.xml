@@ -433,7 +433,6 @@
                 <used-by-source-modules>
                     <undetected-module>javafx-controls</undetected-module>
                     <undetected-module>javafx-web</undetected-module>
-                    <undetected-module>webfx-platform-util</undetected-module>
                 </used-by-source-modules>
             </dependencies>
 
@@ -850,7 +849,6 @@
             <used-by-source-modules>
                 <module>java.base</module>
                 <module>javafx-graphics</module>
-                <module>javafx-web</module>
                 <module>jdk.jsobject</module>
                 <module>webfx-extras-webtext</module>
                 <module>webfx-extras-webtext-peers-base</module>
@@ -858,6 +856,7 @@
                 <module>webfx-kit-javafxbase-emul</module>
                 <module>webfx-kit-javafxgraphics-emul</module>
                 <module>webfx-kit-javafxgraphics-peers</module>
+                <module>webfx-kit-javafxweb-emul</module>
                 <module>webfx-kit-openjfx</module>
                 <module>webfx-platform-util</module>
             </used-by-source-modules>

@@ -159,14 +159,18 @@ public final class Led extends Region {
         }
         if (sign != null) {
             double lineLength = 0.4 * radius;
-            hLine.setStartX(width / 2 - lineLength);
-            hLine.setEndX(width / 2 + lineLength);
-            hLine.setStrokeWidth(0.2 * radius);
-            vLine.setStartY(width / 2 - lineLength);
-            vLine.setEndY(width / 2 + lineLength);
-            vLine.setStrokeWidth(0.2 * radius);
-            layoutInArea(hLine, 0, 0, width, height, 0 , HPos.CENTER, VPos.CENTER);
-            layoutInArea(vLine, 0, 0, width, height, 0 , HPos.CENTER, VPos.CENTER);
+            if (hLine != null) {
+                hLine.setStartX(width / 2 - lineLength);
+                hLine.setEndX(width / 2 + lineLength);
+                hLine.setStrokeWidth(0.2 * radius);
+                layoutInArea(hLine, 0, 0, width, height, 0 , HPos.CENTER, VPos.CENTER);
+            }
+            if (vLine != null) {
+                vLine.setStartY(width / 2 - lineLength);
+                vLine.setEndY(width / 2 + lineLength);
+                vLine.setStrokeWidth(0.2 * radius);
+                layoutInArea(vLine, 0, 0, width, height, 0, HPos.CENTER, VPos.CENTER);
+            }
         }
         updateHighlight();
     }

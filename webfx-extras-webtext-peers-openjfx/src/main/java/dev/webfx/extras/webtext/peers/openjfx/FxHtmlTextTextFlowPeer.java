@@ -147,10 +147,9 @@ public class FxHtmlTextTextFlowPeer
 
     public static void renderHtmlInTextFlow(String html, Font font, Paint fill, TextFlow textFlow) {
         List<Pair<String, HtmlStyle>> pairs = chopHtml(html, font, fill);
-        Pair<String, HtmlStyle> lastPair = pairs.isEmpty() ? null : pairs.get(pairs.size() - 1);
         textFlow.getChildren().setAll(
                 pairs.stream()
-                        .map(pair -> createStyledText(pair.getKey(), pair.getValue(), pair == lastPair))
+                        .map(pair -> createStyledText(pair.getKey(), pair.getValue()))
                         .collect(Collectors.toList()));
         if (textFlow.getChildren().size() >= 1)
             textFlow.setTextAlignment(((Text)textFlow.getChildren().get(0)).getTextAlignment());
@@ -166,9 +165,10 @@ public class FxHtmlTextTextFlowPeer
         if (html == null)
             return list;
         html = html.replaceAll("\n", ""); // Ignoring \n in text (because html ignores them as well, line breaks depend on tag such as p, br, etc...)
+        html = html.replaceAll("\\s+", " ");
         html = html.replaceAll("&nbsp;", " ");
-        html = html.replaceAll("&rdquo;", "\"");
-        html = html.replaceAll("&ldquo;", "\"");
+        html = html.replaceAll("&rdquo;", "”");
+        html = html.replaceAll("&ldquo;", "“");
         if (html.isEmpty())
             return list;
         int pos = 0;
@@ -205,10 +205,16 @@ public class FxHtmlTextTextFlowPeer
             // Deriving the style in dependence of the tag
             HtmlStyle derivedStyle = new HtmlStyle(parentStyle);
             String tagWithAttributes = html.substring(openingPos, pos);
+            // Capturing css class
+            String cssClass = captureAttribute("class", tagWithAttributes);
+            // Marking the derived style in order to render the expected visual effect of the HTML tag
             switch (tag.toLowerCase()) {
                 case "a":
                     derivedStyle.setHref(captureAttribute("href", tagWithAttributes));
-                    derivedStyle.setFill(Color.BLUE);
+                    //derivedStyle.setFill(Color.BLUE); // Commented as this is not always wanted (ex: FX2048 About).
+                    // Instead, we just apply the 'html-link' class, and this is the responsibility of the developer to define an associated CSS rule
+                    cssClass = "html-link" + (cssClass == null ? "" : " " + cssClass);
+                    break;
                 case "u":
                     derivedStyle.setUnderlined();
                     break;
@@ -226,6 +232,7 @@ public class FxHtmlTextTextFlowPeer
                 case "p":
                 case "div":
                     derivedStyle.setLineBreak();
+                    break;
             }
             // Capturing color attribute
             String color = captureAttribute("color", tagWithAttributes);
@@ -245,12 +252,13 @@ public class FxHtmlTextTextFlowPeer
             }
             if (color != null)
                 derivedStyle.setFill(color.equalsIgnoreCase("inherit") ? null : Color.web(color));
+            derivedStyle.setCssClass(cssClass);
             // Chopping the html text inside the tags (between the opening and closing tag) with the derived style
             String insideTagText = html.substring(pos + 1, closingPos);
             if (!insideTagText.isEmpty())
                 list.addAll(chopHtml(insideTagText, derivedStyle));
-            else if (derivedStyle.hasLineBreak())
-                list.add(new Pair<>("", derivedStyle));
+            if (derivedStyle.hasLineBreak())
+                list.add(new Pair<>("\n", derivedStyle));
             // Moving forward after the closing tag for next iteration
             pos = closingPos + closingTag.length();
         }
@@ -286,19 +294,23 @@ public class FxHtmlTextTextFlowPeer
 
     private static class NoCssText extends Text {}
 
-    private static Text createStyledText(String content, HtmlStyle style, boolean last) {
-        if (style.hasLineBreak())
-            content = content + (last ? "" : "\n");
+    private static Text createStyledText(String content, HtmlStyle style) {
         Text text = new NoCssText();
         text.setText(content);
-        text.setFont(style.getFont());
+        Font font = style.getFont();
+        if (font != null)
+            text.setFont(font);
         text.setUnderline(style.isUnderlined());
-        text.setFill(style.getFill());
+        Paint fill = style.getFill();
+        if (fill != null)
+            text.setFill(fill);
         text.setTextAlignment(style.getTextAlignment());
         String href = style.getHref();
-        if (href != null) {
+        if (href != null)
             text.setCursor(Cursor.HAND);
-        }
+        String cssClass = style.getCssClass();
+        if (cssClass != null)
+            text.getStyleClass().setAll(cssClass.split(" "));
         return text;
     }
 
@@ -313,6 +325,7 @@ public class FxHtmlTextTextFlowPeer
         private TextAlignment textAlignment;
         private boolean lineBreak;
         private String href;
+        private String cssClass;
 
         HtmlStyle(HtmlStyle parent) {
             this(parent, null, null);
@@ -409,6 +422,14 @@ public class FxHtmlTextTextFlowPeer
 
         String getHref() {
             return href;
+        }
+
+        public String getCssClass() {
+            return cssClass;
+        }
+
+        public void setCssClass(String cssClass) {
+            this.cssClass = cssClass;
         }
 
         @Override

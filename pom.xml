@@ -33,7 +33,6 @@
 
     <modules>
         <module>webfx-extras-cell</module>
-        <module>webfx-extras-flexbox</module>
         <module>webfx-extras-imagestore</module>
         <module>webfx-extras-label</module>
         <module>webfx-extras-led</module>

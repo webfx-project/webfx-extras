@@ -39,7 +39,6 @@
 
             <modules>
                 <module>webfx-extras-cell</module>
-                <module>webfx-extras-flexbox</module>
                 <module>webfx-extras-imagestore</module>
                 <module>webfx-extras-label</module>
                 <module>webfx-extras-led</module>
@@ -96,29 +95,6 @@
                 <module>webfx-kit-javafxcontrols-emul</module>
                 <module>webfx-kit-javafxgraphics-emul</module>
                 <module>webfx-kit-util</module>
-                <module>webfx-platform-util</module>
-            </used-by-source-modules>
-
-        </project>
-
-        <project name="webfx-extras-flexbox">
-
-            <exported-packages>
-                <source-packages/>
-            </exported-packages>
-
-            <dependencies>
-                <used-by-source-modules/>
-            </dependencies>
-
-            <source-packages>
-                <package>dev.webfx.extras.flexbox</package>
-            </source-packages>
-
-            <used-by-source-modules>
-                <module>java.base</module>
-                <module>webfx-kit-javafxbase-emul</module>
-                <module>webfx-kit-javafxgraphics-emul</module>
                 <module>webfx-platform-util</module>
             </used-by-source-modules>
 
@@ -325,7 +301,7 @@
             </dependencies>
 
             <required-libraries>
-                <library artifact="org.pepstock:charba:6.0">
+                <library artifact="org.pepstock:charba:6.1">
 
                     <exported-packages>
                         <package>org.pepstock.charba.client</package>

@@ -28,7 +28,7 @@ import org.pepstock.charba.client.callbacks.ColorCallback;
 import org.pepstock.charba.client.callbacks.DatasetContext;
 import org.pepstock.charba.client.configuration.*;
 import org.pepstock.charba.client.data.*;
-import org.pepstock.charba.client.enums.InteractionMode;
+import org.pepstock.charba.client.enums.DefaultInteractionMode;
 import org.pepstock.charba.client.enums.Position;
 
 import java.util.Date;
@@ -113,9 +113,9 @@ abstract class GwtCharbaVisualChartPeer
         options.setMaintainAspectRatio(false);
         options.getLegend().setDisplay(true);
         options.getLegend().setPosition(Position.BOTTOM);
-        options.getTooltips().setMode(InteractionMode.INDEX);
+        options.getTooltips().setMode(DefaultInteractionMode.INDEX);
         options.getTooltips().setIntersect(false);
-        options.getHover().setMode(InteractionMode.NEAREST);
+        options.getHover().setMode(DefaultInteractionMode.NEAREST);
         options.getHover().setIntersect(true);
         options.getElements().getPoint().setRadius(0.5); // 1px dot
         options.getElements().getLine().setTension(0.0); // No Bezier interpolation

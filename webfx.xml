@@ -301,7 +301,7 @@
             </dependencies>
 
             <required-libraries>
-                <library artifact="org.pepstock:charba:6.1">
+                <library artifact="org.pepstock:charba:6.2">
 
                     <exported-packages>
                         <package>org.pepstock.charba.client</package>
@@ -333,6 +333,7 @@
                         <package>org.pepstock.charba.client.items</package>
                         <package>org.pepstock.charba.client.intl</package>
                         <package>org.pepstock.charba.client.intl.enums</package>
+                        <package>org.pepstock.charba.client.interaction</package>
                         <package>org.pepstock.charba.client.impl.plugins</package>
                         <package>org.pepstock.charba.client.impl.plugins.enums</package>
                         <package>org.pepstock.charba.client.impl.charts</package>

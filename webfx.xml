@@ -43,6 +43,9 @@
                 <module>webfx-extras-label</module>
                 <module>webfx-extras-led</module>
                 <module>webfx-extras-materialdesign</module>
+                <module>webfx-extras-timelayout</module>
+                <module>webfx-extras-timelayout-calendar</module>
+                <module>webfx-extras-timelayout-gantt</module>
                 <module>webfx-extras-type</module>
                 <module>webfx-extras-visual</module>
                 <module>webfx-extras-visual-charts</module>
@@ -188,6 +191,67 @@
                 <module>webfx-kit-util</module>
                 <module>webfx-platform-util</module>
             </used-by-source-modules>
+
+        </project>
+
+        <project name="webfx-extras-timelayout">
+
+            <exported-packages>
+                <source-packages/>
+            </exported-packages>
+
+            <dependencies>
+                <used-by-source-modules/>
+            </dependencies>
+
+            <source-packages>
+                <package>dev.webfx.extras.timelayout</package>
+                <package>dev.webfx.extras.timelayout.impl</package>
+            </source-packages>
+
+            <used-by-source-modules>
+                <module>java.base</module>
+                <module>webfx-kit-javafxbase-emul</module>
+                <module>webfx-kit-javafxgraphics-emul</module>
+                <module>webfx-platform-util</module>
+            </used-by-source-modules>
+
+        </project>
+
+        <project name="webfx-extras-timelayout-calendar">
+
+            <exported-packages>
+                <source-packages/>
+            </exported-packages>
+
+            <dependencies>
+                <used-by-source-modules/>
+            </dependencies>
+
+            <source-packages>
+                <package>dev.webfx.extras.timelayout.impl.calendar</package>
+            </source-packages>
+
+            <used-by-source-modules>
+                <module>java.base</module>
+                <module>webfx-extras-timelayout</module>
+                <module>webfx-kit-javafxbase-emul</module>
+                <module>webfx-platform-util</module>
+            </used-by-source-modules>
+
+        </project>
+
+        <project name="webfx-extras-timelayout-gantt">
+
+            <exported-packages>
+                <source-packages/>
+            </exported-packages>
+
+            <dependencies>
+                <used-by-source-modules/>
+            </dependencies>
+
+            <used-by-source-modules/>
 
         </project>
 

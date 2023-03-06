@@ -37,6 +37,9 @@
         <module>webfx-extras-label</module>
         <module>webfx-extras-led</module>
         <module>webfx-extras-materialdesign</module>
+        <module>webfx-extras-timelayout</module>
+        <module>webfx-extras-timelayout-calendar</module>
+        <module>webfx-extras-timelayout-gantt</module>
         <module>webfx-extras-type</module>
         <module>webfx-extras-visual</module>
         <module>webfx-extras-visual-charts</module>

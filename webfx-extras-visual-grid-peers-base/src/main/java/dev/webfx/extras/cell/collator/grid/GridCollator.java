@@ -291,7 +291,7 @@ public final class GridCollator extends VisualGrid {
         }
 
         @Override
-        public void updateLocalToParentTransforms(List<Transform> localToParentTransforms) {
+        public void updateAllNodeTransforms(List<Transform> localToParentTransforms) {
         }
     }
 }

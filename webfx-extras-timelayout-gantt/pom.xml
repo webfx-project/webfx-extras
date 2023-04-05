@@ -13,4 +13,20 @@
 
     <artifactId>webfx-extras-timelayout-gantt</artifactId>
 
+    <dependencies>
+
+        <dependency>
+            <groupId>org.openjfx</groupId>
+            <artifactId>javafx-base</artifactId>
+            <scope>provided</scope>
+        </dependency>
+
+        <dependency>
+            <groupId>dev.webfx</groupId>
+            <artifactId>webfx-extras-timelayout</artifactId>
+            <version>0.1.0-SNAPSHOT</version>
+        </dependency>
+
+    </dependencies>
+
 </project>

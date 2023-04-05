@@ -1,5 +1,7 @@
-package dev.webfx.extras.timelayout;
+package dev.webfx.extras.timelayout.node;
 
+import dev.webfx.extras.timelayout.ChildPosition;
+import dev.webfx.extras.timelayout.TimeLayout;
 import javafx.collections.ListChangeListener;
 import javafx.collections.ObservableList;
 import javafx.geometry.HPos;
@@ -10,12 +12,12 @@ import javafx.scene.layout.Pane;
 /**
  * @author Bruno Salmon
  */
-public class TimePane<T, C> extends Pane {
+public class TimePane<C, T> extends Pane {
 
-    private final TimeLayout<T, C> timeLayout;
+    private final TimeLayout<C, T> timeLayout;
     private final ChildNodeGetter<C> childNodeGetter;
 
-    public TimePane(TimeLayout<T, C> timeLayout, ChildNodeGetter<C> childNodeGetter) {
+    public TimePane(TimeLayout<C, T> timeLayout, ChildNodeGetter<C> childNodeGetter) {
         this.timeLayout = timeLayout;
         this.childNodeGetter = childNodeGetter;
         syncChildren();
@@ -32,8 +34,8 @@ public class TimePane<T, C> extends Pane {
         ObservableList<Node> children = getChildren();
         for (int i = 0; i < children.size(); i++) {
             Node child = children.get(i);
-            ChildPosition<T> childPosition = timeLayout.getChildPosition(i);
-            layoutInArea(child, childPosition.getX(), childPosition.getY(), childPosition.getWidth(), childPosition.getHeight(), 0, HPos.CENTER, VPos.CENTER);
+            ChildPosition<T> p = timeLayout.getChildPosition(i);
+            layoutInArea(child, p.getX(), p.getY(), p.getWidth(), p.getHeight(), 0, HPos.CENTER, VPos.CENTER);
         }
     }
 

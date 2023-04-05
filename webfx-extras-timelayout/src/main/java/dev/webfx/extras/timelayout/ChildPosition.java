@@ -3,7 +3,7 @@ package dev.webfx.extras.timelayout;
 /**
  * @author Bruno Salmon
  */
-public class ChildPosition<T> {
+public final class ChildPosition<T> {
 
     private boolean valid;
     private TimeCell<T> originCell;

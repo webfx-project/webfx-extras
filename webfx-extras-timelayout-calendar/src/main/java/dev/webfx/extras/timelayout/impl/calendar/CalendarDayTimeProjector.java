@@ -11,7 +11,7 @@ import java.time.*;
 public class CalendarDayTimeProjector<T> implements TimeProjector<T> {
 
     @Override
-    public double timeToX(T time, boolean exclusive, double layoutWidth) {
+    public double timeToX(T time, boolean start, boolean exclusive, double layoutWidth) {
         DayOfWeek dayOfWeek;
         if (time instanceof DayOfWeek)
             dayOfWeek = (DayOfWeek) time;
@@ -20,8 +20,8 @@ public class CalendarDayTimeProjector<T> implements TimeProjector<T> {
             dayOfWeek = localDate.getDayOfWeek();
         }
         int dayOfWeekColumn = getDayOfWeekColumn(dayOfWeek);
-        if (exclusive && dayOfWeekColumn == 0)
-            dayOfWeekColumn = 7;
+        if (start && exclusive || !start && !exclusive)
+            dayOfWeekColumn++;
         return dayOfWeekColumn * layoutWidth / 7;
     }
 

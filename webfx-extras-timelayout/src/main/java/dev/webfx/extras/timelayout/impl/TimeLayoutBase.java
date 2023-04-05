@@ -1,6 +1,7 @@
 package dev.webfx.extras.timelayout.impl;
 
 import dev.webfx.extras.timelayout.*;
+import dev.webfx.extras.timelayout.util.TimeUtil;
 import javafx.collections.FXCollections;
 import javafx.collections.ListChangeListener;
 import javafx.collections.ObservableList;
@@ -13,14 +14,13 @@ import java.util.stream.Stream;
 /**
  * @author Bruno Salmon
  */
-public abstract class TimeLayoutBase<T, C> implements TimeLayout<T, C> {
+public abstract class TimeLayoutBase<C, T> implements TimeLayout<C, T> {
 
-    protected ObservableList<C> children = FXCollections.observableArrayList();
-    protected ChildTimeReader<T, C> childTimeReader;
+    protected final ObservableList<C> children = FXCollections.observableArrayList();
+    protected ChildTimeReader<C, T> childTimeReader = (ChildTimeReader) TimeUtil.<T>immediateChildTimeReader();
     protected List<ChildPosition<T>> childrenTimePositions;
     protected T timeWindowStart;
     protected T timeWindowEnd;
-    protected TimeScale timeColumnScale = TimeScale.DAY;
     protected List<TimeColumn<T>> columns = new ArrayList<>();
     protected List<TimeRow> rows = new ArrayList<>();
     protected TimeCell<T>[][] cells;
@@ -28,7 +28,9 @@ public abstract class TimeLayoutBase<T, C> implements TimeLayout<T, C> {
     protected double layoutWidth, layoutHeight;
     private double childFixedHeight = -1;
     private boolean fillHeight;
-    private double spacing = 2;
+    private double topY;
+    private double hSpacing = 0;
+    private double vSpacing = 0;
 
     public TimeLayoutBase() {
         children.addListener((ListChangeListener<C>) c ->
@@ -43,7 +45,7 @@ public abstract class TimeLayoutBase<T, C> implements TimeLayout<T, C> {
     }
 
     @Override
-    public void setChildTimeReader(ChildTimeReader<T, C> childTimeReader) {
+    public void setChildTimeReader(ChildTimeReader<C, T> childTimeReader) {
         this.childTimeReader = childTimeReader;
     }
 
@@ -51,11 +53,6 @@ public abstract class TimeLayoutBase<T, C> implements TimeLayout<T, C> {
     public void setTimeWindow(T timeWindowStart, T timeWindowEnd) {
         this.timeWindowStart = timeWindowStart;
         this.timeWindowEnd = timeWindowEnd;
-    }
-
-    @Override
-    public void setTimeColumnScale(TimeScale timeColumnScale) {
-        this.timeColumnScale = timeColumnScale;
     }
 
     @Override
@@ -79,16 +76,46 @@ public abstract class TimeLayoutBase<T, C> implements TimeLayout<T, C> {
     }
 
     @Override
+    public double getTopY() {
+        return topY;
+    }
+
+    @Override
+    public void setTopY(double topY) {
+        this.topY = topY;
+    }
+
+    @Override
+    public double getHSpacing() {
+        return hSpacing;
+    }
+
+    @Override
+    public void setHSpacing(double hSpacing) {
+        this.hSpacing = hSpacing;
+    }
+
+    @Override
+    public double getVSpacing() {
+        return vSpacing;
+    }
+
+    @Override
+    public void setVSpacing(double vSpacing) {
+        this.vSpacing = vSpacing;
+    }
+
+    @Override
     public void layout(double width, double height) {
-        if (layoutWidth != width || layoutHeight != height) {
+        if ((layoutWidth != width || layoutHeight != height) && childrenTimePositions != null) {
             layoutWidth = width;
             layoutHeight = height;
             rowsCount = -1;
             childrenTimePositions.forEach(p -> p.setValid(false));
             if (fillHeight && getRowsCount() > 0) {
-                double rowHeight = height / rowsCount;
+                double rowHeight = (height - topY) / rowsCount;
                 childrenTimePositions.forEach(p -> {
-                    p.setY(p.getRowIndex() * rowHeight);
+                    p.setY(topY + p.getRowIndex() * rowHeight);
                     p.setHeight(rowHeight);
                 });
             }
@@ -131,19 +158,19 @@ public abstract class TimeLayoutBase<T, C> implements TimeLayout<T, C> {
         T startTime = childTimeReader.getStartTime(child);
         T endTime = childTimeReader.getEndTime(child);
         TimeProjector<T> timeProjector = getTimeProjector();
-        double startX = timeProjector.timeToX(startTime, false, layoutWidth);
-        double endX = timeProjector.timeToX(endTime, true, layoutWidth);
+        double startX = timeProjector.timeToX(startTime, true, false, layoutWidth);
+        double endX = timeProjector.timeToX(endTime, false, false, layoutWidth);
         int columnIndex = computeChildColumnIndex(childIndex, child, startTime, endTime, startX, endX);
         int rowIndex = computeChildRowIndex(childIndex, child, startTime, endTime, startX, endX);
         TimeCell<T> cell = null; //cells[rowIndex][columnIndex];
         childPosition.setOriginCell(cell);
         childPosition.setRowIndex(rowIndex);
         childPosition.setColumnIndex(columnIndex);
-        childPosition.setX(startX + spacing / 2);
-        childPosition.setWidth(endX - startX - spacing);
+        childPosition.setX(startX + hSpacing / 2);
+        childPosition.setWidth(endX - startX - hSpacing);
         if (childFixedHeight > 0) {
-            childPosition.setHeight(childFixedHeight - spacing); // will be reset by layout if fillHeight is true
-            childPosition.setY(childFixedHeight * rowIndex + spacing / 2); // will be reset by layout if fillHeight is true
+            childPosition.setHeight(childFixedHeight - vSpacing); // will be reset by layout if fillHeight is true
+            childPosition.setY(topY + childFixedHeight * rowIndex + vSpacing / 2); // will be reset by layout if fillHeight is true
         } else {
         }
         childPosition.setValid(true);

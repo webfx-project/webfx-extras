@@ -1,6 +1,6 @@
-package dev.webfx.extras.timelayout;
+package dev.webfx.extras.timelayout.util;
 
-import dev.webfx.platform.util.Dates;
+import dev.webfx.extras.timelayout.ChildTimeReader;
 
 import java.time.*;
 import java.util.ArrayList;
@@ -59,13 +59,41 @@ public class TimeUtil {
 
     public static List<YearMonth> generateYearMonths(YearMonth first, YearMonth last) {
         List<YearMonth> yearMonths = new ArrayList<>();
-        for (YearMonth yearMonth = first; yearMonth.isBefore(last) || yearMonth.equals(last); yearMonth = yearMonth.plusMonths(1)) {
-            yearMonths.add(yearMonth);
+        if (last.isAfter(first) || last.equals(first)) {
+            for (YearMonth yearMonth = first; yearMonth.isBefore(last) || yearMonth.equals(last); yearMonth = yearMonth.plusMonths(1)) {
+                yearMonths.add(yearMonth);
+            }
         }
         return yearMonths;
     }
 
-    public static <T> ChildTimeReader<LocalDate, T> localDateReader() {
+    public static List<LocalDate> generateLocalDates(LocalDate first, LocalDate last) {
+        List<LocalDate> dates = new ArrayList<>();
+        if (last.isAfter(first) || last.equals(first)) {
+            for (LocalDate date = first; date.isBefore(last) || date.equals(last); date = date.plusDays(1)) {
+                dates.add(date);
+            }
+        }
+        return dates;
+    }
+
+    public static <T> ChildTimeReader<T, T> immediateChildTimeReader() {
+        return new ChildTimeReader<>() {
+            @Override
+            public T getStartTime(T child) {
+                return child;
+            }
+
+            @Override
+            public T getEndTime(T child) {
+                return child;
+            }
+        };
+    }
+
+/*
+
+    public static <T> ChildTimeReader<T, LocalDate> localDateReader() {
         return new ChildTimeReader<>() {
             @Override
             public LocalDate getStartTime(T child) {
@@ -74,12 +102,12 @@ public class TimeUtil {
 
             @Override
             public LocalDate getEndTime(T child) {
-                return getStartTime(child).plusDays(1);
+                return getStartTime(child);
             }
         };
     }
 
-    public static <T> ChildTimeReader<YearMonth, T> yearMonthReader() {
+    public static <T> ChildTimeReader<T, YearMonth> yearMonthReader() {
         return new ChildTimeReader<>() {
             @Override
             public YearMonth getStartTime(T child) {
@@ -88,13 +116,12 @@ public class TimeUtil {
 
             @Override
             public YearMonth getEndTime(T child) {
-                YearMonth startTime = getStartTime(child);
-                return startTime.plusMonths(1);
+                return getStartTime(child);
             }
         };
     }
 
-    public static <T> ChildTimeReader<MonthDay, T> monthDayReader() {
+    public static <T> ChildTimeReader<T, MonthDay> monthDayReader() {
         return new ChildTimeReader<>() {
             @Override
             public MonthDay getStartTime(T child) {
@@ -104,7 +131,7 @@ public class TimeUtil {
             @Override
             public MonthDay getEndTime(T child) {
                 MonthDay startTime = getStartTime(child);
-                LocalDate localDate = startTime.atYear(Year.now().getValue()).plusDays(1); // Assuming it's this year
+                LocalDate localDate = startTime.atYear(Year.now().getValue()); // Assuming it's this year
                 return MonthDay.of(localDate.getMonth(), localDate.getDayOfMonth());
             }
         };
@@ -119,8 +146,9 @@ public class TimeUtil {
 
             @Override
             public DayOfWeek getEndTime(DayOfWeek child) {
-                return getStartTime(child).plus(1);
+                return getStartTime(child);
             }
         };
     }
+*/
 }

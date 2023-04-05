@@ -4,19 +4,15 @@ import javafx.collections.ObservableList;
 
 import java.util.List;
 
-public interface TimeLayout<T, C> {
+public interface TimeLayout<C, T> extends TimeWindow<T>, CanLayout {
 
     // Input methods
 
     ObservableList<C> getChildren();
 
-    void setChildTimeReader(ChildTimeReader<T, C> childTimeReader);
+    void setChildTimeReader(ChildTimeReader<C, T> childTimeReader);
 
-    void setTimeWindow(T timeWindowStart, T timeWindowEnd);
-
-    void setTimeColumnScale(TimeScale timeColumnScale);
-
-    double getChildFixedHeight();
+     double getChildFixedHeight();
 
     void setChildFixedHeight(double childFixedHeight);
 
@@ -24,9 +20,17 @@ public interface TimeLayout<T, C> {
 
     void setFillHeight(boolean fillHeight);
 
-    // layout method
+    double getTopY();
 
-    void layout(double width, double height);
+    void setTopY(double topY);
+
+    double getHSpacing();
+
+    void setHSpacing(double hSpacing);
+
+    double getVSpacing();
+
+    void setVSpacing(double vSpacing);
 
 
     // Output methods

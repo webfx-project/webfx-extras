@@ -1,5 +1,7 @@
-package dev.webfx.extras.timelayout;
+package dev.webfx.extras.timelayout.node;
 
+import dev.webfx.extras.timelayout.ChildPosition;
+import dev.webfx.extras.timelayout.TimeLayout;
 import javafx.collections.ListChangeListener;
 import javafx.collections.ObservableList;
 import javafx.scene.Node;
@@ -13,12 +15,12 @@ import java.util.stream.IntStream;
 /**
  * @author Bruno Salmon
  */
-public class TimeGridPane<T, C> extends GridPane {
+public class TimeGridPane<C, T> extends GridPane {
 
-    private final TimeLayout<T, C> timeLayout;
+    private final TimeLayout<C, T> timeLayout;
     private final ChildNodeGetter<C> childNodeGetter;
 
-    public TimeGridPane(TimeLayout<T, C> timeLayout, ChildNodeGetter<C> childNodeGetter) {
+    public TimeGridPane(TimeLayout<C, T> timeLayout, ChildNodeGetter<C> childNodeGetter) {
         this.timeLayout = timeLayout;
         this.childNodeGetter = childNodeGetter;
         syncChildren();

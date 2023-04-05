@@ -1,4 +1,4 @@
-package dev.webfx.extras.timelayout;
+package dev.webfx.extras.timelayout.node;
 
 import javafx.scene.Node;
 

@@ -1,6 +1,6 @@
 package dev.webfx.extras.timelayout;
 
-public interface ChildTimeReader<T, C> {
+public interface ChildTimeReader<C, T> {
 
     T getStartTime(C child);
 

@@ -4,4 +4,6 @@ public interface CanLayout {
 
     void layout(double width, double height);
 
+    void markLayoutAsDirty();
+
 }

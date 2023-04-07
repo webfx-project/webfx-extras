@@ -28,6 +28,7 @@ public abstract class TimeLayoutBase<C, T> implements TimeLayout<C, T> {
     protected TimeCell<T>[][] cells;
     private int rowsCount;
     protected double layoutWidth, layoutHeight;
+    private boolean layoutDirty;
     private double childFixedHeight = -1;
     private boolean fillHeight;
     private double topY;
@@ -110,10 +111,16 @@ public abstract class TimeLayoutBase<C, T> implements TimeLayout<C, T> {
     }
 
     @Override
+    public void markLayoutAsDirty() {
+        layoutDirty = true;
+    }
+
+    @Override
     public void layout(double width, double height) {
-        if ((layoutWidth != width || layoutHeight != height) && childrenTimePositions != null) {
+        if ((layoutDirty || layoutWidth != width || layoutHeight != height) && childrenTimePositions != null) {
             layoutWidth = width;
             layoutHeight = height;
+            layoutDirty = false;
             rowsCount = -1;
             childrenTimePositions.forEach(p -> p.setValid(false));
             if (fillHeight && getRowsCount() > 0) {

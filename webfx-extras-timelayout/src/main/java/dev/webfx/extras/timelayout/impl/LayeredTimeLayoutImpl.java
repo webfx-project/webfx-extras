@@ -1,5 +1,6 @@
 package dev.webfx.extras.timelayout.impl;
 
+import dev.webfx.extras.timelayout.CanLayout;
 import dev.webfx.extras.timelayout.LayeredTimeLayout;
 import dev.webfx.extras.timelayout.TimeLayout;
 import javafx.collections.FXCollections;
@@ -28,6 +29,11 @@ public class LayeredTimeLayoutImpl<T> implements LayeredTimeLayout<T> {
     @Override
     public void setTimeWindow(T timeWindowStart, T timeWindowEnd) {
         layers.forEach(layer -> layer.setTimeWindow(timeWindowStart, timeWindowEnd));
+    }
+
+    @Override
+    public void markLayoutAsDirty() {
+        layers.forEach(CanLayout::markLayoutAsDirty);
     }
 
     @Override

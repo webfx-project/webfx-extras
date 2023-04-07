@@ -2,6 +2,8 @@ package dev.webfx.extras.timelayout.impl;
 
 import dev.webfx.extras.timelayout.*;
 import dev.webfx.extras.timelayout.util.TimeUtil;
+import javafx.beans.property.ObjectProperty;
+import javafx.beans.property.SimpleObjectProperty;
 import javafx.collections.FXCollections;
 import javafx.collections.ListChangeListener;
 import javafx.collections.ObservableList;
@@ -31,6 +33,8 @@ public abstract class TimeLayoutBase<C, T> implements TimeLayout<C, T> {
     private double topY;
     private double hSpacing = 0;
     private double vSpacing = 0;
+
+    private ObjectProperty<C> selectedChildProperty;
 
     public TimeLayoutBase() {
         children.addListener((ListChangeListener<C>) c ->
@@ -182,4 +186,32 @@ public abstract class TimeLayoutBase<C, T> implements TimeLayout<C, T> {
 
     protected abstract int computeChildRowIndex(int childIndex, C child, T startTime, T endTime, double startX, double endX);
 
+    @Override
+    public void setSelectedChild(C child) {
+        if (selectedChildProperty != null && child == null)
+            return;
+        selectedChildProperty().set(child);
+    }
+
+    @Override
+    public C getSelectedChild() {
+        return selectedChildProperty == null ? null : selectedChildProperty.get();
+    }
+
+    @Override
+    public ObjectProperty<C> selectedChildProperty() {
+        if (selectedChildProperty == null)
+            selectedChildProperty = new SimpleObjectProperty<>();
+        return selectedChildProperty;
+    }
+
+    @Override
+    public C pickChild(double x, double y) {
+        for (int i = 0; i < children.size(); i++) {
+            ChildPosition<T> cp = getChildPosition(i);
+            if (x >= cp.getX() && x <= cp.getX() + cp.getWidth() && y >= cp.getY() && y <= cp.getY() + cp.getHeight())
+                return children.get(i);
+        }
+        return null;
+    }
 }

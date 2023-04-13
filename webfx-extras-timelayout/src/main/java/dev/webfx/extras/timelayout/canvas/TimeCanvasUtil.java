@@ -51,28 +51,49 @@ public final class TimeCanvasUtil {
         gc.save();
         // clip makes canvas operations slower, so we do it only when necessary
         Bounds textBounds = WebFxKitLauncher.measureText(text, gc.getFont());
-        if (textBounds.getWidth() > width) {
+        double canvasWidth = gc.getCanvas().getWidth();
+        double visibleBarWidth = Math.min(x + width, canvasWidth) - Math.max(x, 0);
+        boolean textWider = textBounds.getWidth() > visibleBarWidth;
+        // Clipping the text when it is wider than the visible bar. Note: adding a clip path makes all canvas operation
+        // much slower, so it's good to skip that step when not necessary (ie when the text is not wider than the bar).
+        if (textWider) {
             gc.beginPath();
             gc.moveTo(x, y);
             gc.lineTo(x + width, y);
             gc.lineTo(x + width, y + height);
             gc.lineTo(x, y + height);
+            gc.lineTo(x, y);
             gc.closePath();
             gc.clip();
         }
         gc.setFill(fill);
         gc.setTextBaseline(baseline);
-        gc.setTextAlign(textAlignment);
+        // TODO: comment these different cases
         if (x < 0 && x + width > 0) {
-            width += x;
-            x = 0;
-        } else if (x < gc.getCanvas().getWidth() && x + width > gc.getCanvas().getWidth()) {
-            width = gc.getCanvas().getWidth() - x;
+            if (textWider) {
+                x = x + width - 5;
+                textAlignment = TextAlignment.RIGHT;
+            } else {
+                textAlignment = TextAlignment.CENTER;
+            }
+        } else if (x < canvasWidth && x + width > canvasWidth) {
+            if (textWider) {
+                x += 5;
+                textAlignment = TextAlignment.LEFT;
+            } else {
+                textAlignment = TextAlignment.CENTER;
+            }
+        } else if (textWider) {
+            x += 5;
+            textAlignment = TextAlignment.LEFT;
         }
-        x += textAlignment == TextAlignment.CENTER ? width / 2 : 5;
-        y += (baseline == VPos.CENTER ? height / 2 : 0);
+        if (textAlignment == TextAlignment.CENTER)
+            x = (Math.max(x, 0) + Math.min(canvasWidth, x + width)) / 2;
+        if (baseline == VPos.CENTER)
+            y += height / 2;
+        gc.setTextAlign(textAlignment);
         gc.fillText(text, x, y);
-        gc.restore();
+        gc.restore(); // this includes removing the clip path is it was set
     }
 
     public static void fillTopCenterText(ChildPosition<?> p, String text, Paint fill, GraphicsContext gc) {

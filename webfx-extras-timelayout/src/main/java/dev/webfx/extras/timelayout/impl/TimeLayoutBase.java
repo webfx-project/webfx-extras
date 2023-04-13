@@ -39,10 +39,13 @@ public abstract class TimeLayoutBase<C, T> implements TimeLayout<C, T> {
     private ObjectProperty<C> selectedChildProperty;
 
     public TimeLayoutBase() {
-        children.addListener((ListChangeListener<C>) c ->
-                childrenTimePositions = Stream.generate(ChildPosition<T>::new)
-                    .limit(children.size())
-                    .collect(Collectors.toList()));
+        children.addListener(this::onChildrenChanged);
+    }
+
+    protected void onChildrenChanged(ListChangeListener.Change<? extends C> c) {
+        childrenTimePositions = Stream.generate(ChildPosition<T>::new)
+                .limit(children.size())
+                .collect(Collectors.toList());
     }
 
     @Override

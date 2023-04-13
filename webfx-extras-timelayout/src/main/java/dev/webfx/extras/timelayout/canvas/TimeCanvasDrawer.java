@@ -39,9 +39,12 @@ public class TimeCanvasDrawer<C, T> {
         ObservableList<C> children = timeLayout.getChildren();
         for (int i = 0; i < children.size(); i++) {
             C child = children.get(i);
-            ChildPosition<T> childPosition = timeLayout.getChildPosition(i);
+            ChildPosition<T> p = timeLayout.getChildPosition(i);
+            // Skipping canvas draw operations for children whose position is outside the canvas
+            if (p.getX() + p.getWidth() < 0 || p.getX() > width || p.getY() + p.getHeight() < 0 || p.getY() > height)
+                continue; // This improves performance, as canvas operations can take time (even outside canvas)
             gc.save();
-            childCanvasDrawer.drawChild(child, childPosition, gc);
+            childCanvasDrawer.drawChild(child, p, gc);
             gc.restore();
         }
     }

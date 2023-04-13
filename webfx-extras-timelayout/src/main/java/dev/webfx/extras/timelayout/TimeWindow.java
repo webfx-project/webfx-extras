@@ -2,9 +2,9 @@ package dev.webfx.extras.timelayout;
 
 public interface TimeWindow<T> {
 
-    //T getTimeWindowStart();
+    T getTimeWindowStart();
 
-    //T getTimeWindowEnd();
+    T getTimeWindowEnd();
 
     void setTimeWindow(T timeWindowStart, T timeWindowEnd);
 

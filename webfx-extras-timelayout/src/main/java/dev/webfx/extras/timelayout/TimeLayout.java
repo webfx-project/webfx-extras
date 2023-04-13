@@ -59,4 +59,8 @@ public interface TimeLayout<C, T> extends TimeWindow<T>, CanLayout {
         return child != null;
     }
 
-    }
+    boolean isVisible();
+
+    void setVisible(boolean visible);
+
+}

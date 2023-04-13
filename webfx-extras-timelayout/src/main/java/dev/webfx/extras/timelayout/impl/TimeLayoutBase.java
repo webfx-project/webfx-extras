@@ -34,6 +34,7 @@ public abstract class TimeLayoutBase<C, T> implements TimeLayout<C, T> {
     private double topY;
     private double hSpacing = 0;
     private double vSpacing = 0;
+    private boolean visible = true;
 
     private ObjectProperty<C> selectedChildProperty;
 
@@ -58,6 +59,16 @@ public abstract class TimeLayoutBase<C, T> implements TimeLayout<C, T> {
     public void setTimeWindow(T timeWindowStart, T timeWindowEnd) {
         this.timeWindowStart = timeWindowStart;
         this.timeWindowEnd = timeWindowEnd;
+    }
+
+    @Override
+    public T getTimeWindowStart() {
+        return timeWindowStart;
+    }
+
+    @Override
+    public T getTimeWindowEnd() {
+        return timeWindowEnd;
     }
 
     @Override
@@ -117,7 +128,7 @@ public abstract class TimeLayoutBase<C, T> implements TimeLayout<C, T> {
 
     @Override
     public void layout(double width, double height) {
-        if ((layoutDirty || layoutWidth != width || layoutHeight != height) && childrenTimePositions != null) {
+        if (visible && (layoutDirty || layoutWidth != width || layoutHeight != height) && childrenTimePositions != null) {
             layoutWidth = width;
             layoutHeight = height;
             layoutDirty = false;
@@ -165,6 +176,10 @@ public abstract class TimeLayoutBase<C, T> implements TimeLayout<C, T> {
     }
 
     protected void updateChildPosition(int childIndex, ChildPosition<T> childPosition) {
+/*
+        if (timeWindowStart == null || timeWindowEnd == null)
+            return;
+*/
         C child = children.get(childIndex);
         T startTime = childTimeReader.getStartTime(child);
         T endTime = childTimeReader.getEndTime(child);
@@ -220,5 +235,15 @@ public abstract class TimeLayoutBase<C, T> implements TimeLayout<C, T> {
                 return children.get(i);
         }
         return null;
+    }
+
+    @Override
+    public boolean isVisible() {
+        return visible;
+    }
+
+    @Override
+    public void setVisible(boolean visible) {
+        this.visible = visible;
     }
 }

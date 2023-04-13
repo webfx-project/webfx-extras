@@ -32,14 +32,20 @@ public class LayeredTimeCanvasDrawer<T> {
         childCanvasDrawers.put(timeLayout, childCanvasDrawer);
     }
 
+    public void redraw() {
+        draw(true);
+    }
+
     public void draw(boolean clearCanvas) {
         double width = canvas.getWidth();
         double height = canvas.getHeight();
         if (clearCanvas)
             gc.clearRect(0, 0, width, height);
         layeredTimeLayout.getLayers().forEach(layer -> {
-            ChildCanvasDrawer<?, T> childCanvasDrawer = childCanvasDrawers.get(layer);
-            TimeCanvasDrawer.draw(width, height, (TimeLayout) layer, (ChildCanvasDrawer) childCanvasDrawer, gc);
+            if (layer.isVisible()) {
+                ChildCanvasDrawer<?, T> childCanvasDrawer = childCanvasDrawers.get(layer);
+                TimeCanvasDrawer.draw(width, height, (TimeLayout) layer, (ChildCanvasDrawer) childCanvasDrawer, gc);
+            }
         });
     }
 

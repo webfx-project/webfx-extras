@@ -32,6 +32,16 @@ public class LayeredTimeLayoutImpl<T> implements LayeredTimeLayout<T> {
     }
 
     @Override
+    public T getTimeWindowStart() {
+        return layers.get(0).getTimeWindowStart();
+    }
+
+    @Override
+    public T getTimeWindowEnd() {
+        return layers.get(0).getTimeWindowEnd();
+    }
+
+    @Override
     public void markLayoutAsDirty() {
         layers.forEach(CanLayout::markLayoutAsDirty);
     }

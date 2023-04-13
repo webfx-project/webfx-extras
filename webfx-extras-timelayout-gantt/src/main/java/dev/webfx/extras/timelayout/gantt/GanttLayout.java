@@ -2,6 +2,7 @@ package dev.webfx.extras.timelayout.gantt;
 
 import dev.webfx.extras.timelayout.impl.TimeLayoutBase;
 import dev.webfx.extras.timelayout.impl.TimeProjector;
+import dev.webfx.extras.timelayout.util.YearWeek;
 
 import java.time.temporal.ChronoUnit;
 import java.time.temporal.Temporal;
@@ -36,7 +37,7 @@ public final class GanttLayout <C, T> extends TimeLayoutBase<C, T> implements Ti
 
     @Override
     protected int computeChildRowIndex(int childIndex, C child, T startTime, T endTime, double startX, double endX) {
-        if (child instanceof Temporal)
+        if (child instanceof Temporal || child instanceof YearWeek)
             return 0;
         // Tetris block algorithm:
         Block newBlock = new Block(startX, endX);
@@ -59,6 +60,13 @@ public final class GanttLayout <C, T> extends TimeLayoutBase<C, T> implements Ti
         packedRows.add(row);
         return packedRows.size() - 1;
     }
+
+    /*@Override
+    public int getRowsCount() {
+        if (packedRows.isEmpty())
+            return super.getRowsCount();
+        return packedRows.size();
+    }*/
 
     private static final class Block {
         private final double startX;

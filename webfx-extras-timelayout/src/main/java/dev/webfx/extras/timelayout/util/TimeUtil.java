@@ -3,6 +3,8 @@ package dev.webfx.extras.timelayout.util;
 import dev.webfx.extras.timelayout.ChildTimeReader;
 
 import java.time.*;
+import java.time.temporal.ChronoUnit;
+import java.time.temporal.IsoFields;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -65,6 +67,38 @@ public class TimeUtil {
             }
         }
         return yearMonths;
+    }
+
+    public static List<Year> generateYears(int firstYear, int lastYear) {
+        return generateYears(Year.of(firstYear), Year.of(lastYear));
+    }
+
+    public static List<Year> generateYears(Year first, Year last) {
+        List<Year> years = new ArrayList<>();
+        if (last.isAfter(first) || last.equals(first)) {
+            for (Year year = first; year.isBefore(last) || year.equals(last); year = year.plusYears(1)) {
+                years.add(year);
+            }
+        }
+        return years;
+    }
+
+    public static List<YearWeek> generateYearWeeks(int firstYear, int firstWeek, int lastYear, int lastWeek) {
+        return generateYearWeeks(YearWeek.of(firstYear, firstWeek), YearWeek.of(lastYear, lastWeek));
+    }
+
+    public static List<YearWeek> generateYearWeeks(YearWeek first, YearWeek last) {
+        List<YearWeek> yearWeeks = new ArrayList<>();
+        LocalDate localDate = LocalDate.of(first.getYear(), 1, 1).plus(first.getWeek(), ChronoUnit.WEEKS);
+        while (true) {
+            int year = localDate.get( IsoFields.WEEK_BASED_YEAR ) ;
+            int week = localDate.get( IsoFields.WEEK_OF_WEEK_BASED_YEAR ) ;
+            if (year > last.getYear() || year == last.getYear() && week > last.getWeek())
+                break;
+            yearWeeks.add(YearWeek.of(year, week));
+            localDate = localDate.plus(1, ChronoUnit.WEEKS);
+        }
+        return yearWeeks;
     }
 
     public static List<LocalDate> generateLocalDates(LocalDate first, LocalDate last) {

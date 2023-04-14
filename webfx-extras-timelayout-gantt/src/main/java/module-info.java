@@ -5,7 +5,6 @@ module webfx.extras.timelayout.gantt {
     // Direct dependencies modules
     requires java.base;
     requires javafx.base;
-    requires javafx.graphics;
     requires webfx.extras.timelayout;
 
     // Exported packages

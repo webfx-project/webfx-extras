@@ -16,13 +16,11 @@ import java.util.stream.Stream;
 /**
  * @author Bruno Salmon
  */
-public abstract class TimeLayoutBase<C, T> implements TimeLayout<C, T> {
+public abstract class TimeLayoutBase<C, T> extends TimeWindowImpl<T> implements TimeLayout<C, T> {
 
     protected final ObservableList<C> children = FXCollections.observableArrayList();
     protected ChildTimeReader<C, T> childTimeReader = (ChildTimeReader) TimeUtil.<T>immediateChildTimeReader();
     protected List<ChildPosition<T>> childrenTimePositions;
-    protected T timeWindowStart;
-    protected T timeWindowEnd;
     protected List<TimeColumn<T>> columns = new ArrayList<>();
     protected List<TimeRow> rows = new ArrayList<>();
     protected TimeCell<T>[][] cells;
@@ -59,19 +57,13 @@ public abstract class TimeLayoutBase<C, T> implements TimeLayout<C, T> {
     }
 
     @Override
-    public void setTimeWindow(T timeWindowStart, T timeWindowEnd) {
-        this.timeWindowStart = timeWindowStart;
-        this.timeWindowEnd = timeWindowEnd;
+    public ObjectProperty<T> timeWindowStartProperty() {
+        return timeWindowStartProperty;
     }
 
     @Override
-    public T getTimeWindowStart() {
-        return timeWindowStart;
-    }
-
-    @Override
-    public T getTimeWindowEnd() {
-        return timeWindowEnd;
+    public ObjectProperty<T> timeWindowEndProperty() {
+        return timeWindowEndProperty;
     }
 
     @Override
@@ -200,7 +192,6 @@ public abstract class TimeLayoutBase<C, T> implements TimeLayout<C, T> {
         if (childFixedHeight > 0) {
             childPosition.setHeight(childFixedHeight - vSpacing); // will be reset by layout if fillHeight is true
             childPosition.setY(topY + childFixedHeight * rowIndex + vSpacing / 2); // will be reset by layout if fillHeight is true
-        } else {
         }
         childPosition.setValid(true);
     }

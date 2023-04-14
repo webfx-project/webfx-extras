@@ -9,6 +9,8 @@ public interface LayeredTimeLayout<T> extends TimeWindow<T>, CanLayout {
 
     void addLayer(TimeLayout<?, T> layer);
 
+    void removeLayer(TimeLayout<?, T> layer);
+
     static <T> LayeredTimeLayout<T> create() {
         return new LayeredTimeLayoutImpl<>();
     }

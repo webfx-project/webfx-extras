@@ -32,8 +32,8 @@ public final class GanttLayout <C, T extends Temporal> extends TimeLayoutBase<C,
 
     @Override
     public double timeToX(T time, boolean start, boolean exclusive, double layoutWidth) {
-        long totalDays = timeWindowStart.until(timeWindowEnd, ChronoUnit.DAYS) + 1;
-        long daysToTime = timeWindowStart.until(time, ChronoUnit.DAYS);
+        long totalDays = getTimeWindowStart().until(getTimeWindowEnd(), ChronoUnit.DAYS) + 1;
+        long daysToTime = getTimeWindowStart().until(time, ChronoUnit.DAYS);
         if (start && exclusive || !start && !exclusive)
             daysToTime++;
         return layoutWidth * daysToTime / totalDays;

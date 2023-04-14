@@ -3,18 +3,16 @@ package dev.webfx.extras.timelayout.impl;
 import dev.webfx.extras.timelayout.CanLayout;
 import dev.webfx.extras.timelayout.LayeredTimeLayout;
 import dev.webfx.extras.timelayout.TimeLayout;
+import dev.webfx.extras.timelayout.TimeWindowTransaction;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 
 /**
  * @author Bruno Salmon
  */
-public class LayeredTimeLayoutImpl<T> implements LayeredTimeLayout<T> {
+public final class LayeredTimeLayoutImpl<T> extends TimeWindowImpl<T> implements LayeredTimeLayout<T> {
 
     private final ObservableList<TimeLayout<?, T>> layers = FXCollections.observableArrayList();
-
-    public LayeredTimeLayoutImpl() {
-    }
 
     @Override
     public ObservableList<TimeLayout<?, T>> getLayers() {
@@ -23,22 +21,19 @@ public class LayeredTimeLayoutImpl<T> implements LayeredTimeLayout<T> {
 
     @Override
     public void addLayer(TimeLayout<?, T> layer) {
+        try (TimeWindowTransaction closable = TimeWindowTransaction.open()) {
+            layer.timeWindowStartProperty().bind(timeWindowStartProperty);
+        }
+        layer.timeWindowEndProperty().bind(timeWindowEndProperty);
         layers.add(layer);
     }
 
     @Override
-    public void setTimeWindow(T timeWindowStart, T timeWindowEnd) {
-        layers.forEach(layer -> layer.setTimeWindow(timeWindowStart, timeWindowEnd));
-    }
-
-    @Override
-    public T getTimeWindowStart() {
-        return layers.get(0).getTimeWindowStart();
-    }
-
-    @Override
-    public T getTimeWindowEnd() {
-        return layers.get(0).getTimeWindowEnd();
+    public void removeLayer(TimeLayout<?, T> layer) {
+        if (layers.remove(layer)) {
+            layer.timeWindowStartProperty().unbind();
+            layer.timeWindowEndProperty().unbind();
+        }
     }
 
     @Override

@@ -11,8 +11,6 @@ public interface TimeLayout<C, T> extends TimeWindow<T>, CanLayout {
 
     ObservableList<C> getChildren();
 
-    void setChildTimeReader(ChildTimeReader<C, T> childTimeReader);
-
      double getChildFixedHeight();
 
     void setChildFixedHeight(double childFixedHeight);
@@ -32,6 +30,26 @@ public interface TimeLayout<C, T> extends TimeWindow<T>, CanLayout {
     double getVSpacing();
 
     void setVSpacing(double vSpacing);
+
+    default void setInclusiveChildStartTimeReader(ChildTimeReader<C, T> startTimeReader) {
+        setChildStartTimeReader(startTimeReader, false);
+    }
+
+    default void setExclusiveChildStartTimeReader(ChildTimeReader<C, T> startTimeReader) {
+        setChildStartTimeReader(startTimeReader, true);
+    }
+
+    void setChildStartTimeReader(ChildTimeReader<C, T> startTimeReader, boolean exclusive);
+
+    default void setInclusiveChildEndTimeReader(ChildTimeReader<C, T> endTimeReader) {
+        setChildEndTimeReader(endTimeReader, false);
+    }
+
+    default void setExclusiveChildEndTimeReader(ChildTimeReader<C, T> endTimeReader) {
+        setChildEndTimeReader(endTimeReader, true);
+    }
+
+    void setChildEndTimeReader(ChildTimeReader<C, T> childEndTimeReader, boolean exclusive);
 
 
     // Output methods

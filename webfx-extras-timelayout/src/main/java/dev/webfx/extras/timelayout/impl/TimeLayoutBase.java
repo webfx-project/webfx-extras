@@ -1,7 +1,6 @@
 package dev.webfx.extras.timelayout.impl;
 
 import dev.webfx.extras.timelayout.*;
-import dev.webfx.extras.timelayout.util.TimeUtil;
 import javafx.beans.property.ObjectProperty;
 import javafx.beans.property.SimpleObjectProperty;
 import javafx.collections.FXCollections;
@@ -19,11 +18,14 @@ import java.util.stream.Stream;
 public abstract class TimeLayoutBase<C, T> extends TimeWindowImpl<T> implements TimeLayout<C, T> {
 
     protected final ObservableList<C> children = FXCollections.observableArrayList();
-    protected ChildTimeReader<C, T> childTimeReader = (ChildTimeReader) TimeUtil.<T>immediateChildTimeReader();
+    private ChildTimeReader<C, T> childStartTimeReader = c -> (T) c;
+    private boolean childStartTimeExclusive;
+    private ChildTimeReader<C, T> childEndTimeReader = c -> (T) c;
+    private boolean childEndTimeExclusive;
     protected List<ChildPosition<T>> childrenTimePositions;
     protected List<TimeColumn<T>> columns = new ArrayList<>();
     protected List<TimeRow> rows = new ArrayList<>();
-    protected TimeCell<T>[][] cells;
+    //protected TimeCell<T>[][] cells;
     private int rowsCount;
     protected double layoutWidth, layoutHeight;
     private boolean layoutDirty;
@@ -52,18 +54,15 @@ public abstract class TimeLayoutBase<C, T> extends TimeWindowImpl<T> implements 
     }
 
     @Override
-    public void setChildTimeReader(ChildTimeReader<C, T> childTimeReader) {
-        this.childTimeReader = childTimeReader;
+    public void setChildStartTimeReader(ChildTimeReader<C, T> startTimeReader, boolean exclusive) {
+        this.childStartTimeReader = startTimeReader;
+        childStartTimeExclusive = exclusive;
     }
 
     @Override
-    public ObjectProperty<T> timeWindowStartProperty() {
-        return timeWindowStartProperty;
-    }
-
-    @Override
-    public ObjectProperty<T> timeWindowEndProperty() {
-        return timeWindowEndProperty;
+    public void setChildEndTimeReader(ChildTimeReader<C, T> childEndTimeReader, boolean exclusive) {
+        this.childEndTimeReader = childEndTimeReader;
+        childEndTimeExclusive = exclusive;
     }
 
     @Override
@@ -170,17 +169,25 @@ public abstract class TimeLayoutBase<C, T> extends TimeWindowImpl<T> implements 
         return childPosition;
     }
 
+    private T readChildStartTime(C child) {
+        return childStartTimeReader.getTime(child);
+    }
+
+    private T readChildEndTime(C child) {
+        return childEndTimeReader.getTime(child);
+    }
+
     protected void updateChildPosition(int childIndex, ChildPosition<T> childPosition) {
 /*
         if (timeWindowStart == null || timeWindowEnd == null)
             return;
 */
         C child = children.get(childIndex);
-        T startTime = childTimeReader.getStartTime(child);
-        T endTime = childTimeReader.getEndTime(child);
+        T startTime = readChildStartTime(child);
+        T endTime = readChildEndTime(child);
         TimeProjector<T> timeProjector = getTimeProjector();
-        double startX = timeProjector.timeToX(startTime, true, false, layoutWidth);
-        double endX = timeProjector.timeToX(endTime, false, false, layoutWidth);
+        double startX = timeProjector.timeToX(startTime, true, childStartTimeExclusive, layoutWidth);
+        double endX = timeProjector.timeToX(endTime, false, childEndTimeExclusive, layoutWidth);
         int columnIndex = computeChildColumnIndex(childIndex, child, startTime, endTime, startX, endX);
         int rowIndex = computeChildRowIndex(childIndex, child, startTime, endTime, startX, endX);
         TimeCell<T> cell = null; //cells[rowIndex][columnIndex];

@@ -1,7 +1,5 @@
 package dev.webfx.extras.timelayout.util;
 
-import dev.webfx.extras.timelayout.ChildTimeReader;
-
 import java.time.*;
 import java.time.temporal.ChronoUnit;
 import java.time.temporal.IsoFields;
@@ -111,78 +109,4 @@ public class TimeUtil {
         return dates;
     }
 
-    public static <T> ChildTimeReader<T, T> immediateChildTimeReader() {
-        return new ChildTimeReader<>() {
-            @Override
-            public T getStartTime(T child) {
-                return child;
-            }
-
-            @Override
-            public T getEndTime(T child) {
-                return child;
-            }
-        };
-    }
-
-/*
-
-    public static <T> ChildTimeReader<T, LocalDate> localDateReader() {
-        return new ChildTimeReader<>() {
-            @Override
-            public LocalDate getStartTime(T child) {
-                return Dates.toLocalDate(child);
-            }
-
-            @Override
-            public LocalDate getEndTime(T child) {
-                return getStartTime(child);
-            }
-        };
-    }
-
-    public static <T> ChildTimeReader<T, YearMonth> yearMonthReader() {
-        return new ChildTimeReader<>() {
-            @Override
-            public YearMonth getStartTime(T child) {
-                return (YearMonth) child; // temporary
-            }
-
-            @Override
-            public YearMonth getEndTime(T child) {
-                return getStartTime(child);
-            }
-        };
-    }
-
-    public static <T> ChildTimeReader<T, MonthDay> monthDayReader() {
-        return new ChildTimeReader<>() {
-            @Override
-            public MonthDay getStartTime(T child) {
-                return (MonthDay) child; // temporary
-            }
-
-            @Override
-            public MonthDay getEndTime(T child) {
-                MonthDay startTime = getStartTime(child);
-                LocalDate localDate = startTime.atYear(Year.now().getValue()); // Assuming it's this year
-                return MonthDay.of(localDate.getMonth(), localDate.getDayOfMonth());
-            }
-        };
-    }
-
-    public static ChildTimeReader<DayOfWeek, DayOfWeek> dayOfWeekReader() {
-        return new ChildTimeReader<>() {
-            @Override
-            public DayOfWeek getStartTime(DayOfWeek child) {
-                return child;
-            }
-
-            @Override
-            public DayOfWeek getEndTime(DayOfWeek child) {
-                return getStartTime(child);
-            }
-        };
-    }
-*/
 }

@@ -4,6 +4,7 @@ import dev.webfx.extras.timelayout.LayeredTimeLayout;
 import dev.webfx.extras.timelayout.TimeLayout;
 import javafx.scene.canvas.Canvas;
 import javafx.scene.canvas.GraphicsContext;
+import javafx.scene.paint.Paint;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -15,6 +16,7 @@ public class LayeredTimeCanvasDrawer<T> {
 
     private final Canvas canvas;
     private final GraphicsContext gc;
+    private Paint backgroundFill;
     private final LayeredTimeLayout<T> layeredTimeLayout;
     private final Map<TimeLayout<?, T>, ChildCanvasDrawer<?, T>> childCanvasDrawers = new HashMap<>();
 
@@ -32,6 +34,10 @@ public class LayeredTimeCanvasDrawer<T> {
         childCanvasDrawers.put(timeLayout, childCanvasDrawer);
     }
 
+    public void setBackgroundFill(Paint backgroundFill) {
+        this.backgroundFill = backgroundFill;
+    }
+
     public void redraw() {
         draw(true);
     }
@@ -39,8 +45,14 @@ public class LayeredTimeCanvasDrawer<T> {
     public void draw(boolean clearCanvas) {
         double width = canvas.getWidth();
         double height = canvas.getHeight();
-        if (clearCanvas)
-            gc.clearRect(0, 0, width, height);
+        if (clearCanvas) {
+            if (backgroundFill == null)
+                gc.clearRect(0, 0, width, height);
+            else {
+                gc.setFill(backgroundFill);
+                gc.fillRect(0, 0, width, height);
+            }
+        }
         layeredTimeLayout.getLayers().forEach(layer -> {
             if (layer.isVisible()) {
                 ChildCanvasDrawer<?, T> childCanvasDrawer = childCanvasDrawers.get(layer);

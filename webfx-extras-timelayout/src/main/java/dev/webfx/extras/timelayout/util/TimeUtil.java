@@ -109,4 +109,28 @@ public class TimeUtil {
         return dates;
     }
 
+    public static LocalDate getFirstDayOfYear(Year year) {
+        return year.atDay(1);
+    }
+
+    public static LocalDate getLastDayOfYear(Year year) {
+        return year.atMonthDay(MonthDay.of(12, 31));
+    }
+
+    public static LocalDate getFirstDayOfMonth(YearMonth yearMonth) {
+        return yearMonth.atDay(1);
+    }
+
+    public static LocalDate getLastDayOfMonth(YearMonth yearMonth) {
+        return yearMonth.atEndOfMonth();
+    }
+
+    public static LocalDate getFirstDayOfWeek(YearWeek yearWeek) {
+        return yearWeek.getFirstDay();
+    }
+
+    public static LocalDate getLastDayOfWeek(YearWeek yearWeek) {
+        return yearWeek.getLastDay();
+    }
+
 }

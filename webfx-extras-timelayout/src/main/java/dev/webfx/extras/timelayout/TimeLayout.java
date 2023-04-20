@@ -68,13 +68,13 @@ public interface TimeLayout<C, T> extends TimeWindow<T>, CanLayout {
 
     ObjectProperty<C> selectedChildProperty();
 
-    C pickChild(double x, double y);
+    C pickChildAt(double x, double y);
 
-    default boolean selectClickedChild(double x, double y) {
-        C child = pickChild(x, y);
+    default C selectChildAt(double x, double y) {
+        C child = pickChildAt(x, y);
         if (child != null)
             setSelectedChild(child);
-        return child != null;
+        return child;
     }
 
     boolean isVisible();

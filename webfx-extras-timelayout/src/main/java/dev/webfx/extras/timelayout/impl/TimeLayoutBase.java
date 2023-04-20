@@ -211,8 +211,10 @@ public abstract class TimeLayoutBase<C, T> extends TimeWindowImpl<T> implements 
 
     @Override
     public void setSelectedChild(C child) {
+/*
         if (selectedChildProperty != null && child == null)
             return;
+*/
         selectedChildProperty().set(child);
     }
 
@@ -229,7 +231,7 @@ public abstract class TimeLayoutBase<C, T> extends TimeWindowImpl<T> implements 
     }
 
     @Override
-    public C pickChild(double x, double y) {
+    public C pickChildAt(double x, double y) {
         for (int i = 0; i < children.size(); i++) {
             ChildPosition<T> cp = getChildPosition(i);
             if (x >= cp.getX() && x <= cp.getX() + cp.getWidth() && y >= cp.getY() && y <= cp.getY() + cp.getHeight())

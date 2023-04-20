@@ -2,9 +2,13 @@ package dev.webfx.extras.timelayout.gantt;
 
 import dev.webfx.extras.timelayout.impl.TimeLayoutBase;
 import dev.webfx.extras.timelayout.impl.TimeProjector;
+import dev.webfx.extras.timelayout.util.TimeUtil;
 import dev.webfx.extras.timelayout.util.YearWeek;
 import javafx.collections.ListChangeListener;
 
+import java.time.LocalDate;
+import java.time.Year;
+import java.time.YearMonth;
 import java.time.temporal.ChronoUnit;
 import java.time.temporal.Temporal;
 import java.util.*;
@@ -169,6 +173,33 @@ public final class GanttLayout <C, T extends Temporal> extends TimeLayoutBase<C,
             // Otherwise (if this block starts after b)
             return b.endTime.until(startTime, ChronoUnit.DAYS) < 0; // they overlap if b ends after this block starts
         }
+    }
+
+    // Static factory methods
+
+    public static GanttLayout<Year, LocalDate> createYearLocalDateGanttLayout() {
+        GanttLayout<Year, LocalDate> ganttLayout = new GanttLayout<>();
+        ganttLayout.setInclusiveChildStartTimeReader(TimeUtil::getFirstDayOfYear);
+        ganttLayout.setInclusiveChildEndTimeReader(TimeUtil::getLastDayOfYear);
+        return ganttLayout;
+    }
+
+    public static GanttLayout<YearMonth, LocalDate> createYearMonthLocalDateGanttLayout() {
+        GanttLayout<YearMonth, LocalDate> ganttLayout = new GanttLayout<>();
+        ganttLayout.setInclusiveChildStartTimeReader(TimeUtil::getFirstDayOfMonth);
+        ganttLayout.setInclusiveChildEndTimeReader(TimeUtil::getLastDayOfMonth);
+        return ganttLayout;
+    }
+
+    public static GanttLayout<YearWeek, LocalDate> createYearWeekLocalDateGanttLayout() {
+        GanttLayout<YearWeek, LocalDate> ganttLayout = new GanttLayout<>();
+        ganttLayout.setInclusiveChildStartTimeReader(TimeUtil::getFirstDayOfWeek);
+        ganttLayout.setInclusiveChildEndTimeReader(TimeUtil::getLastDayOfWeek);
+        return ganttLayout;
+    }
+
+    public static GanttLayout<LocalDate, LocalDate> createDayLocalDateGanttLayout() {
+        return new GanttLayout<>();
     }
 
 }

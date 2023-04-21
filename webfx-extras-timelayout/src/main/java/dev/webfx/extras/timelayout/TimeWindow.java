@@ -14,7 +14,8 @@ public interface TimeWindow<T> {
     }
 
     default void setTimeWindowStart(T timeWindowStart) {
-        timeWindowStartProperty().set(timeWindowStart);
+        if (!Objects.equals(timeWindowStart, getTimeWindowStart()))
+            timeWindowStartProperty().set(timeWindowStart);
     }
 
     ObjectProperty<T> timeWindowEndProperty();
@@ -24,13 +25,18 @@ public interface TimeWindow<T> {
     }
 
     default void setTimeWindowEnd(T timeWindowEnd) {
-        timeWindowEndProperty().set(timeWindowEnd);
+        if (!Objects.equals(timeWindowEnd, getTimeWindowEnd()))
+            timeWindowEndProperty().set(timeWindowEnd);
     }
 
     default void setTimeWindow(T timeWindowStart, T timeWindowEnd) {
-        if (Objects.equals(timeWindowStart, getTimeWindowStart()))
+        boolean startUnchanged = Objects.equals(timeWindowStart, getTimeWindowStart());
+        boolean endUnchanged = Objects.equals(timeWindowEnd, getTimeWindowEnd());
+        if (startUnchanged && endUnchanged)
+            return;
+        if (startUnchanged)
             setTimeWindowEnd(timeWindowEnd);
-        else if (Objects.equals(timeWindowEnd, getTimeWindowEnd()))
+        else if (endUnchanged)
             setTimeWindowStart(timeWindowStart);
         else {
             try (TimeWindowTransaction closable = TimeWindowTransaction.open()) {

@@ -1,6 +1,7 @@
 package dev.webfx.extras.timelayout;
 
 import javafx.beans.property.ObjectProperty;
+import javafx.beans.property.Property;
 
 import java.util.Objects;
 import java.util.function.BiConsumer;
@@ -43,6 +44,18 @@ public interface TimeWindow<T> {
                 setTimeWindowStart(timeWindowStart);
             }
             setTimeWindowEnd(timeWindowEnd);
+        }
+    }
+
+    default void bindTimeWindow(Property<T> startProperty, Property<T> endProperty, boolean applyInitialValues, boolean bidirectional) {
+        if (applyInitialValues)
+            setTimeWindow(startProperty.getValue(), endProperty.getValue());
+        if (bidirectional) {
+            startProperty.bindBidirectional(timeWindowStartProperty());
+            endProperty.bindBidirectional(timeWindowEndProperty());
+        } else {
+            startProperty.bind(timeWindowStartProperty());
+            endProperty.bind(timeWindowEndProperty());
         }
     }
 

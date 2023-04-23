@@ -6,7 +6,10 @@ module webfx.extras.timelayout {
     requires java.base;
     requires javafx.base;
     requires javafx.graphics;
+    requires webfx.extras.util.animation;
     requires webfx.kit.launcher;
+    requires webfx.platform.scheduler;
+    requires webfx.platform.uischeduler;
 
     // Exported packages
     exports dev.webfx.extras.timelayout;

@@ -12,7 +12,7 @@ import java.time.*;
 public class CalendarLayout<C, T> extends TimeLayoutBase<C, T> implements TimeProjector<T> {
 
     public CalendarLayout() {
-        javafx.collections.ObservableList<C> children = getChildren(); // This is just to force the WebFX CLI to add this dependency
+        javafx.collections.ObservableList<C> children = getChildren(); // This is just to force the WebFX CLI to add the dependency to javafx-base
     }
 
     @Override

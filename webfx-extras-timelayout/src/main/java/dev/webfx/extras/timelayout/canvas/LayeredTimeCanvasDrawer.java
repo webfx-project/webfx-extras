@@ -18,7 +18,7 @@ public class LayeredTimeCanvasDrawer<T> {
     private final GraphicsContext gc;
     private Paint backgroundFill;
     private final LayeredTimeLayout<T> layeredTimeLayout;
-    private final Map<TimeLayout<?, T>, ChildCanvasDrawer<?, T>> childCanvasDrawers = new HashMap<>();
+    private final Map<TimeLayout<?, T>, ChildDrawer<?, T>> childDrawers = new HashMap<>();
 
     public LayeredTimeCanvasDrawer(Canvas canvas, LayeredTimeLayout<T> layeredTimeLayout) {
         this(canvas.getGraphicsContext2D(), layeredTimeLayout);
@@ -30,8 +30,8 @@ public class LayeredTimeCanvasDrawer<T> {
         this.layeredTimeLayout = layeredTimeLayout;
     }
 
-    public <C> void setLayerChildCanvasDrawer(TimeLayout<C, T> timeLayout, ChildCanvasDrawer<C, T> childCanvasDrawer) {
-        childCanvasDrawers.put(timeLayout, childCanvasDrawer);
+    public <C> void setLayerChildDrawer(TimeLayout<C, T> timeLayout, ChildDrawer<C, T> childDrawer) {
+        childDrawers.put(timeLayout, childDrawer);
     }
 
     public void setBackgroundFill(Paint backgroundFill) {
@@ -55,8 +55,8 @@ public class LayeredTimeCanvasDrawer<T> {
         }
         layeredTimeLayout.getLayers().forEach(layer -> {
             if (layer.isVisible()) {
-                ChildCanvasDrawer<?, T> childCanvasDrawer = childCanvasDrawers.get(layer);
-                TimeCanvasDrawer.draw(width, height, (TimeLayout) layer, (ChildCanvasDrawer) childCanvasDrawer, gc);
+                ChildDrawer<?, T> childDrawer = childDrawers.get(layer);
+                TimeCanvasDrawer.draw(width, height, (TimeLayout) layer, (ChildDrawer) childDrawer, gc);
             }
         });
     }

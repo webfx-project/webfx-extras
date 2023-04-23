@@ -1,11 +1,10 @@
 package dev.webfx.extras.timelayout;
 
-import javafx.beans.property.ObjectProperty;
 import javafx.collections.ObservableList;
 
 import java.util.List;
 
-public interface TimeLayout<C, T> extends TimeWindow<T>, CanLayout {
+public interface TimeLayout<C, T> extends TimeWindow<T>, CanLayout, CanSelectChild<C> {
 
     // Input methods
 
@@ -61,22 +60,7 @@ public interface TimeLayout<C, T> extends TimeWindow<T>, CanLayout {
     List<TimeRow> getRows();
 
     int getRowsCount();
-
-    void setSelectedChild(C child);
-
-    C getSelectedChild();
-
-    ObjectProperty<C> selectedChildProperty();
-
-    C pickChildAt(double x, double y);
-
-    default C selectChildAt(double x, double y) {
-        C child = pickChildAt(x, y);
-        if (child != null)
-            setSelectedChild(child);
-        return child;
-    }
-
+    
     boolean isVisible();
 
     void setVisible(boolean visible);

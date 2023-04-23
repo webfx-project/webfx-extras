@@ -12,8 +12,7 @@ import java.util.stream.IntStream;
 /**
  * @author Bruno Salmon
  */
-public class TimeUtil {
-
+public final class TimeUtil {
 
     public static List<MonthDay> generateThisMonthDays() {
         return generateMonthDays(YearMonth.now());

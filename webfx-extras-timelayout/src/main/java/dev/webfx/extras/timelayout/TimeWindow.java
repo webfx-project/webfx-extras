@@ -1,11 +1,12 @@
 package dev.webfx.extras.timelayout;
 
 import javafx.beans.property.ObjectProperty;
-import javafx.beans.property.Property;
 
 import java.util.Objects;
-import java.util.function.BiConsumer;
 
+/**
+ * @author Bruno Salmon
+ */
 public interface TimeWindow<T> {
 
     ObjectProperty<T> timeWindowStartProperty();
@@ -30,6 +31,16 @@ public interface TimeWindow<T> {
             timeWindowEndProperty().set(timeWindowEnd);
     }
 
+    default void bindTimeWindow(TimeWindow<T> otherTimeWindow) {
+        timeWindowStartProperty().bind(otherTimeWindow.timeWindowStartProperty());
+        timeWindowEndProperty().bind(otherTimeWindow.timeWindowEndProperty());
+    }
+
+    default void bindTimeWindowBidirectional(TimeWindow<T> otherTimeWindow) {
+        timeWindowStartProperty().bindBidirectional(otherTimeWindow.timeWindowStartProperty());
+        timeWindowEndProperty().bindBidirectional(otherTimeWindow.timeWindowEndProperty());
+    }
+
     default void setTimeWindow(T timeWindowStart, T timeWindowEnd) {
         boolean startUnchanged = Objects.equals(timeWindowStart, getTimeWindowStart());
         boolean endUnchanged = Objects.equals(timeWindowEnd, getTimeWindowEnd());
@@ -46,19 +57,5 @@ public interface TimeWindow<T> {
             setTimeWindowEnd(timeWindowEnd);
         }
     }
-
-    default void bindTimeWindow(Property<T> startProperty, Property<T> endProperty, boolean applyInitialValues, boolean bidirectional) {
-        if (applyInitialValues)
-            setTimeWindow(startProperty.getValue(), endProperty.getValue());
-        if (bidirectional) {
-            startProperty.bindBidirectional(timeWindowStartProperty());
-            endProperty.bindBidirectional(timeWindowEndProperty());
-        } else {
-            startProperty.bind(timeWindowStartProperty());
-            endProperty.bind(timeWindowEndProperty());
-        }
-    }
-
-    void setOnTimeWindowChanged(BiConsumer<T, T> timeWindowChangedHandler);
 
 }

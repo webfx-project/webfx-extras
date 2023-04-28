@@ -5,8 +5,6 @@ import dev.webfx.extras.timelayout.TimeWindowTransaction;
 import javafx.beans.property.ObjectProperty;
 import javafx.beans.property.SimpleObjectProperty;
 
-import java.util.function.BiConsumer;
-
 /**
  * @author Bruno Salmon
  */
@@ -25,7 +23,6 @@ public class TimeWindowImpl<T> implements TimeWindow<T> {
             onTimeWindowChanged();
         }
     };
-    private BiConsumer<T, T> timeWindowChangedHandler;
 
     @Override
     public ObjectProperty<T> timeWindowStartProperty() {
@@ -37,18 +34,7 @@ public class TimeWindowImpl<T> implements TimeWindow<T> {
         return timeWindowEndProperty;
     }
 
-    @Override
-    public void setOnTimeWindowChanged(BiConsumer<T, T> timeWindowChangedHandler) {
-        this.timeWindowChangedHandler = timeWindowChangedHandler;
-    }
-
-    private void onTimeWindowChanged() {
-        if (timeWindowChangedHandler != null) {
-            T start = getTimeWindowStart();
-            T end = getTimeWindowEnd();
-            if (start != null && end != null)
-                timeWindowChangedHandler.accept(start, end);
-        }
+    protected void onTimeWindowChanged() {
     }
 
 }

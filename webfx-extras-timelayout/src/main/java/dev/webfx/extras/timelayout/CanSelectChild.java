@@ -4,11 +4,15 @@ import javafx.beans.property.ObjectProperty;
 
 public interface CanSelectChild<C> {
 
-    void setSelectedChild(C child);
-
-    C getSelectedChild();
-
     ObjectProperty<C> selectedChildProperty();
+
+    default void setSelectedChild(C child) {
+        selectedChildProperty().set(child);
+    }
+
+    default C getSelectedChild() {
+        return selectedChildProperty().get();
+    }
 
     C pickChildAt(double x, double y);
 

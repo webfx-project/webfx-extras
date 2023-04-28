@@ -3,53 +3,61 @@ package dev.webfx.extras.timelayout.canvas;
 import dev.webfx.extras.timelayout.ChildPosition;
 import dev.webfx.extras.timelayout.TimeLayout;
 import javafx.collections.ObservableList;
+import javafx.geometry.Bounds;
 import javafx.scene.canvas.Canvas;
 import javafx.scene.canvas.GraphicsContext;
 
 /**
  * @author Bruno Salmon
  */
-public class TimeCanvasDrawer<C, T> implements CanvasDrawer {
-    private final Canvas canvas;
-    private final GraphicsContext gc;
+public class TimeCanvasDrawer<C, T> extends CanvasDrawerBase {
     private final TimeLayout<C, T> timeLayout;
     private final ChildDrawer<C, T> childDrawer;
 
-    public TimeCanvasDrawer(Canvas canvas, TimeLayout<C, T> timeLayout, ChildDrawer<C, T> childDrawer) {
-        this(canvas.getGraphicsContext2D(), timeLayout, childDrawer);
+    public TimeCanvasDrawer(TimeLayout<C, T> timeLayout, ChildDrawer<C, T> childDrawer) {
+        this(new Canvas(), timeLayout, childDrawer);
     }
 
-    public TimeCanvasDrawer(GraphicsContext gc, TimeLayout<C, T> timeLayout, ChildDrawer<C, T> childDrawer) {
-        this.gc = gc;
-        this.canvas = gc.getCanvas();
+    public TimeCanvasDrawer(Canvas canvas, TimeLayout<C, T> timeLayout, ChildDrawer<C, T> childDrawer) {
+        super(canvas);
         this.timeLayout = timeLayout;
         this.childDrawer = childDrawer;
+        timeLayout.addOnAfterLayout(this::markDrawAreaAsDirty);
+        timeLayout.selectedChildProperty().addListener(observable -> markDrawAreaAsDirty());
     }
 
     @Override
-    public Canvas getCanvas() {
-        return canvas;
+    protected void drawObjectsInArea() {
+        drawVisibleChildren(getDrawAreaOrCanvasBounds(), getLayoutOriginX(), getLayoutOriginY(), timeLayout, childDrawer, gc);
     }
 
-    @Override
-    public void draw(double width, double height, boolean clear) {
-        if (clear)
-            gc.clearRect(0, 0, width, height);
-        draw(width, height, timeLayout, childDrawer, gc);
-    }
-
-    static <C, T> void draw(double width, double height, TimeLayout<C, T> timeLayout, ChildDrawer<C, T> childDrawer, GraphicsContext gc) {
-        timeLayout.layout(width, height);
+    static <C, T> void drawVisibleChildren(Bounds drawAreaBounds, double layoutOriginX, double layoutOriginY, TimeLayout<C, T> timeLayout, ChildDrawer<C, T> childDrawer, GraphicsContext gc) {
+        if (!timeLayout.isVisible())
+            return;
+        timeLayout.layoutIfDirty(); // ensuring the layout is done
         ObservableList<C> children = timeLayout.getChildren();
         for (int i = 0; i < children.size(); i++) {
             C child = children.get(i);
             ChildPosition<T> p = timeLayout.getChildPosition(i);
-            // Skipping canvas draw operations for children whose position is outside the canvas
-            if (p.getX() + p.getWidth() < 0 || p.getX() > width || p.getY() + p.getHeight() < 0 || p.getY() > height)
+            // Here is the child position in the layout coordinates:
+            double layoutX = p.getX();
+            double layoutY = p.getY();
+            // Here is the child position in the canvas coordinates:
+            double canvasX = layoutX - layoutOriginX;
+            double canvasY = layoutY - layoutOriginY;
+            // Skipping that child if it is not visible in the draw area
+            if (!drawAreaBounds.intersects(canvasX, canvasY, p.getWidth(), p.getHeight()))
                 continue; // This improves performance, as canvas operations can take time (even outside canvas)
+            // Temporarily moving p to canvas coordinates for the drawing operations
+            p.setX(canvasX);
+            p.setY(canvasY);
+            // Drawing the child
             gc.save();
             childDrawer.drawChild(child, p, gc);
             gc.restore();
+            // Moving back p to layout coordinates
+            p.setX(layoutX);
+            p.setY(layoutY);
         }
     }
 }

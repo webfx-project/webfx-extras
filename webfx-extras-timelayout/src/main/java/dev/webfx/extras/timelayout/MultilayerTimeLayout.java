@@ -1,9 +1,9 @@
 package dev.webfx.extras.timelayout;
 
-import dev.webfx.extras.timelayout.impl.LayeredTimeLayoutImpl;
+import dev.webfx.extras.timelayout.impl.MultilayerTimeLayoutImpl;
 import javafx.collections.ObservableList;
 
-public interface LayeredTimeLayout<T> extends TimeWindow<T>, CanLayout, CanSelectChild<Object> {
+public interface MultilayerTimeLayout<T> extends ListenableTimeWindow<T>, CanLayout, CanSelectChild<Object> {
 
     ObservableList<TimeLayout<?, T>> getLayers();
 
@@ -20,7 +20,7 @@ public interface LayeredTimeLayout<T> extends TimeWindow<T>, CanLayout, CanSelec
 
     TimeLayout<?, T> getSelectedChildLayer();
 
-    static <T> LayeredTimeLayout<T> create() {
-        return new LayeredTimeLayoutImpl<>();
+    static <T> MultilayerTimeLayout<T> create() {
+        return new MultilayerTimeLayoutImpl<>();
     }
 }

@@ -21,12 +21,28 @@ public final class DirtyMarker {
     }
 
     public void markAsDirty() {
-        if (cleanerScheduled != null)
-            return;
-        cleanerScheduled = UiScheduler.scheduleInAnimationFrame(() -> {
-            cleaner.run();
+        if (!isDirty()) {
+            if (UiScheduler.isAnimationFrameNow())
+                runCleaner();
+            else
+                cleanerScheduled = UiScheduler.scheduleInAnimationFrame(this::runCleaner);
+        }
+    }
+
+    private void runCleaner() {
+        cleaner.run();
+        markAsClean();
+    }
+
+    public boolean isDirty() {
+        return cleanerScheduled != null;
+    }
+
+    public void markAsClean() {
+        if (cleanerScheduled != null) {
+            cleanerScheduled.cancel();
             cleanerScheduled = null;
-        });
+        }
     }
 
 }

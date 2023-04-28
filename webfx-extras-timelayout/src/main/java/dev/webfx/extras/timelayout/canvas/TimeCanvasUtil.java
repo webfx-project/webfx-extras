@@ -114,7 +114,7 @@ public final class TimeCanvasUtil {
             y += height / 2;
         gc.setTextAlign(textAlignment);
         gc.fillText(text, x, y);
-        gc.restore(); // this includes removing the clip path is it was set
+        gc.restore(); // this includes removing the clip path if set
     }
 
     public static void fillTopCenterText(ChildPosition<?> p, double hPadding, String text, Paint fill, GraphicsContext gc) {

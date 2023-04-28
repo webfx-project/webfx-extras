@@ -1,13 +1,12 @@
 package dev.webfx.extras.timelayout.impl;
 
-import dev.webfx.extras.timelayout.CanLayout;
-import dev.webfx.extras.timelayout.LayeredTimeLayout;
-import dev.webfx.extras.timelayout.TimeLayout;
-import dev.webfx.extras.timelayout.TimeWindowTransaction;
-import javafx.beans.property.ObjectProperty;
-import javafx.beans.property.SimpleObjectProperty;
+import dev.webfx.extras.timelayout.*;
+import dev.webfx.extras.timelayout.util.DirtyMarker;
+import javafx.beans.property.*;
 import javafx.beans.value.ChangeListener;
+import javafx.beans.value.ObservableIntegerValue;
 import javafx.collections.FXCollections;
+import javafx.collections.ListChangeListener;
 import javafx.collections.ObservableList;
 
 import java.util.Objects;
@@ -15,13 +14,40 @@ import java.util.Objects;
 /**
  * @author Bruno Salmon
  */
-public final class LayeredTimeLayoutImpl<T> extends TimeWindowImpl<T> implements LayeredTimeLayout<T> {
+public class MultilayerTimeLayoutImpl<T> extends ListenableTimeWindowImpl<T> implements MultilayerTimeLayout<T> {
 
+    private final DoubleProperty widthProperty = new SimpleDoubleProperty() {
+        @Override
+        protected void invalidated() {
+            markLayoutAsDirty();
+        }
+    };
+    private final DoubleProperty heightProperty = new SimpleDoubleProperty() {
+        @Override
+        protected void invalidated() {
+            //markLayoutAsDirty();
+        }
+    };
+    private final IntegerProperty layoutCountProperty = new SimpleIntegerProperty();
     private final ObservableList<TimeLayout<?, T>> layers = FXCollections.observableArrayList();
-
     private final ObjectProperty<Object> selectedChildProperty = new SimpleObjectProperty<>();
-
     private TimeLayout<?, T> selectedChildLayer;
+    private final DirtyMarker layoutDirtyMarker = new DirtyMarker(this::layout);
+
+    @Override
+    public DoubleProperty widthProperty() {
+        return widthProperty;
+    }
+
+    @Override
+    public DoubleProperty heightProperty() {
+        return heightProperty;
+    }
+
+    @Override
+    public ObservableIntegerValue layoutCountProperty() {
+        return layoutCountProperty;
+    }
 
     @Override
     public ObservableList<TimeLayout<?, T>> getLayers() {
@@ -30,17 +56,22 @@ public final class LayeredTimeLayoutImpl<T> extends TimeWindowImpl<T> implements
 
     @Override
     public void addLayer(TimeLayout<?, T> layer) {
+        layers.add(layer);
         try (TimeWindowTransaction closable = TimeWindowTransaction.open()) {
             layer.timeWindowStartProperty().bind(timeWindowStartProperty);
         }
         layer.timeWindowEndProperty().bind(timeWindowEndProperty);
+        layer.widthProperty().bind(widthProperty);
         layer.selectedChildProperty().addListener((ChangeListener<Object>) (observable, oldValue, newValue) -> onLayerChildSelected(newValue, layer));
-        layers.add(layer);
+        layer.getChildren().addListener((ListChangeListener<Object>) c -> markLayoutAsDirty());
+        if (!layer.getChildren().isEmpty())
+            markLayoutAsDirty();
     }
 
     @Override
     public void removeLayer(TimeLayout<?, T> layer) {
         if (layers.remove(layer)) {
+            layer.widthProperty().unbind();
             layer.timeWindowStartProperty().unbind();
             layer.timeWindowEndProperty().unbind();
         }
@@ -48,15 +79,35 @@ public final class LayeredTimeLayoutImpl<T> extends TimeWindowImpl<T> implements
 
     @Override
     public void markLayoutAsDirty() {
-        layers.forEach(CanLayout::markLayoutAsDirty);
+        if (!isLayouting())
+            layoutDirtyMarker.markAsDirty();
     }
 
     @Override
-    public void layout(double width, double height) {
-        layers.forEach(layer -> {
-            if (layer.isVisible())
-                layer.layout(width, height);
-        });
+    public boolean isLayoutDirty() {
+        return layoutDirtyMarker.isDirty();
+    }
+
+    @Override
+    public void layout() {
+        int newLayoutCount = getLayoutCount() + 1;
+        layoutCountProperty.set(-newLayoutCount); // may trigger onBeforeLayout runnable(s)
+        layers.forEach(CanLayout::layout);
+        // Automatically updating this layout height
+        if (!heightProperty.isBound())
+            setHeight(getLayersMaxY());
+        layoutDirtyMarker.markAsClean();
+        layoutCountProperty.set(newLayoutCount); // may trigger onAfterLayout runnable(s)
+    }
+
+    private double getLayersMaxY() {
+        double maxY = 0;
+        for (TimeLayout<?, T> layer : getLayers()) {
+            if (layer.isVisible()) {
+                maxY = Math.max(maxY, layer.getTopY() + layer.getHeight());
+            }
+        }
+        return maxY;
     }
 
     @Override
@@ -73,11 +124,6 @@ public final class LayeredTimeLayoutImpl<T> extends TimeWindowImpl<T> implements
                     layer.setSelectedChild(null);
             });
         }
-    }
-
-    @Override
-    public Object getSelectedChild() {
-        return selectedChildProperty.get();
     }
 
     @Override

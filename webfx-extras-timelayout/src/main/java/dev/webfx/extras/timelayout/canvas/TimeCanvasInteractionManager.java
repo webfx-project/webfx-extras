@@ -13,7 +13,7 @@ import java.time.temporal.TemporalUnit;
 /**
  * @author Bruno Salmon
  */
-public class InteractiveCanvasManager<T extends Temporal> {
+public class TimeCanvasInteractionManager<T extends Temporal> {
 
     private final Canvas canvas;
     private final TimeWindow<T> timeWindow;
@@ -24,15 +24,27 @@ public class InteractiveCanvasManager<T extends Temporal> {
     private long mousePressedDuration;
     private boolean mouseDragged;
 
-    public InteractiveCanvasManager(Canvas canvas, TimeWindow<T> timeWindow, TemporalUnit temporalUnit) {
-        this(canvas, timeWindow, temporalUnit, timeWindow instanceof CanSelectChild ? (CanSelectChild<?>) timeWindow : null);
+    public TimeCanvasInteractionManager(HasCanvas hasCanvas, TimeWindow<T> timeWindow, TemporalUnit temporalUnit) {
+        this(hasCanvas.getCanvas(), timeWindow, timeWindow instanceof CanSelectChild ? (CanSelectChild<?>) timeWindow : null, temporalUnit);
     }
 
-    public InteractiveCanvasManager(Canvas canvas, TimeWindow<T> timeWindow, TemporalUnit temporalUnit, CanSelectChild<?> canSelectChild) {
+    public TimeCanvasInteractionManager(HasCanvas hasCanvas, TimeWindow<T> timeWindow, CanSelectChild<?> canSelectChild, TemporalUnit temporalUnit) {
+        this(hasCanvas.getCanvas(), timeWindow, canSelectChild, temporalUnit);
+    }
+
+    public TimeCanvasInteractionManager(Canvas canvas, TimeWindow<T> timeWindow, TemporalUnit temporalUnit) {
+        this(canvas, timeWindow, timeWindow instanceof CanSelectChild ? (CanSelectChild<?>) timeWindow : null, temporalUnit);
+    }
+
+    public TimeCanvasInteractionManager(Canvas canvas, TimeWindow<T> timeWindow, CanSelectChild<?> canSelectChild, TemporalUnit temporalUnit) {
         this.canvas = canvas;
         this.timeWindow = timeWindow;
         this.temporalUnit = temporalUnit;
         this.canSelectChild = canSelectChild;
+    }
+
+    public void makeCanvasInteractive() {
+        setInteractive(true);
     }
 
     public void setInteractive(boolean interactive) {
@@ -57,10 +69,8 @@ public class InteractiveCanvasManager<T extends Temporal> {
         });
         // Selecting the event when clicked
         canvas.setOnMouseClicked(off ? null : e -> {
-            if (!mouseDragged) {
+            if (!mouseDragged)
                 selectObjectAt(e.getX(), e.getY());
-                    //markCanvasAsDirty();
-            }
             updateCanvasCursor(e, false);
             mousePressedStart = null;
         });

@@ -1,10 +1,11 @@
 package dev.webfx.extras.timelayout;
 
+import javafx.beans.property.BooleanProperty;
 import javafx.collections.ObservableList;
 
 import java.util.List;
 
-public interface TimeLayout<C, T> extends TimeWindow<T>, CanLayout, CanSelectChild<C> {
+public interface TimeLayout<C, T> extends ListenableTimeWindow<T>, CanLayout, CanSelectChild<C> {
 
     // Input methods
 
@@ -50,6 +51,15 @@ public interface TimeLayout<C, T> extends TimeWindow<T>, CanLayout, CanSelectChi
 
     void setChildEndTimeReader(ChildTimeReader<C, T> childEndTimeReader, boolean exclusive);
 
+    BooleanProperty visibleProperty();
+
+    default boolean isVisible() {
+        return visibleProperty().get();
+    }
+
+    default void setVisible(boolean visible) {
+        visibleProperty().set(visible);
+    }
 
     // Output methods
 
@@ -60,9 +70,5 @@ public interface TimeLayout<C, T> extends TimeWindow<T>, CanLayout, CanSelectChi
     List<TimeRow> getRows();
 
     int getRowsCount();
-    
-    boolean isVisible();
-
-    void setVisible(boolean visible);
 
 }

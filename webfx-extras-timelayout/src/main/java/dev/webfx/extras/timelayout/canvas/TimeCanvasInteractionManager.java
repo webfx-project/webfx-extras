@@ -53,7 +53,7 @@ public class TimeCanvasInteractionManager<T extends Temporal> {
             mousePressedX = e.getX();
             mousePressedStart = timeWindow.getTimeWindowStart();
             if (mousePressedStart != null)
-                mousePressedDuration = ChronoUnit.DAYS.between(mousePressedStart, timeWindow.getTimeWindowEnd());
+                mousePressedDuration = temporalUnit.between(mousePressedStart, timeWindow.getTimeWindowEnd());
             mouseDragged = false;
             updateCanvasCursor(e, true);
         });
@@ -101,11 +101,11 @@ public class TimeCanvasInteractionManager<T extends Temporal> {
     }
 
     private boolean isSelectableObjectPresentAt(double x, double y) {
-        return canSelectChild != null && canSelectChild.pickChildAt(x, y) != null;
+        return canSelectChild != null && canSelectChild.pickChildAt(x, y, true) != null;
     }
 
-    private boolean selectObjectAt(double x, double y) {
-        return canSelectChild != null && canSelectChild.selectChildAt(x, y) != null;
+    private void selectObjectAt(double x, double y) {
+        canSelectChild.selectChildAt(x, y);
     }
 
 }

@@ -4,6 +4,10 @@ import javafx.beans.property.ObjectProperty;
 
 public interface CanSelectChild<C> {
 
+    void setChildSelectionEnabled(boolean childSelectionEnabled);
+
+    boolean isChildSelectionEnabled();
+
     ObjectProperty<C> selectedChildProperty();
 
     default void setSelectedChild(C child) {
@@ -14,10 +18,12 @@ public interface CanSelectChild<C> {
         return selectedChildProperty().get();
     }
 
-    C pickChildAt(double x, double y);
+    C pickChildAt(double x, double y, boolean onlyIfSelectable);
 
     default C selectChildAt(double x, double y) {
-        C child = pickChildAt(x, y);
+        if (!isChildSelectionEnabled())
+            return null;
+        C child = pickChildAt(x, y, true);
         if (child != null)
             setSelectedChild(child);
         return child;

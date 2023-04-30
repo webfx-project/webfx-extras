@@ -56,6 +56,7 @@ public abstract class TimeLayoutBase<C, T> extends ListenableTimeWindowImpl<T> i
     private double hSpacing = 0;
     private double vSpacing = 0;
     private final DirtyMarker layoutDirtyMarker = new DirtyMarker(this::layout);
+    private boolean childSelectionEnabled;
     private ObjectProperty<C> selectedChildProperty;
 
     public TimeLayoutBase() {
@@ -262,6 +263,16 @@ public abstract class TimeLayoutBase<C, T> extends ListenableTimeWindowImpl<T> i
     protected abstract int computeChildRowIndex(int childIndex, C child, T startTime, T endTime, double startX, double endX);
 
     @Override
+    public boolean isChildSelectionEnabled() {
+        return childSelectionEnabled;
+    }
+
+    @Override
+    public void setChildSelectionEnabled(boolean childSelectionEnabled) {
+        this.childSelectionEnabled = childSelectionEnabled;
+    }
+
+    @Override
     public C getSelectedChild() {
         return selectedChildProperty == null ? null : selectedChildProperty.get();
     }
@@ -274,7 +285,9 @@ public abstract class TimeLayoutBase<C, T> extends ListenableTimeWindowImpl<T> i
     }
 
     @Override
-    public C pickChildAt(double x, double y) {
+    public C pickChildAt(double x, double y, boolean onlyIfSelectable) {
+        if (onlyIfSelectable && !isChildSelectionEnabled())
+            return null;
         for (int i = 0; i < children.size(); i++) {
             ChildPosition<T> cp = getChildPosition(i);
             if (x >= cp.getX() && x <= cp.getX() + cp.getWidth() && y >= cp.getY() && y <= cp.getY() + cp.getHeight())

@@ -30,6 +30,8 @@ public class MultilayerTimeLayoutImpl<T> extends ListenableTimeWindowImpl<T> imp
     };
     private final IntegerProperty layoutCountProperty = new SimpleIntegerProperty();
     private final ObservableList<TimeLayout<?, T>> layers = FXCollections.observableArrayList();
+
+    private boolean childSelectionEnabled = true;
     private final ObjectProperty<Object> selectedChildProperty = new SimpleObjectProperty<>();
     private TimeLayout<?, T> selectedChildLayer;
     private final DirtyMarker layoutDirtyMarker = new DirtyMarker(this::layout);
@@ -111,6 +113,16 @@ public class MultilayerTimeLayoutImpl<T> extends ListenableTimeWindowImpl<T> imp
     }
 
     @Override
+    public boolean isChildSelectionEnabled() {
+        return childSelectionEnabled;
+    }
+
+    @Override
+    public void setChildSelectionEnabled(boolean childSelectionEnabled) {
+        this.childSelectionEnabled = childSelectionEnabled;
+    }
+
+    @Override
     public <C> void setSelectedChild(C child, TimeLayout<C, T> childLayer) {
         childLayer.setSelectedChild(child);
     }
@@ -137,10 +149,10 @@ public class MultilayerTimeLayoutImpl<T> extends ListenableTimeWindowImpl<T> imp
     }
 
     @Override
-    public Object pickChildAt(double x, double y) {
+    public Object pickChildAt(double x, double y, boolean onlyIfSelectable) {
         return layers.stream()
                 .filter(TimeLayout::isVisible)
-                .map(layer -> layer.pickChildAt(x, y))
+                .map(layer -> layer.pickChildAt(x, y, onlyIfSelectable))
                 .filter(Objects::nonNull)
                 .findFirst()
                 .orElse(null);
@@ -148,6 +160,8 @@ public class MultilayerTimeLayoutImpl<T> extends ListenableTimeWindowImpl<T> imp
 
     @Override
     public Object selectChildAt(double x, double y) {
+        if (!isChildSelectionEnabled())
+            return null;
         return layers.stream()
                 .filter(TimeLayout::isVisible)
                 .map(layer -> layer.selectChildAt(x, y))

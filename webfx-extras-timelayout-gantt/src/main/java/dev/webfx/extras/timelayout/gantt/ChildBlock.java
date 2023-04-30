@@ -22,15 +22,17 @@ final class ChildBlock<T extends Temporal> {
         this.endX = endX;
     }
 
-    boolean intersects(ChildBlock<T> b, boolean canUseX) {
-        if (canUseX) { // faster
-            if (startX < b.startX)
-                return endX > b.startX;
-            return b.endX > startX;
+    boolean overlaps(ChildBlock<T> other, boolean canUseX) {
+        if (canUseX) { // faster if we can use X directly (when this & other block positions are already computed)
+            if (startX <= other.startX) // if this block starts before the other block,
+                return endX >= other.startX; // it overlaps the other block when its end reaches at least the start of that other block
+            else // otherwise (ie if this blocks starts after the other block start),
+                return other.endX >= startX;
         }
-        if (startTime.until(b.startTime, ChronoUnit.DAYS) > 0) // If this block starts before b,
-            return endTime.until(b.startTime, ChronoUnit.DAYS) < 0; // they overlap if this blocks ends after b starts
-        // Otherwise (if this block starts after b)
-        return b.endTime.until(startTime, ChronoUnit.DAYS) < 0; // they overlap if b ends after this block starts
+        // if we can't use X, we use the times instead => there are the same conditions but using time:
+        if (startTime.until(other.startTime, ChronoUnit.DAYS) >= 0)
+            return endTime.until(other.startTime, ChronoUnit.DAYS) <= 0;
+        else
+            return other.endTime.until(startTime, ChronoUnit.DAYS) <= 0;
     }
 }

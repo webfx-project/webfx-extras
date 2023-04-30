@@ -39,7 +39,7 @@ final class ParentRow<C, T extends Temporal> {
         loop: for (int rowIndex = 0; rowIndex < packedRows.size(); rowIndex++) {
             List<ChildBlock<T>> row = packedRows.get(rowIndex);
             for (ChildBlock<T> b : row) {
-                if (newBlock.intersects(b, layoutWidth > 0 && b.childIndex < childIndex))
+                if (newBlock.overlaps(b, layoutWidth > 0 && b.childIndex < childIndex))
                     continue loop;
             }
             newBlock.rowIndex = rowIndex;

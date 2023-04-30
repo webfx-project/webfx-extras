@@ -1,7 +1,6 @@
 package dev.webfx.extras.timelayout.gantt;
 
 import dev.webfx.extras.timelayout.impl.TimeLayoutBase;
-import dev.webfx.extras.timelayout.impl.TimeProjector;
 import javafx.collections.ListChangeListener;
 
 import java.time.temporal.ChronoUnit;
@@ -13,7 +12,7 @@ import java.util.function.Function;
 /**
  * @author Bruno Salmon
  */
-public class GanttLayout<C, T extends Temporal> extends TimeLayoutBase<C, T> implements TimeProjector<T> {
+public class GanttLayout<C, T extends Temporal> extends TimeLayoutBase<C, T> {
 
     private Function<C, ?> childParentReader;
     private final Map<Object, ParentRow<C, T>> parentRows = new HashMap<>();
@@ -21,6 +20,20 @@ public class GanttLayout<C, T extends Temporal> extends TimeLayoutBase<C, T> imp
     private boolean parentRowsCacheCleaningRequired;
     private ParentRow<C, T> lastParentRow;
     private int rowsCountBeforeLastParentRow;
+
+    public GanttLayout() {
+        setTimeProjector((time, start, exclusive) -> {
+            T timeWindowStart = getTimeWindowStart();
+            T timeWindowEnd = getTimeWindowEnd();
+            if (timeWindowStart == null || timeWindowEnd == null)
+                return 0;
+            long totalDays = timeWindowStart.until(timeWindowEnd, ChronoUnit.DAYS) + 1;
+            long daysToTime = timeWindowStart.until(time, ChronoUnit.DAYS);
+            if (start && exclusive || !start && !exclusive)
+                daysToTime++;
+            return getWidth() * daysToTime / totalDays;
+        });
+    }
 
     public void setChildParentReader(Function<C, ?> childParentReader) {
         this.childParentReader = childParentReader;
@@ -34,24 +47,6 @@ public class GanttLayout<C, T extends Temporal> extends TimeLayoutBase<C, T> imp
     protected void onChildrenChanged(ListChangeListener.Change<? extends C> c) {
         parentRowsCacheCleaningRequired = true;
         super.onChildrenChanged(c);
-    }
-
-    @Override
-    protected TimeProjector<T> getTimeProjector() {
-        return this;
-    }
-
-    @Override
-    public double timeToX(T time, boolean start, boolean exclusive, double layoutWidth) {
-        T timeWindowStart = getTimeWindowStart();
-        T timeWindowEnd = getTimeWindowEnd();
-        if (timeWindowStart == null || timeWindowEnd == null)
-            return 0;
-        long totalDays = timeWindowStart.until(timeWindowEnd, ChronoUnit.DAYS) + 1;
-        long daysToTime = timeWindowStart.until(time, ChronoUnit.DAYS);
-        if (start && exclusive || !start && !exclusive)
-            daysToTime++;
-        return layoutWidth * daysToTime / totalDays;
     }
 
     @Override

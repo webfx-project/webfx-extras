@@ -58,11 +58,13 @@ public abstract class TimeLayoutBase<C, T> extends ListenableTimeWindowImpl<T> i
     private final DirtyMarker layoutDirtyMarker = new DirtyMarker(this::layout);
     private boolean childSelectionEnabled;
     private ObjectProperty<C> selectedChildProperty;
+    protected TimeProjector<T> timeProjector;
 
     public TimeLayoutBase() {
         children.addListener(this::onChildrenChanged);
         setOnTimeWindowChanged((end, start) -> markLayoutAsDirty());
     }
+
 
     protected void onChildrenChanged(ListChangeListener.Change<? extends C> c) {
         childrenTimePositions = Stream.generate(ChildPosition<T>::new)
@@ -239,8 +241,8 @@ public abstract class TimeLayoutBase<C, T> extends ListenableTimeWindowImpl<T> i
         T startTime = readChildStartTime(child);
         T endTime = readChildEndTime(child);
         TimeProjector<T> timeProjector = getTimeProjector();
-        double startX = timeProjector.timeToX(startTime, true, childStartTimeExclusive, getWidth());
-        double endX = timeProjector.timeToX(endTime, false, childEndTimeExclusive, getWidth());
+        double startX = timeProjector.timeToX(startTime, true, childStartTimeExclusive);
+        double endX = timeProjector.timeToX(endTime, false, childEndTimeExclusive);
         int columnIndex = computeChildColumnIndex(childIndex, child, startTime, endTime, startX, endX);
         int rowIndex = computeChildRowIndex(childIndex, child, startTime, endTime, startX, endX);
         TimeCell<T> cell = null; //cells[rowIndex][columnIndex];
@@ -256,7 +258,13 @@ public abstract class TimeLayoutBase<C, T> extends ListenableTimeWindowImpl<T> i
         childPosition.setValid(true);
     }
 
-    protected abstract TimeProjector<T> getTimeProjector();
+    public TimeProjector<T> getTimeProjector() {
+        return timeProjector;
+    }
+
+    public void setTimeProjector(TimeProjector<T> timeProjector) {
+        this.timeProjector = timeProjector;
+    }
 
     protected abstract int computeChildColumnIndex(int childIndex, C child, T startTime, T endTime, double startX, double endX);
 

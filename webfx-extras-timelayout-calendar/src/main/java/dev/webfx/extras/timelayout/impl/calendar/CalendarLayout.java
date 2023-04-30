@@ -1,7 +1,6 @@
 package dev.webfx.extras.timelayout.impl.calendar;
 
 import dev.webfx.extras.timelayout.impl.TimeLayoutBase;
-import dev.webfx.extras.timelayout.impl.TimeProjector;
 import dev.webfx.platform.util.Dates;
 
 import java.time.*;
@@ -9,25 +8,23 @@ import java.time.*;
 /**
  * @author Bruno Salmon
  */
-public class CalendarLayout<C, T> extends TimeLayoutBase<C, T> implements TimeProjector<T> {
+public class CalendarLayout<C, T> extends TimeLayoutBase<C, T> {
 
     public CalendarLayout() {
+        setTimeProjector((time, start, exclusive) -> {
+            DayOfWeek dayOfWeek;
+            if (time instanceof DayOfWeek)
+                dayOfWeek = (DayOfWeek) time;
+            else {
+                LocalDate localDate = timeToLocalDate(time);
+                dayOfWeek = localDate.getDayOfWeek();
+            }
+            int dayOfWeekColumn = getDayOfWeekColumn(dayOfWeek);
+            if (start && exclusive || !start && !exclusive)
+                dayOfWeekColumn++;
+            return dayOfWeekColumn * getWidth() / 7;
+        });
         javafx.collections.ObservableList<C> children = getChildren(); // This is just to force the WebFX CLI to add the dependency to javafx-base
-    }
-
-    @Override
-    public double timeToX(T time, boolean start, boolean exclusive, double layoutWidth) {
-        DayOfWeek dayOfWeek;
-        if (time instanceof DayOfWeek)
-            dayOfWeek = (DayOfWeek) time;
-        else {
-            LocalDate localDate = timeToLocalDate(time);
-            dayOfWeek = localDate.getDayOfWeek();
-        }
-        int dayOfWeekColumn = getDayOfWeekColumn(dayOfWeek);
-        if (start && exclusive || !start && !exclusive)
-            dayOfWeekColumn++;
-        return dayOfWeekColumn * layoutWidth / 7;
     }
 
     private LocalDate timeToLocalDate(T time) {
@@ -43,11 +40,6 @@ public class CalendarLayout<C, T> extends TimeLayoutBase<C, T> implements TimePr
 
     private int getDayOfWeekColumn(DayOfWeek dayOfWeek) {
         return dayOfWeek.ordinal();
-    }
-
-    @Override
-    protected TimeProjector<T> getTimeProjector() {
-        return this;
     }
 
     @Override

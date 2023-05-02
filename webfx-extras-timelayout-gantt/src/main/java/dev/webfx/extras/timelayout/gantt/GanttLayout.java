@@ -5,7 +5,9 @@ import javafx.collections.ListChangeListener;
 
 import java.time.temporal.ChronoUnit;
 import java.time.temporal.Temporal;
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.function.Function;
 
@@ -16,6 +18,7 @@ public class GanttLayout<C, T extends Temporal> extends TimeLayoutBase<C, T> {
 
     private Function<C, ?> childParentReader;
     private final Map<Object, ParentRow<C, T>> parentRows = new HashMap<>();
+    private final List<Object> parents = new ArrayList<>();
     private boolean tetrisPacking;
     private boolean parentRowsCacheCleaningRequired;
     private ParentRow<C, T> lastParentRow;
@@ -73,10 +76,12 @@ public class GanttLayout<C, T extends Temporal> extends TimeLayoutBase<C, T> {
         return rowsCountBeforeLastParentRow + parentRowIndex;
     }
 
-    private ParentRow<C, T> getOrCreateParentRow(Object parent) {
+    public ParentRow<C, T> getOrCreateParentRow(Object parent) {
         ParentRow<C, T> parentRow = parentRows.get(parent);
-        if (parentRow == null)
+        if (parentRow == null) {
             parentRows.put(parent, parentRow = new ParentRow<>());
+            parents.add(parent);
+        }
         return parentRow;
     }
 
@@ -96,4 +101,7 @@ public class GanttLayout<C, T extends Temporal> extends TimeLayoutBase<C, T> {
         return parentRows.values().stream().mapToInt(ParentRow::getRowsCount).sum();
     }
 
+    public List<Object> getParents() {
+        return parents;
+    }
 }

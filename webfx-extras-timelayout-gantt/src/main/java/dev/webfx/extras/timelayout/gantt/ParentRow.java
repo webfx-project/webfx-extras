@@ -6,7 +6,7 @@ import java.util.*;
 /**
  * @author Bruno Salmon
  */
-final class ParentRow<C, T extends Temporal> {
+public final class ParentRow<C, T extends Temporal> {
 
     private final Map<C, ChildBlock<T>> cache = new HashMap<>();
     private final List<List<ChildBlock<T>>> packedRows = new ArrayList<>();

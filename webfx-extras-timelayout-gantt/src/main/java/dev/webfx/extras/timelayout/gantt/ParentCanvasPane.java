@@ -11,18 +11,18 @@ import java.time.temporal.Temporal;
 /**
  * @author Bruno Salmon
  */
-public final class ParentCanvasPane<P, T extends Temporal> extends Pane {
+public final class ParentCanvasPane<P> extends Pane {
 
     private double parentHeight = 20; // arbitrary initial value (better than 0 is application code forgot to set it)
     private final Canvas canvas;
-    private final GanttLayout<?, T> ganttLayout;
-    private final ChildDrawer<P, T> parentDrawer;
+    private final GanttLayout<?, ?> ganttLayout;
+    private final ChildDrawer<P, Temporal> parentDrawer;
 
-    public ParentCanvasPane(GanttLayout<?, T> ganttLayout, ChildDrawer<P, T> parentDrawer) {
+    public ParentCanvasPane(GanttLayout<?, ?> ganttLayout, ChildDrawer<P, Temporal> parentDrawer) {
         this(new Canvas(), ganttLayout, parentDrawer);
     }
 
-    public ParentCanvasPane(Canvas canvas, GanttLayout<?, T> ganttLayout, ChildDrawer<P, T> parentDrawer) {
+    public ParentCanvasPane(Canvas canvas, GanttLayout<?, ?> ganttLayout, ChildDrawer<P, Temporal> parentDrawer) {
         super(canvas);
         this.canvas = canvas;
         this.ganttLayout = ganttLayout;
@@ -50,7 +50,7 @@ public final class ParentCanvasPane<P, T extends Temporal> extends Pane {
     private void redrawCanvas() {
         GraphicsContext gc = canvas.getGraphicsContext2D();
         gc.clearRect(0, 0, canvas.getWidth(), canvas.getHeight());
-        ChildPosition<T> p = new ChildPosition<>();
+        ChildPosition<Temporal> p = new ChildPosition<>();
         p.setX(0);
         p.setWidth(canvas.getWidth());
         p.setHeight(parentHeight);

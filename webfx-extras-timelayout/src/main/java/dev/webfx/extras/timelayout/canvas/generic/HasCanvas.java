@@ -1,4 +1,4 @@
-package dev.webfx.extras.timelayout.canvas;
+package dev.webfx.extras.timelayout.canvas.generic;
 
 import javafx.scene.canvas.Canvas;
 

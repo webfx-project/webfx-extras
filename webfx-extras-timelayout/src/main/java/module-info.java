@@ -16,6 +16,7 @@ module webfx.extras.timelayout {
     exports dev.webfx.extras.timelayout;
     exports dev.webfx.extras.timelayout.bar;
     exports dev.webfx.extras.timelayout.canvas;
+    exports dev.webfx.extras.timelayout.canvas.generic;
     exports dev.webfx.extras.timelayout.impl;
     exports dev.webfx.extras.timelayout.node;
     exports dev.webfx.extras.timelayout.util;

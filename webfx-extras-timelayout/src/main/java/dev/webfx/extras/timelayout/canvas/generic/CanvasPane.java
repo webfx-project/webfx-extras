@@ -1,6 +1,5 @@
-package dev.webfx.extras.timelayout.canvas;
+package dev.webfx.extras.timelayout.canvas.generic;
 
-import dev.webfx.extras.timelayout.CanLayout;
 import dev.webfx.extras.util.animation.Animations;
 import dev.webfx.kit.launcher.WebFxKitLauncher;
 import dev.webfx.kit.util.properties.FXProperties;
@@ -13,23 +12,24 @@ import javafx.scene.layout.Pane;
 /**
  * @author Bruno Salmon
  */
-public class TimeCanvasPane extends Pane {
+public class CanvasPane extends Pane {
 
-    private final Canvas canvas;
-    private final CanLayout layout;
-    private final CanvasDrawer drawer;
-    private double lastLayoutHeight = -1;
+    protected final Canvas canvas;
+    private final CanvasRefresher canvasRefresher;
+    protected double requestedCanvasHeight = -1;
     private boolean virtualCanvasMode;
     private double viewportHeight;
     private double vValue;
     private boolean wasManaged;
 
-    public TimeCanvasPane(CanLayout layout, CanvasDrawer drawer) {
-        super(drawer.getCanvas());
-        this.canvas = drawer.getCanvas();
-        this.layout = layout;
-        this.drawer = drawer;
-        FXProperties.runOnPropertiesChange(() -> setLastLayoutHeight(layout.getHeight()), layout.heightProperty());
+    public CanvasPane(HasCanvas hasCanvas, CanvasRefresher canvasRefresher) {
+        this(hasCanvas.getCanvas(), canvasRefresher);
+    }
+
+    public CanvasPane(Canvas canvas, CanvasRefresher canvasRefresher) {
+        super(canvas);
+        this.canvas = canvas;
+        this.canvasRefresher = canvasRefresher;
     }
 
     public Canvas getCanvas() {
@@ -53,20 +53,20 @@ public class TimeCanvasPane extends Pane {
     private void setVValue(double vValue) {
         this.vValue = vValue;
         // Moving the canvas vertically, so it finally doesn't scroll but stay immobile in the viewport
-        double layoutY = vValue * (lastLayoutHeight - viewportHeight);
+        double layoutY = vValue * (requestedCanvasHeight - viewportHeight);
         canvas.setLayoutY(layoutY);
         // But moving its layoutOrigin, so when it will redraw, it will look like the scroll happened on the virtual canvas
-        drawer.setLayoutOriginY(layoutY); // Will cause a canvas redraw
+        callCanvasRefresher(getWidth(), requestedCanvasHeight, false);
     }
 
-    private void setLastLayoutHeight(double lastLayoutHeight) {
-        if (lastLayoutHeight != this.lastLayoutHeight) {
-            this.lastLayoutHeight = lastLayoutHeight;
+    public void setRequestedCanvasHeight(double requestedCanvasHeight) {
+        if (requestedCanvasHeight != this.requestedCanvasHeight) {
+            this.requestedCanvasHeight = requestedCanvasHeight;
             if (!virtualCanvasMode) {
                 // We also eventually animate the pref height property to create a smooth transition to that new height (note
                 // that this changes the height of the canvas pane only, not the height of the canvas => no perf issue).
                 boolean isManaged = isManaged();
-                Animations.animateProperty(prefHeightProperty(), lastLayoutHeight, wasManaged && isManaged);
+                Animations.animateProperty(prefHeightProperty(), requestedCanvasHeight, wasManaged && isManaged);
                 wasManaged = isManaged;
             }
             requestLayout(); // We request a layout to consider the new canvas height
@@ -75,10 +75,6 @@ public class TimeCanvasPane extends Pane {
 
     @Override
     protected void layoutChildren() {
-        resizeCanvas();
-    }
-
-    private void resizeCanvas() {
         if (virtualCanvasMode) {
             resizeVirtualCanvas();
         } else
@@ -87,19 +83,19 @@ public class TimeCanvasPane extends Pane {
 
     private void resizeStandardCanvas() {
         double newCanvasWidth = getWidth();
-        double newCanvasHeight = lastLayoutHeight >= 0 ? lastLayoutHeight : getHeight();
+        double newCanvasHeight = requestedCanvasHeight >= 0 ? requestedCanvasHeight : getHeight();
         boolean canvasWidthChanged  = newCanvasWidth  != canvas.getWidth();
         boolean canvasHeightChanged = newCanvasHeight != canvas.getHeight();
         if ((canvasWidthChanged || canvasHeightChanged) && newCanvasWidth > 0 && newCanvasHeight > 0) {
             canvas.setWidth(newCanvasWidth);
             canvas.setHeight(newCanvasHeight);
-            callLayout(newCanvasWidth, newCanvasHeight, true);
+            callCanvasRefresher(newCanvasWidth, newCanvasHeight, true);
         }
     }
 
     private void resizeVirtualCanvas() {
         double newVirtualCanvasWidth = getWidth();
-        double newVirtualCanvasHeight = lastLayoutHeight >= 0 ? lastLayoutHeight : getPrefHeight();
+        double newVirtualCanvasHeight = requestedCanvasHeight >= 0 ? requestedCanvasHeight : getPrefHeight();
         boolean virtualCanvasHeightChanged = newVirtualCanvasHeight != getPrefHeight();
         if (virtualCanvasHeightChanged)
             setPrefHeight(newVirtualCanvasHeight);
@@ -111,13 +107,10 @@ public class TimeCanvasPane extends Pane {
             canvas.setWidth(newCanvasWidth);
             canvas.setHeight(newCanvasHeight);
         }
-        callLayout(newCanvasWidth, newVirtualCanvasHeight, canvasWidthChanged || canvasHeightChanged);
+        callCanvasRefresher(newCanvasWidth, newVirtualCanvasHeight, canvasWidthChanged || canvasHeightChanged);
     }
 
-    private void callLayout(double layoutWidth, double layoutHeight, boolean redrawRequired) {
-        int drawCount = drawer.getDrawCount();
-        layout.resize(layoutWidth, layoutHeight); // May cause a layout and also possibly a redraw
-        if (redrawRequired && drawer.getDrawCount() == drawCount)
-            drawer.markDrawAreaAsDirty();
+    protected void callCanvasRefresher(double virtualCanvasWidth, double virtualCanvasHeight, boolean canvasSizeChanged) {
+        canvasRefresher.refreshCanvas(virtualCanvasWidth, virtualCanvasHeight, canvas.getLayoutY(), canvasSizeChanged);
     }
 }

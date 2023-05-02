@@ -2,6 +2,7 @@ package dev.webfx.extras.timelayout.canvas;
 
 import dev.webfx.extras.timelayout.CanSelectChild;
 import dev.webfx.extras.timelayout.TimeWindow;
+import dev.webfx.extras.timelayout.canvas.generic.HasCanvas;
 import javafx.scene.Cursor;
 import javafx.scene.canvas.Canvas;
 import javafx.scene.input.MouseEvent;

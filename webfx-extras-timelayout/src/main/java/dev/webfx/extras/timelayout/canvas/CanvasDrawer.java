@@ -1,5 +1,6 @@
 package dev.webfx.extras.timelayout.canvas;
 
+import dev.webfx.extras.timelayout.canvas.generic.HasCanvas;
 import javafx.beans.property.DoubleProperty;
 import javafx.beans.property.ObjectProperty;
 import javafx.beans.value.ObservableIntegerValue;

@@ -2,6 +2,7 @@ package dev.webfx.extras.timelayout.bar;
 
 import dev.webfx.extras.timelayout.ChildPosition;
 import dev.webfx.extras.timelayout.canvas.TimeCanvasUtil;
+import dev.webfx.extras.timelayout.canvas.generic.CanvasUtil;
 import javafx.geometry.VPos;
 import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.paint.Paint;
@@ -75,7 +76,7 @@ public class BarDrawer {
         else
             TimeCanvasUtil.fillRect(p, hPadding, backgroundFill, radius, gc);
         boolean hasMiddleText = middleText != null, hasTopText = topText != null, hasBottomText = bottomText != null, hasTopOrBottomText = hasTopText || hasBottomText, hasText = hasMiddleText || hasTopOrBottomText;
-        if (hasText && getTextAreaWidth(p) > 0) { // Unnecessary to draw text when doesn't fit (this skip makes a big performance improvement on big zoom out over many events - because the text clip operation is time-consuming)
+        if (hasText && getTextAreaWidth(p) > 5) { // Unnecessary to draw text when doesn't fit (this skip makes a big performance improvement on big zoom out over many events - because the text clip operation is time-consuming)
             if (hasMiddleText) {
                 setFirstNonNullFont(middleTextFont, textFont, gc);
                 TimeCanvasUtil.fillCenterText(p, hPadding, middleText, textFill, gc);
@@ -84,11 +85,11 @@ public class BarDrawer {
                 double h = p.getHeight(), h2 = h / 2, vPadding = h / 16;
                 if (hasTopText) {
                     setFirstNonNullFont(topTextFont, textFont, gc);
-                    TimeCanvasUtil.fillText(p.getX(), p.getY() + vPadding, p.getWidth(), h2, hPadding, topText, textFill, VPos.CENTER, TextAlignment.CENTER, gc);
+                    CanvasUtil.fillText(p.getX(), p.getY() + vPadding, p.getWidth(), h2, hPadding, topText, textFill, VPos.CENTER, TextAlignment.CENTER, gc);
                 }
                 if (hasBottomText) {
                     setFirstNonNullFont(bottomTextFont, textFont, gc);
-                    TimeCanvasUtil.fillText(p.getX(), p.getY() + h2, p.getWidth(), h2 - vPadding, hPadding, bottomText, textFill, VPos.CENTER, TextAlignment.CENTER, gc);
+                    CanvasUtil.fillText(p.getX(), p.getY() + h2, p.getWidth(), h2 - vPadding, hPadding, bottomText, textFill, VPos.CENTER, TextAlignment.CENTER, gc);
                 }
             }
         }

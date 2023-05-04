@@ -67,10 +67,10 @@ public final class TimeCanvasUtil {
     }
 
     public static VirtualCanvasPane createTimeVirtualCanvasPane(CanLayout layout, CanvasDrawer drawer, ObservableObjectValue<Bounds> viewportBoundsProperty, ObservableDoubleValue vvalueProperty) {
-        VirtualCanvasPane canvasPane = new VirtualCanvasPane(drawer, createTimeCanvasRefresher(layout, drawer));
-        canvasPane.activateVirtualCanvasMode(viewportBoundsProperty, vvalueProperty);
-        FXProperties.runOnPropertiesChange(() -> canvasPane.setRequestedCanvasHeight(layout.getHeight()), layout.heightProperty());
-        return canvasPane;
+        VirtualCanvasPane virtualCanvasPane = new VirtualCanvasPane(drawer, createTimeCanvasRefresher(layout, drawer));
+        virtualCanvasPane.activateVirtualCanvasMode(viewportBoundsProperty, vvalueProperty);
+        FXProperties.runOnPropertiesChange(() -> virtualCanvasPane.setRequestedCanvasHeight(layout.getHeight()), layout.heightProperty());
+        return virtualCanvasPane;
     }
 
 }

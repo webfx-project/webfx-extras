@@ -7,6 +7,8 @@
 
     <dependencies>
         <used-by-source-modules/>
+        <!-- Ensuring the GWT-time timezone database will be integrated in the final GWT application -->
+        <plugin-module scope="runtime">org.jresearch.gwt.time.tzdb</plugin-module>
     </dependencies>
 
 </project>

@@ -1,5 +1,6 @@
 package dev.webfx.extras.timelayout.gantt.canvas;
 
+import dev.webfx.extras.timelayout.canvas.CanvasDrawer;
 import dev.webfx.extras.timelayout.canvas.ChildDrawer;
 import dev.webfx.extras.timelayout.canvas.generic.CanvasPane;
 import dev.webfx.extras.timelayout.canvas.generic.VirtualCanvasPane;
@@ -39,6 +40,13 @@ public final class GanttCanvasUtil {
         VirtualCanvasPane parentVirtualCanvasPane = createParentVirtualCanvasPane(canvas, ganttLayout, parentDrawer, viewportBoundsProperty, vvalueProperty);
         parentVirtualCanvasPane.setMaxWidth(parentMaxWidth);
         return parentVirtualCanvasPane;
+    }
+
+    public static <P> void addParentsDrawing(GanttLayout<?, ?> ganttLayout, CanvasDrawer childrenDrawer, ChildDrawer<P, Temporal> parentDrawer, double parentMaxWidth) {
+        ParentsCanvasRefresher<P> parentsCanvasDrawer = new ParentsCanvasRefresher<>(childrenDrawer.getCanvas(), ganttLayout, parentDrawer, false);
+        childrenDrawer.addOnAfterDraw(() -> {
+            parentsCanvasDrawer.refreshCanvas(parentMaxWidth, childrenDrawer.getCanvas().getHeight(), childrenDrawer.getLayoutOriginY(), false);
+        });
     }
 
 }

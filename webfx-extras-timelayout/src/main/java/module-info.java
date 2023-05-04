@@ -6,6 +6,7 @@ module webfx.extras.timelayout {
     requires java.base;
     requires javafx.base;
     requires javafx.graphics;
+    requires org.jresearch.gwt.time.tzdb;
     requires webfx.extras.util.animation;
     requires webfx.kit.launcher;
     requires webfx.kit.util;

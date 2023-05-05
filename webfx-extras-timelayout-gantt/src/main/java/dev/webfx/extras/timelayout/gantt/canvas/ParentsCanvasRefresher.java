@@ -3,6 +3,7 @@ package dev.webfx.extras.timelayout.gantt.canvas;
 import dev.webfx.extras.timelayout.ChildPosition;
 import dev.webfx.extras.timelayout.canvas.ChildDrawer;
 import dev.webfx.extras.timelayout.gantt.GanttLayout;
+import dev.webfx.extras.timelayout.gantt.ParentRow;
 import javafx.scene.canvas.Canvas;
 import javafx.scene.canvas.GraphicsContext;
 
@@ -11,22 +12,31 @@ import java.time.temporal.Temporal;
 /**
  * @author Bruno Salmon
  */
-public final class ParentsCanvasRefresher<P> {
+public final class ParentsCanvasRefresher {
 
-    private double parentHeight = 40; // arbitrary initial value (better than 0 is application code forgot to set it)
     private final Canvas canvas;
     private final GanttLayout<?, ?> ganttLayout;
-    private final ChildDrawer<P, Temporal> parentDrawer;
+    private final ChildDrawer<Object, Temporal> parentDrawer;
+    private final ChildDrawer<Object, Temporal> grandParentDrawer;
     private double lastVirtualCanvasWidth, lastVirtualCanvasHeight, lastVirtualViewPortY;
 
-    public ParentsCanvasRefresher(Canvas canvas, GanttLayout<?, ?> ganttLayout, ChildDrawer<P, Temporal> parentDrawer) {
-        this(canvas, ganttLayout, parentDrawer, true);
+    public ParentsCanvasRefresher(Canvas canvas, GanttLayout<?, ?> ganttLayout, ChildDrawer<?, Temporal> parentDrawer) {
+        this(canvas, ganttLayout, parentDrawer, null);
     }
 
-    public ParentsCanvasRefresher(Canvas canvas, GanttLayout<?, ?> ganttLayout, ChildDrawer<P, Temporal> parentDrawer, boolean redrawAfterLayout) {
+    public ParentsCanvasRefresher(Canvas canvas, GanttLayout<?, ?> ganttLayout, ChildDrawer<?, Temporal> parentDrawer, ChildDrawer<?, Temporal> grandParentDrawer) {
+        this(canvas, ganttLayout, parentDrawer, grandParentDrawer, true);
+    }
+
+    public ParentsCanvasRefresher(Canvas canvas, GanttLayout<?, ?> ganttLayout, ChildDrawer<?, Temporal> parentDrawer, boolean redrawAfterLayout) {
+        this(canvas, ganttLayout, parentDrawer, null, redrawAfterLayout);
+    }
+
+    public ParentsCanvasRefresher(Canvas canvas, GanttLayout<?, ?> ganttLayout, ChildDrawer<?, Temporal> parentDrawer, ChildDrawer<?, Temporal> grandParentDrawer, boolean redrawAfterLayout) {
         this.canvas = canvas;
         this.ganttLayout = ganttLayout;
-        this.parentDrawer = parentDrawer;
+        this.parentDrawer = (ChildDrawer<Object, Temporal>) parentDrawer;
+        this.grandParentDrawer = (ChildDrawer<Object, Temporal>) grandParentDrawer;
         lastVirtualCanvasWidth = canvas.getWidth();
         lastVirtualCanvasHeight = canvas.getHeight();
         lastVirtualViewPortY = 0;
@@ -34,25 +44,27 @@ public final class ParentsCanvasRefresher<P> {
             ganttLayout.addOnAfterLayout(this::redrawCanvas);
     }
 
-    public double getParentHeight() {
-        return parentHeight;
-    }
-
-    public void setParentHeight(double parentHeight) {
-        this.parentHeight = parentHeight;
-    }
-
     void refreshCanvas(double virtualCanvasWidth, double virtualCanvasHeight, double virtualViewPortY, boolean canvasSizeChanged) {
         GraphicsContext gc = canvas.getGraphicsContext2D();
         gc.clearRect(0, 0, Math.min(canvas.getWidth(), virtualCanvasWidth), canvas.getHeight());
         ChildPosition<Temporal> p = new ChildPosition<>();
         p.setX(0);
-        p.setWidth(virtualCanvasWidth);
-        p.setHeight(parentHeight);
         p.setY(-virtualViewPortY);
-        for (Object parent : ganttLayout.getParents()) {
-            parentDrawer.drawChild((P) parent, p, gc);
-            p.setY(p.getY() + parentHeight);
+        p.setWidth(virtualCanvasWidth);
+        Object lastGrandParent = null;
+        for (ParentRow<?, ?> parentRow : ganttLayout.getParentRows()) {
+            Object grandParent = parentRow.getGrandParent();
+            if (grandParent != lastGrandParent) {
+                if (grandParentDrawer != null) {
+                    p.setY(p.getY() + p.getHeight());
+                    p.setHeight(ganttLayout.grandParentHeight);
+                    grandParentDrawer.drawChild(grandParent, p, gc);
+                }
+                lastGrandParent = grandParent;
+            }
+            p.setY(parentRow.getY() - virtualViewPortY);
+            p.setHeight(parentRow.getHeight());
+            parentDrawer.drawChild(parentRow.getParent(), p, gc);
         }
         lastVirtualCanvasWidth = virtualCanvasWidth;
         lastVirtualCanvasHeight = virtualCanvasHeight;

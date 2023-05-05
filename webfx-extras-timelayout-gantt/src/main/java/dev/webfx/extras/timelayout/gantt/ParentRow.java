@@ -8,10 +8,19 @@ import java.util.*;
  */
 public final class ParentRow<C, T extends Temporal> {
 
+    private final GanttLayout<C, T> ganttLayout;
     private final Map<C, ChildBlock<T>> cache = new HashMap<>();
     private final List<List<ChildBlock<T>>> packedRows = new ArrayList<>();
     private boolean emptyRowsRemovalRequired;
     private boolean noTetrisPacking;
+    private Object parent;
+    private Object grandParent;
+    private double y;
+    private double height;
+
+    public ParentRow(GanttLayout<C, T> ganttLayout) {
+        this.ganttLayout = ganttLayout;
+    }
 
     int computeChildRowIndex(int childIndex, C child, T startTime, T endTime, double startX, double endX, double layoutWidth, boolean tetrisPacking) {
         if (!tetrisPacking) {
@@ -103,4 +112,39 @@ public final class ParentRow<C, T extends Temporal> {
         emptyRowsRemovalRequired = false;
     }
 
+    public Object getParent() {
+        return parent;
+    }
+
+    public void setParent(Object parent) {
+        this.parent = parent;
+    }
+
+    public Object getGrandParent() {
+        return grandParent;
+    }
+
+    public void setGrandParent(Object grandParent) {
+        this.grandParent = grandParent;
+    }
+
+    public double getY() {
+        return y;
+    }
+
+    public void setY(double y) {
+        this.y = y;
+    }
+
+    public double getHeight() {
+        if (height == -1) {
+            int rowsCount = getRowsCount();
+            height = rowsCount == 0 ? 0 : rowsCount * (ganttLayout.getChildFixedHeight() + ganttLayout.getVSpacing()) - ganttLayout.getVSpacing();
+        }
+        return height;
+    }
+
+    public void setHeight(double height) {
+        this.height = height;
+    }
 }

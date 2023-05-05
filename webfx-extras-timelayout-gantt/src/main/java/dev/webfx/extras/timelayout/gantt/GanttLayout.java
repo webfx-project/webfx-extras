@@ -1,5 +1,6 @@
 package dev.webfx.extras.timelayout.gantt;
 
+import dev.webfx.extras.timelayout.ChildPosition;
 import dev.webfx.extras.timelayout.impl.TimeLayoutBase;
 import javafx.collections.ListChangeListener;
 
@@ -17,12 +18,16 @@ import java.util.function.Function;
 public class GanttLayout<C, T extends Temporal> extends TimeLayoutBase<C, T> {
 
     private Function<C, ?> childParentReader;
-    private final Map<Object, ParentRow<C, T>> parentRows = new HashMap<>();
-    private final List<Object> parents = new ArrayList<>();
+    private Function<C, ?> childGrandParentReader;
+    private final Map<Object, ParentRow<C, T>> childToParentRowMap = new HashMap<>();
+    private final List<ParentRow<C, T>> parentRows = new ArrayList<>();
+    private final List<Object> grandParents = new ArrayList<>();
     private boolean tetrisPacking;
-    private boolean parentRowsCacheCleaningRequired;
+    private boolean childrenChanged;
     private ParentRow<C, T> lastParentRow;
     private int rowsCountBeforeLastParentRow;
+    private Object lastGrandParent;
+    public double grandParentHeight = 80;
 
     public GanttLayout() {
         setTimeProjector((time, start, exclusive) -> {
@@ -42,66 +47,95 @@ public class GanttLayout<C, T extends Temporal> extends TimeLayoutBase<C, T> {
         this.childParentReader = childParentReader;
     }
 
+    public void setChildGrandParentReader(Function<C, ?> childGrandParentReader) {
+        this.childGrandParentReader = childGrandParentReader;
+    }
+
     public void setTetrisPacking(boolean tetrisPacking) {
         this.tetrisPacking = tetrisPacking;
     }
 
     @Override
     protected void onChildrenChanged(ListChangeListener.Change<? extends C> c) {
-        parentRowsCacheCleaningRequired = true;
+        childrenChanged = true;
         super.onChildrenChanged(c);
     }
 
     @Override
-    protected int computeChildColumnIndex(int childIndex, C child, T startTime, T endTime, double startX, double endX) {
-        return 0;
+    protected void onBeforeLayoutChildren() {
+        if (childrenChanged) {
+            childToParentRowMap.values().forEach(parentRow -> parentRow.cleanCache(children));
+            childrenChanged = false;
+        }
+        lastParentRow = null;
+        rowsCountBeforeLastParentRow = 0;
+        lastGrandParent = null;
+        parentRows.clear();
+        grandParents.clear();
     }
 
     @Override
-    protected int computeChildRowIndex(int childIndex, C child, T startTime, T endTime, double startX, double endX) {
-        if (childIndex == 0) { // => means that this is the first call of a new pass over the children
-            if (parentRowsCacheCleaningRequired)
-                cleanParentRowsCache();
-            lastParentRow = null;
-            rowsCountBeforeLastParentRow = 0;
-        }
+    protected void updateChildPositionExtended(int childIndex, ChildPosition<T> p, C child, T startTime, T endTime, double startX, double endX) {
         Object parent = childParentReader == null ? null : childParentReader.apply(child);
         ParentRow<C, T> parentRow = getOrCreateParentRow(parent);
         if (parentRow != lastParentRow) {
-            if (lastParentRow != null)
+            if (lastParentRow == null)
+                parentRow.setY(getTopY());
+            else {
+                parentRow.setY(lastParentRow.getY() + lastParentRow.getHeight());
                 rowsCountBeforeLastParentRow += lastParentRow.getRowsCount();
+            }
+            parentRow.setHeight(-1); // height will be computed on next call to parentRow.getHeight()
             lastParentRow = parentRow;
+            if (childGrandParentReader != null) {
+                Object grandParent = childGrandParentReader.apply(child);
+                if (grandParent != lastGrandParent) {
+                    lastGrandParent = grandParent;
+                    rowsCountBeforeLastParentRow++;
+                    grandParents.add(grandParent);
+                    parentRow.setY(parentRow.getY() + grandParentHeight);
+                }
+            }
         }
-        int parentRowIndex = parentRow.computeChildRowIndex(childIndex, child, startTime, endTime, startX, endX, getWidth(), tetrisPacking);
-        return rowsCountBeforeLastParentRow + parentRowIndex;
+        parentRow.setGrandParent(lastGrandParent);
+        int rowIndexInParentRow = parentRow.computeChildRowIndex(childIndex, child, startTime, endTime, startX, endX, getWidth(), tetrisPacking);
+        int rowIndex = rowsCountBeforeLastParentRow + rowIndexInParentRow;
+        p.setRowIndex(rowIndex);
+        p.setY(parentRow.getY() + rowIndexInParentRow * (getChildFixedHeight() + getVSpacing())); // will be reset by layout if fillHeight is true
+    }
+
+    @Override
+    protected double computeHeight() {
+        if (lastParentRow == null)
+            super.getRowsCount();
+        if (lastParentRow == null)
+            return 0;
+        return lastParentRow.getY() + lastParentRow.getHeight() - getTopY();
     }
 
     public ParentRow<C, T> getOrCreateParentRow(Object parent) {
-        ParentRow<C, T> parentRow = parentRows.get(parent);
+        ParentRow<C, T> parentRow = childToParentRowMap.get(parent);
         if (parentRow == null) {
-            parentRows.put(parent, parentRow = new ParentRow<>());
-            parents.add(parent);
+            childToParentRowMap.put(parent, parentRow = new ParentRow<>(this));
+            parentRow.setParent(parent);
         }
+        if (parentRows.isEmpty() || parentRows.get(parentRows.size() - 1) != parentRow)
+            parentRows.add(parentRow);
         return parentRow;
-    }
-
-    private void cleanParentRowsCache() {
-        parentRows.values().forEach(parentRow -> parentRow.cleanCache(children));
-        parentRowsCacheCleaningRequired = false;
     }
 
     // Note: getRowsCount() can be called when child positions are still invalid, so at this point packedRows is not
     // up-to-date.
     @Override
     public int getRowsCount() {
-        if (parentRowsCacheCleaningRequired) // happens when children have just been modified, but their position is still invalid,
-            return super.getRowsCount(); // so we call the default implementation to update these positions (this will
+        if (childrenChanged) // happens when children have just been modified, but their position is still invalid,
+            return grandParents.size() + super.getRowsCount(); // so we call the default implementation to update these positions (this will
         // update packedRows in the process through the successive calls to computeChildRowIndex()).
         // Otherwise, packedRows is up-to-date when reaching this point,
-        return parentRows.values().stream().mapToInt(ParentRow::getRowsCount).sum();
+        return grandParents.size() + rowsCountBeforeLastParentRow + (lastParentRow == null ? 0 : lastParentRow.getRowsCount());
     }
 
-    public List<Object> getParents() {
-        return parents;
+    public List<ParentRow<C, T>> getParentRows() {
+        return parentRows;
     }
 }

@@ -18,35 +18,42 @@ import java.time.temporal.Temporal;
  */
 public final class GanttCanvasUtil {
 
-    public static <P> CanvasPane createParentCanvasPane(Canvas canvas, GanttLayout<?, ?> ganttLayout, ChildDrawer<P, Temporal> parentDrawer) {
-        ParentsCanvasRefresher<P> parentsCanvasDrawer = new ParentsCanvasRefresher<>(canvas, ganttLayout, parentDrawer);
+    public static CanvasPane createParentCanvasPane(Canvas canvas, GanttLayout<?, ?> ganttLayout, ChildDrawer<?, Temporal> parentDrawer) {
+        ParentsCanvasRefresher parentsCanvasDrawer = new ParentsCanvasRefresher(canvas, ganttLayout, parentDrawer);
         return new CanvasPane(canvas, parentsCanvasDrawer::refreshCanvas);
     }
-    public static <P> CanvasPane createParentCanvasPane(Canvas canvas, GanttLayout<?, ?> ganttLayout, ChildDrawer<P, Temporal> parentDrawer, double parentMaxWidth) {
+    public static <P> CanvasPane createParentCanvasPane(Canvas canvas, GanttLayout<?, ?> ganttLayout, ChildDrawer<?, Temporal> parentDrawer, double parentMaxWidth) {
         CanvasPane parentCanvasPane = createParentCanvasPane(canvas, ganttLayout, parentDrawer);
         parentCanvasPane.setMaxWidth(parentMaxWidth);
         return parentCanvasPane;
     }
 
-    public static <P> VirtualCanvasPane createParentVirtualCanvasPane(Canvas canvas, GanttLayout<?, ?> ganttLayout, ChildDrawer<P, Temporal> parentDrawer, ObservableObjectValue<Bounds> viewportBoundsProperty, ObservableDoubleValue vvalueProperty) {
-        ParentsCanvasRefresher<P> parentsCanvasDrawer = new ParentsCanvasRefresher<>(canvas, ganttLayout, parentDrawer);
+    public static VirtualCanvasPane createParentVirtualCanvasPane(Canvas canvas, GanttLayout<?, ?> ganttLayout, ChildDrawer<?, Temporal> parentDrawer, ObservableObjectValue<Bounds> viewportBoundsProperty, ObservableDoubleValue vvalueProperty) {
+        ParentsCanvasRefresher parentsCanvasDrawer = new ParentsCanvasRefresher(canvas, ganttLayout, parentDrawer);
         VirtualCanvasPane parentVirtualCanvasPane = new VirtualCanvasPane(canvas, parentsCanvasDrawer::refreshCanvas);
         parentVirtualCanvasPane.activateVirtualCanvasMode(viewportBoundsProperty, vvalueProperty);
         FXProperties.runOnPropertiesChange(() -> parentVirtualCanvasPane.setRequestedCanvasHeight(ganttLayout.getHeight()), ganttLayout.heightProperty());
         return parentVirtualCanvasPane;
     }
 
-    public static <P> VirtualCanvasPane createParentVirtualCanvasPane(Canvas canvas, GanttLayout<?, ?> ganttLayout, ChildDrawer<P, Temporal> parentDrawer, double parentMaxWidth, ObservableObjectValue<Bounds> viewportBoundsProperty, ObservableDoubleValue vvalueProperty) {
+    public static VirtualCanvasPane createParentVirtualCanvasPane(Canvas canvas, GanttLayout<?, ?> ganttLayout, ChildDrawer<?, Temporal> parentDrawer, double parentMaxWidth, ObservableObjectValue<Bounds> viewportBoundsProperty, ObservableDoubleValue vvalueProperty) {
         VirtualCanvasPane parentVirtualCanvasPane = createParentVirtualCanvasPane(canvas, ganttLayout, parentDrawer, viewportBoundsProperty, vvalueProperty);
         parentVirtualCanvasPane.setMaxWidth(parentMaxWidth);
         return parentVirtualCanvasPane;
     }
 
     public static <P> void addParentsDrawing(GanttLayout<?, ?> ganttLayout, CanvasDrawer childrenDrawer, ChildDrawer<P, Temporal> parentDrawer, double parentMaxWidth) {
-        ParentsCanvasRefresher<P> parentsCanvasDrawer = new ParentsCanvasRefresher<>(childrenDrawer.getCanvas(), ganttLayout, parentDrawer, false);
+        ParentsCanvasRefresher parentsCanvasDrawer = new ParentsCanvasRefresher(childrenDrawer.getCanvas(), ganttLayout, parentDrawer, false);
         childrenDrawer.addOnAfterDraw(() -> {
             parentsCanvasDrawer.refreshCanvas(parentMaxWidth, childrenDrawer.getCanvas().getHeight(), childrenDrawer.getLayoutOriginY(), false);
         });
     }
 
-}
+    public static <P, G> void addParentAndGrandParentsDrawing(GanttLayout<?, ?> ganttLayout, CanvasDrawer childrenDrawer, ChildDrawer<P, Temporal> parentDrawer, double parentMaxWidth, ChildDrawer<G, Temporal> grandParentDrawer) {
+        ParentsCanvasRefresher parentsCanvasDrawer = new ParentsCanvasRefresher(childrenDrawer.getCanvas(), ganttLayout, parentDrawer, grandParentDrawer, false);
+        childrenDrawer.addOnAfterDraw(() -> {
+            parentsCanvasDrawer.refreshCanvas(parentMaxWidth, childrenDrawer.getCanvas().getHeight(), childrenDrawer.getLayoutOriginY(), false);
+        });
+    }
+
+    }

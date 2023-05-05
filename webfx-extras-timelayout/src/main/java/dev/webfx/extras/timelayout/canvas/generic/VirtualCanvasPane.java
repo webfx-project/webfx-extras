@@ -15,6 +15,10 @@ public class VirtualCanvasPane extends CanvasPane {
     private double viewportHeight;
     private double vValue;
 
+    {
+        enableHeightAnimation = false;
+    }
+
     public VirtualCanvasPane(HasCanvas hasCanvas, CanvasRefresher canvasRefresher) {
         super(hasCanvas, canvasRefresher);
     }
@@ -43,13 +47,6 @@ public class VirtualCanvasPane extends CanvasPane {
         canvas.setLayoutY(layoutY);
         // But moving its layoutOrigin, so when it will redraw, it will look like the scroll happened on the virtual canvas
         callCanvasRefresher(getWidth(), requestedCanvasHeight, false);
-    }
-
-    public void setRequestedCanvasHeight(double requestedCanvasHeight) {
-        if (requestedCanvasHeight != this.requestedCanvasHeight) {
-            this.requestedCanvasHeight = requestedCanvasHeight;
-            requestLayout(); // We request a layout to consider the new canvas height
-        }
     }
 
     @Override

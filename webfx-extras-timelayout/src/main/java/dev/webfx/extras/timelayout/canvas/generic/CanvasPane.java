@@ -12,7 +12,9 @@ public class CanvasPane extends Pane {
     protected final Canvas canvas;
     private final CanvasRefresher canvasRefresher;
     protected double requestedCanvasHeight = -1;
-    private boolean wasManaged;
+    protected boolean enableHeightAnimation = true;
+    protected boolean skipAnimationOnVisibilityChange = true;
+    private boolean wasVisible;
 
     public CanvasPane(HasCanvas hasCanvas, CanvasRefresher canvasRefresher) {
         this(hasCanvas.getCanvas(), canvasRefresher);
@@ -33,12 +35,22 @@ public class CanvasPane extends Pane {
         if (requestedCanvasHeight != this.requestedCanvasHeight) {
             this.requestedCanvasHeight = requestedCanvasHeight;
             requestLayout(); // We request a layout to consider the new canvas height
-            // We also eventually animate the pref height property to create a smooth transition to that new height (note
-            // that this changes the height of the canvas pane only, not the height of the canvas => no perf issue).
-            boolean isManaged = isManaged();
-            Animations.animateProperty(prefHeightProperty(), requestedCanvasHeight, wasManaged && isManaged);
-            wasManaged = isManaged;
+            // We also update the pref height property for this canvas pane to match the requested canvas height.
+            // This change can eventually be animated to create a smooth transition to that new height (note that this
+            // animation changes the height of the canvas pane only, not the height of the canvas => no time layout required).
+            Animations.animateProperty(prefHeightProperty(), requestedCanvasHeight, shouldAnimateHeightChange());
         }
+    }
+
+    protected boolean shouldAnimateHeightChange() {
+        if (!enableHeightAnimation)
+            return false;
+        if (!skipAnimationOnVisibilityChange)
+            return true;
+        boolean isVisible = isVisible();
+        boolean animate = wasVisible && isVisible;
+        wasVisible = isVisible;
+        return animate;
     }
 
     @Override

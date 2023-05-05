@@ -89,6 +89,8 @@ public class TimeCanvasInteractionManager<T extends Temporal> {
                     duration = Math.max(duration + 1, (long) (duration * 1.10));
                 duration = Math.min(duration, 10_000);
                 setTimeWindow((T) middle.minus(duration / 2, temporalUnit), duration);
+                // We consume the event to prevent the standard scrolling while zooming
+                e.consume();
             }
         });
     }

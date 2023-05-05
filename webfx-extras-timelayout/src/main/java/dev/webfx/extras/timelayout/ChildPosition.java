@@ -6,10 +6,8 @@ package dev.webfx.extras.timelayout;
 public final class ChildPosition<T> {
 
     private boolean valid;
-    private TimeCell<T> originCell;
     private double x, y, width, height;
     private int rowIndex, columnIndex; // redundant with cell (to be removed later)
-    private int columnSpan, rowSpan;
 
     public boolean isValid() {
         return valid;
@@ -49,14 +47,6 @@ public final class ChildPosition<T> {
 
     public void setHeight(double height) {
         this.height = height;
-    }
-
-    public TimeCell<T> getOriginCell() {
-        return originCell;
-    }
-
-    public void setOriginCell(TimeCell<T> originCell) {
-        this.originCell = originCell;
     }
 
     public int getRowIndex() {

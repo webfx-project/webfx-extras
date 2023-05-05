@@ -3,8 +3,6 @@ package dev.webfx.extras.timelayout;
 import javafx.beans.property.BooleanProperty;
 import javafx.collections.ObservableList;
 
-import java.util.List;
-
 public interface TimeLayout<C, T> extends ListenableTimeWindow<T>, CanLayout, CanSelectChild<C> {
 
     // Input methods
@@ -64,10 +62,6 @@ public interface TimeLayout<C, T> extends ListenableTimeWindow<T>, CanLayout, Ca
     // Output methods
 
     ChildPosition<T> getChildPosition(int childIndex);
-
-    List<TimeColumn<T>> getColumns();
-
-    List<TimeRow> getRows();
 
     int getRowsCount();
 

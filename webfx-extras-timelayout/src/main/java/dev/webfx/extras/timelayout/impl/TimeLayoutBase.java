@@ -1,6 +1,8 @@
 package dev.webfx.extras.timelayout.impl;
 
-import dev.webfx.extras.timelayout.*;
+import dev.webfx.extras.timelayout.ChildPosition;
+import dev.webfx.extras.timelayout.ChildTimeReader;
+import dev.webfx.extras.timelayout.TimeLayout;
 import dev.webfx.extras.timelayout.util.DirtyMarker;
 import javafx.beans.property.*;
 import javafx.beans.value.ObservableIntegerValue;
@@ -8,7 +10,6 @@ import javafx.collections.FXCollections;
 import javafx.collections.ListChangeListener;
 import javafx.collections.ObservableList;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -46,9 +47,6 @@ public abstract class TimeLayoutBase<C, T> extends ListenableTimeWindowImpl<T> i
     private ChildTimeReader<C, T> childEndTimeReader = c -> (T) c;
     private boolean childEndTimeExclusive;
     protected List<ChildPosition<T>> childrenTimePositions;
-    protected List<TimeColumn<T>> columns = new ArrayList<>();
-    protected List<TimeRow> rows = new ArrayList<>();
-    //protected TimeCell<T>[][] cells;
     private int rowsCount;
     private double childFixedHeight = -1;
     private boolean fillHeight;
@@ -177,6 +175,7 @@ public abstract class TimeLayoutBase<C, T> extends ListenableTimeWindowImpl<T> i
             int newLayoutCount = getLayoutCount() + 1;
             layoutCountProperty.set(-newLayoutCount); // may trigger onBeforeLayout runnable(s)
             rowsCount = -1;
+            onBeforeLayoutChildren();
             childrenTimePositions.forEach(p -> p.setValid(false));
             // Automatically updating the heights
             // 1) on fillHeight mode, we update the heights of the children, so they fit in the layout height
@@ -190,21 +189,16 @@ public abstract class TimeLayoutBase<C, T> extends ListenableTimeWindowImpl<T> i
                 }
             }
             // 2) Otherwise a fixed height has been set on children, we compute the new height
-            else if (childFixedHeight > 0 && !heightProperty.isBound())
-                setHeight(getRowsCount() * getChildFixedHeight());
+            else if (!heightProperty.isBound())
+                setHeight(computeHeight());
             layoutDirtyMarker.markAsClean();
             layoutCountProperty.set(newLayoutCount); // may trigger onAfterLayout runnable(s)
         }
     }
 
-    @Override
-    public List<TimeColumn<T>> getColumns() {
-        return columns;
-    }
-
-    @Override
-    public List<TimeRow> getRows() {
-        return rows;
+    protected double computeHeight() {
+        int rowsCount = getRowsCount();
+        return rowsCount == 0 ? 0 : rowsCount * (childFixedHeight + vSpacing) - vSpacing;
     }
 
     @Override
@@ -236,28 +230,6 @@ public abstract class TimeLayoutBase<C, T> extends ListenableTimeWindowImpl<T> i
         return childEndTimeReader.getTime(child);
     }
 
-    protected void updateChildPosition(int childIndex, ChildPosition<T> childPosition) {
-        C child = children.get(childIndex);
-        T startTime = readChildStartTime(child);
-        T endTime = readChildEndTime(child);
-        TimeProjector<T> timeProjector = getTimeProjector();
-        double startX = timeProjector.timeToX(startTime, true, childStartTimeExclusive);
-        double endX = timeProjector.timeToX(endTime, false, childEndTimeExclusive);
-        int columnIndex = computeChildColumnIndex(childIndex, child, startTime, endTime, startX, endX);
-        int rowIndex = computeChildRowIndex(childIndex, child, startTime, endTime, startX, endX);
-        TimeCell<T> cell = null; //cells[rowIndex][columnIndex];
-        childPosition.setOriginCell(cell);
-        childPosition.setRowIndex(rowIndex);
-        childPosition.setColumnIndex(columnIndex);
-        childPosition.setX(startX + hSpacing / 2);
-        childPosition.setWidth(endX - startX - hSpacing);
-        if (childFixedHeight > 0) {
-            childPosition.setHeight(childFixedHeight - vSpacing); // will be reset by layout if fillHeight is true
-            childPosition.setY(topY + childFixedHeight * rowIndex + vSpacing / 2); // will be reset by layout if fillHeight is true
-        }
-        childPosition.setValid(true);
-    }
-
     public TimeProjector<T> getTimeProjector() {
         return timeProjector;
     }
@@ -266,9 +238,41 @@ public abstract class TimeLayoutBase<C, T> extends ListenableTimeWindowImpl<T> i
         this.timeProjector = timeProjector;
     }
 
-    protected abstract int computeChildColumnIndex(int childIndex, C child, T startTime, T endTime, double startX, double endX);
+    // Empty default implementation but can be override (ex: GanttLayout)
+    protected void onBeforeLayoutChildren() { }
 
-    protected abstract int computeChildRowIndex(int childIndex, C child, T startTime, T endTime, double startX, double endX);
+    protected void updateChildPosition(int childIndex, ChildPosition<T> p) {
+        C child = children.get(childIndex);
+        T startTime = readChildStartTime(child);
+        T endTime = readChildEndTime(child);
+        TimeProjector<T> timeProjector = getTimeProjector();
+        double startX = timeProjector.timeToX(startTime, true, childStartTimeExclusive);
+        double endX = timeProjector.timeToX(endTime, false, childEndTimeExclusive);
+        p.setX(startX + hSpacing / 2);
+        p.setWidth(endX - startX - hSpacing);
+        if (childFixedHeight > 0)
+            p.setHeight(childFixedHeight); // will be reset by layout if fillHeight is true
+        updateChildPositionExtended(childIndex, p, child, startTime, endTime, startX, endX);
+        p.setValid(true);
+    }
+
+    protected void updateChildPositionExtended(int childIndex, ChildPosition<T> p, C child, T startTime, T endTime, double startX, double endX) {
+        int columnIndex = computeChildColumnIndex(childIndex, child, startTime, endTime, startX, endX);
+        int rowIndex = computeChildRowIndex(childIndex, child, startTime, endTime, startX, endX);
+        p.setRowIndex(rowIndex);
+        p.setColumnIndex(columnIndex);
+        if (childFixedHeight > 0) {
+            p.setY(topY + (childFixedHeight + vSpacing) * rowIndex); // will be reset by layout if fillHeight is true
+        }
+    }
+
+    protected int computeChildColumnIndex(int childIndex, C child, T startTime, T endTime, double startX, double endX) {
+        return 0;
+    }
+
+    protected int computeChildRowIndex(int childIndex, C child, T startTime, T endTime, double startX, double endX) {
+        return 0;
+    }
 
     @Override
     public boolean isChildSelectionEnabled() {

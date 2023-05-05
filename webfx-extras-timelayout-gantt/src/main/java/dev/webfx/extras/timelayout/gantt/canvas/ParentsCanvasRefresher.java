@@ -47,7 +47,7 @@ public final class ParentsCanvasRefresher {
     void refreshCanvas(double virtualCanvasWidth, double virtualCanvasHeight, double virtualViewPortY, boolean canvasSizeChanged) {
         GraphicsContext gc = canvas.getGraphicsContext2D();
         gc.clearRect(0, 0, Math.min(canvas.getWidth(), virtualCanvasWidth), canvas.getHeight());
-        ChildPosition<Temporal> p = new ChildPosition<>();
+        ChildPosition p = new ChildPosition();
         p.setX(0);
         p.setY(-virtualViewPortY);
         p.setWidth(virtualCanvasWidth);

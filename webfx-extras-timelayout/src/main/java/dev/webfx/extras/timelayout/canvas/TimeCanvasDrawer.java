@@ -38,7 +38,7 @@ public class TimeCanvasDrawer<C, T> extends CanvasDrawerBase {
         ObservableList<C> children = timeLayout.getChildren();
         for (int i = 0; i < children.size(); i++) {
             C child = children.get(i);
-            ChildPosition<T> p = timeLayout.getChildPosition(i);
+            ChildPosition p = timeLayout.getChildPosition(i);
             // Here is the child position in the layout coordinates:
             double layoutX = p.getX();
             double layoutY = p.getY();

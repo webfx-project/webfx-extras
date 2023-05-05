@@ -34,7 +34,7 @@ public class TimePane<C, T> extends Pane {
         ObservableList<Node> children = getChildren();
         for (int i = 0; i < children.size(); i++) {
             Node child = children.get(i);
-            ChildPosition<T> p = timeLayout.getChildPosition(i);
+            ChildPosition p = timeLayout.getChildPosition(i);
             layoutInArea(child, p.getX(), p.getY(), p.getWidth(), p.getHeight(), 0, HPos.CENTER, VPos.CENTER);
         }
     }

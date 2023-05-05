@@ -20,32 +20,32 @@ import javafx.scene.text.TextAlignment;
  */
 public final class TimeCanvasUtil {
 
-    public static void fillRect(ChildPosition<?> p, double hPadding, Paint fill, double radius, GraphicsContext gc) {
+    public static void fillRect(ChildPosition p, double hPadding, Paint fill, double radius, GraphicsContext gc) {
         CanvasUtil.fillRect(p.getX(), p.getY(), p.getWidth(), p.getHeight(), hPadding, fill, radius, gc);
     }
 
-    public static void strokeRect(ChildPosition<?> p, double hPadding, Paint stroke, double radius, GraphicsContext gc) {
+    public static void strokeRect(ChildPosition p, double hPadding, Paint stroke, double radius, GraphicsContext gc) {
         CanvasUtil.strokeRect(p.getX(), p.getY(), p.getWidth(), p.getHeight(), hPadding, stroke, radius, gc);
     }
 
-    public static void fillStrokeRect(ChildPosition<?> p, double hPadding, Paint fill, Paint stroke, double radius, GraphicsContext gc) {
+    public static void fillStrokeRect(ChildPosition p, double hPadding, Paint fill, Paint stroke, double radius, GraphicsContext gc) {
         fillRect(p, hPadding, fill, radius, gc);
         strokeRect(p, hPadding, stroke, radius, gc);
     }
 
-    public static void fillText(ChildPosition<?> p, double hPadding, String text, Paint fill, VPos baseline, TextAlignment textAlignment, GraphicsContext gc) {
+    public static void fillText(ChildPosition p, double hPadding, String text, Paint fill, VPos baseline, TextAlignment textAlignment, GraphicsContext gc) {
         CanvasUtil.fillText(p.getX(), p.getY(), p.getWidth(), p.getHeight(), hPadding, text, fill, baseline, textAlignment, gc);
     }
 
-    public static void fillTopCenterText(ChildPosition<?> p, double hPadding, String text, Paint fill, GraphicsContext gc) {
+    public static void fillTopCenterText(ChildPosition p, double hPadding, String text, Paint fill, GraphicsContext gc) {
         fillText(p, hPadding, text, fill, VPos.TOP, TextAlignment.CENTER, gc);
     }
 
-    public static void fillCenterLeftText(ChildPosition<?> p, double hPadding, String text, Paint fill, GraphicsContext gc) {
+    public static void fillCenterLeftText(ChildPosition p, double hPadding, String text, Paint fill, GraphicsContext gc) {
         fillText(p, hPadding, text, fill, VPos.CENTER, TextAlignment.LEFT, gc);
     }
 
-    public static void fillCenterText(ChildPosition<?> p, double hPadding, String text, Paint fill, GraphicsContext gc) {
+    public static void fillCenterText(ChildPosition p, double hPadding, String text, Paint fill, GraphicsContext gc) {
         fillText(p, hPadding, text, fill, VPos.CENTER, TextAlignment.CENTER, gc);
     }
 

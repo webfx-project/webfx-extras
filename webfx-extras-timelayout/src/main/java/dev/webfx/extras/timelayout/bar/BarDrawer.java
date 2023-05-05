@@ -70,7 +70,7 @@ public class BarDrawer {
         this.textFill = textFill;
     }
 
-    public void drawBar(ChildPosition<?> p, GraphicsContext gc) {
+    public void drawBar(ChildPosition p, GraphicsContext gc) {
         if (stroke != null)
             TimeCanvasUtil.fillStrokeRect(p, hPadding, backgroundFill, stroke, radius, gc);
         else
@@ -95,7 +95,7 @@ public class BarDrawer {
         }
     }
 
-    public double getTextAreaWidth(ChildPosition<?> p) {
+    public double getTextAreaWidth(ChildPosition p) {
         return p.getWidth() - 2 * hPadding - 5;
     }
 

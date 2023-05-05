@@ -5,6 +5,6 @@ import javafx.scene.canvas.GraphicsContext;
 
 public interface ChildDrawer<C, T> {
 
-    void drawChild(C child, ChildPosition<T> p, GraphicsContext gc);
+    void drawChild(C child, ChildPosition p, GraphicsContext gc);
 
 }

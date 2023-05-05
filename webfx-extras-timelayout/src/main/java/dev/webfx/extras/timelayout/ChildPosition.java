@@ -3,7 +3,7 @@ package dev.webfx.extras.timelayout;
 /**
  * @author Bruno Salmon
  */
-public final class ChildPosition<T> {
+public final class ChildPosition {
 
     private boolean valid;
     private double x, y, width, height;

@@ -40,7 +40,7 @@ public class TimeGridPane<C, T> extends GridPane {
         int maxColumnIndex = 0;
         for (int i = 0; i < children.size(); i++) {
             Node child = children.get(i);
-            ChildPosition<T> childPosition = timeLayout.getChildPosition(i);
+            ChildPosition childPosition = timeLayout.getChildPosition(i);
             int columnIndex = childPosition.getColumnIndex();
             int rowIndex = childPosition.getRowIndex();
             GridPane.setConstraints(child, columnIndex, rowIndex);

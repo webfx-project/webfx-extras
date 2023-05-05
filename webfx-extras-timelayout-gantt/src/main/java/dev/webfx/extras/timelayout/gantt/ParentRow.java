@@ -1,5 +1,7 @@
 package dev.webfx.extras.timelayout.gantt;
 
+import dev.webfx.extras.timelayout.LayoutPosition;
+
 import java.time.temporal.Temporal;
 import java.util.*;
 
@@ -14,9 +16,9 @@ public final class ParentRow<C, T extends Temporal> {
     private boolean emptyRowsRemovalRequired;
     private boolean noTetrisPacking;
     private Object parent;
-    private Object grandParent;
-    private double y;
-    private double height;
+    private Object grandparent;
+    boolean heightDirty;
+    final LayoutPosition rowPosition = new LayoutPosition();
 
     public ParentRow(GanttLayout<C, T> ganttLayout) {
         this.ganttLayout = ganttLayout;
@@ -120,31 +122,25 @@ public final class ParentRow<C, T extends Temporal> {
         this.parent = parent;
     }
 
-    public Object getGrandParent() {
-        return grandParent;
+    public Object getGrandparent() {
+        return grandparent;
     }
 
-    public void setGrandParent(Object grandParent) {
-        this.grandParent = grandParent;
+    public void setGrandparent(Object grandparent) {
+        this.grandparent = grandparent;
     }
 
-    public double getY() {
-        return y;
+    void markHeightAsDirty() {
+        heightDirty = true;
     }
 
-    public void setY(double y) {
-        this.y = y;
-    }
-
-    public double getHeight() {
-        if (height == -1) {
+    public LayoutPosition getRowPosition() {
+        if (heightDirty) {
             int rowsCount = getRowsCount();
-            height = rowsCount == 0 ? 0 : rowsCount * (ganttLayout.getChildFixedHeight() + ganttLayout.getVSpacing()) - ganttLayout.getVSpacing();
+            rowPosition.setHeight(rowsCount == 0 ? 0 : rowsCount * (ganttLayout.getChildFixedHeight() + ganttLayout.getVSpacing()) - ganttLayout.getVSpacing());
+            heightDirty = false;
         }
-        return height;
+        return rowPosition;
     }
 
-    public void setHeight(double height) {
-        this.height = height;
-    }
 }

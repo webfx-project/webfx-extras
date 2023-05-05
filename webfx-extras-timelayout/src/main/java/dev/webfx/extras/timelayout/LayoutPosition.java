@@ -49,6 +49,14 @@ public final class LayoutPosition {
         this.height = height;
     }
 
+    public double getMaxX() {
+        return getX() + getWidth();
+    }
+
+    public double getMaxY() {
+        return getY() + getHeight();
+    }
+
     public int getRowIndex() {
         return rowIndex;
     }

@@ -18,16 +18,16 @@ import java.util.function.Function;
 public class GanttLayout<C, T extends Temporal> extends TimeLayoutBase<C, T> {
 
     private Function<C, ?> childParentReader;
-    private Function<C, ?> childGrandParentReader;
+    private Function<C, ?> childGrandparentReader;
     private final Map<Object, ParentRow<C, T>> childToParentRowMap = new HashMap<>();
     private final List<ParentRow<C, T>> parentRows = new ArrayList<>();
-    private final List<Object> grandParents = new ArrayList<>();
+    private final List<Object> grandparents = new ArrayList<>();
     private boolean tetrisPacking;
     private boolean childrenChanged;
     private ParentRow<C, T> lastParentRow;
     private int rowsCountBeforeLastParentRow;
-    private Object lastGrandParent;
-    public double grandParentHeight = 80;
+    private Object lastGrandparent;
+    public double grandparentHeight = 80;
 
     public GanttLayout() {
         setTimeProjector((time, start, exclusive) -> {
@@ -47,8 +47,8 @@ public class GanttLayout<C, T extends Temporal> extends TimeLayoutBase<C, T> {
         this.childParentReader = childParentReader;
     }
 
-    public void setChildGrandParentReader(Function<C, ?> childGrandParentReader) {
-        this.childGrandParentReader = childGrandParentReader;
+    public void setChildGrandparentReader(Function<C, ?> childGrandparentReader) {
+        this.childGrandparentReader = childGrandparentReader;
     }
 
     public void setTetrisPacking(boolean tetrisPacking) {
@@ -69,39 +69,41 @@ public class GanttLayout<C, T extends Temporal> extends TimeLayoutBase<C, T> {
         }
         lastParentRow = null;
         rowsCountBeforeLastParentRow = 0;
-        lastGrandParent = null;
+        lastGrandparent = null;
         parentRows.clear();
-        grandParents.clear();
+        grandparents.clear();
     }
 
     @Override
-    protected void updateChildPositionExtended(int childIndex, LayoutPosition p, C child, T startTime, T endTime, double startX, double endX) {
+    protected void updateChildPositionExtended(int childIndex, LayoutPosition cp, C child, T startTime, T endTime, double startX, double endX) {
         Object parent = childParentReader == null ? null : childParentReader.apply(child);
         ParentRow<C, T> parentRow = getOrCreateParentRow(parent);
+        LayoutPosition pp = parentRow.rowPosition; // Not parentRow.getRowPosition() as this would update dirty height (not the right time to do it yet)
         if (parentRow != lastParentRow) {
+            //pp.setWidth(getWidth()); // We actually don't want to be the whole width. Will be set later by ParentsCanvasRefresher TODO: add a parent width parameter in GanttLayout
             if (lastParentRow == null)
-                parentRow.setY(getTopY());
+                pp.setY(getTopY());
             else {
-                parentRow.setY(lastParentRow.getY() + lastParentRow.getHeight());
+                pp.setY(lastParentRow.getRowPosition().getMaxY());
                 rowsCountBeforeLastParentRow += lastParentRow.getRowsCount();
             }
-            parentRow.setHeight(-1); // height will be computed on next call to parentRow.getHeight()
+            parentRow.markHeightAsDirty(); // height will be computed on next call to parentRow.getHeight()
             lastParentRow = parentRow;
-            if (childGrandParentReader != null) {
-                Object grandParent = childGrandParentReader.apply(child);
-                if (grandParent != lastGrandParent) {
-                    lastGrandParent = grandParent;
+            if (childGrandparentReader != null) {
+                Object grandparent = childGrandparentReader.apply(child);
+                if (grandparent != lastGrandparent) {
+                    lastGrandparent = grandparent;
                     rowsCountBeforeLastParentRow++;
-                    grandParents.add(grandParent);
-                    parentRow.setY(parentRow.getY() + grandParentHeight);
+                    grandparents.add(grandparent);
+                    pp.setY(pp.getY() + grandparentHeight);
                 }
             }
         }
-        parentRow.setGrandParent(lastGrandParent);
+        parentRow.setGrandparent(lastGrandparent);
         int rowIndexInParentRow = parentRow.computeChildRowIndex(childIndex, child, startTime, endTime, startX, endX, getWidth(), tetrisPacking);
         int rowIndex = rowsCountBeforeLastParentRow + rowIndexInParentRow;
-        p.setRowIndex(rowIndex);
-        p.setY(parentRow.getY() + rowIndexInParentRow * (getChildFixedHeight() + getVSpacing())); // will be reset by layout if fillHeight is true
+        cp.setRowIndex(rowIndex);
+        cp.setY(pp.getY() + rowIndexInParentRow * (getChildFixedHeight() + getVSpacing()));
     }
 
     @Override
@@ -110,7 +112,7 @@ public class GanttLayout<C, T extends Temporal> extends TimeLayoutBase<C, T> {
             super.getRowsCount();
         if (lastParentRow == null)
             return 0;
-        return lastParentRow.getY() + lastParentRow.getHeight() - getTopY();
+        return lastParentRow.getRowPosition().getMaxY() - getTopY();
     }
 
     public ParentRow<C, T> getOrCreateParentRow(Object parent) {
@@ -129,10 +131,10 @@ public class GanttLayout<C, T extends Temporal> extends TimeLayoutBase<C, T> {
     @Override
     public int getRowsCount() {
         if (childrenChanged) // happens when children have just been modified, but their position is still invalid,
-            return grandParents.size() + super.getRowsCount(); // so we call the default implementation to update these positions (this will
+            return grandparents.size() + super.getRowsCount(); // so we call the default implementation to update these positions (this will
         // update packedRows in the process through the successive calls to computeChildRowIndex()).
         // Otherwise, packedRows is up-to-date when reaching this point,
-        return grandParents.size() + rowsCountBeforeLastParentRow + (lastParentRow == null ? 0 : lastParentRow.getRowsCount());
+        return grandparents.size() + rowsCountBeforeLastParentRow + (lastParentRow == null ? 0 : lastParentRow.getRowsCount());
     }
 
     public List<ParentRow<C, T>> getParentRows() {

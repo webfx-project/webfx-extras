@@ -121,7 +121,10 @@ public final class ParentRow<C, T extends Temporal> {
     }
 
     void setGrandparentRow(GrandparentRow grandparentRow) {
-        this.grandparentRow = grandparentRow;
+        if (this.grandparentRow != grandparentRow) {
+            this.grandparentRow = grandparentRow;
+            grandparentRow.getParentRows().add(this);
+        }
     }
 
     public LayoutPosition getRowPosition() {

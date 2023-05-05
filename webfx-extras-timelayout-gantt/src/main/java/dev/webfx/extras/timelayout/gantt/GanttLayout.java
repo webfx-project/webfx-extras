@@ -21,12 +21,12 @@ public class GanttLayout<C, T extends Temporal> extends TimeLayoutBase<C, T> {
     private Function<C, ?> childGrandparentReader;
     private final Map<Object, ParentRow<C, T>> childToParentRowMap = new HashMap<>();
     private final List<ParentRow<C, T>> parentRows = new ArrayList<>();
-    private final List<Object> grandparents = new ArrayList<>();
+    private final List<GrandparentRow> grandparentRows = new ArrayList<>();
     private boolean tetrisPacking;
     private boolean childrenChanged;
     private ParentRow<C, T> lastParentRow;
     private int rowsCountBeforeLastParentRow;
-    private Object lastGrandparent;
+    private GrandparentRow lastGrandparentRow;
     public double grandparentHeight = 80;
 
     public GanttLayout() {
@@ -51,6 +51,10 @@ public class GanttLayout<C, T extends Temporal> extends TimeLayoutBase<C, T> {
         this.childGrandparentReader = childGrandparentReader;
     }
 
+    public boolean isTetrisPacking() {
+        return tetrisPacking;
+    }
+
     public void setTetrisPacking(boolean tetrisPacking) {
         this.tetrisPacking = tetrisPacking;
     }
@@ -68,10 +72,10 @@ public class GanttLayout<C, T extends Temporal> extends TimeLayoutBase<C, T> {
             childrenChanged = false;
         }
         lastParentRow = null;
-        rowsCountBeforeLastParentRow = 0;
-        lastGrandparent = null;
         parentRows.clear();
-        grandparents.clear();
+        lastGrandparentRow = null;
+        grandparentRows.clear();
+        rowsCountBeforeLastParentRow = 0;
     }
 
     @Override
@@ -87,20 +91,26 @@ public class GanttLayout<C, T extends Temporal> extends TimeLayoutBase<C, T> {
                 pp.setY(lastParentRow.getRowPosition().getMaxY());
                 rowsCountBeforeLastParentRow += lastParentRow.getRowsCount();
             }
-            parentRow.markHeightAsDirty(); // height will be computed on next call to parentRow.getHeight()
+            pp.setValid(false); // height will be computed on next call to parentRow.getRowPosition()
             lastParentRow = parentRow;
             if (childGrandparentReader != null) {
                 Object grandparent = childGrandparentReader.apply(child);
-                if (grandparent != lastGrandparent) {
-                    lastGrandparent = grandparent;
+                if (grandparent == null)
+                    lastGrandparentRow = null;
+                else if (lastGrandparentRow == null || grandparent != lastGrandparentRow.getGrandparent()) {
+                    GrandparentRow grandparentRow = new GrandparentRow(grandparent);
+                    LayoutPosition gp = grandparentRow.getRowPosition();
+                    gp.setY(pp.getY());
+                    gp.setHeight(grandparentHeight);
+                    grandparentRows.add(grandparentRow);
+                    lastGrandparentRow = grandparentRow;
                     rowsCountBeforeLastParentRow++;
-                    grandparents.add(grandparent);
-                    pp.setY(pp.getY() + grandparentHeight);
+                    pp.setY(gp.getMaxY());
                 }
             }
         }
-        parentRow.setGrandparent(lastGrandparent);
-        int rowIndexInParentRow = parentRow.computeChildRowIndex(childIndex, child, startTime, endTime, startX, endX, getWidth(), tetrisPacking);
+        parentRow.setGrandparentRow(lastGrandparentRow);
+        int rowIndexInParentRow = parentRow.computeChildRowIndex(childIndex, child, startTime, endTime, startX, endX, getWidth());
         int rowIndex = rowsCountBeforeLastParentRow + rowIndexInParentRow;
         cp.setRowIndex(rowIndex);
         cp.setY(pp.getY() + rowIndexInParentRow * (getChildFixedHeight() + getVSpacing()));
@@ -115,12 +125,10 @@ public class GanttLayout<C, T extends Temporal> extends TimeLayoutBase<C, T> {
         return lastParentRow.getRowPosition().getMaxY() - getTopY();
     }
 
-    public ParentRow<C, T> getOrCreateParentRow(Object parent) {
+    private ParentRow<C, T> getOrCreateParentRow(Object parent) {
         ParentRow<C, T> parentRow = childToParentRowMap.get(parent);
-        if (parentRow == null) {
-            childToParentRowMap.put(parent, parentRow = new ParentRow<>(this));
-            parentRow.setParent(parent);
-        }
+        if (parentRow == null)
+            childToParentRowMap.put(parent, parentRow = new ParentRow<>(parent, this));
         if (parentRows.isEmpty() || parentRows.get(parentRows.size() - 1) != parentRow)
             parentRows.add(parentRow);
         return parentRow;
@@ -131,13 +139,17 @@ public class GanttLayout<C, T extends Temporal> extends TimeLayoutBase<C, T> {
     @Override
     public int getRowsCount() {
         if (childrenChanged) // happens when children have just been modified, but their position is still invalid,
-            return grandparents.size() + super.getRowsCount(); // so we call the default implementation to update these positions (this will
+            return grandparentRows.size() + super.getRowsCount(); // so we call the default implementation to update these positions (this will
         // update packedRows in the process through the successive calls to computeChildRowIndex()).
         // Otherwise, packedRows is up-to-date when reaching this point,
-        return grandparents.size() + rowsCountBeforeLastParentRow + (lastParentRow == null ? 0 : lastParentRow.getRowsCount());
+        return grandparentRows.size() + rowsCountBeforeLastParentRow + (lastParentRow == null ? 0 : lastParentRow.getRowsCount());
     }
 
     public List<ParentRow<C, T>> getParentRows() {
         return parentRows;
+    }
+
+    public List<GrandparentRow> getGrandparentRows() {
+        return grandparentRows;
     }
 }

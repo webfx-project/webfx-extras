@@ -10,23 +10,21 @@ import java.util.*;
  */
 public final class ParentRow<C, T extends Temporal> {
 
+    private final Object parent;
     private final GanttLayout<C, T> ganttLayout;
     private final Map<C, ChildBlock<T>> cache = new HashMap<>();
     private final List<List<ChildBlock<T>>> packedRows = new ArrayList<>();
     private boolean emptyRowsRemovalRequired;
-    private boolean noTetrisPacking;
-    private Object parent;
-    private Object grandparent;
-    boolean heightDirty;
+    private GrandparentRow grandparentRow;
     final LayoutPosition rowPosition = new LayoutPosition();
 
-    public ParentRow(GanttLayout<C, T> ganttLayout) {
+    public ParentRow(Object parent, GanttLayout<C, T> ganttLayout) {
+        this.parent = parent;
         this.ganttLayout = ganttLayout;
     }
 
-    int computeChildRowIndex(int childIndex, C child, T startTime, T endTime, double startX, double endX, double layoutWidth, boolean tetrisPacking) {
-        if (!tetrisPacking) {
-            noTetrisPacking = true;
+    int computeChildRowIndex(int childIndex, C child, T startTime, T endTime, double startX, double endX, double layoutWidth) {
+        if (!ganttLayout.isTetrisPacking()) {
             return 0;
         }
         // Tetris block algorithm:
@@ -69,7 +67,7 @@ public final class ParentRow<C, T extends Temporal> {
     }
 
     public int getRowsCount() {
-        if (noTetrisPacking)
+        if (!ganttLayout.isTetrisPacking())
             return 1;
         removeEmptyRowsIfRequired(); // we might eventually need to do a last removal of empty rows
         return packedRows.size(); // and then, we can just return the number of packed rows (much faster).
@@ -118,27 +116,19 @@ public final class ParentRow<C, T extends Temporal> {
         return parent;
     }
 
-    public void setParent(Object parent) {
-        this.parent = parent;
+    public GrandparentRow getGrandparentRow() {
+        return grandparentRow;
     }
 
-    public Object getGrandparent() {
-        return grandparent;
-    }
-
-    public void setGrandparent(Object grandparent) {
-        this.grandparent = grandparent;
-    }
-
-    void markHeightAsDirty() {
-        heightDirty = true;
+    void setGrandparentRow(GrandparentRow grandparentRow) {
+        this.grandparentRow = grandparentRow;
     }
 
     public LayoutPosition getRowPosition() {
-        if (heightDirty) {
+        if (!rowPosition.isValid()) {
             int rowsCount = getRowsCount();
             rowPosition.setHeight(rowsCount == 0 ? 0 : rowsCount * (ganttLayout.getChildFixedHeight() + ganttLayout.getVSpacing()) - ganttLayout.getVSpacing());
-            heightDirty = false;
+            rowPosition.setValid(true);
         }
         return rowPosition;
     }

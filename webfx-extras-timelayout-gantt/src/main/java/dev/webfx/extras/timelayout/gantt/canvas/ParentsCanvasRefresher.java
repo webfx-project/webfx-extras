@@ -3,6 +3,7 @@ package dev.webfx.extras.timelayout.gantt.canvas;
 import dev.webfx.extras.timelayout.LayoutPosition;
 import dev.webfx.extras.timelayout.canvas.ChildDrawer;
 import dev.webfx.extras.timelayout.gantt.GanttLayout;
+import dev.webfx.extras.timelayout.gantt.GrandparentRow;
 import dev.webfx.extras.timelayout.gantt.ParentRow;
 import javafx.scene.canvas.Canvas;
 import javafx.scene.canvas.GraphicsContext;
@@ -47,26 +48,23 @@ public final class ParentsCanvasRefresher {
     void refreshCanvas(double virtualCanvasWidth, double virtualCanvasHeight, double virtualViewPortY, boolean canvasSizeChanged) {
         GraphicsContext gc = canvas.getGraphicsContext2D();
         gc.clearRect(0, 0, Math.min(canvas.getWidth(), virtualCanvasWidth), canvas.getHeight());
-        LayoutPosition gpp = new LayoutPosition(); // Grandparent position
-        gpp.setX(0);
-        gpp.setWidth(virtualCanvasWidth);
-        gpp.setHeight(ganttLayout.grandparentHeight);
-        Object lastGrandparent = null;
         for (ParentRow<?, ?> parentRow : ganttLayout.getParentRows()) {
-            LayoutPosition pp = parentRow.getRowPosition();
-            double py = pp.getY();
-            Object grandparent = parentRow.getGrandparent();
-            if (grandparent != lastGrandparent) {
-                if (grandparentDrawer != null) {
-                    gpp.setY(py - gpp.getHeight() - virtualViewPortY);
-                    grandparentDrawer.drawChild(grandparent, gpp, gc);
-                }
-                lastGrandparent = grandparent;
+            LayoutPosition p = parentRow.getRowPosition();
+            p.setWidth(virtualCanvasWidth);
+            double py = p.getY();
+            p.setY(py - virtualViewPortY);
+            parentDrawer.drawChild(parentRow.getParent(), p, gc);
+            p.setY(py);
+        }
+        if (grandparentDrawer != null) {
+            for (GrandparentRow grandparentRow : ganttLayout.getGrandparentRows()) {
+                LayoutPosition p = grandparentRow.getRowPosition();
+                p.setWidth(virtualCanvasWidth);
+                double gy = p.getY();
+                p.setY(gy - virtualViewPortY);
+                grandparentDrawer.drawChild(grandparentRow.getGrandparent(), p, gc);
+                p.setY(gy);
             }
-            pp.setWidth(virtualCanvasWidth);
-            pp.setY(py - virtualViewPortY);
-            parentDrawer.drawChild(parentRow.getParent(), pp, gc);
-            pp.setY(py);
         }
         lastVirtualCanvasWidth = virtualCanvasWidth;
         lastVirtualCanvasHeight = virtualCanvasHeight;

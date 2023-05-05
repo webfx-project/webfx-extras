@@ -14,7 +14,7 @@ import java.util.Map;
 public class MultilayerTimeCanvasDrawer<T> extends CanvasDrawerBase {
 
     private final MultilayerTimeLayout<T> multilayerTimeLayout;
-    private final Map<TimeLayout<?, T>, ChildDrawer<?, T>> childDrawers = new HashMap<>();
+    private final Map<TimeLayout<?, T>, ChildDrawer<?>> childDrawers = new HashMap<>();
 
     public MultilayerTimeCanvasDrawer(MultilayerTimeLayout<T> multilayerTimeLayout) {
         this(new Canvas(), multilayerTimeLayout);
@@ -27,7 +27,7 @@ public class MultilayerTimeCanvasDrawer<T> extends CanvasDrawerBase {
         multilayerTimeLayout.addOnAfterLayout(this::markDrawAreaAsDirty);
     }
 
-    public <C> void setLayerChildDrawer(TimeLayout<C, T> timeLayout, ChildDrawer<C, T> childDrawer) {
+    public <C> void setLayerChildDrawer(TimeLayout<C, T> timeLayout, ChildDrawer<C> childDrawer) {
         childDrawers.put(timeLayout, childDrawer);
         // We automatically redraw the canvas when the child selection changes to reflect the new selection
         timeLayout.selectedChildProperty().addListener(observable -> markDrawAreaAsDirty());
@@ -38,7 +38,7 @@ public class MultilayerTimeCanvasDrawer<T> extends CanvasDrawerBase {
         Bounds bounds = getDrawAreaOrCanvasBounds();
         multilayerTimeLayout.getLayers().forEach(layer -> {
             if (layer.isVisible()) {
-                ChildDrawer<?, T> childDrawer = childDrawers.get(layer);
+                ChildDrawer<?> childDrawer = childDrawers.get(layer);
                 TimeCanvasDrawer.drawVisibleChildren(bounds, getLayoutOriginX(), getLayoutOriginY(), (TimeLayout) layer, (ChildDrawer) childDrawer, gc);
             }
         });

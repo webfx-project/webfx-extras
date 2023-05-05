@@ -10,11 +10,11 @@ import java.time.LocalDate;
  */
 public final class LocalDateCanvasDrawer<C> extends TimeCanvasDrawer<C, LocalDate> {
 
-    public LocalDateCanvasDrawer(TimeLayout<C, LocalDate> timeLayout, ChildDrawer<C, LocalDate> childDrawer) {
+    public LocalDateCanvasDrawer(TimeLayout<C, LocalDate> timeLayout, ChildDrawer<C> childDrawer) {
         super(timeLayout, childDrawer);
     }
 
-    public LocalDateCanvasDrawer(Canvas canvas, TimeLayout<C, LocalDate> timeLayout, ChildDrawer<C, LocalDate> childDrawer) {
+    public LocalDateCanvasDrawer(Canvas canvas, TimeLayout<C, LocalDate> timeLayout, ChildDrawer<C> childDrawer) {
         super(canvas, timeLayout, childDrawer);
     }
 

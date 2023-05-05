@@ -1,6 +1,6 @@
 package dev.webfx.extras.timelayout.bar;
 
-import dev.webfx.extras.timelayout.ChildPosition;
+import dev.webfx.extras.timelayout.LayoutPosition;
 import dev.webfx.extras.timelayout.canvas.TimeCanvasUtil;
 import dev.webfx.extras.timelayout.canvas.generic.CanvasUtil;
 import javafx.geometry.VPos;
@@ -70,7 +70,7 @@ public class BarDrawer {
         this.textFill = textFill;
     }
 
-    public void drawBar(ChildPosition p, GraphicsContext gc) {
+    public void drawBar(LayoutPosition p, GraphicsContext gc) {
         if (stroke != null)
             TimeCanvasUtil.fillStrokeRect(p, hPadding, backgroundFill, stroke, radius, gc);
         else
@@ -95,7 +95,7 @@ public class BarDrawer {
         }
     }
 
-    public double getTextAreaWidth(ChildPosition p) {
+    public double getTextAreaWidth(LayoutPosition p) {
         return p.getWidth() - 2 * hPadding - 5;
     }
 

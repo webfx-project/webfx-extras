@@ -1,10 +1,10 @@
 package dev.webfx.extras.timelayout.canvas;
 
-import dev.webfx.extras.timelayout.ChildPosition;
+import dev.webfx.extras.timelayout.LayoutPosition;
 import javafx.scene.canvas.GraphicsContext;
 
 public interface ChildDrawer<C, T> {
 
-    void drawChild(C child, ChildPosition p, GraphicsContext gc);
+    void drawChild(C child, LayoutPosition p, GraphicsContext gc);
 
 }

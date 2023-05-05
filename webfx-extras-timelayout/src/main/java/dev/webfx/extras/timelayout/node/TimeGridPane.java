@@ -1,6 +1,6 @@
 package dev.webfx.extras.timelayout.node;
 
-import dev.webfx.extras.timelayout.ChildPosition;
+import dev.webfx.extras.timelayout.LayoutPosition;
 import dev.webfx.extras.timelayout.TimeLayout;
 import javafx.collections.ListChangeListener;
 import javafx.collections.ObservableList;
@@ -40,9 +40,9 @@ public class TimeGridPane<C, T> extends GridPane {
         int maxColumnIndex = 0;
         for (int i = 0; i < children.size(); i++) {
             Node child = children.get(i);
-            ChildPosition childPosition = timeLayout.getChildPosition(i);
-            int columnIndex = childPosition.getColumnIndex();
-            int rowIndex = childPosition.getRowIndex();
+            LayoutPosition p = timeLayout.getChildPosition(i);
+            int columnIndex = p.getColumnIndex();
+            int rowIndex = p.getRowIndex();
             GridPane.setConstraints(child, columnIndex, rowIndex);
             maxColumnIndex = Math.max(maxColumnIndex, columnIndex);
         }

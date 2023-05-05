@@ -1,6 +1,6 @@
 package dev.webfx.extras.timelayout.canvas;
 
-import dev.webfx.extras.timelayout.ChildPosition;
+import dev.webfx.extras.timelayout.LayoutPosition;
 import dev.webfx.extras.timelayout.TimeLayout;
 import javafx.collections.ObservableList;
 import javafx.geometry.Bounds;
@@ -38,7 +38,7 @@ public class TimeCanvasDrawer<C, T> extends CanvasDrawerBase {
         ObservableList<C> children = timeLayout.getChildren();
         for (int i = 0; i < children.size(); i++) {
             C child = children.get(i);
-            ChildPosition p = timeLayout.getChildPosition(i);
+            LayoutPosition p = timeLayout.getChildPosition(i);
             // Here is the child position in the layout coordinates:
             double layoutX = p.getX();
             double layoutY = p.getY();

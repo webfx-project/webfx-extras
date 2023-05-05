@@ -1,6 +1,6 @@
 package dev.webfx.extras.timelayout.gantt;
 
-import dev.webfx.extras.timelayout.ChildPosition;
+import dev.webfx.extras.timelayout.LayoutPosition;
 import dev.webfx.extras.timelayout.impl.TimeLayoutBase;
 import javafx.collections.ListChangeListener;
 
@@ -75,7 +75,7 @@ public class GanttLayout<C, T extends Temporal> extends TimeLayoutBase<C, T> {
     }
 
     @Override
-    protected void updateChildPositionExtended(int childIndex, ChildPosition p, C child, T startTime, T endTime, double startX, double endX) {
+    protected void updateChildPositionExtended(int childIndex, LayoutPosition p, C child, T startTime, T endTime, double startX, double endX) {
         Object parent = childParentReader == null ? null : childParentReader.apply(child);
         ParentRow<C, T> parentRow = getOrCreateParentRow(parent);
         if (parentRow != lastParentRow) {

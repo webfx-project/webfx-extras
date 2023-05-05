@@ -1,6 +1,6 @@
 package dev.webfx.extras.timelayout.gantt.canvas;
 
-import dev.webfx.extras.timelayout.ChildPosition;
+import dev.webfx.extras.timelayout.LayoutPosition;
 import dev.webfx.extras.timelayout.canvas.ChildDrawer;
 import dev.webfx.extras.timelayout.gantt.GanttLayout;
 import dev.webfx.extras.timelayout.gantt.ParentRow;
@@ -47,7 +47,7 @@ public final class ParentsCanvasRefresher {
     void refreshCanvas(double virtualCanvasWidth, double virtualCanvasHeight, double virtualViewPortY, boolean canvasSizeChanged) {
         GraphicsContext gc = canvas.getGraphicsContext2D();
         gc.clearRect(0, 0, Math.min(canvas.getWidth(), virtualCanvasWidth), canvas.getHeight());
-        ChildPosition p = new ChildPosition();
+        LayoutPosition p = new LayoutPosition();
         p.setX(0);
         p.setY(-virtualViewPortY);
         p.setWidth(virtualCanvasWidth);

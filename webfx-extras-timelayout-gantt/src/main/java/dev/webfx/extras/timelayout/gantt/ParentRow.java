@@ -1,6 +1,6 @@
 package dev.webfx.extras.timelayout.gantt;
 
-import dev.webfx.extras.timelayout.LayoutPosition;
+import dev.webfx.extras.timelayout.LayoutBounds;
 
 import java.time.temporal.Temporal;
 import java.util.*;
@@ -16,7 +16,7 @@ public final class ParentRow<C, T extends Temporal> {
     private final List<List<ChildBlock<T>>> packedRows = new ArrayList<>();
     private boolean emptyRowsRemovalRequired;
     private GrandparentRow grandparentRow;
-    final LayoutPosition rowPosition = new LayoutPosition();
+    final LayoutBounds rowPosition = new LayoutBounds();
 
     public ParentRow(Object parent, GanttLayout<C, T> ganttLayout) {
         this.parent = parent;
@@ -127,7 +127,7 @@ public final class ParentRow<C, T extends Temporal> {
         }
     }
 
-    public LayoutPosition getRowPosition() {
+    public LayoutBounds getRowPosition() {
         if (!rowPosition.isValid()) {
             int rowsCount = getRowsCount();
             rowPosition.setHeight(rowsCount == 0 ? 0 : rowsCount * (ganttLayout.getChildFixedHeight() + ganttLayout.getVSpacing()) - ganttLayout.getVSpacing());

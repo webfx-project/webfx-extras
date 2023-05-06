@@ -1,6 +1,6 @@
 package dev.webfx.extras.timelayout.impl;
 
-import dev.webfx.extras.timelayout.LayoutPosition;
+import dev.webfx.extras.timelayout.LayoutBounds;
 import dev.webfx.extras.timelayout.ChildTimeReader;
 import dev.webfx.extras.timelayout.TimeLayout;
 import dev.webfx.extras.timelayout.util.DirtyMarker;
@@ -46,7 +46,7 @@ public abstract class TimeLayoutBase<C, T> extends ListenableTimeWindowImpl<T> i
     private boolean childStartTimeExclusive;
     private ChildTimeReader<C, T> childEndTimeReader = c -> (T) c;
     private boolean childEndTimeExclusive;
-    protected List<LayoutPosition> childrenPositions;
+    protected List<LayoutBounds> childrenPositions;
     private int rowsCount;
     private double childFixedHeight = -1;
     private boolean fillHeight;
@@ -65,7 +65,7 @@ public abstract class TimeLayoutBase<C, T> extends ListenableTimeWindowImpl<T> i
 
 
     protected void onChildrenChanged(ListChangeListener.Change<? extends C> c) {
-        childrenPositions = Stream.generate(LayoutPosition::new)
+        childrenPositions = Stream.generate(LayoutBounds::new)
                 .limit(children.size())
                 .collect(Collectors.toList());
         markLayoutAsDirty();
@@ -206,8 +206,8 @@ public abstract class TimeLayoutBase<C, T> extends ListenableTimeWindowImpl<T> i
         if (rowsCount == -1) {
             rowsCount = 0;
             for (int i = 0; i < childrenPositions.size(); i++) {
-                LayoutPosition p = getChildPosition(i);
-                int rowIndex = p.getRowIndex();
+                LayoutBounds cp = getChildPosition(i);
+                int rowIndex = cp.getRowIndex();
                 rowsCount = Math.max(rowsCount, rowIndex + 1);
             }
         }
@@ -215,11 +215,11 @@ public abstract class TimeLayoutBase<C, T> extends ListenableTimeWindowImpl<T> i
     }
 
     @Override
-    public LayoutPosition getChildPosition(int childIndex) {
-        LayoutPosition childPosition = childrenPositions.get(childIndex);
-        if (!childPosition.isValid())
-            updateChildPosition(childIndex, childPosition);
-        return childPosition;
+    public LayoutBounds getChildPosition(int childIndex) {
+        LayoutBounds cp = childrenPositions.get(childIndex);
+        if (!cp.isValid())
+            updateChildPosition(childIndex, cp);
+        return cp;
     }
 
     private T readChildStartTime(C child) {
@@ -241,28 +241,28 @@ public abstract class TimeLayoutBase<C, T> extends ListenableTimeWindowImpl<T> i
     // Empty default implementation but can be override (ex: GanttLayout)
     protected void onBeforeLayoutChildren() { }
 
-    protected void updateChildPosition(int childIndex, LayoutPosition p) {
+    protected void updateChildPosition(int childIndex, LayoutBounds cp) {
         C child = children.get(childIndex);
         T startTime = readChildStartTime(child);
         T endTime = readChildEndTime(child);
         TimeProjector<T> timeProjector = getTimeProjector();
         double startX = timeProjector.timeToX(startTime, true, childStartTimeExclusive);
         double endX = timeProjector.timeToX(endTime, false, childEndTimeExclusive);
-        p.setX(startX + hSpacing / 2);
-        p.setWidth(endX - startX - hSpacing);
+        cp.setX(startX + hSpacing / 2);
+        cp.setWidth(endX - startX - hSpacing);
         if (childFixedHeight > 0)
-            p.setHeight(childFixedHeight); // will be reset by layout if fillHeight is true
-        updateChildPositionExtended(childIndex, p, child, startTime, endTime, startX, endX);
-        p.setValid(true);
+            cp.setHeight(childFixedHeight); // will be reset by layout if fillHeight is true
+        updateChildPositionExtended(childIndex, cp, child, startTime, endTime, startX, endX);
+        cp.setValid(true);
     }
 
-    protected void updateChildPositionExtended(int childIndex, LayoutPosition p, C child, T startTime, T endTime, double startX, double endX) {
+    protected void updateChildPositionExtended(int childIndex, LayoutBounds cp, C child, T startTime, T endTime, double startX, double endX) {
         int columnIndex = computeChildColumnIndex(childIndex, child, startTime, endTime, startX, endX);
         int rowIndex = computeChildRowIndex(childIndex, child, startTime, endTime, startX, endX);
-        p.setRowIndex(rowIndex);
-        p.setColumnIndex(columnIndex);
+        cp.setRowIndex(rowIndex);
+        cp.setColumnIndex(columnIndex);
         if (childFixedHeight > 0) {
-            p.setY(topY + (childFixedHeight + vSpacing) * rowIndex); // will be reset by layout if fillHeight is true
+            cp.setY(topY + (childFixedHeight + vSpacing) * rowIndex); // will be reset by layout if fillHeight is true
         }
     }
 
@@ -301,7 +301,7 @@ public abstract class TimeLayoutBase<C, T> extends ListenableTimeWindowImpl<T> i
         if (onlyIfSelectable && !isChildSelectionEnabled())
             return null;
         for (int i = 0; i < children.size(); i++) {
-            LayoutPosition cp = getChildPosition(i);
+            LayoutBounds cp = getChildPosition(i);
             if (x >= cp.getX() && x <= cp.getX() + cp.getWidth() && y >= cp.getY() && y <= cp.getY() + cp.getHeight())
                 return children.get(i);
         }

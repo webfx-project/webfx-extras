@@ -1,6 +1,6 @@
 package dev.webfx.extras.timelayout.gantt;
 
-import dev.webfx.extras.timelayout.LayoutPosition;
+import dev.webfx.extras.timelayout.LayoutBounds;
 import dev.webfx.extras.timelayout.impl.TimeLayoutBase;
 import javafx.collections.ListChangeListener;
 
@@ -79,10 +79,10 @@ public class GanttLayout<C, T extends Temporal> extends TimeLayoutBase<C, T> {
     }
 
     @Override
-    protected void updateChildPositionExtended(int childIndex, LayoutPosition cp, C child, T startTime, T endTime, double startX, double endX) {
+    protected void updateChildPositionExtended(int childIndex, LayoutBounds cp, C child, T startTime, T endTime, double startX, double endX) {
         Object parent = childParentReader == null ? null : childParentReader.apply(child);
         ParentRow<C, T> parentRow = getOrCreateParentRow(parent);
-        LayoutPosition pp = parentRow.rowPosition; // Not parentRow.getRowPosition() as this would update dirty height (not the right time to do it yet)
+        LayoutBounds pp = parentRow.rowPosition; // Not parentRow.getRowPosition() as this would update dirty height (not the right time to do it yet)
         if (parentRow != lastParentRow) {
             //pp.setWidth(getWidth()); // We actually don't want to be the whole width. Will be set later by ParentsCanvasRefresher TODO: add a parent width parameter in GanttLayout
             if (lastParentRow == null)
@@ -99,7 +99,7 @@ public class GanttLayout<C, T extends Temporal> extends TimeLayoutBase<C, T> {
                     lastGrandparentRow = null;
                 else if (lastGrandparentRow == null || grandparent != lastGrandparentRow.getGrandparent()) {
                     GrandparentRow grandparentRow = new GrandparentRow(grandparent);
-                    LayoutPosition gp = grandparentRow.getRowPosition();
+                    LayoutBounds gp = grandparentRow.getRowPosition();
                     gp.setY(pp.getY());
                     gp.setHeight(grandparentHeight);
                     grandparentRows.add(grandparentRow);

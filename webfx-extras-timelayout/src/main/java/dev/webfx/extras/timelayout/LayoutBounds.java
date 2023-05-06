@@ -5,7 +5,7 @@ import dev.webfx.extras.bounds.MutableBounds;
 /**
  * @author Bruno Salmon
  */
-public final class LayoutPosition extends MutableBounds {
+public final class LayoutBounds extends MutableBounds {
 
     private boolean valid;
     private int rowIndex, columnIndex; // redundant with cell (to be removed later)

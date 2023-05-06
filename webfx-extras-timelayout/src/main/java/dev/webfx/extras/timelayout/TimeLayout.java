@@ -61,7 +61,7 @@ public interface TimeLayout<C, T> extends ListenableTimeWindow<T>, CanLayout, Ca
 
     // Output methods
 
-    LayoutPosition getChildPosition(int childIndex);
+    LayoutBounds getChildPosition(int childIndex);
 
     int getRowsCount();
 

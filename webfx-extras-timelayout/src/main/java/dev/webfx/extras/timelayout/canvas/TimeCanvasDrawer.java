@@ -1,6 +1,6 @@
 package dev.webfx.extras.timelayout.canvas;
 
-import dev.webfx.extras.timelayout.LayoutPosition;
+import dev.webfx.extras.timelayout.LayoutBounds;
 import dev.webfx.extras.timelayout.TimeLayout;
 import javafx.geometry.Bounds;
 import javafx.scene.canvas.Canvas;
@@ -40,34 +40,34 @@ public class TimeCanvasDrawer<C, T> extends CanvasDrawerBase {
         drawVisibleChildren(timeLayout.getChildren(), timeLayout::getChildPosition, drawAreaBounds, layoutOriginX, layoutOriginY, childDrawer, gc);
     }
 
-    public static <C> void drawVisibleChildren(List<C> children, Function<Integer, LayoutPosition> childPositionGetter, Bounds drawAreaBounds, double layoutOriginX, double layoutOriginY, ChildDrawer<C> childDrawer, GraphicsContext gc) {
+    public static <C> void drawVisibleChildren(List<C> children, Function<Integer, LayoutBounds> childPositionGetter, Bounds drawAreaBounds, double layoutOriginX, double layoutOriginY, ChildDrawer<C> childDrawer, GraphicsContext gc) {
         for (int i = 0; i < children.size(); i++) {
             C child = children.get(i);
-            LayoutPosition p = childPositionGetter.apply(i);
-            drawChildIfVisible(child, p, drawAreaBounds, layoutOriginX, layoutOriginY, childDrawer, gc);
+            LayoutBounds cp = childPositionGetter.apply(i);
+            drawChildIfVisible(child, cp, drawAreaBounds, layoutOriginX, layoutOriginY, childDrawer, gc);
         }
     }
 
-    public static <C> void drawChildIfVisible(C child, LayoutPosition p, Bounds drawAreaBounds, double layoutOriginX, double layoutOriginY, ChildDrawer<C> childDrawer, GraphicsContext gc) {
+    public static <C> void drawChildIfVisible(C child, LayoutBounds cp, Bounds drawAreaBounds, double layoutOriginX, double layoutOriginY, ChildDrawer<C> childDrawer, GraphicsContext gc) {
         // Here is the child position in the layout coordinates:
-        double layoutX = p.getX();
-        double layoutY = p.getY();
+        double layoutX = cp.getX();
+        double layoutY = cp.getY();
         // Here is the child position in the canvas coordinates:
         double canvasX = layoutX - layoutOriginX;
         double canvasY = layoutY - layoutOriginY;
         // Skipping that child if it is not visible in the draw area
-        if (!drawAreaBounds.intersects(canvasX, canvasY, p.getWidth(), p.getHeight()))
+        if (!drawAreaBounds.intersects(canvasX, canvasY, cp.getWidth(), cp.getHeight()))
             return; // This improves performance, as canvas operations can take time (even outside canvas)
         // Temporarily moving p to canvas coordinates for the drawing operations
-        p.setX(canvasX);
-        p.setY(canvasY);
+        cp.setX(canvasX);
+        cp.setY(canvasY);
         // Drawing the child
         gc.save();
-        childDrawer.drawChild(child, p, gc);
+        childDrawer.drawChild(child, cp, gc);
         gc.restore();
         // Moving back p to layout coordinates
-        p.setX(layoutX);
-        p.setY(layoutY);
+        cp.setX(layoutX);
+        cp.setY(layoutY);
     }
 
 }

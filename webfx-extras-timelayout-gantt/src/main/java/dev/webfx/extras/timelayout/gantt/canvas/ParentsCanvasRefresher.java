@@ -1,6 +1,6 @@
 package dev.webfx.extras.timelayout.gantt.canvas;
 
-import dev.webfx.extras.timelayout.LayoutPosition;
+import dev.webfx.extras.timelayout.LayoutBounds;
 import dev.webfx.extras.timelayout.canvas.ChildDrawer;
 import dev.webfx.extras.timelayout.canvas.TimeCanvasDrawer;
 import dev.webfx.extras.timelayout.gantt.GanttLayout;
@@ -60,12 +60,12 @@ public final class ParentsCanvasRefresher {
             drawParentRows(ganttLayout.getParentRows(), gc);
         else {
             for (GrandparentRow grandparentRow : ganttLayout.getGrandparentRows()) {
-                LayoutPosition p = grandparentRow.getRowPosition();
-                p.setWidth(virtualCanvasWidth);
-                double gy = p.getY();
-                p.setY(gy - virtualViewPortY);
-                grandparentDrawer.drawChild(grandparentRow.getGrandparent(), p, gc);
-                p.setY(gy);
+                LayoutBounds gp = grandparentRow.getRowPosition();
+                gp.setWidth(virtualCanvasWidth);
+                double gy = gp.getY();
+                gp.setY(gy - virtualViewPortY);
+                grandparentDrawer.drawChild(grandparentRow.getGrandparent(), gp, gc);
+                gp.setY(gy);
                 drawParentRows(grandparentRow.getParentRows(), gc);
             }
         }
@@ -74,15 +74,15 @@ public final class ParentsCanvasRefresher {
     private void drawParentRows(List<? extends ParentRow<?, ?>> parentRows, GraphicsContext gc) {
         TimeCanvasDrawer.drawVisibleChildren(
                 (List<ParentRow<?, ?>>) parentRows,
-                i -> getParentPosition(parentRows, i),
+                i -> getParentRowPosition(parentRows, i),
                 drawingArea, 0, lastVirtualViewPortY,
                 (parentRow, p, gc1) -> parentDrawer.drawChild(parentRow.getParent(), p, gc1), gc);
     }
 
-    private LayoutPosition getParentPosition(List<? extends ParentRow<?, ?>> parentRows, int i) {
-        LayoutPosition p = parentRows.get(i).getRowPosition();
-        p.setWidth(lastVirtualCanvasWidth);
-        return p;
+    private LayoutBounds getParentRowPosition(List<? extends ParentRow<?, ?>> parentRows, int i) {
+        LayoutBounds pp = parentRows.get(i).getRowPosition();
+        pp.setWidth(lastVirtualCanvasWidth);
+        return pp;
     }
 
     private void redrawCanvas() {

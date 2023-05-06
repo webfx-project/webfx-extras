@@ -1,6 +1,8 @@
 package dev.webfx.extras.time.layout.gantt.canvas;
 
 import dev.webfx.extras.canvas.layer.ChildDrawer;
+import dev.webfx.extras.canvas.layer.interact.CanvasInteractionHandler;
+import dev.webfx.extras.canvas.layer.interact.HasCanvasInteractionManager;
 import dev.webfx.extras.canvas.pane.CanvasPane;
 import dev.webfx.extras.canvas.pane.VirtualCanvasPane;
 import dev.webfx.extras.canvas.CanvasDrawer;
@@ -9,7 +11,9 @@ import dev.webfx.kit.util.properties.FXProperties;
 import javafx.beans.value.ObservableDoubleValue;
 import javafx.beans.value.ObservableObjectValue;
 import javafx.geometry.Bounds;
+import javafx.scene.Cursor;
 import javafx.scene.canvas.Canvas;
+import javafx.scene.input.MouseEvent;
 
 /**
  * @author Bruno Salmon
@@ -20,6 +24,7 @@ public final class GanttCanvasUtil {
         ParentsCanvasRefresher parentsCanvasDrawer = new ParentsCanvasRefresher(canvas, ganttLayout, parentDrawer);
         return new CanvasPane(canvas, parentsCanvasDrawer::refreshCanvas);
     }
+
     public static <P> CanvasPane createParentCanvasPane(Canvas canvas, GanttLayout<?, ?> ganttLayout, ChildDrawer<?> parentDrawer, double parentMaxWidth) {
         CanvasPane parentCanvasPane = createParentCanvasPane(canvas, ganttLayout, parentDrawer);
         parentCanvasPane.setMaxWidth(parentMaxWidth);
@@ -45,6 +50,15 @@ public final class GanttCanvasUtil {
         childrenDrawer.addOnAfterDraw(() -> {
             parentsCanvasDrawer.refreshCanvas(parentMaxWidth, childrenDrawer.getCanvas().getHeight(), childrenDrawer.getLayoutOriginY(), false);
         });
+        if (childrenDrawer instanceof HasCanvasInteractionManager) {
+            ((HasCanvasInteractionManager) childrenDrawer).getCanvasInteractionManager().addHandler(new CanvasInteractionHandler() {
+                @Override
+                public boolean handleMouseMoved(MouseEvent e) {
+                    childrenDrawer.getCanvas().setCursor(Cursor.H_RESIZE);
+                    return false;
+                }
+            });
+        }
     }
 
     public static <P, G> void addParentAndGrandParentsDrawing(GanttLayout<?, ?> ganttLayout, CanvasDrawer childrenDrawer, ChildDrawer<P> parentDrawer, double parentMaxWidth, ChildDrawer<G> grandParentDrawer) {
@@ -52,6 +66,15 @@ public final class GanttCanvasUtil {
         childrenDrawer.addOnAfterDraw(() -> {
             parentsCanvasDrawer.refreshCanvas(parentMaxWidth, childrenDrawer.getCanvas().getHeight(), childrenDrawer.getLayoutOriginY(), false);
         });
+        if (childrenDrawer instanceof HasCanvasInteractionManager) {
+            ((HasCanvasInteractionManager) childrenDrawer).getCanvasInteractionManager().addHandler(new CanvasInteractionHandler() {
+                @Override
+                public boolean handleMouseMoved(MouseEvent e) {
+                    childrenDrawer.getCanvas().setCursor(Cursor.H_RESIZE);
+                    return true;
+                }
+            });
+        }
     }
 
 }

@@ -2,29 +2,36 @@ package dev.webfx.extras.time.layout.canvas;
 
 import dev.webfx.extras.canvas.impl.CanvasDrawerBase;
 import dev.webfx.extras.canvas.layer.ChildDrawer;
-import dev.webfx.extras.time.layout.TimeLayout;
+import dev.webfx.extras.canvas.layer.interact.CanvasInteractionManager;
+import dev.webfx.extras.canvas.layer.interact.HasCanvasInteractionManager;
 import dev.webfx.extras.time.layout.MultilayerTimeLayout;
+import dev.webfx.extras.time.layout.TimeLayout;
 import javafx.geometry.Bounds;
 import javafx.scene.canvas.Canvas;
 
+import java.time.temporal.Temporal;
+import java.time.temporal.TemporalUnit;
 import java.util.HashMap;
 import java.util.Map;
 
 /**
  * @author Bruno Salmon
  */
-public class MultilayerTimeCanvasDrawer<T> extends CanvasDrawerBase {
+public class MultilayerTimeCanvasDrawer<T extends Temporal> extends CanvasDrawerBase implements HasCanvasInteractionManager {
 
     private final MultilayerTimeLayout<T> multilayerTimeLayout;
     private final Map<TimeLayout<?, T>, ChildDrawer<?>> childDrawers = new HashMap<>();
+    private final TemporalUnit temporalUnit;
+    private CanvasInteractionManager canvasInteractionManager;
 
-    public MultilayerTimeCanvasDrawer(MultilayerTimeLayout<T> multilayerTimeLayout) {
-        this(new Canvas(), multilayerTimeLayout);
+    public MultilayerTimeCanvasDrawer(MultilayerTimeLayout<T> multilayerTimeLayout, TemporalUnit temporalUnit) {
+        this(new Canvas(), multilayerTimeLayout, temporalUnit);
     }
 
-    public MultilayerTimeCanvasDrawer(Canvas canvas, MultilayerTimeLayout<T> multilayerTimeLayout) {
+    public MultilayerTimeCanvasDrawer(Canvas canvas, MultilayerTimeLayout<T> multilayerTimeLayout, TemporalUnit temporalUnit) {
         super(canvas);
         this.multilayerTimeLayout = multilayerTimeLayout;
+        this.temporalUnit = temporalUnit;
         // We automatically redraw the canvas on each new layout pass
         multilayerTimeLayout.addOnAfterLayout(this::markDrawAreaAsDirty);
     }
@@ -46,4 +53,12 @@ public class MultilayerTimeCanvasDrawer<T> extends CanvasDrawerBase {
         });
     }
 
+    @Override
+    public CanvasInteractionManager getCanvasInteractionManager() {
+        if (canvasInteractionManager == null) {
+            canvasInteractionManager = new CanvasInteractionManager(getCanvas());
+            canvasInteractionManager.addHandler(new TimeCanvasInteractionHandler<>(multilayerTimeLayout, temporalUnit, multilayerTimeLayout));
+        }
+        return canvasInteractionManager;
+    }
 }

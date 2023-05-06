@@ -27,7 +27,7 @@ public class TimePane<C, T> extends Pane {
     }
 
     private void syncChildren() {
-        getChildren().setAll(timeLayout.getChildren().stream().map(childNodeGetter::apply).toArray(Node[]::new));
+        getChildren().setAll(timeLayout.getChildren().stream().map(childNodeGetter).toArray(Node[]::new));
     }
 
     @Override

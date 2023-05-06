@@ -29,7 +29,7 @@ public class TimeGridPane<C, T> extends GridPane {
     }
 
     private void syncChildren() {
-        getChildren().setAll(timeLayout.getChildren().stream().map(childNodeGetter::apply).toArray(Node[]::new));
+        getChildren().setAll(timeLayout.getChildren().stream().map(childNodeGetter).toArray(Node[]::new));
     }
 
     @Override

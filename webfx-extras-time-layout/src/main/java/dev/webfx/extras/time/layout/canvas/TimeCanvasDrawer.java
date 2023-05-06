@@ -2,30 +2,37 @@ package dev.webfx.extras.time.layout.canvas;
 
 import dev.webfx.extras.canvas.impl.CanvasDrawerBase;
 import dev.webfx.extras.canvas.layer.ChildDrawer;
+import dev.webfx.extras.canvas.layer.interact.CanvasInteractionManager;
+import dev.webfx.extras.canvas.layer.interact.HasCanvasInteractionManager;
 import dev.webfx.extras.time.layout.LayoutBounds;
 import dev.webfx.extras.time.layout.TimeLayout;
 import javafx.geometry.Bounds;
 import javafx.scene.canvas.Canvas;
 import javafx.scene.canvas.GraphicsContext;
 
+import java.time.temporal.Temporal;
+import java.time.temporal.TemporalUnit;
 import java.util.List;
 import java.util.function.Function;
 
 /**
  * @author Bruno Salmon
  */
-public class TimeCanvasDrawer<C, T> extends CanvasDrawerBase {
+public class TimeCanvasDrawer<C, T extends Temporal> extends CanvasDrawerBase implements HasCanvasInteractionManager {
     private final TimeLayout<C, T> timeLayout;
     private final ChildDrawer<C> childDrawer;
+    private final TemporalUnit temporalUnit;
+    private CanvasInteractionManager canvasInteractionManager;
 
-    public TimeCanvasDrawer(TimeLayout<C, T> timeLayout, ChildDrawer<C> childDrawer) {
-        this(new Canvas(), timeLayout, childDrawer);
+    public TimeCanvasDrawer(TimeLayout<C, T> timeLayout, ChildDrawer<C> childDrawer, TemporalUnit temporalUnit) {
+        this(new Canvas(), timeLayout, childDrawer, temporalUnit);
     }
 
-    public TimeCanvasDrawer(Canvas canvas, TimeLayout<C, T> timeLayout, ChildDrawer<C> childDrawer) {
+    public TimeCanvasDrawer(Canvas canvas, TimeLayout<C, T> timeLayout, ChildDrawer<C> childDrawer, TemporalUnit temporalUnit) {
         super(canvas);
         this.timeLayout = timeLayout;
         this.childDrawer = childDrawer;
+        this.temporalUnit = temporalUnit;
         timeLayout.addOnAfterLayout(this::markDrawAreaAsDirty);
         timeLayout.selectedChildProperty().addListener(observable -> markDrawAreaAsDirty());
     }
@@ -72,4 +79,12 @@ public class TimeCanvasDrawer<C, T> extends CanvasDrawerBase {
         cp.setY(layoutY);
     }
 
+    @Override
+    public CanvasInteractionManager getCanvasInteractionManager() {
+        if (canvasInteractionManager == null) {
+            canvasInteractionManager = new CanvasInteractionManager(getCanvas());
+            canvasInteractionManager.addHandler(new TimeCanvasInteractionHandler<>(timeLayout, temporalUnit, timeLayout));
+        }
+        return canvasInteractionManager;
+    }
 }

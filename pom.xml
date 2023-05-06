@@ -32,16 +32,24 @@
     <packaging>pom</packaging>
 
     <modules>
-        <module>webfx-extras-bounds</module>
+        <module>webfx-extras-canvas</module>
+        <module>webfx-extras-canvas-bar</module>
+        <module>webfx-extras-canvas-layer</module>
+        <module>webfx-extras-canvas-pane</module>
         <module>webfx-extras-cell</module>
+        <module>webfx-extras-geometry</module>
         <module>webfx-extras-imagestore</module>
         <module>webfx-extras-label</module>
+        <module>webfx-extras-layer</module>
         <module>webfx-extras-led</module>
         <module>webfx-extras-materialdesign</module>
-        <module>webfx-extras-timelayout</module>
-        <module>webfx-extras-timelayout-calendar</module>
-        <module>webfx-extras-timelayout-gantt</module>
+        <module>webfx-extras-time</module>
+        <module>webfx-extras-time-layout</module>
+        <module>webfx-extras-time-layout-calendar</module>
+        <module>webfx-extras-time-layout-gantt</module>
+        <module>webfx-extras-time-window</module>
         <module>webfx-extras-type</module>
+        <module>webfx-extras-util</module>
         <module>webfx-extras-visual</module>
         <module>webfx-extras-visual-charts</module>
         <module>webfx-extras-visual-charts-peers-base</module>

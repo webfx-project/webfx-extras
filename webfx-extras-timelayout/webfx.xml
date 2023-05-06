@@ -9,6 +9,7 @@
         <used-by-source-modules>
             <!-- Ensuring the GWT-time timezone database will be integrated in the final GWT application -->
             <undetected-module>org.jresearch.gwt.time.tzdb</undetected-module> <!-- TODO: should be a runtime module for GWT only -->
+            <module transitive="true">webfx-extras-bounds</module>
         </used-by-source-modules>
     </dependencies>
 

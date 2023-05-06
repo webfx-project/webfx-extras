@@ -1,12 +1,13 @@
 package dev.webfx.extras.timelayout;
 
+import dev.webfx.extras.bounds.MutableBounds;
+
 /**
  * @author Bruno Salmon
  */
-public final class LayoutPosition {
+public final class LayoutPosition extends MutableBounds {
 
     private boolean valid;
-    private double x, y, width, height;
     private int rowIndex, columnIndex; // redundant with cell (to be removed later)
 
     public boolean isValid() {
@@ -15,46 +16,6 @@ public final class LayoutPosition {
 
     public void setValid(boolean valid) {
         this.valid = valid;
-    }
-
-    public double getX() {
-        return x;
-    }
-
-    public void setX(double x) {
-        this.x = x;
-    }
-
-    public double getY() {
-        return y;
-    }
-
-    public void setY(double y) {
-        this.y = y;
-    }
-
-    public double getWidth() {
-        return width;
-    }
-
-    public void setWidth(double width) {
-        this.width = width;
-    }
-
-    public double getHeight() {
-        return height;
-    }
-
-    public void setHeight(double height) {
-        this.height = height;
-    }
-
-    public double getMaxX() {
-        return getX() + getWidth();
-    }
-
-    public double getMaxY() {
-        return getY() + getHeight();
     }
 
     public int getRowIndex() {
@@ -72,4 +33,5 @@ public final class LayoutPosition {
     public void setColumnIndex(int columnIndex) {
         this.columnIndex = columnIndex;
     }
+
 }

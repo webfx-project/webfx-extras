@@ -1,6 +1,7 @@
 package dev.webfx.extras.timelayout.bar;
 
-import dev.webfx.extras.timelayout.LayoutPosition;
+import dev.webfx.extras.bounds.Bounds;
+import dev.webfx.extras.bounds.FXBoundsWrapper;
 import dev.webfx.extras.timelayout.canvas.TimeCanvasUtil;
 import dev.webfx.extras.timelayout.canvas.generic.CanvasUtil;
 import javafx.geometry.VPos;
@@ -70,37 +71,52 @@ public class BarDrawer {
         this.textFill = textFill;
     }
 
-    public void drawBar(LayoutPosition p, GraphicsContext gc) {
+    public void drawBar(Bounds b, GraphicsContext gc) {
         if (stroke != null)
-            TimeCanvasUtil.fillStrokeRect(p, hPadding, backgroundFill, stroke, radius, gc);
+            TimeCanvasUtil.fillStrokeRect(b, hPadding, backgroundFill, stroke, radius, gc);
         else
-            TimeCanvasUtil.fillRect(p, hPadding, backgroundFill, radius, gc);
+            TimeCanvasUtil.fillRect(b, hPadding, backgroundFill, radius, gc);
         boolean hasMiddleText = middleText != null, hasTopText = topText != null, hasBottomText = bottomText != null, hasTopOrBottomText = hasTopText || hasBottomText, hasText = hasMiddleText || hasTopOrBottomText;
-        if (hasText && getTextAreaWidth(p) > 5) { // Unnecessary to draw text when doesn't fit (this skip makes a big performance improvement on big zoom out over many events - because the text clip operation is time-consuming)
+        if (hasText && getTextAreaWidth(b) > 5) { // Unnecessary to draw text when doesn't fit (this skip makes a big performance improvement on big zoom out over many events - because the text clip operation is time-consuming)
             if (hasMiddleText) {
                 setFirstNonNullFont(middleTextFont, textFont, gc);
-                TimeCanvasUtil.fillCenterText(p, hPadding, middleText, textFill, gc);
+                TimeCanvasUtil.fillCenterText(b, hPadding, middleText, textFill, gc);
             }
             if (hasTopOrBottomText) {
-                double h = p.getHeight(), h2 = h / 2, vPadding = h / 16;
+                double h = b.getHeight(), h2 = h / 2, vPadding = h / 16;
                 if (hasTopText) {
                     setFirstNonNullFont(topTextFont, textFont, gc);
-                    CanvasUtil.fillText(p.getX(), p.getY() + vPadding, p.getWidth(), h2, hPadding, topText, textFill, VPos.CENTER, TextAlignment.CENTER, gc);
+                    CanvasUtil.fillText(b.getMinX(), b.getMinY() + vPadding, b.getWidth(), h2, hPadding, topText, textFill, VPos.CENTER, TextAlignment.CENTER, gc);
                 }
                 if (hasBottomText) {
                     setFirstNonNullFont(bottomTextFont, textFont, gc);
-                    CanvasUtil.fillText(p.getX(), p.getY() + h2, p.getWidth(), h2 - vPadding, hPadding, bottomText, textFill, VPos.CENTER, TextAlignment.CENTER, gc);
+                    CanvasUtil.fillText(b.getMinX(), b.getMinY() + h2, b.getWidth(), h2 - vPadding, hPadding, bottomText, textFill, VPos.CENTER, TextAlignment.CENTER, gc);
                 }
             }
         }
     }
 
-    public double getTextAreaWidth(LayoutPosition p) {
-        return p.getWidth() - 2 * hPadding - 5;
+    public double getTextAreaWidth(Bounds b) {
+        return b.getWidth() - 2 * hPadding - 5;
     }
 
     private void setFirstNonNullFont(Font font1, Font font2, GraphicsContext gc) {
         gc.setFont(font1 != null ? font1 : font2);
     }
+
+    // JavaFX bounds compatible API
+
+    private static final FXBoundsWrapper FX_BOUNDS_WRAPPER = new FXBoundsWrapper();
+
+    public void drawBar(javafx.geometry.Bounds b, GraphicsContext gc) {
+        FX_BOUNDS_WRAPPER.setFxBounds(b);
+        drawBar(FX_BOUNDS_WRAPPER, gc);
+    }
+
+    public double getTextAreaWidth(javafx.geometry.Bounds b) {
+        FX_BOUNDS_WRAPPER.setFxBounds(b);
+        return getTextAreaWidth(FX_BOUNDS_WRAPPER);
+    }
+
 
 }

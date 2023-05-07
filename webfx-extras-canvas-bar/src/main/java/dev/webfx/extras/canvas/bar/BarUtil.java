@@ -46,20 +46,21 @@ public final class BarUtil {
         strokeRect(x, y, width, height, hPadding, stroke, radius, gc);
     }
 
-    public static void fillText(double x, double y, double width, double height, double hPadding, String text, Paint fill, VPos baseline, TextAlignment textAlignment, GraphicsContext gc) {
+    public static void fillText(double x, double y, double width, double height, double hPadding, String text, boolean clipText, Paint fill, VPos baseline, TextAlignment textAlignment, GraphicsContext gc) {
         if (hPadding > 0) {
             x += hPadding;
             width -= 2 * hPadding;
         }
+        double hTextPadding = 5; // hardcoded value for now
         gc.save();
         // clip makes canvas operations slower, so we do it only when necessary
         javafx.geometry.Bounds textBounds = WebFxKitLauncher.measureText(text, gc.getFont());
         double canvasWidth = gc.getCanvas().getWidth();
         double visibleBarWidth = Math.min(x + width, canvasWidth) - Math.max(x, 0);
-        boolean textWider = textBounds.getWidth() > visibleBarWidth;
+        boolean textWider = textBounds.getWidth() + 2 * hTextPadding > visibleBarWidth;
         // Clipping the text when it is wider than the visible bar. Note: adding a clip path makes all canvas operation
         // much slower, so it's good to skip that step when not necessary (ie when the text is not wider than the bar).
-        if (textWider) {
+        if (clipText && textWider) {
             gc.beginPath();
             gc.moveTo(x, y);
             gc.lineTo(x + width, y);
@@ -74,20 +75,20 @@ public final class BarUtil {
         // TODO: comment these different cases
         if (x < 0 && x + width > 0) {
             if (textWider) {
-                x = x + width - 5;
+                x = x + width - hTextPadding;
                 textAlignment = TextAlignment.RIGHT;
             } else {
                 textAlignment = TextAlignment.CENTER;
             }
         } else if (x < canvasWidth && x + width > canvasWidth) {
             if (textWider) {
-                x += 5;
+                x += hTextPadding;
                 textAlignment = TextAlignment.LEFT;
             } else {
                 textAlignment = TextAlignment.CENTER;
             }
         } else if (textWider) {
-            x += 5;
+            x += hTextPadding;
             textAlignment = TextAlignment.LEFT;
         }
         if (textAlignment == TextAlignment.CENTER)
@@ -112,19 +113,19 @@ public final class BarUtil {
         strokeRect(b, hPadding, stroke, radius, gc);
     }
 
-    public static void fillText(Bounds b, double hPadding, String text, Paint fill, VPos baseline, TextAlignment textAlignment, GraphicsContext gc) {
-        fillText(b.getMinX(), b.getMinY(), b.getWidth(), b.getHeight(), hPadding, text, fill, baseline, textAlignment, gc);
+    public static void fillText(Bounds b, double hPadding, String text, boolean clipText, Paint fill, VPos baseline, TextAlignment textAlignment, GraphicsContext gc) {
+        fillText(b.getMinX(), b.getMinY(), b.getWidth(), b.getHeight(), hPadding, text, clipText, fill, baseline, textAlignment, gc);
     }
 
-    public static void fillTopCenterText(Bounds b, double hPadding, String text, Paint fill, GraphicsContext gc) {
-        fillText(b, hPadding, text, fill, VPos.TOP, TextAlignment.CENTER, gc);
+    public static void fillTopCenterText(Bounds b, double hPadding, String text, boolean clipText, Paint fill, GraphicsContext gc) {
+        fillText(b, hPadding, text, clipText, fill, VPos.TOP, TextAlignment.CENTER, gc);
     }
 
-    public static void fillCenterLeftText(Bounds b, double hPadding, String text, Paint fill, GraphicsContext gc) {
-        fillText(b, hPadding, text, fill, VPos.CENTER, TextAlignment.LEFT, gc);
+    public static void fillCenterLeftText(Bounds b, double hPadding, String text, boolean clipText, Paint fill, GraphicsContext gc) {
+        fillText(b, hPadding, text, clipText, fill, VPos.CENTER, TextAlignment.LEFT, gc);
     }
 
-    public static void fillCenterText(Bounds b, double hPadding, String text, Paint fill, GraphicsContext gc) {
-        fillText(b, hPadding, text, fill, VPos.CENTER, TextAlignment.CENTER, gc);
+    public static void fillCenterText(Bounds b, double hPadding, String text, boolean clipText, Paint fill, GraphicsContext gc) {
+        fillText(b, hPadding, text, clipText, fill, VPos.CENTER, TextAlignment.CENTER, gc);
     }
 }

@@ -20,6 +20,7 @@ public class BarDrawer {
     private String topText, middleText, bottomText;
     private Font textFont, topTextFont, middleTextFont, bottomTextFont;
     private Paint textFill;
+    private boolean clipText = true;
 
     public void sethPadding(double hPadding) {
         this.hPadding = hPadding;
@@ -69,26 +70,30 @@ public class BarDrawer {
         this.textFill = textFill;
     }
 
+    public void setClipText(boolean clipText) {
+        this.clipText = clipText;
+    }
+
     public void drawBar(Bounds b, GraphicsContext gc) {
         if (stroke != null)
             BarUtil.fillStrokeRect(b, hPadding, backgroundFill, stroke, radius, gc);
         else
             BarUtil.fillRect(b, hPadding, backgroundFill, radius, gc);
         boolean hasMiddleText = middleText != null, hasTopText = topText != null, hasBottomText = bottomText != null, hasTopOrBottomText = hasTopText || hasBottomText, hasText = hasMiddleText || hasTopOrBottomText;
-        if (hasText && getTextAreaWidth(b) > 5) { // Unnecessary to draw text when doesn't fit (this skip makes a big performance improvement on big zoom out over many events - because the text clip operation is time-consuming)
+        if (hasText && (!clipText || getTextAreaWidth(b) > 5)) { // Unnecessary to draw text when doesn't fit (this skip makes a big performance improvement on big zoom out over many events - because the text clip operation is time-consuming)
             if (hasMiddleText) {
                 setFirstNonNullFont(middleTextFont, textFont, gc);
-                BarUtil.fillCenterText(b, hPadding, middleText, textFill, gc);
+                BarUtil.fillCenterText(b, hPadding, middleText, clipText, textFill, gc);
             }
             if (hasTopOrBottomText) {
                 double h = b.getHeight(), h2 = h / 2, vPadding = h / 16;
                 if (hasTopText) {
                     setFirstNonNullFont(topTextFont, textFont, gc);
-                    BarUtil.fillText(b.getMinX(), b.getMinY() + vPadding, b.getWidth(), h2, hPadding, topText, textFill, VPos.CENTER, TextAlignment.CENTER, gc);
+                    BarUtil.fillText(b.getMinX(), b.getMinY() + vPadding, b.getWidth(), h2, hPadding, topText, clipText, textFill, VPos.CENTER, TextAlignment.CENTER, gc);
                 }
                 if (hasBottomText) {
                     setFirstNonNullFont(bottomTextFont, textFont, gc);
-                    BarUtil.fillText(b.getMinX(), b.getMinY() + h2, b.getWidth(), h2 - vPadding, hPadding, bottomText, textFill, VPos.CENTER, TextAlignment.CENTER, gc);
+                    BarUtil.fillText(b.getMinX(), b.getMinY() + h2, b.getWidth(), h2 - vPadding, hPadding, bottomText, clipText, textFill, VPos.CENTER, TextAlignment.CENTER, gc);
                 }
             }
         }

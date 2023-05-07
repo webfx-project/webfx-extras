@@ -3,9 +3,9 @@
 module webfx.extras.canvas.layer {
 
     // Direct dependencies modules
+    requires java.base;
     requires javafx.graphics;
     requires webfx.extras.geometry;
-    requires webfx.extras.layer;
 
     // Exported packages
     exports dev.webfx.extras.canvas.layer;

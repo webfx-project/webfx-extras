@@ -27,7 +27,8 @@ public class GanttLayout<C, T extends Temporal> extends TimeLayoutBase<C, T> {
     private ParentRow<C, T> lastParentRow;
     private int rowsCountBeforeLastParentRow;
     private GrandparentRow lastGrandparentRow;
-    public double grandparentHeight = 80;
+    private double parentWidth;
+    private double grandparentHeight = 80;
 
     public GanttLayout() {
         setTimeProjector((time, start, exclusive) -> {
@@ -49,6 +50,22 @@ public class GanttLayout<C, T extends Temporal> extends TimeLayoutBase<C, T> {
 
     public void setChildGrandparentReader(Function<C, ?> childGrandparentReader) {
         this.childGrandparentReader = childGrandparentReader;
+    }
+
+    public double getParentWidth() {
+        return parentWidth;
+    }
+
+    public void setParentWidth(double parentWidth) {
+        this.parentWidth = parentWidth;
+    }
+
+    public double getGrandparentHeight() {
+        return grandparentHeight;
+    }
+
+    public void setGrandparentHeight(double grandparentHeight) {
+        this.grandparentHeight = grandparentHeight;
     }
 
     public boolean isTetrisPacking() {
@@ -84,7 +101,6 @@ public class GanttLayout<C, T extends Temporal> extends TimeLayoutBase<C, T> {
         ParentRow<C, T> parentRow = getOrCreateParentRow(parent);
         LayoutBounds pp = parentRow.rowPosition; // Not parentRow.getRowPosition() as this would update dirty height (not the right time to do it yet)
         if (parentRow != lastParentRow) {
-            //pp.setWidth(getWidth()); // We actually don't want to be the whole width. Will be set later by ParentsCanvasRefresher TODO: add a parent width parameter in GanttLayout
             if (lastParentRow == null)
                 pp.setY(getTopY());
             else {

@@ -76,7 +76,8 @@ public final class ParentsCanvasRefresher {
                 (List<ParentRow<?, ?>>) parentRows,
                 i -> getParentRowPosition(parentRows, i),
                 drawingArea, 0, lastVirtualViewPortY,
-                (parentRow, p, gc1) -> parentDrawer.drawChild(parentRow.getParent(), p, gc1), gc);
+                (parentRow, b, gc2) -> parentDrawer.drawChild(parentRow.getParent(), b, gc2)
+                , gc);
     }
 
     private LayoutBounds getParentRowPosition(List<? extends ParentRow<?, ?>> parentRows, int i) {
@@ -89,4 +90,7 @@ public final class ParentsCanvasRefresher {
         refreshCanvas(lastVirtualCanvasWidth, lastVirtualCanvasHeight, lastVirtualViewPortY, false);
     }
 
+    double getLastVirtualViewPortY() {
+        return lastVirtualViewPortY;
+    }
 }

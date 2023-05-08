@@ -1,11 +1,11 @@
 package dev.webfx.extras.time.layout.gantt.canvas;
 
-import dev.webfx.extras.time.layout.LayoutBounds;
 import dev.webfx.extras.canvas.layer.ChildDrawer;
+import dev.webfx.extras.time.layout.LayoutBounds;
+import dev.webfx.extras.time.layout.TimeLayoutUtil;
+import dev.webfx.extras.time.layout.gantt.GanttLayout;
 import dev.webfx.extras.time.layout.gantt.GrandparentRow;
 import dev.webfx.extras.time.layout.gantt.ParentRow;
-import dev.webfx.extras.time.layout.canvas.TimeCanvasDrawer;
-import dev.webfx.extras.time.layout.gantt.GanttLayout;
 import javafx.geometry.BoundingBox;
 import javafx.geometry.Bounds;
 import javafx.scene.canvas.Canvas;
@@ -72,12 +72,11 @@ public final class ParentsCanvasRefresher {
     }
 
     private void drawParentRows(List<? extends ParentRow<?, ?>> parentRows, GraphicsContext gc) {
-        TimeCanvasDrawer.drawVisibleChildren(
+        TimeLayoutUtil.processVisibleChildren(
                 (List<ParentRow<?, ?>>) parentRows,
                 i -> getParentRowPosition(parentRows, i),
                 drawingArea, 0, lastVirtualViewPortY,
-                (parentRow, b, gc2) -> parentDrawer.drawChild(parentRow.getParent(), b, gc2)
-                , gc);
+                (parentRow, b) -> parentDrawer.drawChild(parentRow.getParent(), b, gc));
     }
 
     private LayoutBounds getParentRowPosition(List<? extends ParentRow<?, ?>> parentRows, int i) {

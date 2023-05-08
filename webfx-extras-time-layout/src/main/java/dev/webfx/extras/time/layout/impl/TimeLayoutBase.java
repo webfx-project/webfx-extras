@@ -2,6 +2,7 @@ package dev.webfx.extras.time.layout.impl;
 
 import dev.webfx.extras.time.layout.LayoutBounds;
 import dev.webfx.extras.time.layout.TimeLayout;
+import dev.webfx.extras.time.layout.TimeLayoutUtil;
 import dev.webfx.extras.time.window.impl.ListenableTimeWindowImpl;
 import dev.webfx.extras.util.DirtyMarker;
 import javafx.beans.property.*;
@@ -9,8 +10,10 @@ import javafx.beans.value.ObservableIntegerValue;
 import javafx.collections.FXCollections;
 import javafx.collections.ListChangeListener;
 import javafx.collections.ObservableList;
+import javafx.geometry.Bounds;
 
 import java.util.List;
+import java.util.function.BiConsumer;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -309,4 +312,15 @@ public abstract class TimeLayoutBase<C, T> extends ListenableTimeWindowImpl<T> i
         return null;
     }
 
+    @Override
+    public void processVisibleChildren(Bounds visibleArea, double layoutOriginX, double layoutOriginY, BiConsumer<C, LayoutBounds> childProcessor) {
+        if (!isVisible())
+            return;
+        layoutIfDirty(); // ensuring the layout is done
+        processVisibleChildrenNow(visibleArea, layoutOriginX, layoutOriginY, childProcessor);
+    }
+
+    protected void processVisibleChildrenNow(Bounds visibleArea, double layoutOriginX, double layoutOriginY, BiConsumer<C, LayoutBounds> childProcessor) {
+        TimeLayoutUtil.processVisibleChildren(getChildren(), this::getChildPosition, visibleArea, layoutOriginX, layoutOriginY, childProcessor);
+    }
 }

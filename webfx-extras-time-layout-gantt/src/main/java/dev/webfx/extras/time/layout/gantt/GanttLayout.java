@@ -1,8 +1,10 @@
 package dev.webfx.extras.time.layout.gantt;
 
 import dev.webfx.extras.time.layout.LayoutBounds;
+import dev.webfx.extras.time.layout.TimeLayoutUtil;
 import dev.webfx.extras.time.layout.impl.TimeLayoutBase;
 import javafx.collections.ListChangeListener;
+import javafx.geometry.Bounds;
 
 import java.time.temporal.ChronoUnit;
 import java.time.temporal.Temporal;
@@ -10,6 +12,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.function.BiConsumer;
 import java.util.function.Function;
 
 /**
@@ -98,7 +101,7 @@ public class GanttLayout<C, T extends Temporal> extends TimeLayoutBase<C, T> {
     @Override
     protected void updateChildPositionExtended(int childIndex, LayoutBounds cp, C child, T startTime, T endTime, double startX, double endX) {
         Object parent = childParentReader == null ? null : childParentReader.apply(child);
-        ParentRow<C, T> parentRow = getOrCreateParentRow(parent);
+        ParentRow<C, T> parentRow = getOrCreateParentRow(parent, childIndex);
         LayoutBounds pp = parentRow.rowPosition; // Not parentRow.getRowPosition() as this would update dirty height (not the right time to do it yet)
         if (parentRow != lastParentRow) {
             if (lastParentRow == null)
@@ -141,10 +144,13 @@ public class GanttLayout<C, T extends Temporal> extends TimeLayoutBase<C, T> {
         return lastParentRow.getRowPosition().getMaxY() - getTopY();
     }
 
-    private ParentRow<C, T> getOrCreateParentRow(Object parent) {
+    private ParentRow<C, T> getOrCreateParentRow(Object parent, int childIndex) {
         ParentRow<C, T> parentRow = childToParentRowMap.get(parent);
         if (parentRow == null)
             childToParentRowMap.put(parent, parentRow = new ParentRow<>(parent, this));
+        if (parentRow.firstChildIndex == -1)
+            parentRow.firstChildIndex = childIndex;
+        parentRow.lastChildIndex = childIndex;
         if (parentRows.isEmpty() || parentRows.get(parentRows.size() - 1) != parentRow)
             parentRows.add(parentRow);
         return parentRow;
@@ -167,5 +173,20 @@ public class GanttLayout<C, T extends Temporal> extends TimeLayoutBase<C, T> {
 
     public List<GrandparentRow> getGrandparentRows() {
         return grandparentRows;
+    }
+
+    @Override
+    public void processVisibleChildrenNow(Bounds visibleArea, double layoutOriginX, double layoutOriginY, BiConsumer<C, LayoutBounds> childProcessor) {
+        for (ParentRow<C, T> parentRow : parentRows) {
+            LayoutBounds pp = parentRow.getRowPosition();
+            if (pp.getY() - layoutOriginY > visibleArea.getMaxY())
+                break;
+            if (pp.getMaxY() - layoutOriginY < visibleArea.getMinY())
+                continue;
+            TimeLayoutUtil.processVisibleChildren(
+                    parentRow.getChildren(),
+                    parentRow::getChildPosition,
+                    visibleArea, layoutOriginX, layoutOriginY, childProcessor);
+        }
     }
 }

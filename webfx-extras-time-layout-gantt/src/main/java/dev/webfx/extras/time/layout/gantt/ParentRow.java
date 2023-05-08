@@ -17,6 +17,8 @@ public final class ParentRow<C, T extends Temporal> {
     private boolean emptyRowsRemovalRequired;
     private GrandparentRow grandparentRow;
     final LayoutBounds rowPosition = new LayoutBounds();
+    int firstChildIndex = -1;
+    int lastChildIndex = -1;
 
     public ParentRow(Object parent, GanttLayout<C, T> ganttLayout) {
         this.parent = parent;
@@ -74,12 +76,13 @@ public final class ParentRow<C, T extends Temporal> {
     }
 
     void cleanCache(List<C> children) {
+        firstChildIndex = lastChildIndex = -1;
         // Cleaning cache from children that are no longer listed
         for (Iterator<Map.Entry<C, ChildBlock<T>>> it = cache.entrySet().iterator(); it.hasNext(); ) {
             Map.Entry<C, ChildBlock<T>> entry = it.next();
             C cacheChild = entry.getKey();
             ChildBlock<T> cacheBlock = entry.getValue();
-            // Fast check (when the child index remains the same)
+             // Fast check (when the child index remains the same)
             if (cacheBlock.childIndex < children.size() && children.get(cacheBlock.childIndex) == cacheChild)
                 continue;
             // Slower check (when the child index changed)
@@ -134,6 +137,17 @@ public final class ParentRow<C, T extends Temporal> {
             rowPosition.setValid(true);
         }
         return rowPosition;
+    }
+
+    List<C> getChildren() {
+        List<C> children = ganttLayout.getChildren();
+        int fromIndex = Math.min(firstChildIndex, children.size());
+        int toIndex = Math.min(lastChildIndex + 1, children.size());
+        return children.subList(fromIndex, toIndex);
+    }
+
+    LayoutBounds getChildPosition(int i) {
+        return ganttLayout.getChildPosition(firstChildIndex + i);
     }
 
 }

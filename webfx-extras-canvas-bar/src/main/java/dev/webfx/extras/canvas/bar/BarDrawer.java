@@ -22,56 +22,69 @@ public class BarDrawer {
     private Paint textFill;
     private boolean clipText = true;
 
-    public void sethPadding(double hPadding) {
+    public BarDrawer sethPadding(double hPadding) {
         this.hPadding = hPadding;
+        return this;
     }
 
-    public void setRadius(double radius) {
+    public BarDrawer setRadius(double radius) {
         this.radius = radius;
+        return this;
     }
 
-    public void setBackgroundFill(Paint backgroundFill) {
+    public BarDrawer setBackgroundFill(Paint backgroundFill) {
         this.backgroundFill = backgroundFill;
+        return this;
     }
 
-    public void setStroke(Paint stroke) {
+    public BarDrawer setStroke(Paint stroke) {
         this.stroke = stroke;
+        return this;
     }
 
-    public void setTopText(String topText) {
+    public BarDrawer setTopText(String topText) {
         this.topText = topText;
+        return this;
     }
 
-    public void setMiddleText(String middleText) {
+    public BarDrawer setMiddleText(String middleText) {
         this.middleText = middleText;
+        return this;
     }
 
-    public void setBottomText(String bottomText) {
+    public BarDrawer setBottomText(String bottomText) {
         this.bottomText = bottomText;
+        return this;
     }
 
-    public void setTextFont(Font textFont) {
+    public BarDrawer setTextFont(Font textFont) {
         this.textFont = textFont;
+        return this;
     }
 
-    public void setTopTextFont(Font topTextFont) {
+    public BarDrawer setTopTextFont(Font topTextFont) {
         this.topTextFont = topTextFont;
+        return this;
     }
 
-    public void setMiddleTextFont(Font middleTextFont) {
+    public BarDrawer setMiddleTextFont(Font middleTextFont) {
         this.middleTextFont = middleTextFont;
+        return this;
     }
 
-    public void setBottomTextFont(Font bottomTextFont) {
+    public BarDrawer setBottomTextFont(Font bottomTextFont) {
         this.bottomTextFont = bottomTextFont;
+        return this;
     }
 
-    public void setTextFill(Paint textFill) {
+    public BarDrawer setTextFill(Paint textFill) {
         this.textFill = textFill;
+        return this;
     }
 
-    public void setClipText(boolean clipText) {
+    public BarDrawer setClipText(boolean clipText) {
         this.clipText = clipText;
+        return this;
     }
 
     public void drawBar(Bounds b, GraphicsContext gc) {

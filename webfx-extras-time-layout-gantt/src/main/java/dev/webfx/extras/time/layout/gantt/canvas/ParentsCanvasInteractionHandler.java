@@ -14,13 +14,13 @@ public class ParentsCanvasInteractionHandler implements CanvasInteractionHandler
 
     private final GanttLayout<?, ?> ganttLayout;
     private final CanvasDrawer childrenDrawer;
-    private final ParentsCanvasRefresher parentsCanvasRefresher;
+    private final ParentsCanvasDrawer parentsCanvasDrawer;
     private boolean draggingSlider;
 
-    public ParentsCanvasInteractionHandler(GanttLayout<?, ?> ganttLayout, CanvasDrawer childrenDrawer, ParentsCanvasRefresher parentsCanvasRefresher) {
+    public ParentsCanvasInteractionHandler(GanttLayout<?, ?> ganttLayout, CanvasDrawer childrenDrawer, ParentsCanvasDrawer parentsCanvasDrawer) {
         this.ganttLayout = ganttLayout;
         this.childrenDrawer = childrenDrawer;
-        this.parentsCanvasRefresher = parentsCanvasRefresher;
+        this.parentsCanvasDrawer = parentsCanvasDrawer;
     }
 
     private boolean isHoveringSlider(MouseEvent e, Canvas canvas) {
@@ -36,7 +36,7 @@ public class ParentsCanvasInteractionHandler implements CanvasInteractionHandler
     }
 
     private boolean isHoveringGrandparent(MouseEvent e) {
-        return ganttLayout.getGrandparentRows().stream().anyMatch(gr -> gr.getRowPosition().contains(0, e.getY() + parentsCanvasRefresher.getLastVirtualViewPortY()));
+        return ganttLayout.getGrandparentRows().stream().anyMatch(gr -> gr.getRowPosition().contains(0, e.getY() + parentsCanvasDrawer.getLastVirtualViewPortY()));
     }
 
     public boolean handleMouseMoved(MouseEvent e, Canvas canvas) {

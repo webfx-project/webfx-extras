@@ -15,6 +15,8 @@ import javafx.stage.Screen;
 public final class BarUtil {
 
     public static void fillRect(double x, double y, double width, double height, double hPadding, Paint fill, double radius, GraphicsContext gc) {
+        if (fill == null || fill == Color.TRANSPARENT)
+            return;
         gc.setFill(fill);
         if (hPadding > 0) {
             x += hPadding;
@@ -27,7 +29,7 @@ public final class BarUtil {
     }
 
     public static void strokeRect(double x, double y, double width, double height, double hPadding, Paint stroke, double radius, GraphicsContext gc) {
-        if (stroke == Color.TRANSPARENT)
+        if (stroke == null || stroke == Color.TRANSPARENT)
             return;
         gc.setStroke(stroke);
         gc.setLineWidth(1 / Screen.getPrimary().getOutputScaleX());

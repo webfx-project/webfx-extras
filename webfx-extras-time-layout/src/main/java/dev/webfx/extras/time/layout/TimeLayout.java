@@ -12,45 +12,45 @@ public interface TimeLayout<C, T> extends CanLayout,
 
     // Input methods
 
-     double getChildFixedHeight();
+    double getChildFixedHeight();
 
-    void setChildFixedHeight(double childFixedHeight);
+    TimeLayout<C, T> setChildFixedHeight(double childFixedHeight);
 
     boolean isFillHeight();
 
-    void setFillHeight(boolean fillHeight);
+    TimeLayout<C, T> setFillHeight(boolean fillHeight);
 
     double getTopY();
 
-    void setTopY(double topY);
+    TimeLayout<C, T> setTopY(double topY);
 
     double getHSpacing();
 
-    void setHSpacing(double hSpacing);
+    TimeLayout<C, T> setHSpacing(double hSpacing);
 
     double getVSpacing();
 
-    void setVSpacing(double vSpacing);
+    TimeLayout<C, T> setVSpacing(double vSpacing);
 
-    default void setInclusiveChildStartTimeReader(Function<C, T> startTimeReader) {
-        setChildStartTimeReader(startTimeReader, false);
+    default TimeLayout<C, T> setInclusiveChildStartTimeReader(Function<C, T> startTimeReader) {
+        return setChildStartTimeReader(startTimeReader, false);
     }
 
-    default void setExclusiveChildStartTimeReader(Function<C, T> startTimeReader) {
-        setChildStartTimeReader(startTimeReader, true);
+    default TimeLayout<C, T> setExclusiveChildStartTimeReader(Function<C, T> startTimeReader) {
+        return setChildStartTimeReader(startTimeReader, true);
     }
 
-    void setChildStartTimeReader(Function<C, T> startTimeReader, boolean exclusive);
+    TimeLayout<C, T> setChildStartTimeReader(Function<C, T> startTimeReader, boolean exclusive);
 
-    default void setInclusiveChildEndTimeReader(Function<C, T> endTimeReader) {
-        setChildEndTimeReader(endTimeReader, false);
+    default TimeLayout<C, T> setInclusiveChildEndTimeReader(Function<C, T> endTimeReader) {
+        return setChildEndTimeReader(endTimeReader, false);
     }
 
-    default void setExclusiveChildEndTimeReader(Function<C, T> endTimeReader) {
-        setChildEndTimeReader(endTimeReader, true);
+    default TimeLayout<C, T> setExclusiveChildEndTimeReader(Function<C, T> endTimeReader) {
+        return setChildEndTimeReader(endTimeReader, true);
     }
 
-    void setChildEndTimeReader(Function<C, T> childEndTimeReader, boolean exclusive);
+    TimeLayout<C, T> setChildEndTimeReader(Function<C, T> childEndTimeReader, boolean exclusive);
 
     // Output methods
 

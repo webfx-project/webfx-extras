@@ -96,15 +96,17 @@ public abstract class TimeLayoutBase<C, T> extends ListenableTimeWindowImpl<T> i
     }
 
     @Override
-    public void setChildStartTimeReader(Function<C, T> startTimeReader, boolean exclusive) {
+    public TimeLayoutBase<C, T> setChildStartTimeReader(Function<C, T> startTimeReader, boolean exclusive) {
         this.childStartTimeReader = startTimeReader;
         childStartTimeExclusive = exclusive;
+        return this;
     }
 
     @Override
-    public void setChildEndTimeReader(Function<C, T> childEndTimeReader, boolean exclusive) {
+    public TimeLayoutBase<C, T> setChildEndTimeReader(Function<C, T> childEndTimeReader, boolean exclusive) {
         this.childEndTimeReader = childEndTimeReader;
         childEndTimeExclusive = exclusive;
+        return this;
     }
 
     @Override
@@ -113,8 +115,9 @@ public abstract class TimeLayoutBase<C, T> extends ListenableTimeWindowImpl<T> i
     }
 
     @Override
-    public void setChildFixedHeight(double childFixedHeight) {
+    public TimeLayoutBase<C, T> setChildFixedHeight(double childFixedHeight) {
         this.childFixedHeight = childFixedHeight;
+        return this;
     }
 
     @Override
@@ -123,8 +126,9 @@ public abstract class TimeLayoutBase<C, T> extends ListenableTimeWindowImpl<T> i
     }
 
     @Override
-    public void setFillHeight(boolean fillHeight) {
+    public TimeLayoutBase<C, T> setFillHeight(boolean fillHeight) {
         this.fillHeight = fillHeight;
+        return this;
     }
 
     @Override
@@ -133,8 +137,9 @@ public abstract class TimeLayoutBase<C, T> extends ListenableTimeWindowImpl<T> i
     }
 
     @Override
-    public void setTopY(double topY) {
+    public TimeLayoutBase<C, T> setTopY(double topY) {
         this.topY = topY;
+        return this;
     }
 
     @Override
@@ -143,8 +148,9 @@ public abstract class TimeLayoutBase<C, T> extends ListenableTimeWindowImpl<T> i
     }
 
     @Override
-    public void setHSpacing(double hSpacing) {
+    public TimeLayoutBase<C, T> setHSpacing(double hSpacing) {
         this.hSpacing = hSpacing;
+        return this;
     }
 
     @Override
@@ -153,8 +159,9 @@ public abstract class TimeLayoutBase<C, T> extends ListenableTimeWindowImpl<T> i
     }
 
     @Override
-    public void setVSpacing(double vSpacing) {
+    public TimeLayoutBase<C, T> setVSpacing(double vSpacing) {
         this.vSpacing = vSpacing;
+        return this;
     }
 
     @Override
@@ -238,8 +245,9 @@ public abstract class TimeLayoutBase<C, T> extends ListenableTimeWindowImpl<T> i
         return timeProjector;
     }
 
-    public void setTimeProjector(TimeProjector<T> timeProjector) {
+    public TimeLayoutBase<C, T> setTimeProjector(TimeProjector<T> timeProjector) {
         this.timeProjector = timeProjector;
+        return this;
     }
 
     // Empty default implementation but can be override (ex: GanttLayout)
@@ -284,8 +292,9 @@ public abstract class TimeLayoutBase<C, T> extends ListenableTimeWindowImpl<T> i
     }
 
     @Override
-    public void setSelectionEnabled(boolean selectionEnabled) {
+    public TimeLayoutBase<C, T> setSelectionEnabled(boolean selectionEnabled) {
         this.childSelectionEnabled = selectionEnabled;
+        return this;
     }
 
     @Override

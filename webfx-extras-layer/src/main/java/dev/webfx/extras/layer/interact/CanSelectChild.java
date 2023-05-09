@@ -7,7 +7,7 @@ import javafx.beans.property.ObjectProperty;
  */
 public interface CanSelectChild<T> {
 
-    void setSelectionEnabled(boolean selectionEnabled);
+    CanSelectChild<T> setSelectionEnabled(boolean selectionEnabled);
 
     boolean isSelectionEnabled();
 

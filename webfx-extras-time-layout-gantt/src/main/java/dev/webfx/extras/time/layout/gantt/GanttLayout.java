@@ -47,36 +47,41 @@ public class GanttLayout<C, T extends Temporal> extends TimeLayoutBase<C, T> {
         });
     }
 
-    public void setChildParentReader(Function<C, ?> childParentReader) {
+    public GanttLayout<C, T> setChildParentReader(Function<C, ?> childParentReader) {
         this.childParentReader = childParentReader;
+        return this;
     }
 
-    public void setChildGrandparentReader(Function<C, ?> childGrandparentReader) {
+    public GanttLayout<C, T> setChildGrandparentReader(Function<C, ?> childGrandparentReader) {
         this.childGrandparentReader = childGrandparentReader;
+        return this;
     }
 
     public double getParentWidth() {
         return parentWidth;
     }
 
-    public void setParentWidth(double parentWidth) {
+    public GanttLayout<C, T> setParentWidth(double parentWidth) {
         this.parentWidth = parentWidth;
+        return this;
     }
 
     public double getGrandparentHeight() {
         return grandparentHeight;
     }
 
-    public void setGrandparentHeight(double grandparentHeight) {
+    public GanttLayout<C, T> setGrandparentHeight(double grandparentHeight) {
         this.grandparentHeight = grandparentHeight;
+        return this;
     }
 
     public boolean isTetrisPacking() {
         return tetrisPacking;
     }
 
-    public void setTetrisPacking(boolean tetrisPacking) {
+    public GanttLayout<C, T> setTetrisPacking(boolean tetrisPacking) {
         this.tetrisPacking = tetrisPacking;
+        return this;
     }
 
     @Override

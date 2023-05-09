@@ -121,8 +121,9 @@ public class MultilayerTimeLayoutImpl<T> extends ListenableTimeWindowImpl<T> imp
     }
 
     @Override
-    public void setSelectionEnabled(boolean selectionEnabled) {
+    public MultilayerTimeLayoutImpl<T> setSelectionEnabled(boolean selectionEnabled) {
         this.childSelectionEnabled = selectionEnabled;
+        return this;
     }
 
     @Override

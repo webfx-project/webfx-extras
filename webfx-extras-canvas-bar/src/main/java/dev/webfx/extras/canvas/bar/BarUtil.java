@@ -62,16 +62,8 @@ public final class BarUtil {
         boolean textWider = textBounds.getWidth() + 2 * hTextPadding > visibleBarWidth;
         // Clipping the text when it is wider than the visible bar. Note: adding a clip path makes all canvas operation
         // much slower, so it's good to skip that step when not necessary (ie when the text is not wider than the bar).
-        if (clipText && textWider) {
-            gc.beginPath();
-            gc.moveTo(x, y);
-            gc.lineTo(x + width, y);
-            gc.lineTo(x + width, y + height);
-            gc.lineTo(x, y + height);
-            gc.lineTo(x, y);
-            gc.closePath();
-            gc.clip();
-        }
+        if (clipText && textWider)
+            clipRect(x, y, width, height, gc);
         gc.setFill(fill);
         gc.setTextBaseline(baseline);
         // TODO: comment these different cases
@@ -129,5 +121,16 @@ public final class BarUtil {
 
     public static void fillCenterText(Bounds b, double hPadding, String text, boolean clipText, Paint fill, GraphicsContext gc) {
         fillText(b, hPadding, text, clipText, fill, VPos.CENTER, TextAlignment.CENTER, gc);
+    }
+
+    public static void clipRect(double x, double y, double width, double height, GraphicsContext gc) {
+        gc.beginPath();
+        gc.moveTo(x, y);
+        gc.lineTo(x + width, y);
+        gc.lineTo(x + width, y + height);
+        gc.lineTo(x, y + height);
+        gc.lineTo(x, y);
+        gc.closePath();
+        gc.clip();
     }
 }

@@ -4,6 +4,7 @@ import dev.webfx.extras.geometry.Bounds;
 import dev.webfx.extras.geometry.FXBoundsWrapper;
 import javafx.geometry.VPos;
 import javafx.scene.canvas.GraphicsContext;
+import javafx.scene.image.Image;
 import javafx.scene.paint.Paint;
 import javafx.scene.text.Font;
 import javafx.scene.text.TextAlignment;
@@ -21,6 +22,7 @@ public class BarDrawer {
     private Font textFont, topTextFont, middleTextFont, bottomTextFont;
     private Paint textFill;
     private boolean clipText = true;
+    private Image image;
 
     public BarDrawer sethPadding(double hPadding) {
         this.hPadding = hPadding;
@@ -87,11 +89,22 @@ public class BarDrawer {
         return this;
     }
 
+    public BarDrawer setImage(Image image) {
+        this.image = image;
+        return this;
+    }
+
     public void drawBar(Bounds b, GraphicsContext gc) {
         if (stroke != null)
             BarUtil.fillStrokeRect(b, hPadding, backgroundFill, stroke, radius, gc);
         else
             BarUtil.fillRect(b, hPadding, backgroundFill, radius, gc);
+        if (image != null) {
+            gc.save();
+            BarUtil.clipRect(b.getMinX() + hPadding, b.getMinY(), b.getWidth() - 2 * hPadding, b.getHeight(), gc);
+            gc.drawImage(image, b.getMaxX() - hPadding - image.getWidth() / 2, b.getMinY() - image.getHeight() / 2);
+            gc.restore();
+        }
         boolean hasMiddleText = middleText != null, hasTopText = topText != null, hasBottomText = bottomText != null, hasTopOrBottomText = hasTopText || hasBottomText, hasText = hasMiddleText || hasTopOrBottomText;
         if (hasText && (!clipText || getTextAreaWidth(b) > 5)) { // Unnecessary to draw text when doesn't fit (this skip makes a big performance improvement on big zoom out over many events - because the text clip operation is time-consuming)
             if (hasMiddleText) {

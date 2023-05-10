@@ -67,7 +67,9 @@ public final class BarUtil {
         gc.setFill(fill);
         gc.setTextBaseline(baseline);
         // TODO: comment these different cases
-        if (x < 0 && x + width > 0) {
+        if (!clipText)
+            textAlignment = TextAlignment.CENTER;
+        else if (x < 0 && x + width > 0) {
             if (textWider) {
                 x = x + width - hTextPadding;
                 textAlignment = TextAlignment.RIGHT;

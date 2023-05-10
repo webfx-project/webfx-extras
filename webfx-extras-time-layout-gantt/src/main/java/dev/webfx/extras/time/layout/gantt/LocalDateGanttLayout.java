@@ -2,7 +2,7 @@ package dev.webfx.extras.time.layout.gantt;
 
 import dev.webfx.extras.time.TimeUtil;
 import dev.webfx.extras.time.YearWeek;
-import dev.webfx.extras.time.layout.impl.TimeProjector;
+import dev.webfx.extras.time.layout.TimeProjector;
 
 import java.time.LocalDate;
 import java.time.Year;
@@ -15,6 +15,11 @@ import java.util.function.Function;
 public final class LocalDateGanttLayout<C> extends GanttLayout<C, LocalDate> {
 
     // Final casts for the fluent API
+
+    @Override
+    public LocalDateGanttLayout<C> setChildTetrisMinWidthReader(Function<C, Double> childTetrisMinWidthReader) {
+        return (LocalDateGanttLayout<C>) super.setChildTetrisMinWidthReader(childTetrisMinWidthReader);
+    }
 
     @Override
     public LocalDateGanttLayout<C> setChildParentReader(Function<C, ?> childParentReader) {

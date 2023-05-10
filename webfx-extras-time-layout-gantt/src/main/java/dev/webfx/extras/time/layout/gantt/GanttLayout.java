@@ -154,6 +154,16 @@ public class GanttLayout<C, T extends Temporal> extends TimeLayoutBase<C, T> {
             }
         }
         parentRow.setGrandparentRow(lastGrandparentRow);
+        // Adjusting the values to pass to the parent row if childTetrisMinWidthReader is set
+        if (childTetrisMinWidthReader != null) {
+            double minWidth = childTetrisMinWidthReader.apply(child);
+            if (endX - startX < minWidth) {
+                startX = (startX + endX) / 2 - minWidth / 2;
+                endX = startX + minWidth;
+                startTime = getTimeProjector().xToTime(startX);
+                endTime = getTimeProjector().xToTime(endX);
+            }
+        }
         int rowIndexInParentRow = parentRow.computeChildRowIndex(childIndex, child, startTime, endTime, startX, endX, getWidth());
         int rowIndex = rowsCountBeforeLastParentRow + rowIndexInParentRow;
         cp.setRowIndex(rowIndex);

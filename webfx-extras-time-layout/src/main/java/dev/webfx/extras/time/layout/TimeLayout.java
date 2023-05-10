@@ -8,6 +8,7 @@ import java.util.function.Function;
 
 public interface TimeLayout<C, T> extends CanLayout,
         ListenableTimeWindow<T>,
+        HasTimeProjector<T>,
         InteractiveLayer<C> {
 
     // Input methods

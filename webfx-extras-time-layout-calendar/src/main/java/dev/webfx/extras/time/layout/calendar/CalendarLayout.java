@@ -1,6 +1,7 @@
 package dev.webfx.extras.time.layout.calendar;
 
 import dev.webfx.extras.time.layout.impl.TimeLayoutBase;
+import dev.webfx.extras.time.layout.TimeProjector;
 import dev.webfx.platform.util.Dates;
 
 import java.time.*;
@@ -11,18 +12,26 @@ import java.time.*;
 public class CalendarLayout<C, T> extends TimeLayoutBase<C, T> {
 
     public CalendarLayout() {
-        setTimeProjector((time, start, exclusive) -> {
-            DayOfWeek dayOfWeek;
-            if (time instanceof DayOfWeek)
-                dayOfWeek = (DayOfWeek) time;
-            else {
-                LocalDate localDate = timeToLocalDate(time);
-                dayOfWeek = localDate.getDayOfWeek();
+        setTimeProjector(new TimeProjector<T>() {
+            @Override
+            public double timeToX(T time, boolean start, boolean exclusive) {
+                DayOfWeek dayOfWeek;
+                if (time instanceof DayOfWeek)
+                    dayOfWeek = (DayOfWeek) time;
+                else {
+                    LocalDate localDate = timeToLocalDate(time);
+                    dayOfWeek = localDate.getDayOfWeek();
+                }
+                int dayOfWeekColumn = getDayOfWeekColumn(dayOfWeek);
+                if (start && exclusive || !start && !exclusive)
+                    dayOfWeekColumn++;
+                return dayOfWeekColumn * getWidth() / 7;
             }
-            int dayOfWeekColumn = getDayOfWeekColumn(dayOfWeek);
-            if (start && exclusive || !start && !exclusive)
-                dayOfWeekColumn++;
-            return dayOfWeekColumn * getWidth() / 7;
+
+            @Override
+            public T xToTime(double x) {
+                return null;
+            }
         });
         javafx.collections.ObservableList<C> children = null; // This is just to force the WebFX CLI to add the dependency to javafx-base
     }

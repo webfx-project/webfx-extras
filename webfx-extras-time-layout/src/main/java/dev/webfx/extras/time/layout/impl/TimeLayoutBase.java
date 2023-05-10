@@ -3,6 +3,7 @@ package dev.webfx.extras.time.layout.impl;
 import dev.webfx.extras.time.layout.LayoutBounds;
 import dev.webfx.extras.time.layout.TimeLayout;
 import dev.webfx.extras.time.layout.TimeLayoutUtil;
+import dev.webfx.extras.time.layout.TimeProjector;
 import dev.webfx.extras.time.window.impl.ListenableTimeWindowImpl;
 import dev.webfx.extras.util.DirtyMarker;
 import javafx.beans.property.*;
@@ -241,6 +242,7 @@ public abstract class TimeLayoutBase<C, T> extends ListenableTimeWindowImpl<T> i
         return childEndTimeReader.apply(child);
     }
 
+    @Override
     public TimeProjector<T> getTimeProjector() {
         return timeProjector;
     }

@@ -3,6 +3,7 @@ package dev.webfx.extras.time.layout.gantt;
 import dev.webfx.extras.time.layout.LayoutBounds;
 import dev.webfx.extras.time.layout.TimeLayoutUtil;
 import dev.webfx.extras.time.layout.impl.TimeLayoutBase;
+import dev.webfx.extras.time.layout.TimeProjector;
 import javafx.collections.ListChangeListener;
 import javafx.geometry.Bounds;
 
@@ -20,6 +21,7 @@ import java.util.function.Function;
  */
 public class GanttLayout<C, T extends Temporal> extends TimeLayoutBase<C, T> {
 
+    private Function<C, Double> childTetrisMinWidthReader;
     private Function<C, ?> childParentReader;
     private Function<C, ?> childGrandparentReader;
     private final Map<Object, ParentRow<C, T>> childToParentRowMap = new HashMap<>();
@@ -34,17 +36,35 @@ public class GanttLayout<C, T extends Temporal> extends TimeLayoutBase<C, T> {
     private double grandparentHeight = 80;
 
     public GanttLayout() {
-        setTimeProjector((time, start, exclusive) -> {
-            T timeWindowStart = getTimeWindowStart();
-            T timeWindowEnd = getTimeWindowEnd();
-            if (timeWindowStart == null || timeWindowEnd == null)
-                return 0;
-            long totalDays = timeWindowStart.until(timeWindowEnd, ChronoUnit.DAYS) + 1;
-            long daysToTime = timeWindowStart.until(time, ChronoUnit.DAYS);
-            if (start && exclusive || !start && !exclusive)
-                daysToTime++;
-            return getWidth() * daysToTime / totalDays;
+        setTimeProjector(new TimeProjector<T>() {
+            @Override
+            public double timeToX(T time, boolean start, boolean exclusive) {
+                T timeWindowStart = getTimeWindowStart();
+                T timeWindowEnd = getTimeWindowEnd();
+                if (timeWindowStart == null || timeWindowEnd == null)
+                    return 0;
+                long totalDays = timeWindowStart.until(timeWindowEnd, ChronoUnit.DAYS) + 1;
+                long daysToTime = timeWindowStart.until(time, ChronoUnit.DAYS);
+                if (start && exclusive || !start && !exclusive)
+                    daysToTime++;
+                return getWidth() * daysToTime / totalDays;
+            }
+
+            @Override
+            public T xToTime(double x) {
+                T timeWindowStart = getTimeWindowStart();
+                T timeWindowEnd = getTimeWindowEnd();
+                if (timeWindowStart == null || timeWindowEnd == null)
+                    return null;
+                long totalDays = timeWindowStart.until(timeWindowEnd, ChronoUnit.DAYS) + 1;
+                return (T) timeWindowStart.plus((long) (x * totalDays / getWidth()), ChronoUnit.DAYS);
+            }
         });
+    }
+
+    public GanttLayout<C, T> setChildTetrisMinWidthReader(Function<C, Double> childTetrisMinWidthReader) {
+        this.childTetrisMinWidthReader = childTetrisMinWidthReader;
+        return this;
     }
 
     public GanttLayout<C, T> setChildParentReader(Function<C, ?> childParentReader) {

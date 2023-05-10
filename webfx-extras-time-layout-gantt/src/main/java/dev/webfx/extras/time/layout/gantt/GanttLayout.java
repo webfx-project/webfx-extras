@@ -2,19 +2,19 @@ package dev.webfx.extras.time.layout.gantt;
 
 import dev.webfx.extras.time.layout.LayoutBounds;
 import dev.webfx.extras.time.layout.TimeLayoutUtil;
-import dev.webfx.extras.time.layout.impl.TimeLayoutBase;
 import dev.webfx.extras.time.layout.TimeProjector;
+import dev.webfx.extras.time.layout.impl.TimeLayoutBase;
+import javafx.collections.FXCollections;
 import javafx.collections.ListChangeListener;
+import javafx.collections.ObservableList;
 import javafx.geometry.Bounds;
 
 import java.time.temporal.ChronoUnit;
 import java.time.temporal.Temporal;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.function.BiConsumer;
 import java.util.function.Function;
+import java.util.stream.Collectors;
 
 /**
  * @author Bruno Salmon
@@ -24,11 +24,15 @@ public class GanttLayout<C, T extends Temporal> extends TimeLayoutBase<C, T> {
     private Function<C, Double> childTetrisMinWidthReader;
     private Function<C, ?> childParentReader;
     private Function<C, ?> childGrandparentReader;
+    private Function<Object, ?> parentGrandparentReader;
     private final Map<Object, ParentRow<C, T>> childToParentRowMap = new HashMap<>();
+    private final ObservableList<Object> parents = FXCollections.observableArrayList();
     private final List<ParentRow<C, T>> parentRows = new ArrayList<>();
     private final List<GrandparentRow> grandparentRows = new ArrayList<>();
+    private boolean parentsProvided;
     private boolean tetrisPacking;
     private boolean childrenChanged;
+    private boolean layoutCompleted;
     private ParentRow<C, T> lastParentRow;
     private int rowsCountBeforeLastParentRow;
     private GrandparentRow lastGrandparentRow;
@@ -36,7 +40,7 @@ public class GanttLayout<C, T extends Temporal> extends TimeLayoutBase<C, T> {
     private double grandparentHeight = 80;
 
     public GanttLayout() {
-        setTimeProjector(new TimeProjector<T>() {
+        setTimeProjector(new TimeProjector<>() {
             @Override
             public double timeToX(T time, boolean start, boolean exclusive) {
                 T timeWindowStart = getTimeWindowStart();
@@ -60,6 +64,21 @@ public class GanttLayout<C, T extends Temporal> extends TimeLayoutBase<C, T> {
                 return (T) timeWindowStart.plus((long) (x * totalDays / getWidth()), ChronoUnit.DAYS);
             }
         });
+        parents.addListener((ListChangeListener<Object>) c -> {
+            // If the parents are provided externally,
+            if (parentsProvided && !parentRows.isEmpty()) {
+                syncParentRowsFromParents();
+            }
+        });
+    }
+
+    public <P> ObservableList<P> getParents() {
+        return (ObservableList<P>) parents;
+    }
+
+    public GanttLayout<C, T> setParentsProvided(boolean parentsProvided) {
+        this.parentsProvided = parentsProvided;
+        return this;
     }
 
     public GanttLayout<C, T> setChildTetrisMinWidthReader(Function<C, Double> childTetrisMinWidthReader) {
@@ -74,6 +93,11 @@ public class GanttLayout<C, T extends Temporal> extends TimeLayoutBase<C, T> {
 
     public GanttLayout<C, T> setChildGrandparentReader(Function<C, ?> childGrandparentReader) {
         this.childGrandparentReader = childGrandparentReader;
+        return this;
+    }
+
+    public <P> GanttLayout<C, T> setParentGrandparentReader(Function<P, ?> parentGrandparentReader) {
+        this.parentGrandparentReader = (Function<Object, ?>) parentGrandparentReader;
         return this;
     }
 
@@ -121,6 +145,7 @@ public class GanttLayout<C, T extends Temporal> extends TimeLayoutBase<C, T> {
         lastGrandparentRow = null;
         grandparentRows.clear();
         rowsCountBeforeLastParentRow = 0;
+        layoutCompleted = false;
     }
 
     @Override
@@ -137,20 +162,20 @@ public class GanttLayout<C, T extends Temporal> extends TimeLayoutBase<C, T> {
             }
             pp.setValid(false); // height will be computed on next call to parentRow.getRowPosition()
             lastParentRow = parentRow;
-            if (childGrandparentReader != null) {
-                Object grandparent = childGrandparentReader.apply(child);
-                if (grandparent == null)
-                    lastGrandparentRow = null;
-                else if (lastGrandparentRow == null || grandparent != lastGrandparentRow.getGrandparent()) {
-                    GrandparentRow grandparentRow = new GrandparentRow(grandparent);
-                    LayoutBounds gp = grandparentRow.getRowPosition();
-                    gp.setY(pp.getY());
-                    gp.setHeight(grandparentHeight);
-                    grandparentRows.add(grandparentRow);
-                    lastGrandparentRow = grandparentRow;
-                    rowsCountBeforeLastParentRow++;
-                    pp.setY(gp.getMaxY());
-                }
+            Object grandparent =
+                    childGrandparentReader  != null ? childGrandparentReader .apply(child)  :
+                    parentGrandparentReader != null ? parentGrandparentReader.apply(parent) : null;
+            if (grandparent == null)
+                lastGrandparentRow = null;
+            else if (lastGrandparentRow == null || grandparent != lastGrandparentRow.getGrandparent()) {
+                GrandparentRow grandparentRow = new GrandparentRow(grandparent);
+                LayoutBounds gp = grandparentRow.getRowPosition();
+                gp.setY(pp.getY());
+                gp.setHeight(grandparentHeight);
+                grandparentRows.add(grandparentRow);
+                lastGrandparentRow = grandparentRow;
+                rowsCountBeforeLastParentRow++;
+                pp.setY(gp.getMaxY());
             }
         }
         parentRow.setGrandparentRow(lastGrandparentRow);
@@ -168,6 +193,38 @@ public class GanttLayout<C, T extends Temporal> extends TimeLayoutBase<C, T> {
         int rowIndex = rowsCountBeforeLastParentRow + rowIndexInParentRow;
         cp.setRowIndex(rowIndex);
         cp.setY(pp.getY() + rowIndexInParentRow * (getChildFixedHeight() + getVSpacing()));
+    }
+
+    @Override
+    protected void onAfterLayoutChildren() {
+        // If the parents are not provided externally, we populate them automatically from the parents (rows) collected
+        if (!parentsProvided)
+            syncParentsFromParentRows();
+        else if (!parents.isEmpty())
+            syncParentRowsFromParents();
+        // during the layout pass
+
+        layoutCompleted = true;
+    }
+
+    private void syncParentsFromParentRows() {
+        parents.setAll(parentRows.stream().map(ParentRow::getParent).collect(Collectors.toList()));
+    }
+
+    private void syncParentRowsFromParents() {
+        /*List<ParentRow<C, T>> newParentRows = parents.stream().map(this::syncParentRowFromParent).collect(Collectors.toList());
+        parentRows.clear();
+        parentRows.addAll(newParentRows);
+        if (parentGrandparentReader != null) {
+
+        }*/
+    }
+
+    private ParentRow<C, T> syncParentRowFromParent(Object parent) {
+        ParentRow<C, T> parentRow = parentRows.stream().filter(pr -> Objects.equals(parent, pr.getParent())).findFirst().orElse(null);
+        if (parentRow == null)
+            parentRow = new ParentRow<>(parent, this);
+        return parentRow;
     }
 
     @Override
@@ -195,8 +252,8 @@ public class GanttLayout<C, T extends Temporal> extends TimeLayoutBase<C, T> {
     // up-to-date.
     @Override
     public int getRowsCount() {
-        if (childrenChanged) // happens when children have just been modified, but their position is still invalid,
-            return grandparentRows.size() + super.getRowsCount(); // so we call the default implementation to update these positions (this will
+        if (!layoutCompleted) // happens when children have just been modified, but their position is still invalid,
+            super.getRowsCount(); // so we call the default implementation to update these positions (this will
         // update packedRows in the process through the successive calls to computeChildRowIndex()).
         // Otherwise, packedRows is up-to-date when reaching this point,
         return grandparentRows.size() + rowsCountBeforeLastParentRow + (lastParentRow == null ? 0 : lastParentRow.getRowsCount());
@@ -212,6 +269,10 @@ public class GanttLayout<C, T extends Temporal> extends TimeLayoutBase<C, T> {
 
     @Override
     public void processVisibleChildrenNow(Bounds visibleArea, double layoutOriginX, double layoutOriginY, BiConsumer<C, LayoutBounds> childProcessor) {
+        if (parentsProvided) {
+            super.processVisibleChildrenNow(visibleArea, layoutOriginX, layoutOriginY, childProcessor);
+            return;
+        }
         for (ParentRow<C, T> parentRow : parentRows) {
             LayoutBounds pp = parentRow.getRowPosition();
             if (pp.getY() - layoutOriginY > visibleArea.getMaxY())

@@ -140,6 +140,8 @@ public final class ParentRow<C, T extends Temporal> {
     }
 
     List<C> getChildren() {
+        if (firstChildIndex == -1)
+            return Collections.emptyList();
         List<C> children = ganttLayout.getChildren();
         int fromIndex = Math.min(firstChildIndex, children.size());
         int toIndex = Math.min(lastChildIndex + 1, children.size());

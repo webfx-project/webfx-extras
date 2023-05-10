@@ -208,6 +208,12 @@ public abstract class TimeLayoutBase<C, T> extends ListenableTimeWindowImpl<T> i
         }
     }
 
+    // Empty default implementation but can be override (ex: GanttLayout)
+    protected void onBeforeLayoutChildren() { }
+
+    // Empty default implementation but can be override (ex: GanttLayout)
+    protected void onAfterLayoutChildren() { }
+
     protected double computeHeight() {
         int rowsCount = getRowsCount();
         return rowsCount == 0 ? 0 : rowsCount * (childFixedHeight + vSpacing) - vSpacing;
@@ -222,6 +228,7 @@ public abstract class TimeLayoutBase<C, T> extends ListenableTimeWindowImpl<T> i
                 int rowIndex = cp.getRowIndex();
                 rowsCount = Math.max(rowsCount, rowIndex + 1);
             }
+            onAfterLayoutChildren();
         }
         return rowsCount;
     }
@@ -251,9 +258,6 @@ public abstract class TimeLayoutBase<C, T> extends ListenableTimeWindowImpl<T> i
         this.timeProjector = timeProjector;
         return this;
     }
-
-    // Empty default implementation but can be override (ex: GanttLayout)
-    protected void onBeforeLayoutChildren() { }
 
     protected void updateChildPosition(int childIndex, LayoutBounds cp) {
         C child = children.get(childIndex);

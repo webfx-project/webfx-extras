@@ -16,6 +16,12 @@ public final class LocalDateGanttLayout<C> extends GanttLayout<C, LocalDate> {
 
     // Final casts for the fluent API
 
+
+    @Override
+    public LocalDateGanttLayout<C> setParentsProvided(boolean parentsProvided) {
+        return (LocalDateGanttLayout<C>) super.setParentsProvided(parentsProvided);
+    }
+
     @Override
     public LocalDateGanttLayout<C> setChildTetrisMinWidthReader(Function<C, Double> childTetrisMinWidthReader) {
         return (LocalDateGanttLayout<C>) super.setChildTetrisMinWidthReader(childTetrisMinWidthReader);
@@ -29,6 +35,11 @@ public final class LocalDateGanttLayout<C> extends GanttLayout<C, LocalDate> {
     @Override
     public LocalDateGanttLayout<C> setChildGrandparentReader(Function<C, ?> childGrandparentReader) {
         return (LocalDateGanttLayout<C>) super.setChildGrandparentReader(childGrandparentReader);
+    }
+
+    @Override
+    public <P> LocalDateGanttLayout<C> setParentGrandparentReader(Function<P, ?> parentGrandparentReader) {
+        return (LocalDateGanttLayout<C>) super.setParentGrandparentReader(parentGrandparentReader);
     }
 
     @Override

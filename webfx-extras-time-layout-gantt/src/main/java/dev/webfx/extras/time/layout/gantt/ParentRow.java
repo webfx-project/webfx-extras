@@ -17,11 +17,13 @@ public final class ParentRow<C, T extends Temporal> {
     private boolean emptyRowsRemovalRequired;
     private GrandparentRow grandparentRow;
     final LayoutBounds rowPosition = new LayoutBounds();
+    int parentIndex; // not final, as this may change with provided parents mode
     int firstChildIndex = -1;
     int lastChildIndex = -1;
 
-    public ParentRow(Object parent, GanttLayout<C, T> ganttLayout) {
+    public ParentRow(Object parent, int parentIndex, GanttLayout<C, T> ganttLayout) {
         this.parent = parent;
+        this.parentIndex = parentIndex;
         this.ganttLayout = ganttLayout;
     }
 

@@ -37,7 +37,8 @@ public class GanttLayout<C, T extends Temporal> extends TimeLayoutBase<C, T> {
     private int rowsCountBeforeLastParentRow;
     private GrandparentRow lastGrandparentRow;
     private double parentWidth;
-    private double grandparentHeight = 80;
+    private double grandparentHeight = 80; // arbitrary non-null default value (so grandparent rows will appear even if
+    // the application code forgot to call setGrandparentHeight())
 
     public GanttLayout() {
         setTimeProjector(new TimeProjector<>() {
@@ -150,36 +151,56 @@ public class GanttLayout<C, T extends Temporal> extends TimeLayoutBase<C, T> {
 
     @Override
     protected void updateChildPositionExtended(int childIndex, LayoutBounds cp, C child, T startTime, T endTime, double startX, double endX) {
+        // Getting the parent from the child (if no getter is provided => 1 single parent = null)
         Object parent = childParentReader == null ? null : childParentReader.apply(child);
+        // Getting or creating the parent row associated (this call also updates firstChildIndex and lastChildIndex in ParentRow)
         ParentRow<C, T> parentRow = getOrCreateParentRow(parent, childIndex);
-        LayoutBounds pp = parentRow.rowPosition; // Not parentRow.getRowPosition() as this would update dirty height (not the right time to do it yet)
+        // Getting the row position of that parent row (not yet initialised if it was newly created)
+        LayoutBounds pp = parentRow.rowPosition; // Not parentRow.getRowPosition() as this would update dirty height (not ready yet for that)
+        // Because the children are supposed to be sorted by parent, a change in the parent row means we finished to
+        // populate the last parent row, so we now have all information to set its vertical position
         if (parentRow != lastParentRow) {
+            // If it was the first parent row, we set its vertical position to topY (a TimeLayout property)
             if (lastParentRow == null)
                 pp.setY(getTopY());
-            else {
+            else { // otherwise (if there was a previous row before)
+                // We set its vertical position to the bottom of the previous row
                 pp.setY(lastParentRow.getRowPosition().getMaxY());
+                // We also update rowsCountBeforeLastParentRow by adding the number of rows in that previous parent row
                 rowsCountBeforeLastParentRow += lastParentRow.getRowsCount();
             }
-            pp.setValid(false); // height will be computed on next call to parentRow.getRowPosition()
-            lastParentRow = parentRow;
+            // We also set the parent position in invalid state, which means the height needs to be computed on next
+            pp.setValid(false); // call to parentRow.getRowPosition()
+            // We finished with the last parent row (unless there is a change in grandparent - see below)
+            lastParentRow = parentRow; // so we now consider this parent row as the last for next time
+            // We are now checking if that parent row is under a new grandparent, as we will need to shift it down in
+            // that case. So first, we get that grandparent instance (if getter provided)
             Object grandparent =
                     childGrandparentReader  != null ? childGrandparentReader .apply(child)  :
                     parentGrandparentReader != null ? parentGrandparentReader.apply(parent) : null;
+            // If there is a change in the grandparent, we need to create a new grandparent row
             if (grandparent == null)
                 lastGrandparentRow = null;
-            else if (lastGrandparentRow == null || grandparent != lastGrandparentRow.getGrandparent()) {
+            else if (lastGrandparentRow == null || !Objects.equals(grandparent, lastGrandparentRow.getGrandparent())) {
+                // We create a new GrandparentRow instance for that new grandparent, and add it to the list
                 GrandparentRow grandparentRow = new GrandparentRow(grandparent);
-                LayoutBounds gp = grandparentRow.getRowPosition();
-                gp.setY(pp.getY());
-                gp.setHeight(grandparentHeight);
                 grandparentRows.add(grandparentRow);
-                lastGrandparentRow = grandparentRow;
-                rowsCountBeforeLastParentRow++;
+                // We get its row position instance, in order to set its vertical position and height
+                LayoutBounds gp = grandparentRow.getRowPosition();
+                // Its vertical position is the one computed so far for the parent row (that we will shift just after)
+                gp.setY(pp.getY());
+                // We set its height
+                gp.setHeight(grandparentHeight);
+                // We shift the parent row down (at the bottom of the new grandparent row)
                 pp.setY(gp.getMaxY());
+                // We finished with the last parent row (unless there is a change in grandparent - see below)
+                lastGrandparentRow = grandparentRow; // so we now consider this grandparent row as the last for next time
+                // Finally we increase rowsCountBeforeLastParentRow to count that new grandparent row
+                rowsCountBeforeLastParentRow++;
             }
         }
         parentRow.setGrandparentRow(lastGrandparentRow);
-        // Adjusting the values to pass to the parent row if childTetrisMinWidthReader is set
+        // Eventually adjusting the values to pass to the parent row if a childTetrisMinWidthReader is set
         if (childTetrisMinWidthReader != null) {
             double minWidth = childTetrisMinWidthReader.apply(child);
             if (endX - startX < minWidth) {
@@ -197,33 +218,63 @@ public class GanttLayout<C, T extends Temporal> extends TimeLayoutBase<C, T> {
 
     @Override
     protected void onAfterLayoutChildren() {
-        // If the parents are not provided externally, we populate them automatically from the parents (rows) collected
+        // If the parents are not provided externally, we populate them automatically (collected from the parents rows)
         if (!parentsProvided)
             syncParentsFromParentRows();
         else if (!parents.isEmpty())
             syncParentRowsFromParents();
-        // during the layout pass
-
         layoutCompleted = true;
     }
 
     private void syncParentsFromParentRows() {
-        parents.setAll(parentRows.stream().map(ParentRow::getParent).collect(Collectors.toList()));
+        //parents.setAll(parentRows.stream().map(ParentRow::getParent).collect(Collectors.toList()));
     }
 
     private void syncParentRowsFromParents() {
-        /*List<ParentRow<C, T>> newParentRows = parents.stream().map(this::syncParentRowFromParent).collect(Collectors.toList());
+        // We create a new list of parent rows that will have the same size and order as the provided parents. Therefore:
+        // 1) new empty parent rows may appear for parents that had no known children so far
+        // 2) existing parent rows may now be in a different order, so we need to update their vertical position
+        // 3) Some existing parent rows may disappear (if not listed again in the provided parent for any reason)
+        List<ParentRow<C, T>> newParentRows = parents.stream().map(this::syncParentRowFromParent).collect(Collectors.toList());
+        rowsCountBeforeLastParentRow += newParentRows.size() - parentRows.size();
+        // We now update the
+        lastParentRow = null;
+        lastGrandparentRow = null;
+        double y = getTopY();
+        for (int newParentIndex = 0; newParentIndex < newParentRows.size(); newParentIndex++) {
+            ParentRow<C, T> parentRow = newParentRows.get(newParentIndex);
+            LayoutBounds pp = parentRow.getRowPosition();
+            GrandparentRow grandparentRow = parentRow.getGrandparentRow();
+            if (grandparentRow != lastGrandparentRow) {
+                LayoutBounds gp = grandparentRow.getRowPosition();
+                gp.setY(y);
+                y = gp.getMaxY();
+                lastGrandparentRow = grandparentRow;
+            }
+            if (parentRow.parentIndex == -1) { // New empty parent row => we set it a height = 1 children height
+                pp.setHeight(getChildFixedHeight());
+            } else /*if (parentRow.parentIndex != newParentIndex)*/ {
+                double deltaY = y - pp.getY(); // TODO: deltaRow
+                if (deltaY != 0) {
+                    for (int childIndex = parentRow.firstChildIndex; childIndex <= parentRow.lastChildIndex; childIndex++) {
+                        LayoutBounds cp = getChildPosition(childIndex);
+                        cp.setY(cp.getY() + deltaY);
+                    }
+                }
+            }
+            pp.setY(y);
+            y += pp.getHeight();
+            parentRow.parentIndex = newParentIndex;
+            lastParentRow = parentRow;
+        }
         parentRows.clear();
         parentRows.addAll(newParentRows);
-        if (parentGrandparentReader != null) {
-
-        }*/
     }
 
     private ParentRow<C, T> syncParentRowFromParent(Object parent) {
         ParentRow<C, T> parentRow = parentRows.stream().filter(pr -> Objects.equals(parent, pr.getParent())).findFirst().orElse(null);
         if (parentRow == null)
-            parentRow = new ParentRow<>(parent, this);
+            parentRow = new ParentRow<>(parent, -1, this);
         return parentRow;
     }
 
@@ -238,8 +289,10 @@ public class GanttLayout<C, T extends Temporal> extends TimeLayoutBase<C, T> {
 
     private ParentRow<C, T> getOrCreateParentRow(Object parent, int childIndex) {
         ParentRow<C, T> parentRow = childToParentRowMap.get(parent);
-        if (parentRow == null)
-            childToParentRowMap.put(parent, parentRow = new ParentRow<>(parent, this));
+        if (parentRow == null) {
+            childToParentRowMap.put(parent, parentRow = new ParentRow<>(parent, parentRows.size(), this));
+            parentRows.add(parentRow);
+        }
         if (parentRow.firstChildIndex == -1)
             parentRow.firstChildIndex = childIndex;
         parentRow.lastChildIndex = childIndex;
@@ -269,10 +322,6 @@ public class GanttLayout<C, T extends Temporal> extends TimeLayoutBase<C, T> {
 
     @Override
     public void processVisibleChildrenNow(Bounds visibleArea, double layoutOriginX, double layoutOriginY, BiConsumer<C, LayoutBounds> childProcessor) {
-        if (parentsProvided) {
-            super.processVisibleChildrenNow(visibleArea, layoutOriginX, layoutOriginY, childProcessor);
-            return;
-        }
         for (ParentRow<C, T> parentRow : parentRows) {
             LayoutBounds pp = parentRow.getRowPosition();
             if (pp.getY() - layoutOriginY > visibleArea.getMaxY())

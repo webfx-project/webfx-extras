@@ -9,6 +9,7 @@ module webfx.extras.time.layout.gantt {
     requires webfx.extras.canvas;
     requires webfx.extras.canvas.layer;
     requires webfx.extras.canvas.pane;
+    requires webfx.extras.geometry;
     requires webfx.extras.time;
     requires transitive webfx.extras.time.layout;
     requires webfx.kit.util;
@@ -16,5 +17,6 @@ module webfx.extras.time.layout.gantt {
     // Exported packages
     exports dev.webfx.extras.time.layout.gantt;
     exports dev.webfx.extras.time.layout.gantt.canvas;
+    exports dev.webfx.extras.time.layout.gantt.impl;
 
 }

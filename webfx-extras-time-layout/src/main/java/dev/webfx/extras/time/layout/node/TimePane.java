@@ -1,6 +1,6 @@
 package dev.webfx.extras.time.layout.node;
 
-import dev.webfx.extras.time.layout.LayoutBounds;
+import dev.webfx.extras.geometry.Bounds;
 import dev.webfx.extras.time.layout.TimeLayout;
 import javafx.collections.ListChangeListener;
 import javafx.collections.ObservableList;
@@ -36,8 +36,8 @@ public class TimePane<C, T> extends Pane {
         ObservableList<Node> children = getChildren();
         for (int i = 0; i < children.size(); i++) {
             Node child = children.get(i);
-            LayoutBounds cp = timeLayout.getChildPosition(i);
-            layoutInArea(child, cp.getX(), cp.getY(), cp.getWidth(), cp.getHeight(), 0, HPos.CENTER, VPos.CENTER);
+            Bounds cp = timeLayout.getChildPosition(i);
+            layoutInArea(child, cp.getMinX(), cp.getMinY(), cp.getWidth(), cp.getHeight(), 0, HPos.CENTER, VPos.CENTER);
         }
     }
 
@@ -45,7 +45,7 @@ public class TimePane<C, T> extends Pane {
     protected double computePrefHeight(double width) {
         if (timeLayout.isFillHeight())
             return super.computePrefHeight(width);
-        return timeLayout.getRowsCount() * timeLayout.getChildFixedHeight();
+        return timeLayout.getHeight() ; // timeLayout.getTopY() + timeLayout.getRowsCount() * timeLayout.getChildFixedHeight();
 /*
         if (width == -1)
             width = getWidth();

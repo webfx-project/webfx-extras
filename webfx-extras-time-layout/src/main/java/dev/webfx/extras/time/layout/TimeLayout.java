@@ -1,6 +1,8 @@
 package dev.webfx.extras.time.layout;
 
+import dev.webfx.extras.geometry.Bounds;
 import dev.webfx.extras.layer.interact.InteractiveLayer;
+import dev.webfx.extras.time.layout.impl.LayoutBounds;
 import dev.webfx.extras.time.window.ListenableTimeWindow;
 
 import java.util.function.BiConsumer;
@@ -55,13 +57,13 @@ public interface TimeLayout<C, T> extends CanLayout,
 
     // Output methods
 
-    LayoutBounds getChildPosition(int childIndex);
+    LayoutBounds<C, T> getChildPosition(int childIndex);
 
     int getRowsCount();
 
-    default void processVisibleChildren(BiConsumer<C, LayoutBounds> childProcessor) {
+    default void processVisibleChildren(BiConsumer<C, Bounds> childProcessor) {
         processVisibleChildren(null, 0, 0, childProcessor);
     }
 
-    void processVisibleChildren(javafx.geometry.Bounds visibleArea, double layoutOriginX, double layoutOriginY, BiConsumer<C, LayoutBounds> childProcessor);
+    void processVisibleChildren(javafx.geometry.Bounds visibleArea, double layoutOriginX, double layoutOriginY, BiConsumer<C, Bounds> childProcessor);
 }

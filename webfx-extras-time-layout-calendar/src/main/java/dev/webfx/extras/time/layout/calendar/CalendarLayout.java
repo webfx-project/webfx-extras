@@ -1,5 +1,6 @@
 package dev.webfx.extras.time.layout.calendar;
 
+import dev.webfx.extras.time.layout.impl.LayoutBounds;
 import dev.webfx.extras.time.layout.impl.TimeLayoutBase;
 import dev.webfx.extras.time.layout.TimeProjector;
 import dev.webfx.platform.util.Dates;
@@ -52,8 +53,9 @@ public class CalendarLayout<C, T> extends TimeLayoutBase<C, T> {
     }
 
     @Override
-    protected int computeChildColumnIndex(int childIndex, C child, T startTime, T endTime, double startX, double endX) {
+    public void syncChildColumnIndex(LayoutBounds<C, T> cp) {
         DayOfWeek dayOfWeek = null;
+        T startTime = cp.getStartTime();
         if (startTime instanceof DayOfWeek)
             dayOfWeek = (DayOfWeek) startTime;
         else {
@@ -61,19 +63,24 @@ public class CalendarLayout<C, T> extends TimeLayoutBase<C, T> {
             if (localDate != null)
                 dayOfWeek = localDate.getDayOfWeek();
         }
-        return dayOfWeek == null ? 0 : getDayOfWeekColumn(dayOfWeek);
+        cp.setColumnIndex(dayOfWeek == null ? 0 : getDayOfWeekColumn(dayOfWeek));
     }
 
     @Override
-    protected int computeChildRowIndex(int childIndex, C child, T startTime, T endTime, double startX, double endX) {
+    public void syncChildRowIndex(LayoutBounds<C, T> cp) {
+        T startTime = cp.getStartTime();
+        int rowIndex;
         if (startTime instanceof DayOfWeek || startTime instanceof YearMonth)
-            return 0;
-        LocalDate localDate = timeToLocalDate(startTime);
-        int dayOfMonth0 = localDate.getDayOfMonth() - 1; // Starting with 0 for computation convenience
-        DayOfWeek dayOfWeek = localDate.getDayOfWeek();
-        int dayOfFirstWeek0 = dayOfMonth0 % 7; // Still has same dayOfWeek
-        int firstOfMonthColumnShift = (dayOfWeek.ordinal() - dayOfFirstWeek0 + 7 /* to ensure not negative */) % 7;
-        return (dayOfMonth0 + firstOfMonthColumnShift) / 7;
+            rowIndex = 0;
+        else {
+            LocalDate localDate = timeToLocalDate(startTime);
+            int dayOfMonth0 = localDate.getDayOfMonth() - 1; // Starting with 0 for computation convenience
+            DayOfWeek dayOfWeek = localDate.getDayOfWeek();
+            int dayOfFirstWeek0 = dayOfMonth0 % 7; // Still has same dayOfWeek
+            int firstOfMonthColumnShift = (dayOfWeek.ordinal() - dayOfFirstWeek0 + 7 /* to ensure not negative */) % 7;
+            rowIndex = (dayOfMonth0 + firstOfMonthColumnShift) / 7;
+        }
+        cp.setRowIndex(rowIndex);
     }
 
 }

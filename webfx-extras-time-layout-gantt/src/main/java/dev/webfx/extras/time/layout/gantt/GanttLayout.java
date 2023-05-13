@@ -246,20 +246,9 @@ public class GanttLayout<C, T extends Temporal> extends TimeLayoutBase<C, T> {
             LayoutBounds pp = parentRow.getRowPosition();
             GrandparentRow grandparentRow = parentRow.getGrandparentRow();
             if (grandparentRow != lastGrandparentRow) {
-                if (grandparentRow == null) {
-                    Object grandparent = parentGrandparentReader != null ? parentGrandparentReader.apply(parentRow.getParent()) : null;
-                    if (grandparent != null) {
-                        grandparentRow = new GrandparentRow(grandparent);
-                        grandparentRows.add(grandparentRow);
-                        grandparentRow.getRowPosition().setHeight(grandparentHeight);
-                        parentRow.setGrandparentRow(grandparentRow);
-                    }
-                }
-                if (grandparentRow != null) {
-                    LayoutBounds gp = grandparentRow.getRowPosition();
-                    gp.setY(y);
-                    y = gp.getMaxY();
-                }
+                LayoutBounds gp = grandparentRow.getRowPosition();
+                gp.setY(y);
+                y = gp.getMaxY();
                 lastGrandparentRow = grandparentRow;
             }
             if (parentRow.parentIndex == -1) { // New empty parent row => we set it a height = 1 children height

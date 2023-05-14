@@ -2,7 +2,7 @@ package dev.webfx.extras.time.layout.gantt.canvas;
 
 import dev.webfx.extras.canvas.CanvasDrawer;
 import dev.webfx.extras.canvas.layer.interact.CanvasInteractionHandler;
-import dev.webfx.extras.time.layout.gantt.GanttLayout;
+import dev.webfx.extras.time.layout.gantt.impl.GanttLayoutImpl;
 import javafx.scene.Cursor;
 import javafx.scene.canvas.Canvas;
 import javafx.scene.input.MouseEvent;
@@ -12,12 +12,12 @@ import javafx.scene.input.MouseEvent;
  */
 public class ParentsCanvasInteractionHandler implements CanvasInteractionHandler {
 
-    private final GanttLayout<?, ?> ganttLayout;
+    private final GanttLayoutImpl<?, ?> ganttLayout;
     private final CanvasDrawer childrenDrawer;
     private final ParentsCanvasDrawer parentsCanvasDrawer;
     private boolean draggingSlider;
 
-    public ParentsCanvasInteractionHandler(GanttLayout<?, ?> ganttLayout, CanvasDrawer childrenDrawer, ParentsCanvasDrawer parentsCanvasDrawer) {
+    public ParentsCanvasInteractionHandler(GanttLayoutImpl<?, ?> ganttLayout, CanvasDrawer childrenDrawer, ParentsCanvasDrawer parentsCanvasDrawer) {
         this.ganttLayout = ganttLayout;
         this.childrenDrawer = childrenDrawer;
         this.parentsCanvasDrawer = parentsCanvasDrawer;
@@ -36,7 +36,7 @@ public class ParentsCanvasInteractionHandler implements CanvasInteractionHandler
     }
 
     private boolean isHoveringGrandparent(MouseEvent e) {
-        return ganttLayout.getGrandparentRows().stream().anyMatch(gr -> gr.getRowPosition().contains(0, e.getY() + parentsCanvasDrawer.getLastVirtualViewPortY()));
+        return ganttLayout.getGrandparentRows().stream().anyMatch(gr -> gr.getHeadRow().contains(0, e.getY() + parentsCanvasDrawer.getLastVirtualViewPortY()));
     }
 
     public boolean handleMouseMoved(MouseEvent e, Canvas canvas) {

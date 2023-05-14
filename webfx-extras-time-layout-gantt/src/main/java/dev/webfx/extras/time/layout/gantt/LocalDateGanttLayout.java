@@ -3,6 +3,7 @@ package dev.webfx.extras.time.layout.gantt;
 import dev.webfx.extras.time.TimeUtil;
 import dev.webfx.extras.time.YearWeek;
 import dev.webfx.extras.time.layout.TimeProjector;
+import dev.webfx.extras.time.layout.gantt.impl.GanttLayoutImpl;
 
 import java.time.LocalDate;
 import java.time.Year;
@@ -12,7 +13,7 @@ import java.util.function.Function;
 /**
  * @author Bruno Salmon
  */
-public final class LocalDateGanttLayout<C> extends GanttLayout<C, LocalDate> {
+public final class LocalDateGanttLayout<C> extends GanttLayoutImpl<C, LocalDate> {
 
     // Final casts for the fluent API
 

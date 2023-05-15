@@ -4,8 +4,9 @@ public interface HasCanvasInteractionManager {
 
     CanvasInteractionManager getCanvasInteractionManager();
 
-    default void enableCanvasInteraction() {
+    default HasCanvasInteractionManager enableCanvasInteraction() {
         setInteractive(true);
+        return this;
     }
 
     default void setInteractive(boolean interactive) {

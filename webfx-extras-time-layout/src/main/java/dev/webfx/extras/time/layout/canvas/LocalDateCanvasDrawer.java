@@ -20,4 +20,8 @@ public final class LocalDateCanvasDrawer<C> extends TimeCanvasDrawer<C, LocalDat
         super(canvas, timeLayout, childDrawer, ChronoUnit.DAYS);
     }
 
+    @Override
+    public LocalDateCanvasDrawer<C> enableCanvasInteraction() {
+        return (LocalDateCanvasDrawer<C>) super.enableCanvasInteraction();
+    }
 }

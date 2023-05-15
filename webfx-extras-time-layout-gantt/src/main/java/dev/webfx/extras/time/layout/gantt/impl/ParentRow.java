@@ -10,8 +10,8 @@ import java.util.Objects;
 public final class ParentRow<C> extends RowBounds<ParentRow<C>> {
 
     private final Object parent;
-    private ParentRow<C> aboveParentRow; // Note: will be null for first row under a grandparent row
-    private GrandparentRow grandparentRow;
+    ParentRow<C> aboveParentRow; // Note: will be null for first row under a grandparent row
+    GrandparentRow grandparentRow;
     private final GanttLayoutImpl<C, ?> ganttLayout;
     private final List<GanttLayoutBounds<C, ?>> childrenPositions = new ArrayList<>();
     private List<List<GanttLayoutBounds<C, ?>>> tetrisRows, oldTetrisRows;
@@ -49,7 +49,7 @@ public final class ParentRow<C> extends RowBounds<ParentRow<C>> {
         childrenPositions.add(cp);
     }
 
-    public int getRowsCount() {
+    public int getRowsCount() { // Note: never returns 0, 1 is minimum
         if (!ganttLayout.isTetrisPacking())
             return 1;
         if (tetrisRows == null) {
@@ -72,25 +72,7 @@ public final class ParentRow<C> extends RowBounds<ParentRow<C>> {
 
     @Override
     protected void syncV() {
-        double height;
-        if (ganttLayout.isParentFixedHeight()) {
-            height = ganttLayout.getParentFixedHeight();
-        } else if (ganttLayout.isChildFixedHeight()) {
-            int rowsCount = getRowsCount();
-            height = rowsCount == 0 ? 0 : rowsCount * (ganttLayout.getChildFixedHeight() + ganttLayout.getVSpacing()) - ganttLayout.getVSpacing();
-        } else
-            height = 0; // TODO: what to do in this case?
-        //Console.log("ParentRow.height = " + height);
-        setHeight(height);
-        double y;
-        if (aboveParentRow != null)
-            y = aboveParentRow.getMaxY();
-        else if (grandparentRow != null)
-            y = grandparentRow.getHeadRow().getMaxY();
-        else
-            y = ganttLayout.getTopY();
-        //Console.log("ParentRow.y = " + y);
-        setY(y);
+        ganttLayout.syncParentV(this);
     }
 
     List<GanttLayoutBounds<C, ?>> getChildrenPositions() {

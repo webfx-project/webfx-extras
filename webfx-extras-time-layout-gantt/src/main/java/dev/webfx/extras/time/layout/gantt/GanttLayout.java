@@ -1,6 +1,7 @@
 package dev.webfx.extras.time.layout.gantt;
 
 import dev.webfx.extras.time.layout.TimeLayout;
+import javafx.beans.property.BooleanProperty;
 import javafx.collections.ObservableList;
 
 import java.time.temporal.Temporal;
@@ -27,6 +28,8 @@ public interface GanttLayout<C, T extends Temporal> extends TimeLayout<C, T> {
     GanttLayout<C, T> setTetrisPacking(boolean tetrisPacking);
 
     boolean isTetrisPacking();
+
+    BooleanProperty parentsProvidedProperty();
 
     GanttLayout<C, T> setParentsProvided(boolean parentsProvided);
 

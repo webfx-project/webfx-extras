@@ -11,10 +11,10 @@ import java.util.List;
 public final class GrandparentRow extends RowBounds<GrandparentRow> { //represents the enclosing row (headRow + parentRows)
 
     private final Object grandparent;
-    private GrandparentRow aboveGrandparentRow;
+    GrandparentRow aboveGrandparentRow;
     private final GanttLayoutImpl<?, ?> ganttLayout;
-    private final MutableBounds headRow = new MutableBounds(); // represents the head row (first row above the parentRows)
-    private final List<ParentRow<?>> parentRows = new ArrayList<>();
+    final MutableBounds headRow = new MutableBounds(); // represents the head row (first row above the parentRows)
+    final List<ParentRow<?>> parentRows = new ArrayList<>();
     private int vVersionHead;
 
     public GrandparentRow(Object grandparent, GrandparentRow aboveGrandparentRow, GanttLayoutImpl<?, ?> ganttLayout) {
@@ -50,21 +50,10 @@ public final class GrandparentRow extends RowBounds<GrandparentRow> { //represen
 
     @Override
     protected void syncV() {
-        double y;
-        if (aboveGrandparentRow == null)
-            y = ganttLayout.getTopY();
-        else
-            y = aboveGrandparentRow.getMaxY();
-        setY(y);
-        checkSyncVHead(y); // we can sync the head position at this point (this will also avoid possible infinite recursion)
-        if (ganttLayout.isParentFixedHeight()) { // Faster case (we don't need to call each parent row)
-            setHeight(headRow.getHeight() + parentRows.size() * ganttLayout.getParentFixedHeight());
-        } else {
-            setHeight(getLastParentMaxY() - y);
-        }
+        ganttLayout.syncGrandparentV(this);
     }
 
-    private double getLastParentMaxY() {
+    double getLastParentMaxY() {
         return parentRows.get(parentRows.size() - 1).getMaxY();
     }
 
@@ -79,7 +68,7 @@ public final class GrandparentRow extends RowBounds<GrandparentRow> { //represen
         syncVHead(getY());
     }
 
-    private void checkSyncVHead(double y) {
+    void checkSyncVHead(double y) {
         if (vVersionHead != ganttLayout.vVersion) {
             syncVHead(y);
             vVersionHead = ganttLayout.vVersion;

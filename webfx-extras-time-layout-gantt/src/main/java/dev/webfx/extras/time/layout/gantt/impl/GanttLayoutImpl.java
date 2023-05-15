@@ -6,6 +6,8 @@ import dev.webfx.extras.time.layout.gantt.GanttLayout;
 import dev.webfx.extras.time.layout.impl.LayoutBounds;
 import dev.webfx.extras.time.layout.impl.TimeLayoutBase;
 import dev.webfx.extras.time.layout.impl.TimeLayoutUtil;
+import javafx.beans.property.BooleanProperty;
+import javafx.beans.property.SimpleBooleanProperty;
 import javafx.collections.FXCollections;
 import javafx.collections.ListChangeListener;
 import javafx.collections.ObservableList;
@@ -33,7 +35,14 @@ public class GanttLayoutImpl<C, T extends Temporal> extends TimeLayoutBase<C, T>
     private double grandparentHeight = 80; // arbitrary non-null default value (so grandparent rows will appear even if
     // the application code forgot to call setGrandparentHeight())
     private boolean tetrisPacking;
-    private boolean parentsProvided;
+    private final BooleanProperty parentsProvidedProperty = new SimpleBooleanProperty() {
+        @Override
+        protected void invalidated() {
+            if (get())
+                syncTreeFromProvidedParents();
+            invalidateChildrenTree();
+        }
+    };
     private final ObservableList<Object> parents = FXCollections.observableArrayList();
 
     // Output fields
@@ -148,17 +157,19 @@ public class GanttLayoutImpl<C, T extends Temporal> extends TimeLayoutBase<C, T>
     }
 
     @Override
+    public BooleanProperty parentsProvidedProperty() {
+        return parentsProvidedProperty;
+    }
+
+    @Override
     public GanttLayoutImpl<C, T> setParentsProvided(boolean parentsProvided) {
-        this.parentsProvided = parentsProvided;
-        if (parentsProvided)
-            syncTreeFromProvidedParents();
-        invalidateChildrenTree();
+        parentsProvidedProperty.set(parentsProvided);
         return this;
     }
 
     @Override
     public boolean isParentsProvided() {
-        return parentsProvided;
+        return parentsProvidedProperty.get();
     }
 
     @Override
@@ -203,7 +214,7 @@ public class GanttLayoutImpl<C, T extends Temporal> extends TimeLayoutBase<C, T>
     }
 
     private void checkSyncProvidedTree() {
-        if (parentsProvided && builtProvidedTreeVersion != providedTreeVersion) {
+        if (isParentsProvided() && builtProvidedTreeVersion != providedTreeVersion) {
             syncTreeFromProvidedParents();
             builtProvidedTreeVersion = providedTreeVersion;
         }
@@ -233,7 +244,7 @@ public class GanttLayoutImpl<C, T extends Temporal> extends TimeLayoutBase<C, T>
         oldGrandparentToGrandparentRowMap = grandparentToGrandparentRowMap;
         oldParentToParentRowMap = parentToParentRowMap;
         // Same with parentRows, except when parents are provided (as it stays identical in that case)
-        if (parentsProvided && !syncFromProvidedParents) {
+        if (isParentsProvided() && !syncFromProvidedParents) {
             parentRows.forEach(ParentRow::purgeChildren);
         } else {
             // We clear the list of grandparent rows, as we will refresh it (eventually with same instances)
@@ -269,7 +280,7 @@ public class GanttLayoutImpl<C, T extends Temporal> extends TimeLayoutBase<C, T>
         Object grandparent = childGrandparentReader != null ? childGrandparentReader.apply(cp.getChild()) :
                 parent != null && parentGrandparentReader != null ? parentGrandparentReader.apply(parent) : null;
         // Getting or creating the grandparent row if grandparent exists
-        if (!parentsProvided)
+        if (!isParentsProvided())
             syncGrandparentBranch(grandparent);
         // Now same for parent row, however we accept null parents (children with null parents will be on the same
         // row with no parent on the left). First we check if the parent row already exists
@@ -309,7 +320,7 @@ public class GanttLayoutImpl<C, T extends Temporal> extends TimeLayoutBase<C, T>
 
     private void syncParentBranches(Object parent, boolean syncFromProvidedParents) {
         ParentRow<C> parentRow = parentToParentRowMap.get(parent); // Note that provided parent are already in that cache
-        if (!parentsProvided || syncFromProvidedParents) {
+        if (!isParentsProvided() || syncFromProvidedParents) {
             if (parentRow == null) { // We create a new parent row if it doesn't exist
                 parentRow = oldParentToParentRowMap.get(parent);
                 if (parentRow == null)
@@ -334,23 +345,73 @@ public class GanttLayoutImpl<C, T extends Temporal> extends TimeLayoutBase<C, T>
 
     @Override
     public void syncChildV(LayoutBounds<C, T> cp) {
-        GanttLayoutBounds<C, T> gcp = (GanttLayoutBounds<C, T>) cp;
-        ParentRow<C> pr = gcp.getParentRow();
-        double height = 0;
+        // 1) Computing child height
+        GanttLayoutBounds<C, T> gcp = (GanttLayoutBounds<C, T>) cp; // Always a GanttLayoutBounds instance
+        double childHeight = 0;
         if (isChildFixedHeight())
-            height = getChildFixedHeight();
-        cp.setY(pr.getY() + (height + getVSpacing()) * gcp.getRowIndexInParentRow());
-        cp.setHeight(height);
+            childHeight = getChildFixedHeight();
+        cp.setHeight(childHeight);
+        // 2) Computing child y position
+        double vSpacing = getVSpacing();
+        int childRowIndex = gcp.getRowIndexInParentRow();
+        cp.setY(gcp.getParentRow().getY() // top position of enclosing parent row
+                + vSpacing // top spacing
+                + (childHeight + vSpacing) * childRowIndex // vertical shift of that particular child
+        );
+    }
+
+    void syncParentV(ParentRow<C> pr) {
+        // 1) Computing parent row height
+        double height;
+        if (isParentFixedHeight()) {
+            height = getParentFixedHeight();
+        } else if (isChildFixedHeight()) {
+            double childHeight = getChildFixedHeight();
+            double vSpacing = getVSpacing();
+            height = vSpacing // top spacing
+                    + (childHeight + vSpacing) * pr.getRowsCount(); // total of children in that parent row
+         } else
+            height = 0; // TODO: what to do in this case?
+        // 2) Computing parent row y position
+        pr.setHeight(height);
+        double y;
+        if (pr.aboveParentRow != null)
+            y = pr.aboveParentRow.getMaxY();
+        else if (pr.grandparentRow != null)
+            y = pr.grandparentRow.getHeadRow().getMaxY();
+        else
+            y = getTopY();
+        pr.setY(y);
+    }
+
+    void syncGrandparentV(GrandparentRow gpr) {
+        // 1) Computing grandparent row y position
+        double y;
+        if (gpr.aboveGrandparentRow == null)
+            y = getTopY();
+        else
+            y = gpr.aboveGrandparentRow.getMaxY();
+        gpr.setY(y);
+        // We can sync the head position at this point (this will also avoid possible infinite recursion)
+        gpr.checkSyncVHead(y);
+        // 2) Computing grandparent height
+        if (isParentFixedHeight()) { // Faster case (we don't need to call each parent row)
+            gpr.setHeight(gpr.headRow.getHeight() + gpr.parentRows.size() * getParentFixedHeight());
+        } else {
+            gpr.setHeight(gpr.getLastParentMaxY() - y);
+        }
     }
 
     @Override
     protected double computeHeight() {
         checkSyncTree();
-        if (!grandparentRows.isEmpty())
-            return grandparentRows.get(grandparentRows.size() - 1).getMaxY();
-        if (!parentRows.isEmpty())
-            return parentRows.get(parentRows.size() - 1).getMaxY();
-        return 0;
+        RowBounds<?> lastEnclosingRow = null;
+        if (!grandparentRows.isEmpty()) // equivalent but more efficient than last parent row
+            lastEnclosingRow = grandparentRows.get(grandparentRows.size() - 1);
+        else if (!parentRows.isEmpty()) // last parent row ok when no grandparent
+            lastEnclosingRow = parentRows.get(parentRows.size() - 1);
+        // Returning the bottom of the last enclosing row (or 0 if none)
+        return lastEnclosingRow != null ? lastEnclosingRow.getMaxY() : 0;
     }
 
     @Override

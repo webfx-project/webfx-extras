@@ -27,6 +27,7 @@ public class BarDrawer {
     private String topText, middleText, bottomText;
     private Font textFont, topTextFont, middleTextFont, bottomTextFont;
     private Paint textFill;
+    private TextAlignment textAlignment = TextAlignment.CENTER;
     private boolean clipText = true;
     private Image iconImage;
     private SVGPath iconSvgPath;
@@ -94,6 +95,11 @@ public class BarDrawer {
 
     public BarDrawer setTextFill(Paint textFill) {
         this.textFill = textFill;
+        return this;
+    }
+
+    public BarDrawer setTextAlignment(TextAlignment textAlignment) {
+        this.textAlignment = textAlignment;
         return this;
     }
 
@@ -232,17 +238,17 @@ public class BarDrawer {
         if (hasText && (!clipText || getTextAreaWidth(b) > 5)) { // Unnecessary to draw text when doesn't fit (this skip makes a big performance improvement on big zoom out over many events - because the text clip operation is time-consuming)
             if (hasMiddleText) {
                 setFirstNonNullFont(middleTextFont, textFont, gc);
-                fillCenterText(b, hPadding, middleText, clipText, textFill, gc);
+                fillText(b.getMinX(), b.getMinY(), b.getWidth(), b.getHeight(), hPadding, middleText, clipText, textFill, VPos.CENTER, textAlignment, gc);
             }
             if (hasTopOrBottomText) {
                 double h = b.getHeight(), h2 = h / 2, vPadding = h / 16;
                 if (hasTopText) {
                     setFirstNonNullFont(topTextFont, textFont, gc);
-                    fillText(b.getMinX(), b.getMinY() + vPadding, b.getWidth(), h2, hPadding, topText, clipText, textFill, VPos.CENTER, TextAlignment.CENTER, gc);
+                    fillText(b.getMinX(), b.getMinY() + vPadding, b.getWidth(), h2, hPadding, topText, clipText, textFill, VPos.CENTER, textAlignment, gc);
                 }
                 if (hasBottomText) {
                     setFirstNonNullFont(bottomTextFont, textFont, gc);
-                    fillText(b.getMinX(), b.getMinY() + h2, b.getWidth(), h2 - vPadding, hPadding, bottomText, clipText, textFill, VPos.CENTER, TextAlignment.CENTER, gc);
+                    fillText(b.getMinX(), b.getMinY() + h2, b.getWidth(), h2 - vPadding, hPadding, bottomText, clipText, textFill, VPos.CENTER, textAlignment, gc);
                 }
             }
         }
@@ -321,26 +327,26 @@ public class BarDrawer {
             clipRect(x, y, width, height, gc);
         gc.setFill(fill);
         gc.setTextBaseline(baseline);
-        // TODO: comment these different cases
-        if (!clipText)
-            textAlignment = TextAlignment.CENTER;
-        else if (x < 0 && x + width > 0) {
-            if (textWider) {
-                x = x + width - hTextPadding;
-                textAlignment = TextAlignment.RIGHT;
-            } else {
-                textAlignment = TextAlignment.CENTER;
-            }
-        } else if (x < canvasWidth && x + width > canvasWidth) {
-            if (textWider) {
+        if (textAlignment == null) { // auto
+            // TODO: comment these different cases
+            if (x < 0 && x + width > 0) {
+                if (textWider) {
+                    x = x + width - hTextPadding;
+                    textAlignment = TextAlignment.RIGHT;
+                } else {
+                    textAlignment = TextAlignment.CENTER;
+                }
+            } else if (x < canvasWidth && x + width > canvasWidth) {
+                if (textWider) {
+                    x += hTextPadding;
+                    textAlignment = TextAlignment.LEFT;
+                } else {
+                    textAlignment = TextAlignment.CENTER;
+                }
+            } else if (textWider) {
                 x += hTextPadding;
                 textAlignment = TextAlignment.LEFT;
-            } else {
-                textAlignment = TextAlignment.CENTER;
             }
-        } else if (textWider) {
-            x += hTextPadding;
-            textAlignment = TextAlignment.LEFT;
         }
         if (textAlignment == TextAlignment.CENTER)
             x = (Math.max(x, 0) + Math.min(canvasWidth, x + width)) / 2;

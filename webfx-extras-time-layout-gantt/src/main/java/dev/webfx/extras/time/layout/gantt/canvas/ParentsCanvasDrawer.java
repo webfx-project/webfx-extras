@@ -4,13 +4,13 @@ import dev.webfx.extras.canvas.CanvasDrawer;
 import dev.webfx.extras.canvas.layer.ChildDrawer;
 import dev.webfx.extras.canvas.layer.interact.CanvasInteractionManager;
 import dev.webfx.extras.canvas.layer.interact.HasCanvasInteractionManager;
+import dev.webfx.extras.geometry.Bounds;
 import dev.webfx.extras.geometry.MutableBounds;
-import dev.webfx.extras.time.layout.impl.TimeLayoutUtil;
 import dev.webfx.extras.time.layout.gantt.impl.GanttLayoutImpl;
 import dev.webfx.extras.time.layout.gantt.impl.GrandparentRow;
 import dev.webfx.extras.time.layout.gantt.impl.ParentRow;
+import dev.webfx.extras.time.layout.impl.TimeLayoutUtil;
 import javafx.geometry.BoundingBox;
-import javafx.geometry.Bounds;
 import javafx.scene.canvas.Canvas;
 import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.paint.Paint;
@@ -29,9 +29,11 @@ public final class ParentsCanvasDrawer {
     private ChildDrawer<Object> parentDrawer;
     private ChildDrawer<Object> grandparentDrawer;
     private Paint horizontalStroke;
+    private boolean horizontalStrokeForeground = true;
     private Paint verticalStroke;
+    private boolean verticalStrokeForeground = true;
     private double lastVirtualCanvasWidth, lastVirtualViewPortY;
-    private Bounds drawingArea;
+    private javafx.geometry.Bounds drawingArea;
 
     public ParentsCanvasDrawer(GanttLayoutImpl<?, ? extends Temporal> ganttLayout, CanvasDrawer childrenDrawer) {
         this(ganttLayout, childrenDrawer, null);
@@ -65,8 +67,11 @@ public final class ParentsCanvasDrawer {
         lastVirtualCanvasWidth = canvas.getWidth();
         lastVirtualViewPortY = 0;
         if (childrenDrawer != null) {
+            childrenDrawer.addOnBeforeDraw(() ->
+                    onBeforeChildrenDraw(ganttLayout.getParentWidth(), childrenDrawer.getLayoutOriginY())
+            );
             childrenDrawer.addOnAfterDraw(() ->
-                refreshCanvas(ganttLayout.getParentWidth(), childrenDrawer.getCanvas().getHeight(), childrenDrawer.getLayoutOriginY(), false)
+                    onAfterChildrenDraw(ganttLayout.getParentWidth(), childrenDrawer.getLayoutOriginY())
             );
             if (childrenDrawer instanceof HasCanvasInteractionManager) {
                 CanvasInteractionManager canvasInteractionManager = ((HasCanvasInteractionManager) childrenDrawer).getCanvasInteractionManager();
@@ -95,68 +100,117 @@ public final class ParentsCanvasDrawer {
         return this;
     }
 
+    public ParentsCanvasDrawer setHorizontalStrokeForeground(boolean horizontalStrokeForeground) {
+        this.horizontalStrokeForeground = horizontalStrokeForeground;
+        return this;
+    }
+
+    public ParentsCanvasDrawer setHorizontalStroke(Paint horizontalStroke, boolean horizontalStrokeForeground) {
+        return setHorizontalStroke(horizontalStroke).setHorizontalStrokeForeground(horizontalStrokeForeground);
+    }
+
     public ParentsCanvasDrawer setVerticalStroke(Paint verticalStroke) {
         this.verticalStroke = verticalStroke;
         return this;
     }
 
+    public ParentsCanvasDrawer setVerticalStrokeForeground(boolean verticalStrokeForeground) {
+        this.verticalStrokeForeground = verticalStrokeForeground;
+        return this;
+    }
+
+    public ParentsCanvasDrawer setVerticalStroke(Paint verticalStroke, boolean verticalStrokeForeground) {
+        return setVerticalStroke(verticalStroke).setVerticalStrokeForeground(verticalStrokeForeground);
+    }
+
+
     double getLastVirtualViewPortY() {
         return lastVirtualViewPortY;
     }
 
+    // This method is called by (Virtual)CanvasPane (when this ParentsCanvasDrawer is in a slider - left side)
+    // See GanttCanvasUtil.createParent(Virtual)CanvasPane()
     void refreshCanvas(double virtualCanvasWidth, double virtualCanvasHeight, double virtualViewPortY, boolean canvasSizeChanged) {
+        onBeforeChildrenDraw(virtualCanvasWidth, virtualViewPortY);
+        onAfterChildrenDraw(virtualCanvasWidth, virtualViewPortY);
+    }
+
+    private void onBeforeChildrenDraw(double virtualCanvasWidth, double virtualViewPortY) {
+        drawAll(virtualCanvasWidth, virtualViewPortY, false);
+    }
+
+    private void onAfterChildrenDraw(double virtualCanvasWidth, double virtualViewPortY) {
+        drawAll(virtualCanvasWidth, virtualViewPortY, true);
+    }
+
+    private void drawAll(double virtualCanvasWidth, double virtualViewPortY, boolean afterChildrenPass) {
         lastVirtualCanvasWidth = virtualCanvasWidth;
         lastVirtualViewPortY = virtualViewPortY;
+        // The only thing we draw before the children are the horizontal & vertical strokes, if set to be drawn in the
+        // background. If they are not set so, and we are in that background pass (ie before drawing children), we can
+        // return immediately as there is nothing to draw in that pass (this prevents looping for nothing).
+        if (!afterChildrenPass && (horizontalStroke == null || horizontalStrokeForeground) && (verticalStroke == null || verticalStrokeForeground))
+            return;
         drawingArea = new BoundingBox(0, 0, Math.min(canvas.getWidth(), virtualCanvasWidth), canvas.getHeight());
         GraphicsContext gc = canvas.getGraphicsContext2D();
         gc.clearRect(drawingArea.getMinX(), drawingArea.getMinY(), drawingArea.getWidth(), drawingArea.getHeight());
         List<GrandparentRow> grandparentRows = ganttLayout.getGrandparentRows();
         if (!grandparentRows.isEmpty())
-            drawGrandparentAndParentRows(grandparentRows, gc);
+            drawGrandparentsWithTheirParentsAndStrokes(grandparentRows, gc, afterChildrenPass);
         else
-            drawParentRows(ganttLayout.getParentRows(), gc);
+            drawParentsAndStrokes(ganttLayout.getParentRows(), gc, afterChildrenPass);
     }
 
-    private void drawGrandparentAndParentRows(List<GrandparentRow> grandparentRows, GraphicsContext gc) {
+    private void drawGrandparentsWithTheirParentsAndStrokes(List<GrandparentRow> grandparentRows, GraphicsContext gc, boolean afterChildrenPass) {
         TimeLayoutUtil.processVisibleChildrenLayoutBounds(
                 grandparentRows,
                 true, false, drawingArea, 0, lastVirtualViewPortY,
-                (grandparentRow, b) -> drawGrandparentRow(grandparentRow, gc)
+                (grandparentRow, b) -> drawGrandparentWithItsParentAndStrokes(grandparentRow, gc, afterChildrenPass)
         );
     }
 
-    private void drawGrandparentRow(GrandparentRow grandparentRow, GraphicsContext gc) {
-        MutableBounds gp = grandparentRow.getHeadRow();
-        gp.setWidth(lastVirtualCanvasWidth);
-        double gy = gp.getY();
-        gp.setY(gy - lastVirtualViewPortY);
-        grandparentDrawer.drawChild(grandparentRow.getGrandparent(), gp, gc);
-        gp.setY(gy);
-        drawParentRows(grandparentRow.getParentRows(), gc);
+    private void drawGrandparentWithItsParentAndStrokes(GrandparentRow grandparentRow, GraphicsContext gc, boolean afterChildrenPass) {
+        if (afterChildrenPass) {
+            MutableBounds gp = grandparentRow.getHeadRow();
+            gp.setWidth(lastVirtualCanvasWidth);
+            double gy = gp.getY();
+            gp.setY(gy - lastVirtualViewPortY);
+            grandparentDrawer.drawChild(grandparentRow.getGrandparent(), gp, gc);
+            gp.setY(gy);
+        }
+        drawParentsAndStrokes(grandparentRow.getParentRows(), gc, afterChildrenPass);
     }
 
-    private <C> void drawParentRows(List<ParentRow<C>> parentRows, GraphicsContext gc) {
+    private <C> void drawParentsAndStrokes(List<ParentRow<C>> parentRows, GraphicsContext gc, boolean afterChildrenPass) {
         TimeLayoutUtil.processVisibleChildrenLayoutBounds(
                 parentRows,
                 true, true, drawingArea, 0, lastVirtualViewPortY,
-                (parentRow, b) -> drawParentRow(parentRow, gc));
+                (parentRow, b) -> drawParentAndStrokes(parentRow, gc, afterChildrenPass));
     }
 
-    private void drawParentRow(ParentRow<?> parentRow, GraphicsContext gc) {
-        if (horizontalStroke != null) {
-            gc.setStroke(horizontalStroke);
-            gc.setLineWidth(1);
-            gc.strokeLine(0, parentRow.getMinY(), gc.getCanvas().getWidth(), parentRow.getMinY());
-            gc.strokeLine(0, parentRow.getMaxY(), gc.getCanvas().getWidth(), parentRow.getMaxY());
+    private void drawParentAndStrokes(ParentRow<?> parentRow, GraphicsContext gc, boolean afterChildrenPass) {
+        // We draw the strokes before the parent row (that may override them)
+        if (horizontalStroke != null && horizontalStrokeForeground == afterChildrenPass) {
+            drawHorizontalStrokes(parentRow, gc);
         }
-        if (verticalStroke != null) {
+        if (verticalStroke != null && verticalStrokeForeground == afterChildrenPass) {
             drawVerticalStrokes(ganttLayout, parentRow, gc);
         }
-        parentRow.setWidth(lastVirtualCanvasWidth);
-        parentDrawer.drawChild(parentRow.getParent(), parentRow, gc);
+        // We draw the parent row only once, and it's after children
+        if (afterChildrenPass) {
+            parentRow.setWidth(lastVirtualCanvasWidth);
+            parentDrawer.drawChild(parentRow.getParent(), parentRow, gc);
+        }
     }
 
-    private <T extends Temporal> void drawVerticalStrokes(GanttLayoutImpl<?, T> ganttLayout, MutableBounds b, GraphicsContext gc) {
+    private void drawHorizontalStrokes(Bounds b, GraphicsContext gc) {
+        gc.setStroke(horizontalStroke);
+        gc.setLineWidth(1);
+        gc.strokeLine(0, b.getMinY(), gc.getCanvas().getWidth(), b.getMinY());
+        gc.strokeLine(0, b.getMaxY(), gc.getCanvas().getWidth(), b.getMaxY());
+    }
+
+    private <T extends Temporal> void drawVerticalStrokes(GanttLayoutImpl<?, T> ganttLayout, Bounds b, GraphicsContext gc) {
         gc.setStroke(verticalStroke);
         gc.setLineWidth(1);
         T t0 = ganttLayout.getTimeWindowStart();
@@ -165,5 +219,31 @@ public final class ParentsCanvasDrawer {
             gc.strokeLine(x0, b.getMinY(), x0, b.getMaxY());
             t0 = (T) t0.plus(1, ChronoUnit.DAYS);
         }
+    }
+
+    // static method
+
+    public static ParentsCanvasDrawer create(GanttLayoutImpl<?, ? extends Temporal> ganttLayout, CanvasDrawer childrenDrawer) {
+        return new ParentsCanvasDrawer(ganttLayout, childrenDrawer, null);
+    }
+
+    public static <P> ParentsCanvasDrawer create(GanttLayoutImpl<?, ? extends Temporal> ganttLayout, CanvasDrawer childrenDrawer, ChildDrawer<P> parentDrawer) {
+        return new ParentsCanvasDrawer(ganttLayout, childrenDrawer, parentDrawer, null);
+    }
+
+    public static <P, G> ParentsCanvasDrawer create(GanttLayoutImpl<?, ? extends Temporal> ganttLayout, CanvasDrawer childrenDrawer, ChildDrawer<P> parentDrawer, ChildDrawer<G> grandparentDrawer) {
+        return new ParentsCanvasDrawer(ganttLayout, childrenDrawer.getCanvas(), childrenDrawer, parentDrawer, grandparentDrawer);
+    }
+
+    public static ParentsCanvasDrawer create(GanttLayoutImpl<?, ? extends Temporal> ganttLayout, Canvas canvas) {
+        return new ParentsCanvasDrawer(ganttLayout, canvas, null);
+    }
+
+    public static <P> ParentsCanvasDrawer create(GanttLayoutImpl<?, ? extends Temporal> ganttLayout, Canvas canvas, ChildDrawer<P> parentDrawer) {
+        return new ParentsCanvasDrawer(ganttLayout, canvas, parentDrawer, null);
+    }
+
+    public static <P, G> ParentsCanvasDrawer create(GanttLayoutImpl<?, ? extends Temporal> ganttLayout, Canvas canvas, ChildDrawer<P> parentDrawer, ChildDrawer<G> grandparentDrawer) {
+        return new ParentsCanvasDrawer(ganttLayout, canvas, null, parentDrawer, grandparentDrawer);
     }
 }

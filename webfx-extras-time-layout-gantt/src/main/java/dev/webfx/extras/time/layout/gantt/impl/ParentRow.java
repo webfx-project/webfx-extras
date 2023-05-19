@@ -70,8 +70,38 @@ public final class ParentRow<C> extends EnclosingRow<ParentRow<C>> {
     }
 
     @Override
+    protected boolean horizontalVersionOp(boolean invalidate, boolean validate) { //
+        int freshVersion = invalidate ? -1 : ganttLayout.horizontalVersion + ganttLayout.parentHeaderHorizontalVersion;
+        if (invalidate || validate)
+            horizontalVersion = freshVersion;
+        return horizontalVersion == freshVersion;
+    }
+
+    @Override
+    protected void layoutHorizontally() {
+        ganttLayout.layoutParentHorizontally(this);
+    }
+
+    @Override
     protected void layoutVertically() {
         ganttLayout.layoutParentVertically(this);
+    }
+
+    protected void layoutHeaderHorizontally() {
+        ganttLayout.layoutParentHeaderHorizontally(this);
+    }
+
+    @Override
+    protected void layoutHeaderVertically() {
+        ganttLayout.layoutParentHeaderVertically(this);
+    }
+
+    @Override
+    protected boolean headerHorizontalVersionOp(boolean invalidate, boolean validate) {
+        int freshVersion = invalidate ? -1 : ganttLayout.parentHeaderHorizontalVersion;
+        if (invalidate || validate)
+            headerHorizontalVersion = freshVersion;
+        return headerHorizontalVersion == freshVersion;
     }
 
     List<GanttChildBounds<C, ?>> getChildrenBounds() {

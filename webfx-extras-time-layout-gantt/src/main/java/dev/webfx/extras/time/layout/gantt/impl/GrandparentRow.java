@@ -1,14 +1,12 @@
 package dev.webfx.extras.time.layout.gantt.impl;
 
-import dev.webfx.extras.time.layout.gantt.HeaderPosition;
-
 import java.util.ArrayList;
 import java.util.List;
 
 /**
  * @author Bruno Salmon
  */
-public final class GrandparentRow extends EnclosingRow<GrandparentRow> { //represents the enclosing row (header + parentRows)
+public final class GrandparentRow extends EnclosingRow<GrandparentRow> { // represents the enclosing row (header + parentRows)
 
     private final Object grandparent;
     GrandparentRow aboveGrandparentRow;
@@ -46,8 +44,18 @@ public final class GrandparentRow extends EnclosingRow<GrandparentRow> { //repre
     }
 
     @Override
+    protected void layoutHorizontally() {
+        ganttLayout.layoutGrandparentHorizontally(this);
+    }
+
+    @Override
     protected void layoutVertically() {
         ganttLayout.layoutGrandparentVertically(this);
+    }
+
+    @Override
+    protected void layoutHeaderHorizontally() {
+        ganttLayout.layoutGrandparentHeaderHorizontally(this);
     }
 
     @Override
@@ -55,8 +63,16 @@ public final class GrandparentRow extends EnclosingRow<GrandparentRow> { //repre
         ganttLayout.layoutGrandparentHeaderVertically(this);
     }
 
+    @Override
+    protected boolean headerHorizontalVersionOp(boolean invalidate, boolean validate) {
+        int freshVersion = invalidate ? -1 : ganttLayout.grandparentHeaderHorizontalVersion;
+        if (invalidate || validate)
+            headerHorizontalVersion = freshVersion;
+        return headerHorizontalVersion == freshVersion;
+    }
+
     double getLastParentMaxY() {
-        return parentRows.get(parentRows.size() - 1).getMaxY() + (ganttLayout.getGrandparentHeaderPosition() == HeaderPosition.BOTTOM ? ganttLayout.getGrandparentHeaderHeight() : 0);
+        return parentRows.get(parentRows.size() - 1).getMaxY();
     }
 
 }

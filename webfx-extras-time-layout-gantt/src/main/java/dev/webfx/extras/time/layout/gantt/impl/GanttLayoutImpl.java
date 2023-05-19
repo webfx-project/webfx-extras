@@ -1,6 +1,7 @@
 package dev.webfx.extras.time.layout.gantt.impl;
 
 import dev.webfx.extras.geometry.Bounds;
+import dev.webfx.extras.geometry.MutableBounds;
 import dev.webfx.extras.time.layout.TimeProjector;
 import dev.webfx.extras.time.layout.gantt.GanttLayout;
 import dev.webfx.extras.time.layout.gantt.HeaderPosition;
@@ -32,8 +33,9 @@ public class GanttLayoutImpl<C, T extends Temporal> extends TimeLayoutBase<C, T>
     private Function<C, ?> childGrandparentReader;
     private Function<Object, ?> parentGrandparentReader;
     private Function<C, Double> childTetrisMinWidthReader;
-    private HeaderPosition grandparentHeaderPosition = HeaderPosition.TOP;
-    private double parentWidth;
+    private HeaderPosition grandparentHeaderPosition = HeaderPosition.LEFT;
+    private double parentHeaderWidth;
+    private double grandparentHeaderWidth = 150; // Used only for LEFT & RIGHT position
     private double grandparentHeaderHeight = 80; // arbitrary non-null default value (so grandparent rows will appear even if
     // the application code forgot to call setGrandparentHeight())
     private boolean tetrisPacking;
@@ -57,6 +59,8 @@ public class GanttLayoutImpl<C, T extends Temporal> extends TimeLayoutBase<C, T>
     // Internal version management
     int childrenTreeVersion, builtChildrenTreeVersion; // impact the whole tree (grandparents + parents + children)
     int providedTreeVersion, builtProvidedTreeVersion; // impact grandparents + parents only (used only if parents are provided)
+    int parentHeaderHorizontalVersion;
+    int grandparentHeaderHorizontalVersion;
 
     // Fields used during tree sync
     private Map<Object, GrandparentRow> oldGrandparentToGrandparentRowMap;
@@ -134,15 +138,12 @@ public class GanttLayoutImpl<C, T extends Temporal> extends TimeLayoutBase<C, T>
         return grandparentHeaderPosition;
     }
 
-    @Override
-    public GanttLayoutImpl<C, T> setParentWidth(double parentWidth) {
-        this.parentWidth = parentWidth;
-        return this;
+    public boolean isGrandparentHeaderOnTopOrBottom() {
+        return grandparentHeaderPosition == HeaderPosition.TOP || grandparentHeaderPosition == HeaderPosition.BOTTOM;
     }
 
-    @Override
-    public double getParentWidth() {
-        return parentWidth;
+    public boolean isGrandparentHeaderOnLeftOrRight() {
+        return grandparentHeaderPosition == HeaderPosition.LEFT || grandparentHeaderPosition == HeaderPosition.RIGHT;
     }
 
     @Override
@@ -155,6 +156,46 @@ public class GanttLayoutImpl<C, T extends Temporal> extends TimeLayoutBase<C, T>
     @Override
     public double getGrandparentHeaderHeight() {
         return grandparentHeaderHeight;
+    }
+
+    public GanttLayoutImpl<C, T> setGrandparentHeaderWidth(double grandparentHeaderWidth) {
+        this.grandparentHeaderWidth = grandparentHeaderWidth;
+        invalidateGrandparentHeaderHorizontalVersion();
+        return this;
+    }
+
+    private void invalidateGrandparentHeaderHorizontalVersion() {
+        grandparentHeaderHorizontalVersion++;
+        if (!grandparentRows.isEmpty()) {
+            markLayoutAsDirty();
+            if (grandparentHeaderPosition == HeaderPosition.LEFT) {
+                invalidateParentHeaderHorizontalVersion();
+            }
+        }
+    }
+
+
+    public double getGrandparentHeaderWidth() {
+        return grandparentHeaderWidth;
+    }
+
+
+    @Override
+    public GanttLayoutImpl<C, T> setParentHeaderWidth(double parentHeaderWidth) {
+        this.parentHeaderWidth = parentHeaderWidth;
+        invalidateParentHeaderHorizontalVersion();
+        return this;
+    }
+
+    private void invalidateParentHeaderHorizontalVersion() {
+        parentHeaderHorizontalVersion++;
+        if (!parentRows.isEmpty())
+            markLayoutAsDirty();
+    }
+
+    @Override
+    public double getParentHeaderWidth() {
+        return parentHeaderWidth;
     }
 
     @Override
@@ -367,6 +408,16 @@ public class GanttLayoutImpl<C, T extends Temporal> extends TimeLayoutBase<C, T>
         );
     }
 
+    void layoutParentHorizontally(ParentRow<C> pr) {
+        if (pr.grandparentRow == null || isGrandparentHeaderOnTopOrBottom()) {
+            pr.setX(0);
+            pr.setWidth(getWidth());
+        } else { // Only LEFT considered for now
+            pr.setX(grandparentHeaderWidth);
+            pr.setWidth(getWidth() - grandparentHeaderWidth);
+        }
+    }
+
     void layoutParentVertically(ParentRow<C> pr) {
         // 1) Computing parent row height
         double height;
@@ -394,6 +445,38 @@ public class GanttLayoutImpl<C, T extends Temporal> extends TimeLayoutBase<C, T>
         pr.setY(y);
     }
 
+    void layoutParentHeaderHorizontally(ParentRow<C> pr) {
+        MutableBounds header = pr.getHeader();
+        header.setX(getParentHeaderMinX());
+        header.setWidth(parentHeaderWidth);
+    }
+
+    public double getParentHeaderMinX() {
+        if (isGrandparentHeaderOnTopOrBottom())
+            return 0;
+        return grandparentHeaderWidth;
+    }
+
+    public double getParentHeaderMaxX() {
+        return getParentHeaderMinX() + parentHeaderWidth;
+    }
+
+    void layoutParentHeaderVertically(ParentRow<C> pr) {
+        MutableBounds header = pr.getHeader();
+        header.setY(pr.getY());
+        header.setHeight(pr.getHeight());
+    }
+
+    void layoutGrandparentHorizontally(GrandparentRow gpr) {
+        gpr.setX(0);
+        double width;
+        if (isGrandparentHeaderOnTopOrBottom())
+            width = getWidth();
+        else
+            width = grandparentHeaderWidth;
+        gpr.setWidth(width);
+    }
+
     void layoutGrandparentVertically(GrandparentRow gpr) {
         // 1) Computing grandparent row y position
         double y;
@@ -405,21 +488,44 @@ public class GanttLayoutImpl<C, T extends Temporal> extends TimeLayoutBase<C, T>
         // 2) Computing grandparent height
         double height;
         if (isParentFixedHeight()) { // Faster case (we don't need to call each parent row)
-            height = grandparentHeaderHeight + gpr.parentRows.size() * getParentFixedHeight();
+            // We compute the height of the content except the header = parents
+            height = gpr.parentRows.size() * getParentFixedHeight();
+            // If the header is positioned on top or bottom, we need to consider this extra height in the enclosing row
+            if (isGrandparentHeaderOnTopOrBottom())
+                height += grandparentHeaderHeight;
         } else {
             gpr.validateVerticalLayout(); // not completely true as height is not yet computed, but necessary to avoid
-            // infinite loop in the instruction below (will call getY() only on this instance, not getHeight() => OK)
+            // infinite loop in the instruction below (will call getY() on this instance again, but not getHeight() => OK)
             height = gpr.getLastParentMaxY() - y;
+            if (grandparentHeaderPosition == HeaderPosition.BOTTOM)
+                height += grandparentHeaderHeight;
         }
         gpr.setHeight(height);
     }
 
-    void layoutGrandparentHeaderVertically(GrandparentRow gpr) { // Note: Always called after syncGrandparentV()
-        gpr.header.setHeight(grandparentHeaderHeight);
-        if (grandparentHeaderPosition == HeaderPosition.BOTTOM)
-            gpr.header.setY(gpr.getY() + gpr.getHeight() - grandparentHeaderHeight);
+    void layoutGrandparentHeaderHorizontally(GrandparentRow gpr) { // Note: Always called after layoutGrandparentVertically()
+        MutableBounds header = gpr.getHeader();
+        header.setX(gpr.getX());
+        double width;
+        if (isGrandparentHeaderOnTopOrBottom())
+            width = gpr.getWidth();
+        else // considering LEFT only for now
+            width = grandparentHeaderWidth;
+        header.setWidth(width);
+    }
+
+    void layoutGrandparentHeaderVertically(GrandparentRow gpr) { // Note: Always called after layoutGrandparentVertically()
+        MutableBounds header = gpr.getHeader();
+        double height;
+        if (isGrandparentHeaderOnTopOrBottom())
+            height = grandparentHeaderHeight;
         else
-            gpr.header.setY(gpr.getY());
+            height = gpr.getHeight();
+        header.setHeight(height);
+        double y = gpr.getY();
+        if (grandparentHeaderPosition == HeaderPosition.BOTTOM)
+            y += gpr.getHeight() - grandparentHeaderHeight;
+        header.setY(y);
     }
 
     @Override

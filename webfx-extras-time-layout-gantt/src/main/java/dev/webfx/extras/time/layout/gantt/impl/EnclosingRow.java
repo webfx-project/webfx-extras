@@ -16,6 +16,7 @@ import dev.webfx.extras.time.layout.impl.TimeLayoutBase;
 public abstract class EnclosingRow<THIS extends EnclosingRow<THIS>> extends LazyObjectBounds<THIS> { // enclosing row = header + content
 
     protected LazyObjectBounds<Object> header;
+    protected int headerHorizontalVersion = -1;
     protected boolean recycling;
 
     public EnclosingRow(TimeLayout<?, ?> timeLayout) {
@@ -30,6 +31,11 @@ public abstract class EnclosingRow<THIS extends EnclosingRow<THIS>> extends Lazy
             @Override
             protected void layoutVertically() {
                 layoutHeaderVertically(); // delegated to EnclosingRow.layoutHeaderVertically() so it can easily be overridden by superclasses
+            }
+
+            @Override
+            protected boolean horizontalVersionOp(boolean invalidate, boolean validate) {
+                return headerHorizontalVersionOp(invalidate, validate);
             }
         };
     }
@@ -60,25 +66,15 @@ public abstract class EnclosingRow<THIS extends EnclosingRow<THIS>> extends Lazy
             throw new IllegalStateException("This operation can be done only during recycling state");
     }
 
-    @Override
-    protected void layoutHorizontally() {
-        setX(0);
-        setWidth(timeLayout.getWidth());
-    }
-
-    @Override
-    protected abstract void layoutVertically(); // must be overridden by subclasses to set y & height and also
-
     public MutableBounds getHeader() {
         return header;
     }
 
-    protected void layoutHeaderHorizontally() {
-        header.setX(getX());
-        header.setWidth(getWidth());
-    }
+    protected abstract boolean headerHorizontalVersionOp(boolean invalidate, boolean validate);
 
-    protected void layoutHeaderVertically() { }
+    protected abstract void layoutHeaderHorizontally();
+
+    protected abstract void layoutHeaderVertically();
 
 
 }

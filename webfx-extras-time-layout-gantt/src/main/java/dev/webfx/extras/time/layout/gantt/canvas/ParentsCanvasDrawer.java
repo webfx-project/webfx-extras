@@ -71,14 +71,14 @@ public final class ParentsCanvasDrawer {
         lastVirtualViewPortY = 0;
         if (childrenDrawer != null) {
             childrenDrawer.addOnBeforeDraw(() ->
-                    onBeforeChildrenDraw(ganttLayout.getParentWidth(), childrenDrawer.getLayoutOriginY())
+                    onBeforeChildrenDraw(ganttLayout.getParentHeaderWidth(), childrenDrawer.getLayoutOriginY())
             );
             childrenDrawer.addOnAfterDraw(() ->
-                    onAfterChildrenDraw(ganttLayout.getParentWidth(), childrenDrawer.getLayoutOriginY())
+                    onAfterChildrenDraw(ganttLayout.getParentHeaderWidth(), childrenDrawer.getLayoutOriginY())
             );
             if (childrenDrawer instanceof HasCanvasInteractionManager) {
                 CanvasInteractionManager canvasInteractionManager = ((HasCanvasInteractionManager) childrenDrawer).getCanvasInteractionManager();
-                canvasInteractionManager.addHandler(new ParentsCanvasInteractionHandler(ganttLayout, childrenDrawer, this), true);
+                canvasInteractionManager.addHandler(new ParentsCanvasInteractionHandler(ganttLayout, this), true);
             }
         }
     }
@@ -99,7 +99,7 @@ public final class ParentsCanvasDrawer {
     }
 
     public ParentsCanvasDrawer setParentWidth(double parentWidth) {
-        ganttLayout.setParentWidth(parentWidth);
+        ganttLayout.setParentHeaderWidth(parentWidth);
         return this;
     }
 
@@ -166,9 +166,10 @@ public final class ParentsCanvasDrawer {
                 (verticalStroke == null || verticalStrokeForeground) &&
                 (!ganttLayout.isTetrisPacking() || tetrisAreaFill == null))
             return;
-        drawingArea = new BoundingBox(0, 0, Math.min(canvas.getWidth(), virtualCanvasWidth), canvas.getHeight());
         GraphicsContext gc = canvas.getGraphicsContext2D();
-        gc.clearRect(drawingArea.getMinX(), drawingArea.getMinY(), drawingArea.getWidth(), drawingArea.getHeight());
+        // The area to clear is on the left (up to virtualCanvasWidth)
+        //gc.clearRect(0, 0, Math.min(canvas.getWidth(), virtualCanvasWidth), canvas.getHeight());
+        drawingArea = new BoundingBox(0, 0, canvas.getWidth(), canvas.getHeight());
         // Translating the canvas to consider the effect of the virtual view port
         gc.save();
         gc.translate(0, -lastVirtualViewPortY);
@@ -211,7 +212,7 @@ public final class ParentsCanvasDrawer {
     private void drawParentAndStrokes(ParentRow<?> parentRow, GraphicsContext gc, boolean afterChildrenPass) {
         if (!afterChildrenPass && ganttLayout.isTetrisPacking() && tetrisAreaFill != null) {
             gc.setFill(tetrisAreaFill);
-            gc.fillRect(0, parentRow.getMinY(), canvas.getWidth(), parentRow.getHeight());
+            gc.fillRect(parentRow.getMinX(), parentRow.getMinY(), parentRow.getWidth(), parentRow.getHeight());
         }
         // We draw the strokes before the parent row (that may override them)
         if (horizontalStroke != null && horizontalStrokeForeground == afterChildrenPass) {
@@ -222,9 +223,8 @@ public final class ParentsCanvasDrawer {
         }
         // We draw the parent row only once, and it's after children
         if (afterChildrenPass) {
-            parentRow.setWidth(lastVirtualCanvasWidth);
-            parentDrawer.drawChild(parentRow.getParent(), parentRow, gc);
-            if (childRowHeaderDrawer != null) {
+            parentDrawer.drawChild(parentRow.getParent(), parentRow.getHeader(), gc);
+            if (false && childRowHeaderDrawer != null) {
                 childRowHeaderBounds.setX(lastVirtualCanvasWidth / 2);
                 childRowHeaderBounds.setY(parentRow.getY() + ganttLayout.getVSpacing());
                 childRowHeaderBounds.setWidth(lastVirtualCanvasWidth / 2);
@@ -240,8 +240,8 @@ public final class ParentsCanvasDrawer {
     private void drawHorizontalStrokes(Bounds b, GraphicsContext gc) {
         gc.setStroke(horizontalStroke);
         gc.setLineWidth(1);
-        gc.strokeLine(0, b.getMinY(), gc.getCanvas().getWidth(), b.getMinY());
-        gc.strokeLine(0, b.getMaxY(), gc.getCanvas().getWidth(), b.getMaxY());
+        gc.strokeLine(b.getMinX(), b.getMinY(), b.getMaxX(), b.getMinY());
+        gc.strokeLine(b.getMinX(), b.getMaxY(), b.getMaxX(), b.getMaxY());
     }
 
     private <T extends Temporal> void drawVerticalStrokes(GanttLayoutImpl<?, T> ganttLayout, Bounds b, GraphicsContext gc) {
@@ -250,7 +250,7 @@ public final class ParentsCanvasDrawer {
         T t0 = ganttLayout.getTimeWindowStart();
         while (t0.until(ganttLayout.getTimeWindowEnd(), ChronoUnit.DAYS) >= 0) {
             double x0 = ganttLayout.getTimeProjector().timeToX(t0, true, false);
-            //if (x0 > ganttLayout.getParentWidth())
+            if (x0 > b.getMinX())
                 gc.strokeLine(x0, b.getMinY(), x0, b.getMaxY());
             t0 = (T) t0.plus(1, ChronoUnit.DAYS);
         }

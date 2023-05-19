@@ -25,14 +25,14 @@ public abstract class TimeLayoutBase<C, T> extends ListenableTimeWindowImpl<T> i
     private final DoubleProperty widthProperty = new SimpleDoubleProperty() {
         @Override
         protected void invalidated() {
-             invalidateH();
+             invalidateHorizontalLayout();
         }
     };
     private final DoubleProperty heightProperty = new SimpleDoubleProperty() {
         @Override
         protected void invalidated() {
             if (fillHeight)
-                invalidateV();
+                invalidateVerticalLayout();
         }
     };
 
@@ -50,7 +50,7 @@ public abstract class TimeLayoutBase<C, T> extends ListenableTimeWindowImpl<T> i
     private boolean childStartTimeExclusive;
     private Function<C, T> childEndTimeReader = c -> (T) c;
     private boolean childEndTimeExclusive;
-    protected List<LayoutBounds<C, T>> childrenPositions;
+    protected List<ChildBounds<C, T>> childrenBounds; // initially null until first children are set (to make difference between children not yet received and children received but empty)
     protected int rowsCount;
     private double childFixedHeight = -1;
     private boolean fillHeight;
@@ -61,27 +61,27 @@ public abstract class TimeLayoutBase<C, T> extends ListenableTimeWindowImpl<T> i
     private boolean childSelectionEnabled;
     private ObjectProperty<C> selectedChildProperty;
     protected TimeProjector<T> timeProjector;
-    public int tVersion, hVersion, vVersion;
+    public int timeVersion, horizontalVersion, verticalVersion;
 
     public TimeLayoutBase() {
         children.addListener(this::onChildrenChanged);
-        setOnTimeWindowChanged((end, start) -> invalidateH()); // this changes the x values for the time projection (but children start/end times & y)
+        setOnTimeWindowChanged((end, start) -> invalidateHorizontalLayout()); // this changes the x values for the time projection (but children start/end times & y)
     }
 
     protected void onChildrenChanged(ListChangeListener.Change<? extends C> c) {
         // TODO: improve this and try to recycle existing layout bounds
-        childrenPositions = Stream.generate(this::createChildLayoutBounds)
+        childrenBounds = Stream.generate(this::createChildLayoutBounds)
                 .limit(children.size())
                 .collect(Collectors.toList());
         for (int i = 0; i < children.size(); i++) {
-            LayoutBounds<C, T> cp = childrenPositions.get(i);
-            cp.setChild(children.get(i));
+            ChildBounds<C, T> cb = childrenBounds.get(i);
+            cb.setObject(children.get(i));
         }
-        invalidateT(); // the children may have new start & end times
+        invalidateTimesReading(); // the children may have new start & end times
     }
 
-    protected LayoutBounds<C, T> createChildLayoutBounds() {
-        return new LayoutBounds<>(this);
+    protected ChildBounds<C, T> createChildLayoutBounds() {
+        return new ChildBounds<>(this);
     }
 
     @Override
@@ -109,7 +109,7 @@ public abstract class TimeLayoutBase<C, T> extends ListenableTimeWindowImpl<T> i
         if (startTimeReader != this.childStartTimeReader || exclusive != this.childStartTimeExclusive) {
             this.childStartTimeReader = startTimeReader;
             childStartTimeExclusive = exclusive;
-            invalidateT();
+            invalidateTimesReading();
         }
         return this;
     }
@@ -119,7 +119,7 @@ public abstract class TimeLayoutBase<C, T> extends ListenableTimeWindowImpl<T> i
         if (childEndTimeReader != this.childEndTimeReader || exclusive != this.childEndTimeExclusive) {
             this.childEndTimeReader = childEndTimeReader;
             childEndTimeExclusive = exclusive;
-            invalidateT();
+            invalidateTimesReading();
         }
         return this;
     }
@@ -133,7 +133,7 @@ public abstract class TimeLayoutBase<C, T> extends ListenableTimeWindowImpl<T> i
     public TimeLayoutBase<C, T> setChildFixedHeight(double childFixedHeight) {
         if (childFixedHeight != this.childFixedHeight) {
             this.childFixedHeight = childFixedHeight;
-            invalidateV();
+            invalidateVerticalLayout();
         }
         return this;
     }
@@ -151,7 +151,7 @@ public abstract class TimeLayoutBase<C, T> extends ListenableTimeWindowImpl<T> i
     public TimeLayoutBase<C, T> setFillHeight(boolean fillHeight) {
         if (fillHeight != this.fillHeight) {
             this.fillHeight = fillHeight;
-            invalidateV();
+            invalidateVerticalLayout();
         }
         return this;
     }
@@ -165,7 +165,7 @@ public abstract class TimeLayoutBase<C, T> extends ListenableTimeWindowImpl<T> i
     public TimeLayoutBase<C, T> setTopY(double topY) {
         if (topY != this.topY) {
             this.topY = topY;
-            invalidateV();
+            invalidateVerticalLayout();
         }
         return this;
     }
@@ -179,7 +179,7 @@ public abstract class TimeLayoutBase<C, T> extends ListenableTimeWindowImpl<T> i
     public TimeLayoutBase<C, T> setHSpacing(double hSpacing) {
         if (hSpacing != this.hSpacing) {
             this.hSpacing = hSpacing;
-            invalidateH();
+            invalidateHorizontalLayout();
         }
         return this;
     }
@@ -193,7 +193,7 @@ public abstract class TimeLayoutBase<C, T> extends ListenableTimeWindowImpl<T> i
     public TimeLayoutBase<C, T> setVSpacing(double vSpacing) {
         if (vSpacing != this.vSpacing) {
             this.vSpacing = vSpacing;
-            invalidateV();
+            invalidateVerticalLayout();
         }
         return this;
     }
@@ -216,7 +216,7 @@ public abstract class TimeLayoutBase<C, T> extends ListenableTimeWindowImpl<T> i
 
     @Override
     public void layout() {
-        if (isVisible() && childrenPositions != null) {
+        if (isVisible()) {
             int newLayoutCount = getLayoutCount() + 1;
             layoutCountProperty.set(-newLayoutCount); // trigger onBeforeLayout runnable(s)
             if (!fillHeight && !heightProperty.isBound())
@@ -226,68 +226,68 @@ public abstract class TimeLayoutBase<C, T> extends ListenableTimeWindowImpl<T> i
         }
     }
 
-    public void invalidateT() {
-        tVersion++;
-        invalidateH(); // because x is a time projection (invalid times => invalid x)
+    public void invalidateTimesReading() {
+        timeVersion++;
+        invalidateHorizontalLayout(); // because x is a time projection (invalid times => invalid x)
     }
 
-    public void invalidateH() {
-        hVersion++;
+    public void invalidateHorizontalLayout() {
+        horizontalVersion++;
         markLayoutAsDirty();
     }
 
-    public void invalidateV() {
-        vVersion++;
+    public void invalidateVerticalLayout() {
+        verticalVersion++;
         rowsCount = -1;
         markLayoutAsDirty();
     }
 
-    protected void syncChildT(LayoutBounds<C, T> cp) {
-        C child = cp.getChild();
-        cp.setStartTime(readChildStartTime(child));
-        cp.setEndTime(readChildEndTime(child));
+    protected void readChildTimes(ChildBounds<C, T> cb) {
+        C child = cb.getObject();
+        cb.setStartTime(readChildStartTime(child));
+        cb.setEndTime(readChildEndTime(child));
     }
 
-    protected void syncChildH(LayoutBounds<C, T> cp) {
+    protected void layoutChildHorizontally(ChildBounds<C, T> cb) {
         TimeProjector<T> timeProjector = getTimeProjector();
-        double startX = timeProjector.timeToX(cp.getStartTime(), true, childStartTimeExclusive);
-        double endX = timeProjector.timeToX(cp.getEndTime(), false, childEndTimeExclusive);
-        cp.setX(startX + hSpacing / 2);
-        cp.setWidth(endX - startX - hSpacing);
+        double startX = timeProjector.timeToX(cb.getStartTime(), true, childStartTimeExclusive);
+        double endX = timeProjector.timeToX(cb.getEndTime(), false, childEndTimeExclusive);
+        cb.setX(startX + hSpacing / 2);
+        cb.setWidth(endX - startX - hSpacing);
     }
 
-    protected void syncChildColumnIndex(LayoutBounds<C, T> cp) {
-        cp.setColumnIndex(0);
+    protected void computeChildColumnIndex(ChildBounds<C, T> cb) {
+        cb.setColumnIndex(0);
     }
 
-    protected void syncChildV(LayoutBounds<C, T> cp) {
+    protected void layoutChildVertically(ChildBounds<C, T> cb) {
         if (fillHeight) {
             if (getRowsCount() > 0) {
                 double rowHeight = (getHeight() - topY) / rowsCount;
-                cp.setY(topY + cp.getRowIndex() * rowHeight);
-                cp.setHeight(rowHeight);
+                cb.setY(topY + cb.getRowIndex() * rowHeight);
+                cb.setHeight(rowHeight);
             } else {
-                cp.setY(topY);
-                cp.setHeight(0);
+                cb.setY(topY);
+                cb.setHeight(0);
             }
         } else {
             if (childFixedHeight > 0) {
-                cp.setY(topY + (childFixedHeight + vSpacing) * cp.getRowIndex());
-                cp.setHeight(childFixedHeight);
+                cb.setY(topY + (childFixedHeight + vSpacing) * cb.getRowIndex());
+                cb.setHeight(childFixedHeight);
             }
         }
     }
 
-    protected void syncChildRowIndex(LayoutBounds<C, T> cp) {
-        cp.setRowIndex(0);
+    protected void computeChildRowIndex(ChildBounds<C, T> cb) {
+        cb.setRowIndex(0);
     }
 
     protected double computeHeight() {
-        if (childrenPositions.isEmpty())
+        if (childrenBounds.isEmpty())
             return 0;
         double maxMaxY = 0;
-        for (LayoutBounds<C, T> cp : childrenPositions) {
-            double maxY = cp.getMaxY();
+        for (ChildBounds<C, T> cb : childrenBounds) {
+            double maxY = cb.getMaxY();
             maxMaxY = Math.max(maxMaxY, maxY);
         }
         return maxMaxY;
@@ -297,8 +297,8 @@ public abstract class TimeLayoutBase<C, T> extends ListenableTimeWindowImpl<T> i
     public int getRowsCount() {
         if (rowsCount == -1) {
             rowsCount = 0;
-            for (LayoutBounds<C, T> cp : childrenPositions) {
-                int rowIndex = cp.getRowIndex();
+            for (ChildBounds<C, T> cb : childrenBounds) {
+                int rowIndex = cb.getRowIndex();
                 rowsCount = Math.max(rowsCount, rowIndex + 1);
             }
         }
@@ -306,8 +306,8 @@ public abstract class TimeLayoutBase<C, T> extends ListenableTimeWindowImpl<T> i
     }
 
     @Override
-    public LayoutBounds<C, T> getChildPosition(int childIndex) {
-        return childrenPositions.get(childIndex);
+    public ChildBounds<C, T> getChildBounds(int childIndex) {
+        return childrenBounds.get(childIndex);
     }
 
     private T readChildStartTime(C child) {
@@ -353,11 +353,11 @@ public abstract class TimeLayoutBase<C, T> extends ListenableTimeWindowImpl<T> i
 
     @Override
     public C pickChildAt(double x, double y, boolean onlyIfSelectable) {
-        if (onlyIfSelectable && !isSelectionEnabled())
+        if (onlyIfSelectable && !isSelectionEnabled() || childrenBounds == null)
             return null;
-        for (LayoutBounds<C, T> cp : childrenPositions) {
-            if (cp.contains(x, y))
-                return cp.getChild();
+        for (ChildBounds<C, T> cb : childrenBounds) {
+            if (cb.contains(x, y))
+                return cb.getObject();
         }
         return null;
     }
@@ -371,6 +371,6 @@ public abstract class TimeLayoutBase<C, T> extends ListenableTimeWindowImpl<T> i
     }
 
     protected void processVisibleChildrenNow(javafx.geometry.Bounds visibleArea, double layoutOriginX, double layoutOriginY, BiConsumer<C, Bounds> childProcessor) {
-        TimeLayoutUtil.processVisibleChildrenLayoutBounds(childrenPositions, false, true, visibleArea, layoutOriginX, layoutOriginY, childProcessor);
+        TimeLayoutUtil.processVisibleObjectBounds(childrenBounds, false, true, visibleArea, layoutOriginX, layoutOriginY, childProcessor);
     }
 }

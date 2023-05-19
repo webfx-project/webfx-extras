@@ -1,6 +1,6 @@
 package dev.webfx.extras.time.layout.calendar;
 
-import dev.webfx.extras.time.layout.impl.LayoutBounds;
+import dev.webfx.extras.time.layout.impl.ChildBounds;
 import dev.webfx.extras.time.layout.impl.TimeLayoutBase;
 import dev.webfx.extras.time.layout.TimeProjector;
 import dev.webfx.platform.util.Dates;
@@ -53,9 +53,9 @@ public class CalendarLayout<C, T> extends TimeLayoutBase<C, T> {
     }
 
     @Override
-    public void syncChildColumnIndex(LayoutBounds<C, T> cp) {
+    public void computeChildColumnIndex(ChildBounds<C, T> cb) {
         DayOfWeek dayOfWeek = null;
-        T startTime = cp.getStartTime();
+        T startTime = cb.getStartTime();
         if (startTime instanceof DayOfWeek)
             dayOfWeek = (DayOfWeek) startTime;
         else {
@@ -63,12 +63,12 @@ public class CalendarLayout<C, T> extends TimeLayoutBase<C, T> {
             if (localDate != null)
                 dayOfWeek = localDate.getDayOfWeek();
         }
-        cp.setColumnIndex(dayOfWeek == null ? 0 : getDayOfWeekColumn(dayOfWeek));
+        cb.setColumnIndex(dayOfWeek == null ? 0 : getDayOfWeekColumn(dayOfWeek));
     }
 
     @Override
-    public void syncChildRowIndex(LayoutBounds<C, T> cp) {
-        T startTime = cp.getStartTime();
+    public void computeChildRowIndex(ChildBounds<C, T> cb) {
+        T startTime = cb.getStartTime();
         int rowIndex;
         if (startTime instanceof DayOfWeek || startTime instanceof YearMonth)
             rowIndex = 0;
@@ -80,7 +80,7 @@ public class CalendarLayout<C, T> extends TimeLayoutBase<C, T> {
             int firstOfMonthColumnShift = (dayOfWeek.ordinal() - dayOfFirstWeek0 + 7 /* to ensure not negative */) % 7;
             rowIndex = (dayOfMonth0 + firstOfMonthColumnShift) / 7;
         }
-        cp.setRowIndex(rowIndex);
+        cb.setRowIndex(rowIndex);
     }
 
 }

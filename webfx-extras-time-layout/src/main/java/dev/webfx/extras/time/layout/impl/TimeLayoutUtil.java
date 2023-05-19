@@ -11,49 +11,39 @@ import java.util.function.BiConsumer;
  */
 public class TimeLayoutUtil {
 
-    public static <C, LB extends LayoutBounds<C, ?>, B extends Bounds> void processVisibleChildrenLayoutBounds(List<LB> layoutBounds, boolean ascY, boolean shift, javafx.geometry.Bounds visibleArea, double layoutOriginX, double layoutOriginY, BiConsumer<C, B> childProcessor) {
-        for (LB lb : layoutBounds) {
+    public static <O, OB extends ObjectBounds<O>, B extends Bounds> void processVisibleObjectBounds(List<OB> objectBounds, boolean ascY, boolean shift, javafx.geometry.Bounds visibleArea, double layoutOriginX, double layoutOriginY, BiConsumer<O, B> objectProcessor) {
+        for (OB ob : objectBounds) {
             if (ascY) {
-                if (lb.getY() - layoutOriginY > visibleArea.getMaxY())
+                if (ob.getY() - layoutOriginY > visibleArea.getMaxY())
                     break;
-                if (lb.getMaxY() - layoutOriginY < visibleArea.getMinY())
+                if (ob.getMaxY() - layoutOriginY < visibleArea.getMinY())
                     continue;
             }
-            processChildIfVisible(lb.getChild(), lb, shift, visibleArea, layoutOriginX, layoutOriginY, (BiConsumer<C, LB>) childProcessor);
+            processObjectIfVisible(ob.getObject(), ob, shift, visibleArea, layoutOriginX, layoutOriginY, (BiConsumer<O, OB>) objectProcessor);
         }
     }
 
-    /*
-    public static <C, B extends MutableBounds> void processVisibleChildren(List<C> children, Function<Integer, B> childPositionGetter, javafx.geometry.Bounds visibleArea, double layoutOriginX, double layoutOriginY, BiConsumer<C, B> childProcessor) {
-        for (int i = 0; i < children.size(); i++) {
-            C child = children.get(i);
-            B cp = childPositionGetter.apply(i);
-            processChildIfVisible(child, cp, false, visibleArea, layoutOriginX, layoutOriginY, childProcessor);
-        }
-    }
-*/
-
-    public static <C, B extends MutableBounds> void processChildIfVisible(C child, B cp, boolean shift, javafx.geometry.Bounds visibleArea, double layoutOriginX, double layoutOriginY, BiConsumer<C, B> childProcessor) {
-        // Here is the child position in the layout coordinates:
-        double layoutX = cp.getX();
-        double layoutY = cp.getY();
-        // Here is the child position in the canvas coordinates:
+    public static <O, B extends MutableBounds> void processObjectIfVisible(O object, B ob, boolean shift, javafx.geometry.Bounds visibleArea, double layoutOriginX, double layoutOriginY, BiConsumer<O, B> objectProcessor) {
+        // Here is the object position in the layout coordinates:
+        double layoutX = ob.getX();
+        double layoutY = ob.getY();
+        // Here is the object position in the canvas coordinates:
         double canvasX = layoutX - layoutOriginX;
         double canvasY = layoutY - layoutOriginY;
-        // Skipping that child if it is not visible in the draw area
-        if (visibleArea != null && !visibleArea.intersects(canvasX, canvasY, cp.getWidth(), cp.getHeight()))
+        // Skipping that object if it is not visible in the draw area
+        if (visibleArea != null && !visibleArea.intersects(canvasX, canvasY, ob.getWidth(), ob.getHeight()))
             return; // This improves performance, as canvas operations can take time (even outside canvas)
         // Temporarily moving p to canvas coordinates for the drawing operations
         if (shift) {
-            cp.setX(canvasX);
-            cp.setY(canvasY);
+            ob.setX(canvasX);
+            ob.setY(canvasY);
         }
-        // Drawing the child
-        childProcessor.accept(child, cp);
+        // Drawing the object
+        objectProcessor.accept(object, ob);
         // Moving back p to layout coordinates
         if (shift) {
-            cp.setX(layoutX);
-            cp.setY(layoutY);
+            ob.setX(layoutX);
+            ob.setY(layoutY);
         }
     }
 

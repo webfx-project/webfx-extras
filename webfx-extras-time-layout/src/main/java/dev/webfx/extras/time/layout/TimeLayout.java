@@ -2,7 +2,7 @@ package dev.webfx.extras.time.layout;
 
 import dev.webfx.extras.geometry.Bounds;
 import dev.webfx.extras.layer.interact.InteractiveLayer;
-import dev.webfx.extras.time.layout.impl.LayoutBounds;
+import dev.webfx.extras.time.layout.impl.ChildBounds;
 import dev.webfx.extras.time.window.ListenableTimeWindow;
 
 import java.util.function.BiConsumer;
@@ -57,7 +57,7 @@ public interface TimeLayout<C, T> extends CanLayout,
 
     // Output methods
 
-    LayoutBounds<C, T> getChildPosition(int childIndex);
+    ChildBounds<C, T> getChildBounds(int childIndex);
 
     int getRowsCount();
 

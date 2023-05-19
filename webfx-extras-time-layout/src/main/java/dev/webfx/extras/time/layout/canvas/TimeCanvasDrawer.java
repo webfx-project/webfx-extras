@@ -48,10 +48,15 @@ public class TimeCanvasDrawer<C, T extends Temporal> extends CanvasDrawerBase im
     }
 
     static <C, T> void drawVisibleChildren(javafx.geometry.Bounds drawAreaBounds, double layoutOriginX, double layoutOriginY, TimeLayout<C, T> timeLayout, ChildDrawer<C> childDrawer, GraphicsContext gc) {
+        // Translating the canvas to consider the effect of the possible layout origin coordinate changes
+        gc.save();
+        gc.translate(-layoutOriginX, -layoutOriginY);
         timeLayout.processVisibleChildren(drawAreaBounds, layoutOriginX, layoutOriginY, (child, b) -> {
             gc.save();
             childDrawer.drawChild(child, b, gc);
             gc.restore();
         });
+        // Restoring the canvas context (rolls back the translation)
+        gc.restore();
     }
 }

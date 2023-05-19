@@ -475,7 +475,7 @@ public class GanttLayoutImpl<C, T extends Temporal> extends TimeLayoutBase<C, T>
     private void processVisibleChildrenInGrandparentRows(List<GrandparentRow> grandparentRows, javafx.geometry.Bounds visibleArea, double layoutOriginX, double layoutOriginY, BiConsumer<C, Bounds> childProcessor) {
         TimeLayoutUtil.processVisibleObjectBounds(
                 grandparentRows,
-                true, false, visibleArea, layoutOriginX, layoutOriginY,
+                true, visibleArea, layoutOriginX, layoutOriginY,
                 (grandparentRow, b) -> processVisibleChildrenInParentRows(grandparentRow.getParentRows(), visibleArea, layoutOriginX, layoutOriginY, childProcessor)
         );
     }
@@ -483,14 +483,14 @@ public class GanttLayoutImpl<C, T extends Temporal> extends TimeLayoutBase<C, T>
     private void processVisibleChildrenInParentRows(List<ParentRow<C>> parentRows, javafx.geometry.Bounds visibleArea, double layoutOriginX, double layoutOriginY, BiConsumer<C, Bounds> childProcessor) {
         TimeLayoutUtil.processVisibleObjectBounds(
                 parentRows,
-                true, false, visibleArea, layoutOriginX, layoutOriginY,
+                true, visibleArea, layoutOriginX, layoutOriginY,
                 (parentRow, b) -> processVisibleChildrenInParentRow(parentRow, visibleArea, layoutOriginX, layoutOriginY, childProcessor));
     }
 
     private void processVisibleChildrenInParentRow(ParentRow<C> parentRow, javafx.geometry.Bounds visibleArea, double layoutOriginX, double layoutOriginY, BiConsumer<C, Bounds> childProcessor) {
         TimeLayoutUtil.processVisibleObjectBounds(
                 parentRow.getChildrenBounds(),
-                false, true, visibleArea, layoutOriginX, layoutOriginY,
+                false, visibleArea, layoutOriginX, layoutOriginY,
                 childProcessor);
     }
 

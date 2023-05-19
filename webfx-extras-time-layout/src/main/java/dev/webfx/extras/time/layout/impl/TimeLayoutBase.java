@@ -371,6 +371,6 @@ public abstract class TimeLayoutBase<C, T> extends ListenableTimeWindowImpl<T> i
     }
 
     protected void processVisibleChildrenNow(javafx.geometry.Bounds visibleArea, double layoutOriginX, double layoutOriginY, BiConsumer<C, Bounds> childProcessor) {
-        TimeLayoutUtil.processVisibleObjectBounds(childrenBounds, false, true, visibleArea, layoutOriginX, layoutOriginY, childProcessor);
+        TimeLayoutUtil.processVisibleObjectBounds(childrenBounds, false, visibleArea, layoutOriginX, layoutOriginY, childProcessor);
     }
 }

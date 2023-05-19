@@ -169,17 +169,23 @@ public final class ParentsCanvasDrawer {
         drawingArea = new BoundingBox(0, 0, Math.min(canvas.getWidth(), virtualCanvasWidth), canvas.getHeight());
         GraphicsContext gc = canvas.getGraphicsContext2D();
         gc.clearRect(drawingArea.getMinX(), drawingArea.getMinY(), drawingArea.getWidth(), drawingArea.getHeight());
+        // Translating the canvas to consider the effect of the virtual view port
+        gc.save();
+        gc.translate(0, -lastVirtualViewPortY);
+        // Drawing all grandparent and parents and strokes
         List<GrandparentRow> grandparentRows = ganttLayout.getGrandparentRows();
         if (!grandparentRows.isEmpty())
             drawGrandparentsWithTheirParentsAndStrokes(grandparentRows, gc, afterChildrenPass);
         else
             drawParentsAndStrokes(ganttLayout.getParentRows(), gc, afterChildrenPass);
+        // Restoring the canvas context (rolls back the translation)
+        gc.restore();
     }
 
     private void drawGrandparentsWithTheirParentsAndStrokes(List<GrandparentRow> grandparentRows, GraphicsContext gc, boolean afterChildrenPass) {
         TimeLayoutUtil.processVisibleObjectBounds(
                 grandparentRows,
-                true, false, drawingArea, 0, lastVirtualViewPortY,
+                true, drawingArea, 0, lastVirtualViewPortY,
                 (grandparentRow, b) -> drawGrandparentWithItsParentAndStrokes(grandparentRow, gc, afterChildrenPass)
         );
     }
@@ -187,14 +193,10 @@ public final class ParentsCanvasDrawer {
     private void drawGrandparentWithItsParentAndStrokes(GrandparentRow grandparentRow, GraphicsContext gc, boolean afterChildrenPass) {
         if (afterChildrenPass) {
             MutableBounds gp = grandparentRow.getHeader();
-            //gp.setWidth(lastVirtualCanvasWidth);
-            double gy = gp.getY();
-            gp.setY(gy - lastVirtualViewPortY);
             grandparentDrawer.drawChild(grandparentRow.getGrandparent(), gp, gc);
             /*if (verticalStroke != null*//* && verticalStrokeForeground == afterChildrenPass*//*) {
                 drawVerticalStrokes(ganttLayout, gp, gc);
             }*/
-            gp.setY(gy);
         }
         drawParentsAndStrokes(grandparentRow.getParentRows(), gc, afterChildrenPass);
     }
@@ -202,7 +204,7 @@ public final class ParentsCanvasDrawer {
     private <C> void drawParentsAndStrokes(List<ParentRow<C>> parentRows, GraphicsContext gc, boolean afterChildrenPass) {
         TimeLayoutUtil.processVisibleObjectBounds(
                 parentRows,
-                true, true, drawingArea, 0, lastVirtualViewPortY,
+                true, drawingArea, 0, lastVirtualViewPortY,
                 (parentRow, b) -> drawParentAndStrokes(parentRow, gc, afterChildrenPass));
     }
 

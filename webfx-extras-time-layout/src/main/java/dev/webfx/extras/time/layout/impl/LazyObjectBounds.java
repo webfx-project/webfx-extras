@@ -24,7 +24,7 @@ public abstract class LazyObjectBounds<O> extends ObjectBounds<O> {
         invalidateObject();
     }
 
-    public void setObject(O object) {
+    public final void setObject(O object) {
         if (object != getObject()) {
             invalidateObject();
             super.setObject(object);
@@ -36,43 +36,57 @@ public abstract class LazyObjectBounds<O> extends ObjectBounds<O> {
         invalidateVerticalLayout();
     }
 
-    public void invalidateHorizontalLayout() {
-        horizontalVersion = -1;
+    public final void invalidateHorizontalLayout() {
+        horizontalVersionOp(true, false);
     }
 
-    public boolean isHorizontalLayoutValid() {
-        return horizontalVersion == timeLayout.horizontalVersion;
+    public final boolean isHorizontalLayoutValid() {
+        return horizontalVersionOp(false, false);
     }
 
-    public void validateHorizontalLayout() {
-        horizontalVersion = timeLayout.horizontalVersion;
+    public final void validateHorizontalLayout() {
+        horizontalVersionOp(false, true);
     }
 
-    public void invalidateVerticalLayout() {
-        verticalVersion = -1;
+    protected boolean horizontalVersionOp(boolean invalidate, boolean validate) { // central method to ease override
+        int freshVersion = invalidate ? -1 : timeLayout.horizontalVersion;
+        if (invalidate || validate)
+            horizontalVersion = freshVersion;
+        return horizontalVersion == freshVersion;
     }
 
-    public boolean isVerticalLayoutValid() {
-        return verticalVersion == timeLayout.verticalVersion;
+    public final void invalidateVerticalLayout() {
+        verticalVersionOp(true, false);
     }
 
-    public void validateVerticalLayout() {
-        verticalVersion = timeLayout.verticalVersion;
+    public final boolean isVerticalLayoutValid() {
+        return verticalVersionOp(false, false);
+    }
+
+    public final void validateVerticalLayout() {
+        verticalVersionOp(false, true);
+    }
+
+    protected boolean verticalVersionOp(boolean invalidate, boolean validate) { // central method to ease override
+        int freshVersion = invalidate ? -1 : timeLayout.verticalVersion;
+        if (invalidate || validate)
+            verticalVersion = freshVersion;
+        return verticalVersion == freshVersion;
     }
 
     @Override
-    public double getX() {
+    public final double getX() {
         checkLazyHorizontalLayout();
         return super.getX();
     }
 
     @Override
-    public double getWidth() {
+    public final double getWidth() {
         checkLazyHorizontalLayout();
         return super.getWidth();
     }
 
-    protected void checkLazyHorizontalLayout() {
+    private void checkLazyHorizontalLayout() {
         if (!isHorizontalLayoutValid()) {
             layoutHorizontally();
             validateHorizontalLayout();
@@ -82,18 +96,18 @@ public abstract class LazyObjectBounds<O> extends ObjectBounds<O> {
     protected abstract void layoutHorizontally();
 
     @Override
-    public double getY() {
+    public final double getY() {
         checkLazyVerticalLayout();
         return super.getY();
     }
 
     @Override
-    public double getHeight() {
+    public final double getHeight() {
         checkLazyVerticalLayout();
         return super.getHeight();
     }
 
-    protected void checkLazyVerticalLayout() {
+    private void checkLazyVerticalLayout() {
         if (!isVerticalLayoutValid()) {
             layoutVertically();
             validateVerticalLayout();

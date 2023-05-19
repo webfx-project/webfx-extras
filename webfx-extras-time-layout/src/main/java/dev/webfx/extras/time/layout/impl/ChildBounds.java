@@ -28,25 +28,25 @@ public class ChildBounds<C, T> extends LazyObjectBounds<C> {
         invalidateColumnIndex();
     }
 
-    public T getStartTime() {
+    public final T getStartTime() {
         checkLazyTimesReading();
         return startTime;
     }
 
-    public void setStartTime(T startTime) {
+    public final void setStartTime(T startTime) {
         this.startTime = startTime;
     }
 
-    public T getEndTime() {
+    public final T getEndTime() {
         checkLazyTimesReading();
         return endTime;
     }
 
-    public void setEndTime(T endTime) {
+    public final void setEndTime(T endTime) {
         this.endTime = endTime;
     }
 
-    protected void checkLazyTimesReading() {
+    private void checkLazyTimesReading() {
         if (!isTimesReadingValid()) {
             readTimes();
             validateTimesReading();

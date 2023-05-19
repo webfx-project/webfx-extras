@@ -90,8 +90,8 @@ public abstract class CanvasDrawerBase implements CanvasDrawer {
     @Override
     public void drawArea() {
         int newDrawCount = getDrawCount() + 1;
-        drawCountProperty.set(-newDrawCount); // may trigger onBeforeDraw runnable(s)
         clearArea();
+        drawCountProperty.set(-newDrawCount); // may trigger onBeforeDraw runnable(s)
         drawObjectsInArea();
         drawCountProperty.set(newDrawCount); // may trigger onAfterDraw runnable(s)
     }

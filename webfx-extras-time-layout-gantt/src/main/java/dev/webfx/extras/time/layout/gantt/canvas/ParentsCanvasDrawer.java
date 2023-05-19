@@ -28,11 +28,14 @@ public final class ParentsCanvasDrawer {
     private final GanttLayoutImpl<?, ? extends Temporal> ganttLayout;
     private ChildDrawer<Object> parentDrawer;
     private ChildDrawer<Object> grandparentDrawer;
+    private ChildDrawer<Integer> childRowHeaderDrawer;
+    private final MutableBounds childRowHeaderBounds = new MutableBounds();
     private Paint horizontalStroke;
     private boolean horizontalStrokeForeground = true;
     private Paint verticalStroke;
     private boolean verticalStrokeForeground = true;
     private double lastVirtualCanvasWidth, lastVirtualViewPortY;
+    private Paint tetrisAreaFill;
     private javafx.geometry.Bounds drawingArea;
 
     public ParentsCanvasDrawer(GanttLayoutImpl<?, ? extends Temporal> ganttLayout, CanvasDrawer childrenDrawer) {
@@ -90,6 +93,11 @@ public final class ParentsCanvasDrawer {
         return this;
     }
 
+    public ParentsCanvasDrawer setChildRowHeaderDrawer(ChildDrawer<Integer> childRowHeaderDrawer) {
+        this.childRowHeaderDrawer = childRowHeaderDrawer;
+        return this;
+    }
+
     public ParentsCanvasDrawer setParentWidth(double parentWidth) {
         ganttLayout.setParentWidth(parentWidth);
         return this;
@@ -123,6 +131,10 @@ public final class ParentsCanvasDrawer {
         return setVerticalStroke(verticalStroke).setVerticalStrokeForeground(verticalStrokeForeground);
     }
 
+    public ParentsCanvasDrawer setTetrisAreaFill(Paint tetrisAreaFill) {
+        this.tetrisAreaFill = tetrisAreaFill;
+        return this;
+    }
 
     double getLastVirtualViewPortY() {
         return lastVirtualViewPortY;
@@ -149,7 +161,10 @@ public final class ParentsCanvasDrawer {
         // The only thing we draw before the children are the horizontal & vertical strokes, if set to be drawn in the
         // background. If they are not set so, and we are in that background pass (ie before drawing children), we can
         // return immediately as there is nothing to draw in that pass (this prevents looping for nothing).
-        if (!afterChildrenPass && (horizontalStroke == null || horizontalStrokeForeground) && (verticalStroke == null || verticalStrokeForeground))
+        if (!afterChildrenPass &&
+                (horizontalStroke == null || horizontalStrokeForeground) &&
+                (verticalStroke == null || verticalStrokeForeground) &&
+                (!ganttLayout.isTetrisPacking() || tetrisAreaFill == null))
             return;
         drawingArea = new BoundingBox(0, 0, Math.min(canvas.getWidth(), virtualCanvasWidth), canvas.getHeight());
         GraphicsContext gc = canvas.getGraphicsContext2D();
@@ -162,7 +177,7 @@ public final class ParentsCanvasDrawer {
     }
 
     private void drawGrandparentsWithTheirParentsAndStrokes(List<GrandparentRow> grandparentRows, GraphicsContext gc, boolean afterChildrenPass) {
-        TimeLayoutUtil.processVisibleChildrenLayoutBounds(
+        TimeLayoutUtil.processVisibleObjectBounds(
                 grandparentRows,
                 true, false, drawingArea, 0, lastVirtualViewPortY,
                 (grandparentRow, b) -> drawGrandparentWithItsParentAndStrokes(grandparentRow, gc, afterChildrenPass)
@@ -171,24 +186,31 @@ public final class ParentsCanvasDrawer {
 
     private void drawGrandparentWithItsParentAndStrokes(GrandparentRow grandparentRow, GraphicsContext gc, boolean afterChildrenPass) {
         if (afterChildrenPass) {
-            MutableBounds gp = grandparentRow.getHeadRow();
-            gp.setWidth(lastVirtualCanvasWidth);
+            MutableBounds gp = grandparentRow.getHeader();
+            //gp.setWidth(lastVirtualCanvasWidth);
             double gy = gp.getY();
             gp.setY(gy - lastVirtualViewPortY);
             grandparentDrawer.drawChild(grandparentRow.getGrandparent(), gp, gc);
+            /*if (verticalStroke != null*//* && verticalStrokeForeground == afterChildrenPass*//*) {
+                drawVerticalStrokes(ganttLayout, gp, gc);
+            }*/
             gp.setY(gy);
         }
         drawParentsAndStrokes(grandparentRow.getParentRows(), gc, afterChildrenPass);
     }
 
     private <C> void drawParentsAndStrokes(List<ParentRow<C>> parentRows, GraphicsContext gc, boolean afterChildrenPass) {
-        TimeLayoutUtil.processVisibleChildrenLayoutBounds(
+        TimeLayoutUtil.processVisibleObjectBounds(
                 parentRows,
                 true, true, drawingArea, 0, lastVirtualViewPortY,
                 (parentRow, b) -> drawParentAndStrokes(parentRow, gc, afterChildrenPass));
     }
 
     private void drawParentAndStrokes(ParentRow<?> parentRow, GraphicsContext gc, boolean afterChildrenPass) {
+        if (!afterChildrenPass && ganttLayout.isTetrisPacking() && tetrisAreaFill != null) {
+            gc.setFill(tetrisAreaFill);
+            gc.fillRect(0, parentRow.getMinY(), canvas.getWidth(), parentRow.getHeight());
+        }
         // We draw the strokes before the parent row (that may override them)
         if (horizontalStroke != null && horizontalStrokeForeground == afterChildrenPass) {
             drawHorizontalStrokes(parentRow, gc);
@@ -200,6 +222,16 @@ public final class ParentsCanvasDrawer {
         if (afterChildrenPass) {
             parentRow.setWidth(lastVirtualCanvasWidth);
             parentDrawer.drawChild(parentRow.getParent(), parentRow, gc);
+            if (childRowHeaderDrawer != null) {
+                childRowHeaderBounds.setX(lastVirtualCanvasWidth / 2);
+                childRowHeaderBounds.setY(parentRow.getY() + ganttLayout.getVSpacing());
+                childRowHeaderBounds.setWidth(lastVirtualCanvasWidth / 2);
+                childRowHeaderBounds.setHeight(ganttLayout.getChildFixedHeight());
+                for (int i = 0; i < parentRow.getRowsCount(); i++) {
+                    childRowHeaderDrawer.drawChild(i, childRowHeaderBounds, gc);
+                    childRowHeaderBounds.setY(childRowHeaderBounds.getY() + childRowHeaderBounds.getHeight() + ganttLayout.getVSpacing());
+                }
+            }
         }
     }
 
@@ -216,7 +248,8 @@ public final class ParentsCanvasDrawer {
         T t0 = ganttLayout.getTimeWindowStart();
         while (t0.until(ganttLayout.getTimeWindowEnd(), ChronoUnit.DAYS) >= 0) {
             double x0 = ganttLayout.getTimeProjector().timeToX(t0, true, false);
-            gc.strokeLine(x0, b.getMinY(), x0, b.getMaxY());
+            //if (x0 > ganttLayout.getParentWidth())
+                gc.strokeLine(x0, b.getMinY(), x0, b.getMaxY());
             t0 = (T) t0.plus(1, ChronoUnit.DAYS);
         }
     }

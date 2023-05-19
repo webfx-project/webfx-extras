@@ -1,6 +1,6 @@
 package dev.webfx.extras.time.layout.gantt.impl;
 
-import dev.webfx.extras.geometry.MutableBounds;
+import dev.webfx.extras.time.layout.gantt.HeaderPosition;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -8,14 +8,12 @@ import java.util.List;
 /**
  * @author Bruno Salmon
  */
-public final class GrandparentRow extends RowBounds<GrandparentRow> { //represents the enclosing row (headRow + parentRows)
+public final class GrandparentRow extends EnclosingRow<GrandparentRow> { //represents the enclosing row (header + parentRows)
 
     private final Object grandparent;
     GrandparentRow aboveGrandparentRow;
     private final GanttLayoutImpl<?, ?> ganttLayout;
-    final MutableBounds headRow = new MutableBounds(); // represents the head row (first row above the parentRows)
     final List<ParentRow<?>> parentRows = new ArrayList<>();
-    private int vVersionHead;
 
     public GrandparentRow(Object grandparent, GrandparentRow aboveGrandparentRow, GanttLayoutImpl<?, ?> ganttLayout) {
         super(ganttLayout);
@@ -26,13 +24,12 @@ public final class GrandparentRow extends RowBounds<GrandparentRow> { //represen
 
     @Override
     protected void onRecyclingStart() {
+        super.onRecyclingStart();
         parentRows.clear();
-        invalidateV();
-        vVersionHead = -1;
     }
 
     void setAboveGrandparentRow(GrandparentRow aboveGrandparentRow) {
-        checkRecycling(); // aboveGrandparentRow should be changed only during recycling
+        throwExceptionIfNotRecycling(); // aboveGrandparentRow should be changed only during recycling
         this.aboveGrandparentRow = aboveGrandparentRow;
     }
 
@@ -49,42 +46,17 @@ public final class GrandparentRow extends RowBounds<GrandparentRow> { //represen
     }
 
     @Override
-    protected void syncV() {
-        ganttLayout.syncGrandparentV(this);
+    protected void layoutVertically() {
+        ganttLayout.layoutGrandparentVertically(this);
+    }
+
+    @Override
+    protected void layoutHeaderVertically() {
+        ganttLayout.layoutGrandparentHeaderVertically(this);
     }
 
     double getLastParentMaxY() {
-        return parentRows.get(parentRows.size() - 1).getMaxY();
-    }
-
-    private void checkSyncVHead() {
-        if (vVersionHead != ganttLayout.vVersion) {
-            syncVHead();
-            vVersionHead = ganttLayout.vVersion;
-        }
-    }
-
-    private void syncVHead() {
-        syncVHead(getY());
-    }
-
-    void checkSyncVHead(double y) {
-        if (vVersionHead != ganttLayout.vVersion) {
-            syncVHead(y);
-            vVersionHead = ganttLayout.vVersion;
-        }
-    }
-
-    private void syncVHead(double y) {
-        headRow.setX(getX());
-        headRow.setWidth(getWidth());
-        headRow.setY(y);
-        headRow.setHeight(ganttLayout.getGrandparentHeight()); // actually head height
-    }
-
-    public MutableBounds getHeadRow() {
-        checkSyncVHead();
-        return headRow;
+        return parentRows.get(parentRows.size() - 1).getMaxY() + (ganttLayout.getGrandparentHeaderPosition() == HeaderPosition.BOTTOM ? ganttLayout.getGrandparentHeaderHeight() : 0);
     }
 
 }

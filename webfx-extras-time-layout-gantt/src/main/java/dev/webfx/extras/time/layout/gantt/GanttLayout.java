@@ -17,13 +17,15 @@ public interface GanttLayout<C, T extends Temporal> extends TimeLayout<C, T> {
 
     GanttLayout<C, T> setChildTetrisMinWidthReader(Function<C, Double> childTetrisMinWidthReader);
 
+    GanttLayout<C, T> setGrandparentHeaderPosition(HeaderPosition headerPosition);
+
     GanttLayout<C, T> setParentWidth(double parentWidth);
 
     double getParentWidth();
 
-    GanttLayout<C, T> setGrandparentHeight(double grandparentHeight);
+    GanttLayout<C, T> setGrandparentHeaderHeight(double grandparentHeaderHeight);
 
-    double getGrandparentHeight();
+    double getGrandparentHeaderHeight();
 
     GanttLayout<C, T> setTetrisPacking(boolean tetrisPacking);
 

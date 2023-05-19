@@ -49,8 +49,8 @@ public final class LocalDateGanttLayout<C> extends GanttLayoutImpl<C, LocalDate>
     }
 
     @Override
-    public LocalDateGanttLayout<C> setGrandparentHeight(double grandparentHeight) {
-        return (LocalDateGanttLayout<C>) super.setGrandparentHeight(grandparentHeight);
+    public LocalDateGanttLayout<C> setGrandparentHeaderHeight(double grandparentHeaderHeight) {
+        return (LocalDateGanttLayout<C>) super.setGrandparentHeaderHeight(grandparentHeaderHeight);
     }
 
     @Override

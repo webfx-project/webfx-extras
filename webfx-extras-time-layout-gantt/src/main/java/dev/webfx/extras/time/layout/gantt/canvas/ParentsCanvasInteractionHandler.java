@@ -36,7 +36,7 @@ public class ParentsCanvasInteractionHandler implements CanvasInteractionHandler
     }
 
     private boolean isHoveringGrandparent(MouseEvent e) {
-        return ganttLayout.getGrandparentRows().stream().anyMatch(gr -> gr.getHeadRow().contains(0, e.getY() + parentsCanvasDrawer.getLastVirtualViewPortY()));
+        return ganttLayout.getGrandparentRows().stream().anyMatch(gr -> gr.getHeader().contains(0, e.getY() + parentsCanvasDrawer.getLastVirtualViewPortY()));
     }
 
     public boolean handleMouseMoved(MouseEvent e, Canvas canvas) {

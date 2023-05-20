@@ -37,7 +37,7 @@ public class GanttLayoutImpl<C, T extends Temporal> extends TimeLayoutBase<C, T>
     private double grandparentHeaderWidth = 150; // Used only for LEFT & RIGHT position
     private double grandparentHeaderHeight = 80; // arbitrary non-null default value (so grandparent rows will appear even if
     // the application code forgot to call setGrandparentHeight())
-    private HeaderPosition parentHeaderPosition = HeaderPosition.TOP;
+    private HeaderPosition parentHeaderPosition = HeaderPosition.BOTTOM;
     private double parentHeaderWidth;
     private double parentHeaderHeight = 20;
     private boolean tetrisPacking;
@@ -585,7 +585,12 @@ public class GanttLayoutImpl<C, T extends Temporal> extends TimeLayoutBase<C, T>
     void layoutParentHeaderVertically(ParentRow<C> pr) {
         MutableBounds header = pr.getHeader();
         // Y:
-        header.setY(pr.getY()); // same as parent row (TODO: bottom case)
+        double y;
+        if (isParentHeaderOnBottom())
+            y = pr.getMaxY() - parentHeaderHeight;
+        else
+            y = pr.getY(); // same as parent row
+        header.setY(y);
         // Height:
         double height;
         if (isParentHeaderOnTopOrBottom())

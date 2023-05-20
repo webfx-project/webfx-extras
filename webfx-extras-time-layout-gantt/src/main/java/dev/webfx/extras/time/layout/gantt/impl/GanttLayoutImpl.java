@@ -37,8 +37,9 @@ public class GanttLayoutImpl<C, T extends Temporal> extends TimeLayoutBase<C, T>
     private double grandparentHeaderWidth = 150; // Used only for LEFT & RIGHT position
     private double grandparentHeaderHeight = 80; // arbitrary non-null default value (so grandparent rows will appear even if
     // the application code forgot to call setGrandparentHeight())
-    private HeaderPosition parentHeaderPosition = HeaderPosition.RIGHT;
+    private HeaderPosition parentHeaderPosition = HeaderPosition.TOP;
     private double parentHeaderWidth;
+    private double parentHeaderHeight = 20;
     private boolean tetrisPacking;
     private final BooleanProperty parentsProvidedProperty = new SimpleBooleanProperty() {
         @Override
@@ -206,6 +207,20 @@ public class GanttLayoutImpl<C, T extends Temporal> extends TimeLayoutBase<C, T>
         return this;
     }
 
+    @Override
+    public double getParentHeaderWidth() {
+        return parentHeaderWidth;
+    }
+
+    public double getParentHeaderHeight() {
+        return parentHeaderHeight;
+    }
+
+    public GanttLayoutImpl<C, T> setParentHeaderHeight(double parentHeaderHeight) {
+        this.parentHeaderHeight = parentHeaderHeight;
+        return this;
+    }
+
     private void invalidateParentHeaderHorizontalVersion() {
         parentHeaderHorizontalVersion++;
         if (!parentRows.isEmpty()) {
@@ -252,11 +267,6 @@ public class GanttLayoutImpl<C, T extends Temporal> extends TimeLayoutBase<C, T>
 
     public boolean isParentHeaderOnLeftOrRight() {
         return isParentHeaderOnLeft() || isParentHeaderOnRight();
-    }
-
-    @Override
-    public double getParentHeaderWidth() {
-        return parentHeaderWidth;
     }
 
     @Override
@@ -474,10 +484,12 @@ public class GanttLayoutImpl<C, T extends Temporal> extends TimeLayoutBase<C, T>
         // 2) Computing child y position
         double vSpacing = getVSpacing();
         int childRowIndex = gcb.getRowIndexInParentRow();
-        cb.setY(gcb.getParentRow().getY() // top position of enclosing parent row
+        double y = gcb.getParentRow().getY() // top position of enclosing parent row
                 + vSpacing // top spacing
-                + (childHeight + vSpacing) * childRowIndex // vertical shift of that particular child
-        );
+                + (childHeight + vSpacing) * childRowIndex; // vertical shift of that particular child
+        if (isParentHeaderOnTop())
+            y += parentHeaderHeight;
+        cb.setY(y);
     }
 
     /*******************************************************************************************************************
@@ -525,13 +537,15 @@ public class GanttLayoutImpl<C, T extends Temporal> extends TimeLayoutBase<C, T>
                     + (childHeight + vSpacing) * pr.getRowsCount(); // total of children in that parent row
          } else
             height = 0; // TODO: what to do in this case?
+        if (isParentHeaderOnTopOrBottom())
+            height += parentHeaderHeight;
         // 2) Computing parent row y position
         pr.setHeight(height);
         double y;
         if (pr.aboveParentRow != null)
             y = pr.aboveParentRow.getMaxY();
         else if (pr.grandparentRow != null) {
-            if (grandparentHeaderPosition == HeaderPosition.TOP)
+            if (isGrandparentHeaderOnTop())
                 y = pr.grandparentRow.getHeader().getMaxY();
             else
                 y = pr.grandparentRow.getY();
@@ -548,26 +562,37 @@ public class GanttLayoutImpl<C, T extends Temporal> extends TimeLayoutBase<C, T>
         // X:
         header.setX(getParentHeaderMinX());
         // Width:
-        header.setWidth(parentHeaderWidth);
+        header.setWidth(getParentHeaderFinalWidth());
     }
 
     public double getParentHeaderMinX() {
         if (isParentHeaderOnRight())
-            return getParentRowMaxX() - parentHeaderWidth;
+            return getParentRowMaxX() - getParentHeaderFinalWidth();
         return getParentRowMinX();
     }
 
     public double getParentHeaderMaxX() {
-        return getParentHeaderMinX() + parentHeaderWidth;
+        return getParentHeaderMinX() + getParentHeaderFinalWidth();
+    }
+
+    private double getParentHeaderFinalWidth() {
+        if (isParentHeaderOnLeftOrRight())
+            return parentHeaderWidth;
+        return getParentRowWidth();
     }
 
     // -------------------------------------------- Vertical layout ----------------------------------------------------
     void layoutParentHeaderVertically(ParentRow<C> pr) {
         MutableBounds header = pr.getHeader();
         // Y:
-        header.setY(pr.getY());
+        header.setY(pr.getY()); // same as parent row (TODO: bottom case)
         // Height:
-        header.setHeight(pr.getHeight());
+        double height;
+        if (isParentHeaderOnTopOrBottom())
+            height = parentHeaderHeight;
+        else
+            height = pr.getHeight(); // same as parent row
+        header.setHeight(height);
     }
 
     /*******************************************************************************************************************

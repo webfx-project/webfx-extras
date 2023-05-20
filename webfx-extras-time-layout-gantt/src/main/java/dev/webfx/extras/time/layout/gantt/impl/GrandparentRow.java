@@ -45,12 +45,12 @@ public final class GrandparentRow extends EnclosingRow<GrandparentRow> { // repr
 
     @Override
     protected void layoutHorizontally() {
-        ganttLayout.layoutGrandparentHorizontally(this);
+        ganttLayout.layoutGrandparentRowHorizontally(this);
     }
 
     @Override
     protected void layoutVertically() {
-        ganttLayout.layoutGrandparentVertically(this);
+        ganttLayout.layoutGrandparentRowVertically(this);
     }
 
     @Override

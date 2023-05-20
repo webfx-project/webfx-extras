@@ -177,6 +177,10 @@ public class BarDrawer {
         return setIcon(iconSvgPathContent, fill, iconSvgWidth, iconSvgHeight, iconPos, iconHAlignment, iconVAlignement, 0, 0);
     }
 
+    private boolean isIconSet() {
+        return (iconImage != null || iconSvgPath != null) && iconPos != null && iconHAlignment != null && iconVAlignement != null;
+    }
+
     public BarDrawer drawBar(Bounds b, GraphicsContext gc) {
         return drawBackground(b, gc)
                 .drawIcon(b, gc)
@@ -192,45 +196,62 @@ public class BarDrawer {
     }
 
     public BarDrawer drawIcon(Bounds b, GraphicsContext gc) {
-        if ((iconImage != null || iconSvgPath != null) && iconPos != null && iconHAlignment != null && iconVAlignement != null) {
-            double x = 0, y = 0, w = iconSvgPath != null ? iconSvgWidth : iconImage.getWidth(), h = iconSvgPath != null ? iconSvgHeight : iconImage.getHeight();
-            switch (iconPos.getHpos()) {
-                case LEFT:   x = b.getMinX() + hPadding; break;
-                case RIGHT:  x = b.getMaxX() - hPadding; break;
-                case CENTER: x = b.getCenterX();         break;
-            }
-            switch (iconPos.getVpos()) {
-                case TOP:    y = b.getMinY();    break;
-                case BASELINE:
-                case CENTER: y = b.getCenterY(); break;
-                case BOTTOM: y = b.getMaxY();    break;
-            }
-            switch (iconHAlignment) {
-                case LEFT:               break;
-                case CENTER: x -= w / 2; break;
-                case RIGHT:  x -= w;     break;
-            }
-            switch (iconVAlignement) {
-                case TOP:                break;
-                case BASELINE:
-                case CENTER: y -= h / 2; break;
-                case BOTTOM: y -= h;     break;
-            }
+        if (isIconSet()) {
             gc.save();
             clipRect(b.getMinX() + hPadding, b.getMinY(), b.getWidth() - 2 * hPadding, b.getHeight(), gc);
+            gc.translate(computeIconX(b), computeIconY(b));
             if (iconSvgPath != null) {
                 Paint fill = iconSvgPath.getFill();
                 gc.setFill(fill);
-                gc.translate(x + iconTranslateX, y + iconTranslateY);
                 gc.beginPath();
                 gc.appendSVGPath(iconSvgPath.getContent());
                 gc.closePath();
                 gc.fill();
             } else
-                gc.drawImage(iconImage, x + iconTranslateX, y + iconTranslateY);
+                gc.drawImage(iconImage, 0, 0);
             gc.restore();
         }
         return this;
+    }
+
+    private double getIconWidth() {
+        return iconSvgPath != null ? iconSvgWidth : iconImage.getWidth();
+    }
+
+    private double computeIconX(Bounds b) {
+        double x = 0, w = getIconWidth();
+        switch (iconPos.getHpos()) {
+            case LEFT:   x = b.getMinX() + hPadding; break;
+            case RIGHT:  x = b.getMaxX() - hPadding; break;
+            case CENTER: x = b.getCenterX();         break;
+        }
+        switch (iconHAlignment) {
+            case LEFT:               break;
+            case CENTER: x -= w / 2; break;
+            case RIGHT:  x -= w;     break;
+        }
+        return x + iconTranslateX;
+    }
+
+    private double getIconHeight() {
+        return iconSvgPath != null ? iconSvgHeight : iconImage.getHeight();
+    }
+
+    private double computeIconY(Bounds b) {
+        double y = 0, h = getIconHeight();
+        switch (iconPos.getVpos()) {
+            case TOP:    y = b.getMinY();    break;
+            case BASELINE:
+            case CENTER: y = b.getCenterY(); break;
+            case BOTTOM: y = b.getMaxY();    break;
+        }
+        switch (iconVAlignement) {
+            case TOP:                break;
+            case BASELINE:
+            case CENTER: y -= h / 2; break;
+            case BOTTOM: y -= h;     break;
+        }
+        return y + iconTranslateY;
     }
 
     public BarDrawer drawTexts(Bounds b, GraphicsContext gc) {
@@ -238,21 +259,75 @@ public class BarDrawer {
         if (hasText && (!clipText || getTextAreaWidth(b) > 5)) { // Unnecessary to draw text when doesn't fit (this skip makes a big performance improvement on big zoom out over many events - because the text clip operation is time-consuming)
             if (hasMiddleText) {
                 setFirstNonNullFont(middleTextFont, textFont, gc);
-                fillText(b.getMinX(), b.getMinY(), b.getWidth(), b.getHeight(), hPadding, middleText, clipText, textFill, VPos.CENTER, textAlignment, gc);
+                fillText(middleText, b.getMinX(), b.getMinY(), b.getWidth(), b.getHeight(), b, gc);
             }
             if (hasTopOrBottomText) {
                 double h = b.getHeight(), h2 = h / 2, vPadding = h / 16;
                 if (hasTopText) {
                     setFirstNonNullFont(topTextFont, textFont, gc);
-                    fillText(b.getMinX(), b.getMinY() + vPadding, b.getWidth(), h2, hPadding, topText, clipText, textFill, VPos.CENTER, textAlignment, gc);
+                    fillText(topText, b.getMinX(), b.getMinY() + vPadding, b.getWidth(), h2, b, gc);
                 }
                 if (hasBottomText) {
                     setFirstNonNullFont(bottomTextFont, textFont, gc);
-                    fillText(b.getMinX(), b.getMinY() + h2, b.getWidth(), h2 - vPadding, hPadding, bottomText, clipText, textFill, VPos.CENTER, textAlignment, gc);
+                    fillText(bottomText, b.getMinX(), b.getMinY() + h2, b.getWidth(), h2 - vPadding, b, gc);
                 }
             }
         }
         return this;
+    }
+
+    private void fillText(String text, double x, double y, double width, double height, Bounds b, GraphicsContext gc) {
+        TextAlignment ta = textAlignment;
+        if (hPadding > 0) {
+            x += hPadding;
+            width -= 2 * hPadding;
+        }
+        double hTextPadding = 5; // hardcoded value for now
+        gc.save();
+        // clip makes canvas operations slower, so we do it only when necessary
+        javafx.geometry.Bounds textBounds = WebFxKitLauncher.measureText(text, gc.getFont());
+        double canvasWidth = gc.getCanvas().getWidth();
+        double visibleBarWidth = Math.min(x + width, canvasWidth) - Math.max(x, 0);
+        boolean textWider = textBounds.getWidth() + 2 * hTextPadding > visibleBarWidth;
+        // Clipping the text when it is wider than the visible bar. Note: adding a clip path makes all canvas operation
+        // much slower, so it's good to skip that step when not necessary (ie when the text is not wider than the bar).
+        if (clipText && textWider)
+            clipRect(x, y, width, height, gc);
+        gc.setFill(textFill);
+        gc.setTextBaseline(VPos.CENTER);
+        if (isIconSet()) {
+            x = computeIconX(b) + getIconWidth() + 5;
+            ta = TextAlignment.LEFT;
+            if (clipText/* && textWider*/)
+                clipRect(b.getMinX(), b.getMinY(), b.getWidth(), b.getHeight(), gc);
+        } else if (ta == null) { // auto
+            // TODO: comment these different cases
+            if (x < 0 && x + width > 0) {
+                if (textWider) {
+                    x = x + width - hTextPadding;
+                    ta = TextAlignment.RIGHT;
+                } else {
+                    ta = TextAlignment.CENTER;
+                }
+            } else if (x < canvasWidth && x + width > canvasWidth) {
+                if (textWider) {
+                    x += hTextPadding;
+                    ta = TextAlignment.LEFT;
+                } else {
+                    ta = TextAlignment.CENTER;
+                }
+            } else if (textWider) {
+                x += hTextPadding;
+                ta = TextAlignment.LEFT;
+            }
+        }
+        if (ta == TextAlignment.CENTER)
+            x = (Math.max(x, 0) + Math.min(canvasWidth, x + width)) / 2;
+        //if (VPos.CENTER == VPos.CENTER)
+        y += height / 2;
+        gc.setTextAlign(ta);
+        gc.fillText(text, x, y);
+        gc.restore(); // this includes removing the clip path if set
     }
 
     public double getTextAreaWidth(Bounds b) {
@@ -308,55 +383,7 @@ public class BarDrawer {
         else
             gc.strokeRect(x, y, width, height);
     }
-
-    public static void fillText(double x, double y, double width, double height, double hPadding, String text, boolean clipText, Paint fill, VPos baseline, TextAlignment textAlignment, GraphicsContext gc) {
-        if (hPadding > 0) {
-            x += hPadding;
-            width -= 2 * hPadding;
-        }
-        double hTextPadding = 5; // hardcoded value for now
-        gc.save();
-        // clip makes canvas operations slower, so we do it only when necessary
-        javafx.geometry.Bounds textBounds = WebFxKitLauncher.measureText(text, gc.getFont());
-        double canvasWidth = gc.getCanvas().getWidth();
-        double visibleBarWidth = Math.min(x + width, canvasWidth) - Math.max(x, 0);
-        boolean textWider = textBounds.getWidth() + 2 * hTextPadding > visibleBarWidth;
-        // Clipping the text when it is wider than the visible bar. Note: adding a clip path makes all canvas operation
-        // much slower, so it's good to skip that step when not necessary (ie when the text is not wider than the bar).
-        if (clipText && textWider)
-            clipRect(x, y, width, height, gc);
-        gc.setFill(fill);
-        gc.setTextBaseline(baseline);
-        if (textAlignment == null) { // auto
-            // TODO: comment these different cases
-            if (x < 0 && x + width > 0) {
-                if (textWider) {
-                    x = x + width - hTextPadding;
-                    textAlignment = TextAlignment.RIGHT;
-                } else {
-                    textAlignment = TextAlignment.CENTER;
-                }
-            } else if (x < canvasWidth && x + width > canvasWidth) {
-                if (textWider) {
-                    x += hTextPadding;
-                    textAlignment = TextAlignment.LEFT;
-                } else {
-                    textAlignment = TextAlignment.CENTER;
-                }
-            } else if (textWider) {
-                x += hTextPadding;
-                textAlignment = TextAlignment.LEFT;
-            }
-        }
-        if (textAlignment == TextAlignment.CENTER)
-            x = (Math.max(x, 0) + Math.min(canvasWidth, x + width)) / 2;
-        if (baseline == VPos.CENTER)
-            y += height / 2;
-        gc.setTextAlign(textAlignment);
-        gc.fillText(text, x, y);
-        gc.restore(); // this includes removing the clip path if set
-    }
-
+    
     public static void fillRect(Bounds b, double hPadding, Paint fill, double radius, GraphicsContext gc) {
         fillRect(b.getMinX(), b.getMinY(), b.getWidth(), b.getHeight(), hPadding, fill, radius, gc);
     }
@@ -368,14 +395,6 @@ public class BarDrawer {
     public static void fillStrokeRect(Bounds b, double hPadding, Paint fill, Paint stroke, double radius, GraphicsContext gc) {
         fillRect(b, hPadding, fill, radius, gc);
         strokeRect(b, hPadding, stroke, radius, gc);
-    }
-
-    public static void fillText(Bounds b, double hPadding, String text, boolean clipText, Paint fill, VPos baseline, TextAlignment textAlignment, GraphicsContext gc) {
-        fillText(b.getMinX(), b.getMinY(), b.getWidth(), b.getHeight(), hPadding, text, clipText, fill, baseline, textAlignment, gc);
-    }
-
-    public static void fillCenterText(Bounds b, double hPadding, String text, boolean clipText, Paint fill, GraphicsContext gc) {
-        fillText(b, hPadding, text, clipText, fill, VPos.CENTER, TextAlignment.CENTER, gc);
     }
 
     public static void clipRect(double x, double y, double width, double height, GraphicsContext gc) {

@@ -29,17 +29,27 @@ public class ParentsCanvasInteractionHandler implements CanvasInteractionHandler
             sliderX = ganttLayout.getGrandparentHeaderMinX();
         else { // LEFT
             sliderX = ganttLayout.getGrandparentHeaderMaxX();
+            // If the slider is at the right end of the canvas or even further (this can happen when reducing the window
+            // size), we still offer the possibility to slide it back to left.
             sliderX = Math.min(sliderX, canvas.getWidth() - 16); // 16px = because of possible presence of vertical scrollbar
         }
+        // We consider the mouse is hovering it when closer than 10px from it,
         return (Math.abs(e.getX() - sliderX) < 10);
     }
 
     private boolean isHoveringParentSlider(MouseEvent e, Canvas canvas) {
+        if (!ganttLayout.isParentHeaderOnLeftOrRight())
+            return false;
         // The slider is a virtual vertical bar separating parents and children, so located at x = parent maxX.
-        double sliderX = ganttLayout.getParentHeaderMaxX();
-        // If the slider is at the right end of the canvas or even further (this can happen when reducing the window
-        // size), we still offer the possibility to slide it back to left.
-        sliderX = Math.min(sliderX, canvas.getWidth() - 16); // 16px = because of possible presence of vertical scrollbar
+        double sliderX;
+        if (ganttLayout.isParentHeaderOnRight())
+            sliderX = ganttLayout.getParentHeaderMinX();
+        else { // LEFT
+            sliderX = ganttLayout.getParentHeaderMaxX();
+            // If the slider is at the right end of the canvas or even further (this can happen when reducing the window
+            // size), we still offer the possibility to slide it back to left.
+            sliderX = Math.min(sliderX, canvas.getWidth() - 16); // 16px = because of possible presence of vertical scrollbar
+        }
         // We consider the mouse is hovering it when closer than 10px from it,
         return (Math.abs(e.getX() - sliderX) < 10)
                 // except if it is hovering a grandparent row on top or bottom
@@ -85,8 +95,12 @@ public class ParentsCanvasInteractionHandler implements CanvasInteractionHandler
             return false; // Stopping propagation
         }
         if (draggingParentSlider) { // Indicates that this mouse drag is for the slider
-            double parentWidth = Math.max(0, e.getX() - ganttLayout.getParentHeaderMinX());
-            parentWidth = Math.min(parentWidth, canvas.getWidth());
+            double parentWidth;
+            if (ganttLayout.isParentHeaderOnLeft())
+                parentWidth = e.getX() - ganttLayout.getParentHeaderMinX();
+            else
+                parentWidth = ganttLayout.getParentHeaderMaxX() - e.getX();
+            parentWidth = Math.max(0, Math.min(parentWidth, canvas.getWidth()));
             ganttLayout.setParentHeaderWidth(parentWidth); // Will cause a quick layout pass + canvas refresh
             return false; // Stopping propagation
         }

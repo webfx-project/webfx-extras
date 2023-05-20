@@ -65,7 +65,7 @@ public final class GrandparentRow extends EnclosingRow<GrandparentRow> { // repr
 
     @Override
     protected boolean headerHorizontalVersionOp(boolean invalidate, boolean validate) {
-        int freshVersion = invalidate ? -1 : ganttLayout.grandparentHeaderHorizontalVersion;
+        int freshVersion = invalidate ? -1 : ganttLayout.horizontalVersion + ganttLayout.grandparentHeaderHorizontalVersion;
         if (invalidate || validate)
             headerHorizontalVersion = freshVersion;
         return headerHorizontalVersion == freshVersion;

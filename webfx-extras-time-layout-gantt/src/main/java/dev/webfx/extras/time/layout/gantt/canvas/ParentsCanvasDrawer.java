@@ -224,10 +224,16 @@ public final class ParentsCanvasDrawer {
         // We draw the parent row only once, and it's after children
         if (afterChildrenPass) {
             parentDrawer.drawChild(parentRow.getParent(), parentRow.getHeader(), gc);
-            if (false && childRowHeaderDrawer != null) {
-                childRowHeaderBounds.setX(lastVirtualCanvasWidth / 2);
-                childRowHeaderBounds.setY(parentRow.getY() + ganttLayout.getVSpacing());
-                childRowHeaderBounds.setWidth(lastVirtualCanvasWidth / 2);
+            if (childRowHeaderDrawer != null) {
+                if (ganttLayout.isParentHeaderOnLeft())
+                    childRowHeaderBounds.setX(ganttLayout.getParentHeaderMaxX());
+                else
+                    childRowHeaderBounds.setX(ganttLayout.getParentHeaderMinX());
+                if (ganttLayout.isParentHeaderOnTop())
+                    childRowHeaderBounds.setY(parentRow.getHeader().getMaxY() + ganttLayout.getVSpacing());
+                else
+                    childRowHeaderBounds.setY(parentRow.getY() + ganttLayout.getVSpacing());
+                childRowHeaderBounds.setWidth(80); // temporary hardcoded value
                 childRowHeaderBounds.setHeight(ganttLayout.getChildFixedHeight());
                 for (int i = 0; i < parentRow.getRowsCount(); i++) {
                     childRowHeaderDrawer.drawChild(i, childRowHeaderBounds, gc);

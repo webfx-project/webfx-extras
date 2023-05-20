@@ -37,7 +37,7 @@ public class GanttLayoutImpl<C, T extends Temporal> extends TimeLayoutBase<C, T>
     private double grandparentHeaderWidth = 150; // Used only for LEFT & RIGHT position
     private double grandparentHeaderHeight = 80; // arbitrary non-null default value (so grandparent rows will appear even if
     // the application code forgot to call setGrandparentHeight())
-    private HeaderPosition parentHeaderPosition = HeaderPosition.BOTTOM;
+    private HeaderPosition parentHeaderPosition = HeaderPosition.LEFT;
     private double parentHeaderWidth;
     private double parentHeaderHeight = 20;
     private boolean tetrisPacking;

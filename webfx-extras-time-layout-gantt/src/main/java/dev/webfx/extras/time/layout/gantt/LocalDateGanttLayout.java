@@ -17,7 +17,6 @@ public final class LocalDateGanttLayout<C> extends GanttLayoutImpl<C, LocalDate>
 
     // Final casts for the fluent API
 
-
     @Override
     public LocalDateGanttLayout<C> setParentsProvided(boolean parentsProvided) {
         return (LocalDateGanttLayout<C>) super.setParentsProvided(parentsProvided);
@@ -121,6 +120,26 @@ public final class LocalDateGanttLayout<C> extends GanttLayoutImpl<C, LocalDate>
     @Override
     public LocalDateGanttLayout<C> setSelectionEnabled(boolean selectionEnabled) {
         return (LocalDateGanttLayout<C>) super.setSelectionEnabled(selectionEnabled);
+    }
+
+    @Override
+    public LocalDateGanttLayout<C> setGrandparentHeaderPosition(HeaderPosition grandparentHeaderPosition) {
+        return (LocalDateGanttLayout<C>) super.setGrandparentHeaderPosition(grandparentHeaderPosition);
+    }
+
+    @Override
+    public LocalDateGanttLayout<C> setGrandparentHeaderWidth(double grandparentHeaderWidth) {
+        return (LocalDateGanttLayout<C>) super.setGrandparentHeaderWidth(grandparentHeaderWidth);
+    }
+
+    @Override
+    public LocalDateGanttLayout<C> setParentHeaderHeight(double parentHeaderHeight) {
+        return (LocalDateGanttLayout<C>) super.setParentHeaderHeight(parentHeaderHeight);
+    }
+
+    @Override
+    public LocalDateGanttLayout<C> setParentHeaderPosition(HeaderPosition parentHeaderPosition) {
+        return (LocalDateGanttLayout<C>) super.setParentHeaderPosition(parentHeaderPosition);
     }
 
     // Static factory methods

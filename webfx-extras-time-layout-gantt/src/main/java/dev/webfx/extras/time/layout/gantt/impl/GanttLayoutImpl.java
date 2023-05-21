@@ -240,6 +240,7 @@ public class GanttLayoutImpl<C, T extends Temporal> extends TimeLayoutBase<C, T>
         return parentHeaderPosition;
     }
 
+    @Override
     public GanttLayoutImpl<C, T> setParentHeaderPosition(HeaderPosition parentHeaderPosition) {
         this.parentHeaderPosition = parentHeaderPosition;
         return this;

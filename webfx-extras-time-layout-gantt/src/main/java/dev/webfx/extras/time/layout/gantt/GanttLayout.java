@@ -19,6 +19,8 @@ public interface GanttLayout<C, T extends Temporal> extends TimeLayout<C, T> {
 
     GanttLayout<C, T> setGrandparentHeaderPosition(HeaderPosition headerPosition);
 
+    GanttLayout<C, T> setParentHeaderPosition(HeaderPosition headerPosition);
+
     GanttLayout<C, T> setParentHeaderWidth(double parentHeaderWidth);
 
     double getParentHeaderWidth();

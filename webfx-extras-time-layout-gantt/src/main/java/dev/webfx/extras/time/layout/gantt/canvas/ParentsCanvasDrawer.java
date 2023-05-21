@@ -6,6 +6,7 @@ import dev.webfx.extras.canvas.layer.interact.CanvasInteractionManager;
 import dev.webfx.extras.canvas.layer.interact.HasCanvasInteractionManager;
 import dev.webfx.extras.geometry.Bounds;
 import dev.webfx.extras.geometry.MutableBounds;
+import dev.webfx.extras.time.layout.gantt.HeaderRotation;
 import dev.webfx.extras.time.layout.gantt.impl.GanttLayoutImpl;
 import dev.webfx.extras.time.layout.gantt.impl.GrandparentRow;
 import dev.webfx.extras.time.layout.gantt.impl.ParentRow;
@@ -36,6 +37,10 @@ public final class ParentsCanvasDrawer {
     private boolean verticalStrokeForeground = true;
     private double lastVirtualCanvasWidth, lastVirtualViewPortY;
     private Paint tetrisAreaFill;
+
+    private HeaderRotation grandparentHeaderRotation = HeaderRotation.NO_ROTATION;
+    private HeaderRotation parentHeaderRotation = HeaderRotation.NO_ROTATION;
+
     private javafx.geometry.Bounds drawingArea;
 
     public ParentsCanvasDrawer(GanttLayoutImpl<?, ? extends Temporal> ganttLayout, CanvasDrawer childrenDrawer) {
@@ -136,6 +141,16 @@ public final class ParentsCanvasDrawer {
         return this;
     }
 
+    public ParentsCanvasDrawer setGrandparentHeaderRotation(HeaderRotation grandparentHeaderRotation) {
+        this.grandparentHeaderRotation = grandparentHeaderRotation;
+        return this;
+    }
+
+    public ParentsCanvasDrawer setParentHeaderRotation(HeaderRotation parentHeaderRotation) {
+        this.parentHeaderRotation = parentHeaderRotation;
+        return this;
+    }
+
     double getLastVirtualViewPortY() {
         return lastVirtualViewPortY;
     }
@@ -193,13 +208,49 @@ public final class ParentsCanvasDrawer {
 
     private void drawGrandparentWithItsParentAndStrokes(GrandparentRow grandparentRow, GraphicsContext gc, boolean afterChildrenPass) {
         if (afterChildrenPass) {
-            MutableBounds gp = grandparentRow.getHeader();
-            grandparentDrawer.drawChild(grandparentRow.getGrandparent(), gp, gc);
+            MutableBounds header = grandparentRow.getHeader();
+            HeaderRotation rotation = grandparentHeaderRotation;
+            boolean rotated = rotation.isRotated();
+            if (rotated)
+                prepareStateForRotatedDraw(header, gc, rotation);
+            grandparentDrawer.drawChild(grandparentRow.getGrandparent(), header, gc);
+            if (rotated)
+                restoreStateAfterRotatedDraw(header, gc);
             /*if (verticalStroke != null*//* && verticalStrokeForeground == afterChildrenPass*//*) {
-                drawVerticalStrokes(ganttLayout, gp, gc);
+                drawVerticalStrokes(ganttLayout, header, gc);
             }*/
         }
         drawParentsAndStrokes(grandparentRow.getParentRows(), gc, afterChildrenPass);
+    }
+
+    private final MutableBounds headerCoordinatesBeforeRotate = new MutableBounds();
+
+    private void prepareStateForRotatedDraw(MutableBounds header, GraphicsContext gc, HeaderRotation rotation) {
+        headerCoordinatesBeforeRotate.copyCoordinates(header);
+        gc.save();
+        // Rotating the canvas using the bounds center as the pivot point
+        gc.translate(header.getCenterX(), header.getCenterY());
+        gc.rotate(rotation.getAngle());
+        // Translating the canvas from the bounds centre so the bounds origin will be (0, 0)
+        double w = header.getWidth();
+        double h = header.getHeight();
+        // Rotating the bounds -> inverting width & height and setting origin to (0, 0)
+        header.setX(0);
+        header.setY(0);
+        if (Math.abs(rotation.getAngle()) == 90) {
+            gc.translate(-h / 2, -w / 2);
+            header.setWidth(h);
+            header.setHeight(w);
+        } else
+            gc.translate(-w / 2, -h / 2);
+
+    }
+
+    private void restoreStateAfterRotatedDraw(MutableBounds header, GraphicsContext gc) {
+        // Reestablishing the original bounds coordinates
+        header.copyCoordinates(headerCoordinatesBeforeRotate);
+        // Wiping the latest canvas transforms (translations & rotation)
+        gc.restore();
     }
 
     private <C> void drawParentsAndStrokes(List<ParentRow<C>> parentRows, GraphicsContext gc, boolean afterChildrenPass) {
@@ -223,14 +274,21 @@ public final class ParentsCanvasDrawer {
         }
         // We draw the parent row only once, and it's after children
         if (afterChildrenPass) {
-            parentDrawer.drawChild(parentRow.getParent(), parentRow.getHeader(), gc);
+            MutableBounds header = parentRow.getHeader();
+            HeaderRotation rotation = parentHeaderRotation;
+            boolean rotated = rotation.isRotated();
+            if (rotated)
+                prepareStateForRotatedDraw(header, gc, rotation);
+            parentDrawer.drawChild(parentRow.getParent(), header, gc);
+            if (rotated)
+                restoreStateAfterRotatedDraw(header, gc);
             if (childRowHeaderDrawer != null) {
                 if (ganttLayout.isParentHeaderOnLeft())
                     childRowHeaderBounds.setX(ganttLayout.getParentHeaderMaxX());
                 else
                     childRowHeaderBounds.setX(ganttLayout.getParentHeaderMinX());
                 if (ganttLayout.isParentHeaderOnTop())
-                    childRowHeaderBounds.setY(parentRow.getHeader().getMaxY() + ganttLayout.getVSpacing());
+                    childRowHeaderBounds.setY(header.getMaxY() + ganttLayout.getVSpacing());
                 else
                     childRowHeaderBounds.setY(parentRow.getY() + ganttLayout.getVSpacing());
                 childRowHeaderBounds.setWidth(80); // temporary hardcoded value

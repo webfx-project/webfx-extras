@@ -56,9 +56,17 @@ public class MutableBounds implements Bounds {
         }
     }
 
+    public void setMinX(double minX) {
+        setX(minX);
+    }
+
     @Override
     public double getMinX() {
         return getX();
+    }
+
+    public void setMinY(double minY) {
+        setY(minY);
     }
 
     public double getMinY() {
@@ -68,9 +76,15 @@ public class MutableBounds implements Bounds {
 
     @Override
     public javafx.geometry.Bounds toFXBounds() {
-        if (fxBounds == null) {
-            return new BoundingBox(x, y, width, height);
-        }
+        if (fxBounds == null)
+            fxBounds = new BoundingBox(x, y, width, height);
         return fxBounds;
+    }
+
+    public void copyCoordinates(Bounds other) {
+        setMinX(other.getMinX());
+        setMinY(other.getMinY());
+        setWidth(other.getWidth());
+        setHeight(other.getHeight());
     }
 }

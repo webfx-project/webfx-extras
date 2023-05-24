@@ -295,7 +295,7 @@ public class BarDrawer {
             clipRect(x, y, width, height, gc);
         gc.setFill(textFill);
         gc.setTextBaseline(VPos.CENTER);
-        if (isIconSet()) {
+        if (isIconSet() && text == middleText) { // Temporary code to put the middle text just after the icon if set
             x = computeIconX(b) + getIconWidth() + 5;
             ta = TextAlignment.LEFT;
             if (clipText/* && textWider*/)

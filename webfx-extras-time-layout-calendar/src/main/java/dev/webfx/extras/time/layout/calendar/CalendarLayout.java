@@ -2,10 +2,12 @@ package dev.webfx.extras.time.layout.calendar;
 
 import dev.webfx.extras.time.layout.impl.ChildBounds;
 import dev.webfx.extras.time.layout.impl.TimeLayoutBase;
-import dev.webfx.extras.time.layout.TimeProjector;
-import dev.webfx.platform.util.Dates;
+import dev.webfx.extras.time.projector.DayOfWeekProjector;
+import dev.webfx.extras.time.projector.TimeProjectorUtil;
 
-import java.time.*;
+import java.time.DayOfWeek;
+import java.time.LocalDate;
+import java.time.YearMonth;
 
 /**
  * @author Bruno Salmon
@@ -13,43 +15,8 @@ import java.time.*;
 public class CalendarLayout<C, T> extends TimeLayoutBase<C, T> {
 
     public CalendarLayout() {
-        setTimeProjector(new TimeProjector<T>() {
-            @Override
-            public double timeToX(T time, boolean start, boolean exclusive) {
-                DayOfWeek dayOfWeek;
-                if (time instanceof DayOfWeek)
-                    dayOfWeek = (DayOfWeek) time;
-                else {
-                    LocalDate localDate = timeToLocalDate(time);
-                    dayOfWeek = localDate.getDayOfWeek();
-                }
-                int dayOfWeekColumn = getDayOfWeekColumn(dayOfWeek);
-                if (start && exclusive || !start && !exclusive)
-                    dayOfWeekColumn++;
-                return dayOfWeekColumn * getWidth() / 7;
-            }
-
-            @Override
-            public T xToTime(double x) {
-                return null;
-            }
-        });
+        setTimeProjector(new DayOfWeekProjector<>(this::getWidth));
         javafx.collections.ObservableList<C> children = null; // This is just to force the WebFX CLI to add the dependency to javafx-base
-    }
-
-    private LocalDate timeToLocalDate(T time) {
-        if (time instanceof MonthDay) {
-            MonthDay monthDay = (MonthDay) time;
-            return monthDay.atYear(Year.now().getValue()); // Assuming it's this year
-        } else if (time instanceof YearMonth) {
-            YearMonth yearMonth = (YearMonth) time;
-            return yearMonth.atDay(1);
-        }
-        return Dates.toLocalDate(time);
-    }
-
-    private int getDayOfWeekColumn(DayOfWeek dayOfWeek) {
-        return dayOfWeek.ordinal();
     }
 
     @Override
@@ -59,11 +26,11 @@ public class CalendarLayout<C, T> extends TimeLayoutBase<C, T> {
         if (startTime instanceof DayOfWeek)
             dayOfWeek = (DayOfWeek) startTime;
         else {
-            LocalDate localDate = timeToLocalDate(startTime);
+            LocalDate localDate = TimeProjectorUtil.timeToLocalDate(startTime);
             if (localDate != null)
                 dayOfWeek = localDate.getDayOfWeek();
         }
-        cb.setColumnIndex(dayOfWeek == null ? 0 : getDayOfWeekColumn(dayOfWeek));
+        cb.setColumnIndex(dayOfWeek == null ? 0 : TimeProjectorUtil.getDayOfWeekColumn(dayOfWeek));
     }
 
     @Override
@@ -73,7 +40,7 @@ public class CalendarLayout<C, T> extends TimeLayoutBase<C, T> {
         if (startTime instanceof DayOfWeek || startTime instanceof YearMonth)
             rowIndex = 0;
         else {
-            LocalDate localDate = timeToLocalDate(startTime);
+            LocalDate localDate = TimeProjectorUtil.timeToLocalDate(startTime);
             int dayOfMonth0 = localDate.getDayOfMonth() - 1; // Starting with 0 for computation convenience
             DayOfWeek dayOfWeek = localDate.getDayOfWeek();
             int dayOfFirstWeek0 = dayOfMonth0 % 7; // Still has same dayOfWeek

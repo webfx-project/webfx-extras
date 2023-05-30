@@ -2,19 +2,18 @@ package dev.webfx.extras.time.layout.gantt.impl;
 
 import dev.webfx.extras.geometry.Bounds;
 import dev.webfx.extras.geometry.MutableBounds;
-import dev.webfx.extras.time.layout.TimeProjector;
 import dev.webfx.extras.time.layout.gantt.GanttLayout;
 import dev.webfx.extras.time.layout.gantt.HeaderPosition;
 import dev.webfx.extras.time.layout.impl.ChildBounds;
 import dev.webfx.extras.time.layout.impl.TimeLayoutBase;
 import dev.webfx.extras.time.layout.impl.TimeLayoutUtil;
+import dev.webfx.extras.time.projector.LinearTimeWindowProjector;
 import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.SimpleBooleanProperty;
 import javafx.collections.FXCollections;
 import javafx.collections.ListChangeListener;
 import javafx.collections.ObservableList;
 
-import java.time.temporal.ChronoUnit;
 import java.time.temporal.Temporal;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -71,30 +70,7 @@ public class GanttLayoutImpl<C, T extends Temporal> extends TimeLayoutBase<C, T>
     private ParentRow<C> lastParentRow;
 
     public GanttLayoutImpl() {
-        setTimeProjector(new TimeProjector<>() {
-            @Override
-            public double timeToX(T time, boolean start, boolean exclusive) {
-                T timeWindowStart = getTimeWindowStart();
-                T timeWindowEnd = getTimeWindowEnd();
-                if (timeWindowStart == null || timeWindowEnd == null)
-                    return 0;
-                long totalDays = timeWindowStart.until(timeWindowEnd, ChronoUnit.DAYS) + 1;
-                long daysToTime = timeWindowStart.until(time, ChronoUnit.DAYS);
-                if (start && exclusive || !start && !exclusive)
-                    daysToTime++;
-                return getWidth() * daysToTime / totalDays;
-            }
-
-            @Override
-            public T xToTime(double x) {
-                T timeWindowStart = getTimeWindowStart();
-                T timeWindowEnd = getTimeWindowEnd();
-                if (timeWindowStart == null || timeWindowEnd == null)
-                    return null;
-                long totalDays = timeWindowStart.until(timeWindowEnd, ChronoUnit.DAYS) + 1;
-                return (T) timeWindowStart.plus((long) (x * totalDays / getWidth()), ChronoUnit.DAYS);
-            }
-        });
+        setTimeProjector(new LinearTimeWindowProjector<>(this, this::getWidth));
         parents.addListener((ListChangeListener<Object>) c -> invalidateProvidedTree());
     }
 

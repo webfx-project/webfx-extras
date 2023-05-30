@@ -5,8 +5,11 @@ module webfx.extras.time.window {
     // Direct dependencies modules
     requires java.base;
     requires javafx.base;
+    requires javafx.graphics;
+    requires webfx.platform.util;
 
     // Exported packages
+    exports dev.webfx.extras.time.projector;
     exports dev.webfx.extras.time.window;
     exports dev.webfx.extras.time.window.impl;
 

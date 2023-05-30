@@ -2,7 +2,7 @@ package dev.webfx.extras.time.layout.gantt;
 
 import dev.webfx.extras.time.TimeUtil;
 import dev.webfx.extras.time.YearWeek;
-import dev.webfx.extras.time.layout.TimeProjector;
+import dev.webfx.extras.time.projector.TimeProjector;
 import dev.webfx.extras.time.layout.gantt.impl.GanttLayoutImpl;
 
 import java.time.LocalDate;

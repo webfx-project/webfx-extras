@@ -1,4 +1,4 @@
-package dev.webfx.extras.time.layout;
+package dev.webfx.extras.time.projector;
 
 public interface TimeProjector<T> {
 

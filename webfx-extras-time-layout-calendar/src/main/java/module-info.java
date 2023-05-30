@@ -6,7 +6,7 @@ module webfx.extras.time.layout.calendar {
     requires java.base;
     requires javafx.base;
     requires webfx.extras.time.layout;
-    requires webfx.platform.util;
+    requires webfx.extras.time.window;
 
     // Exported packages
     exports dev.webfx.extras.time.layout.calendar;

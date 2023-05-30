@@ -2,7 +2,7 @@ package dev.webfx.extras.time.layout.impl;
 
 import dev.webfx.extras.geometry.Bounds;
 import dev.webfx.extras.time.layout.TimeLayout;
-import dev.webfx.extras.time.layout.TimeProjector;
+import dev.webfx.extras.time.projector.TimeProjector;
 import dev.webfx.extras.time.window.impl.ListenableTimeWindowImpl;
 import dev.webfx.extras.util.DirtyMarker;
 import javafx.beans.property.*;

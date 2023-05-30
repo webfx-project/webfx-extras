@@ -15,6 +15,7 @@ import javafx.geometry.BoundingBox;
 import javafx.scene.canvas.Canvas;
 import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.paint.Paint;
+import javafx.stage.Screen;
 
 import java.time.temporal.ChronoUnit;
 import java.time.temporal.Temporal;
@@ -300,17 +301,20 @@ public final class ParentsCanvasDrawer {
             }
         }
     }
+    private final double STROKE_WIDTH = 1d / Screen.getPrimary().getOutputScaleX();
 
     private void drawHorizontalStrokes(Bounds b, GraphicsContext gc) {
         gc.setStroke(horizontalStroke);
-        gc.setLineWidth(1);
-        gc.strokeLine(b.getMinX(), b.getMinY(), b.getMaxX(), b.getMinY());
-        gc.strokeLine(b.getMinX(), b.getMaxY(), b.getMaxX(), b.getMaxY());
+        gc.setLineWidth(STROKE_WIDTH);
+        double minY = Math.round(b.getMinY());
+        gc.strokeLine(b.getMinX(), minY, b.getMaxX(), minY);
+        double maxY = Math.round(b.getMaxY());
+        gc.strokeLine(b.getMinX(), maxY, b.getMaxX(), maxY);
     }
 
     private <T extends Temporal> void drawVerticalStrokes(GanttLayoutImpl<?, T> ganttLayout, Bounds b, GraphicsContext gc) {
         gc.setStroke(verticalStroke);
-        gc.setLineWidth(1);
+        gc.setLineWidth(STROKE_WIDTH);
         T t0 = ganttLayout.getTimeWindowStart();
         while (t0.until(ganttLayout.getTimeWindowEnd(), ChronoUnit.DAYS) >= 0) {
             double x0 = ganttLayout.getTimeProjector().timeToX(t0, true, false);

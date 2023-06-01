@@ -30,7 +30,7 @@
         <dependency>
             <groupId>org.pepstock</groupId>
             <artifactId>charba</artifactId>
-            <version>6.3</version>
+            <version>6.4</version>
         </dependency>
 
         <dependency>

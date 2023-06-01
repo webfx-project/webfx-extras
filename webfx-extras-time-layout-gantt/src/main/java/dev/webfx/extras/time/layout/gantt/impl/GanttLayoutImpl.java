@@ -75,6 +75,12 @@ public class GanttLayoutImpl<C, T extends Temporal> extends TimeLayoutBase<C, T>
     }
 
     @Override
+    protected void onChildrenChanged(ListChangeListener.Change<? extends C> c) {
+        super.onChildrenChanged(c);
+        invalidateChildrenTree();
+    }
+
+    @Override
     protected ChildBounds<C, T> createChildLayoutBounds() {
         return new GanttChildBounds<>(this);
     }
@@ -284,13 +290,7 @@ public class GanttLayoutImpl<C, T extends Temporal> extends TimeLayoutBase<C, T>
     }
 
     double getParentFixedHeight() {
-        return getChildFixedHeight();
-    }
-
-    @Override
-    protected void onChildrenChanged(ListChangeListener.Change<? extends C> c) {
-        super.onChildrenChanged(c);
-        invalidateChildrenTree();
+        return getChildFixedHeight() + 2 * getVSpacing();
     }
 
     private void invalidateChildrenTree() {

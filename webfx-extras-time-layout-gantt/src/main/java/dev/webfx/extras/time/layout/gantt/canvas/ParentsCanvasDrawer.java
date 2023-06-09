@@ -10,6 +10,7 @@ import dev.webfx.extras.time.layout.gantt.HeaderRotation;
 import dev.webfx.extras.time.layout.gantt.impl.GanttLayoutImpl;
 import dev.webfx.extras.time.layout.gantt.impl.GrandparentRow;
 import dev.webfx.extras.time.layout.gantt.impl.ParentRow;
+import dev.webfx.extras.time.layout.impl.ObjectBounds;
 import dev.webfx.extras.time.layout.impl.TimeLayoutUtil;
 import javafx.geometry.BoundingBox;
 import javafx.scene.canvas.Canvas;
@@ -28,10 +29,12 @@ public final class ParentsCanvasDrawer {
 
     private final Canvas canvas;
     private final GanttLayoutImpl<?, ? extends Temporal> ganttLayout;
+    private final CanvasDrawer childrenDrawer;
     private ChildDrawer<Object> parentDrawer;
     private ChildDrawer<Object> grandparentDrawer;
     private ChildDrawer<Integer> childRowHeaderDrawer;
-    private final MutableBounds childRowHeaderBounds = new MutableBounds();
+    private double childRowHeaderWidth = 80;
+    private final ObjectBounds<Object> childRowHeaderBounds = new ObjectBounds<>();
     private Paint horizontalStroke;
     private boolean horizontalStrokeForeground = true;
     private Paint verticalStroke;
@@ -70,6 +73,7 @@ public final class ParentsCanvasDrawer {
 
     private <P, G> ParentsCanvasDrawer(GanttLayoutImpl<?, ? extends Temporal> ganttLayout, Canvas canvas, CanvasDrawer childrenDrawer, ChildDrawer<P> parentDrawer, ChildDrawer<G> grandparentDrawer) {
         this.ganttLayout = ganttLayout;
+        this.childrenDrawer = childrenDrawer;
         this.parentDrawer = (ChildDrawer<Object>) parentDrawer;
         this.grandparentDrawer = (ChildDrawer<Object>) grandparentDrawer;
         this.canvas = canvas;
@@ -102,6 +106,16 @@ public final class ParentsCanvasDrawer {
     public ParentsCanvasDrawer setChildRowHeaderDrawer(ChildDrawer<Integer> childRowHeaderDrawer) {
         this.childRowHeaderDrawer = childRowHeaderDrawer;
         return this;
+    }
+
+    public ParentsCanvasDrawer setChildRowHeaderWidth(double childRowHeaderWidth) {
+        this.childRowHeaderWidth = childRowHeaderWidth;
+        childrenDrawer.markDrawAreaAsDirty();
+        return this;
+    }
+
+    public double getChildRowHeaderWidth() {
+        return childRowHeaderWidth;
     }
 
     public ParentsCanvasDrawer setParentWidth(double parentWidth) {
@@ -280,7 +294,8 @@ public final class ParentsCanvasDrawer {
             boolean rotated = rotation.isRotated();
             if (rotated)
                 prepareStateForRotatedDraw(header, gc, rotation);
-            parentDrawer.drawChild(parentRow.getParent(), header, gc);
+            Object parent = parentRow.getParent();
+            parentDrawer.drawChild(parent, header, gc);
             if (rotated)
                 restoreStateAfterRotatedDraw(header, gc);
             if (childRowHeaderDrawer != null) {
@@ -292,8 +307,9 @@ public final class ParentsCanvasDrawer {
                     childRowHeaderBounds.setY(header.getMaxY() + ganttLayout.getVSpacing());
                 else
                     childRowHeaderBounds.setY(parentRow.getY() + ganttLayout.getVSpacing());
-                childRowHeaderBounds.setWidth(80); // temporary hardcoded value
+                childRowHeaderBounds.setWidth(childRowHeaderWidth);
                 childRowHeaderBounds.setHeight(ganttLayout.getChildFixedHeight());
+                childRowHeaderBounds.setObject(parent);
                 for (int i = 0; i < parentRow.getRowsCount(); i++) {
                     childRowHeaderDrawer.drawChild(i, childRowHeaderBounds, gc);
                     childRowHeaderBounds.setY(childRowHeaderBounds.getY() + childRowHeaderBounds.getHeight() + ganttLayout.getVSpacing());

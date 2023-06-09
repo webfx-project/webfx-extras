@@ -302,7 +302,7 @@ public final class ParentsCanvasDrawer {
                 if (ganttLayout.isParentHeaderOnLeft())
                     childRowHeaderBounds.setX(ganttLayout.getParentHeaderMaxX());
                 else
-                    childRowHeaderBounds.setX(ganttLayout.getParentHeaderMinX());
+                    childRowHeaderBounds.setX(ganttLayout.getParentHeaderMinX() - childRowHeaderWidth);
                 if (ganttLayout.isParentHeaderOnTop())
                     childRowHeaderBounds.setY(header.getMaxY() + ganttLayout.getVSpacing());
                 else

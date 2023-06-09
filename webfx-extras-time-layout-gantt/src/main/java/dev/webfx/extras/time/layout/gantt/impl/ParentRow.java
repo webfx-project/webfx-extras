@@ -57,6 +57,15 @@ public final class ParentRow<C> extends EnclosingRow<ParentRow<C>> {
         return tetrisRows == null ? 1 : tetrisRows.size();
     }
 
+    public int getChildRowIndexAtY(double y) {
+        if (y < getMinY() || y > getMaxY())
+            return -1;
+        if (!ganttLayout.isTetrisPacking())
+            return 0;
+        y -= getMinY();
+        return (int) (y / ganttLayout.getChildRowHeight());
+    }
+
     public Object getParent() {
         return parent;
     }

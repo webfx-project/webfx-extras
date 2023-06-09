@@ -21,6 +21,7 @@ import javafx.stage.Screen;
 import java.time.temporal.ChronoUnit;
 import java.time.temporal.Temporal;
 import java.util.List;
+import java.util.function.BiConsumer;
 
 /**
  * @author Bruno Salmon
@@ -34,6 +35,7 @@ public final class ParentsCanvasDrawer {
     private ChildDrawer<Object> grandparentDrawer;
     private ChildDrawer<Integer> childRowHeaderDrawer;
     private double childRowHeaderWidth = 80;
+    private BiConsumer<Object, Integer> childRowHeaderClickHandler;
     private final ObjectBounds<Object> childRowHeaderBounds = new ObjectBounds<>();
     private Paint horizontalStroke;
     private boolean horizontalStrokeForeground = true;
@@ -108,14 +110,23 @@ public final class ParentsCanvasDrawer {
         return this;
     }
 
+    public double getChildRowHeaderWidth() {
+        return childRowHeaderWidth;
+    }
+
     public ParentsCanvasDrawer setChildRowHeaderWidth(double childRowHeaderWidth) {
         this.childRowHeaderWidth = childRowHeaderWidth;
         childrenDrawer.markDrawAreaAsDirty();
         return this;
     }
 
-    public double getChildRowHeaderWidth() {
-        return childRowHeaderWidth;
+    public BiConsumer<Object, Integer> getChildRowHeaderClickHandler() {
+        return childRowHeaderClickHandler;
+    }
+
+    public <P> ParentsCanvasDrawer setChildRowHeaderClickHandler(BiConsumer<P, Integer> childRowHeaderClickHandler) {
+        this.childRowHeaderClickHandler = (BiConsumer<Object, Integer>) childRowHeaderClickHandler;
+        return this;
     }
 
     public ParentsCanvasDrawer setParentWidth(double parentWidth) {

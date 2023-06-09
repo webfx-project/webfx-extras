@@ -4,6 +4,7 @@ import dev.webfx.extras.canvas.impl.CanvasDrawerBase;
 import dev.webfx.extras.canvas.layer.ChildDrawer;
 import dev.webfx.extras.canvas.layer.interact.CanvasInteractionManager;
 import dev.webfx.extras.canvas.layer.interact.HasCanvasInteractionManager;
+import dev.webfx.extras.layer.interact.TranslatedCanSelectChild;
 import dev.webfx.extras.time.layout.TimeLayout;
 import javafx.scene.canvas.Canvas;
 import javafx.scene.canvas.GraphicsContext;
@@ -37,7 +38,7 @@ public class TimeCanvasDrawer<C, T extends Temporal> extends CanvasDrawerBase im
     public CanvasInteractionManager getCanvasInteractionManager() {
         if (canvasInteractionManager == null) {
             canvasInteractionManager = new CanvasInteractionManager(getCanvas());
-            canvasInteractionManager.addHandler(new TimeCanvasInteractionHandler<>(timeLayout, temporalUnit, timeLayout));
+            canvasInteractionManager.addHandler(new TimeCanvasInteractionHandler<>(timeLayout, temporalUnit, new TranslatedCanSelectChild<>(timeLayout, this::getLayoutOriginX, this::getLayoutOriginY)));
         }
         return canvasInteractionManager;
     }

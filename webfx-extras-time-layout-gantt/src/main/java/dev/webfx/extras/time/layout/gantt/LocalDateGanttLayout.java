@@ -2,12 +2,13 @@ package dev.webfx.extras.time.layout.gantt;
 
 import dev.webfx.extras.time.TimeUtil;
 import dev.webfx.extras.time.YearWeek;
-import dev.webfx.extras.time.projector.TimeProjector;
 import dev.webfx.extras.time.layout.gantt.impl.GanttLayoutImpl;
+import dev.webfx.extras.time.projector.TimeProjector;
 
 import java.time.LocalDate;
 import java.time.Year;
 import java.time.YearMonth;
+import java.time.temporal.ChronoUnit;
 import java.util.function.Function;
 
 /**
@@ -16,6 +17,10 @@ import java.util.function.Function;
 public final class LocalDateGanttLayout<C> extends GanttLayoutImpl<C, LocalDate> {
 
     // Final casts for the fluent API
+
+    public LocalDateGanttLayout() {
+        super(ChronoUnit.DAYS);
+    }
 
     @Override
     public LocalDateGanttLayout<C> setParentsProvided(boolean parentsProvided) {

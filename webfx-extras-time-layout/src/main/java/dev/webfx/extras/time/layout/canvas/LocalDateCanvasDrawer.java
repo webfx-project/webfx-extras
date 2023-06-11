@@ -5,7 +5,6 @@ import dev.webfx.extras.time.layout.TimeLayout;
 import javafx.scene.canvas.Canvas;
 
 import java.time.LocalDate;
-import java.time.temporal.ChronoUnit;
 
 /**
  * @author Bruno Salmon
@@ -13,11 +12,11 @@ import java.time.temporal.ChronoUnit;
 public final class LocalDateCanvasDrawer<C> extends TimeCanvasDrawer<C, LocalDate> {
 
     public LocalDateCanvasDrawer(TimeLayout<C, LocalDate> timeLayout, ChildDrawer<C> childDrawer) {
-        super(timeLayout, childDrawer, ChronoUnit.DAYS);
+        super(timeLayout, childDrawer);
     }
 
     public LocalDateCanvasDrawer(Canvas canvas, TimeLayout<C, LocalDate> timeLayout, ChildDrawer<C> childDrawer) {
-        super(canvas, timeLayout, childDrawer, ChronoUnit.DAYS);
+        super(canvas, timeLayout, childDrawer);
     }
 
     @Override

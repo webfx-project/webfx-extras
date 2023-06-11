@@ -15,6 +15,7 @@ import javafx.collections.ListChangeListener;
 import javafx.collections.ObservableList;
 
 import java.time.temporal.Temporal;
+import java.time.temporal.TemporalUnit;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -69,8 +70,8 @@ public class GanttLayoutImpl<C, T extends Temporal> extends TimeLayoutBase<C, T>
     private GrandparentRow lastGrandparentRow;
     private ParentRow<C> lastParentRow;
 
-    public GanttLayoutImpl() {
-        setTimeProjector(new LinearTimeWindowProjector<>(this, this::getWidth));
+    public GanttLayoutImpl(TemporalUnit temporalUnit) {
+        setTimeProjector(new LinearTimeWindowProjector<>(this, temporalUnit, this::getWidth));
         parents.addListener((ListChangeListener<Object>) c -> invalidateProvidedTree());
     }
 
@@ -265,6 +266,23 @@ public class GanttLayoutImpl<C, T extends Temporal> extends TimeLayoutBase<C, T>
     }
 
     @Override
+    public int getRowIndexInParentRow(C child) {
+        int childIndex = children.indexOf(child);
+        if (childIndex == -1)
+            return -1;
+        return getRowIndexInParentRow(childrenBounds.get(childIndex));
+    }
+
+    @Override
+    public int getRowIndexInParentRow(Bounds cb) {
+        int rowIndex = 0;
+        if (cb instanceof GanttChildBounds) {
+            rowIndex = ((GanttChildBounds<?, ?>) cb).getRowIndexInParentRow();
+        }
+        return rowIndex;
+    }
+
+    @Override
     public BooleanProperty parentsProvidedProperty() {
         return parentsProvidedProperty;
     }
@@ -290,7 +308,18 @@ public class GanttLayoutImpl<C, T extends Temporal> extends TimeLayoutBase<C, T>
     }
 
     double getParentFixedHeight() {
-        return getChildFixedHeight() + 2 * getVSpacing();
+        return getChildRowHeight() + getVSpacing();
+    }
+
+    double getChildRowHeight() {
+        return getChildFixedHeight() + getVSpacing();
+    }
+
+    public ParentRow<C> getParentRowAtY(double y) {
+        for (ParentRow<C> parentRow : parentRows)
+            if (y >= parentRow.getMinY() && y <= parentRow.getMaxY())
+                return parentRow;
+        return null;
     }
 
     private void invalidateChildrenTree() {

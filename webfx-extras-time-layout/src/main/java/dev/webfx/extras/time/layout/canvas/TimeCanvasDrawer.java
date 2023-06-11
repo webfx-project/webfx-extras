@@ -21,15 +21,15 @@ public class TimeCanvasDrawer<C, T extends Temporal> extends CanvasDrawerBase im
     private final TemporalUnit temporalUnit;
     private CanvasInteractionManager canvasInteractionManager;
 
-    public TimeCanvasDrawer(TimeLayout<C, T> timeLayout, ChildDrawer<C> childDrawer, TemporalUnit temporalUnit) {
-        this(new Canvas(), timeLayout, childDrawer, temporalUnit);
+    public TimeCanvasDrawer(TimeLayout<C, T> timeLayout, ChildDrawer<C> childDrawer) {
+        this(new Canvas(), timeLayout, childDrawer);
     }
 
-    public TimeCanvasDrawer(Canvas canvas, TimeLayout<C, T> timeLayout, ChildDrawer<C> childDrawer, TemporalUnit temporalUnit) {
+    public TimeCanvasDrawer(Canvas canvas, TimeLayout<C, T> timeLayout, ChildDrawer<C> childDrawer) {
         super(canvas);
         this.timeLayout = timeLayout;
         this.childDrawer = childDrawer;
-        this.temporalUnit = temporalUnit;
+        this.temporalUnit = timeLayout.getTimeProjector().getTemporalUnit();
         timeLayout.addOnAfterLayout(this::markDrawAreaAsDirty);
         timeLayout.selectedChildProperty().addListener(observable -> markDrawAreaAsDirty());
     }

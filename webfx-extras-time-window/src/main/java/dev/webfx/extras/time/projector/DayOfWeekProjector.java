@@ -1,6 +1,8 @@
 package dev.webfx.extras.time.projector;
 
 import java.time.*;
+import java.time.temporal.ChronoUnit;
+import java.time.temporal.TemporalUnit;
 import java.util.function.Supplier;
 
 /**
@@ -35,4 +37,8 @@ public class DayOfWeekProjector<T> implements TimeProjector<T> {
         throw new UnsupportedOperationException(); // Not used so far. Should it be implemented?
     }
 
+    @Override
+    public TemporalUnit getTemporalUnit() {
+        return ChronoUnit.DAYS;
+    }
 }

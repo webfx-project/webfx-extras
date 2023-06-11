@@ -3,6 +3,8 @@ package dev.webfx.extras.time.projector;
 import javafx.application.Platform;
 import javafx.scene.Node;
 
+import java.time.temporal.TemporalUnit;
+
 /**
  * @author Bruno Salmon
  */
@@ -34,5 +36,10 @@ public class PairedTimeProjector<T> implements TimeProjector<T> {
     @Override
     public T xToTime(double x) {
         return otherTimeProjector.xToTime(x + nodesDeltaX());
+    }
+
+    @Override
+    public TemporalUnit getTemporalUnit() {
+        return otherTimeProjector.getTemporalUnit();
     }
 }

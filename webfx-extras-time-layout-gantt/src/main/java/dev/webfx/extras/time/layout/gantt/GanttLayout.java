@@ -7,6 +7,7 @@ import javafx.collections.ObservableList;
 
 import java.time.temporal.Temporal;
 import java.util.function.Function;
+import java.util.stream.Stream;
 
 public interface GanttLayout<C, T extends Temporal> extends TimeLayout<C, T> {
 
@@ -37,6 +38,8 @@ public interface GanttLayout<C, T extends Temporal> extends TimeLayout<C, T> {
     int getRowIndexInParentRow(C child);
 
     int getRowIndexInParentRow(Bounds cb);
+
+    Stream<C> streamChildrenInParentRowAtRowIndex(Object parent, int rowIndex);
 
     BooleanProperty parentsProvidedProperty();
 

@@ -1,8 +1,11 @@
 package dev.webfx.extras.time.layout.gantt.impl;
 
+import dev.webfx.extras.time.layout.impl.ObjectBounds;
+
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
+import java.util.stream.Stream;
 
 /**
  * @author Bruno Salmon
@@ -166,6 +169,18 @@ public final class ParentRow<C> extends EnclosingRow<ParentRow<C>> {
         tetrisRow.add(cb); // and insert it in that row
         tetrisRows.add(tetrisRow); // and insert that row after the other rows
         return tetrisRows.size() - 1; // and return that last row index
+    }
+
+    public Stream<C> streamChildrenAtRowIndex(int rowIndex) {
+        List<GanttChildBounds<C, ?>> childrenBounds = null;
+        if (tetrisRows != null) {
+            if (rowIndex < tetrisRows.size())
+                childrenBounds = tetrisRows.get(rowIndex);
+        } else if (rowIndex == 0)
+            childrenBounds = this.childrenBounds;
+        if (childrenBounds != null)
+            return childrenBounds.stream().map(ObjectBounds::getObject);
+        return Stream.empty();
     }
 
 }

@@ -22,6 +22,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.function.BiConsumer;
 import java.util.function.Function;
+import java.util.stream.Stream;
 
 /**
  * @author Bruno Salmon
@@ -268,18 +269,26 @@ public class GanttLayoutImpl<C, T extends Temporal> extends TimeLayoutBase<C, T>
     @Override
     public int getRowIndexInParentRow(C child) {
         int childIndex = children.indexOf(child);
-        if (childIndex == -1)
-            return -1;
-        return getRowIndexInParentRow(childrenBounds.get(childIndex));
+        if (childIndex != -1)
+            childIndex = getRowIndexInParentRow(childrenBounds.get(childIndex));
+        return childIndex;
     }
 
     @Override
     public int getRowIndexInParentRow(Bounds cb) {
-        int rowIndex = 0;
+        int rowIndex = -1;
         if (cb instanceof GanttChildBounds) {
             rowIndex = ((GanttChildBounds<?, ?>) cb).getRowIndexInParentRow();
         }
         return rowIndex;
+    }
+
+    @Override
+    public Stream<C> streamChildrenInParentRowAtRowIndex(Object parent, int rowIndex) {
+        ParentRow<C> parentRow = parentToParentRowMap.get(parent);
+        if (parentRow != null)
+            return parentRow.streamChildrenAtRowIndex(rowIndex);
+        return Stream.empty();
     }
 
     @Override

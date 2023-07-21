@@ -1,6 +1,7 @@
 package dev.webfx.extras.webtext.peers.openjfx;
 
 import dev.webfx.extras.webtext.HtmlText;
+import dev.webfx.extras.webtext.util.WebTextUtil;
 import dev.webfx.extras.webtext.peers.base.HtmlTextPeerBase;
 import dev.webfx.extras.webtext.peers.base.HtmlTextPeerMixin;
 import dev.webfx.kit.mapper.peers.javafxgraphics.SceneRequester;
@@ -164,11 +165,9 @@ public class FxHtmlTextTextFlowPeer
         List<Pair<String, HtmlStyle>> list = new ArrayList<>();
         if (html == null)
             return list;
-        html = html.replaceAll("\n", ""); // Ignoring \n in text (because html ignores them as well, line breaks depend on tag such as p, br, etc...)
+        html = html.replace("\n", ""); // Ignoring \n in text (because html ignores them as well, line breaks depend on tag such as p, br, etc...)
         html = html.replaceAll("\\s+", " ");
-        html = html.replaceAll("&nbsp;", " ");
-        html = html.replaceAll("&rdquo;", "”");
-        html = html.replaceAll("&ldquo;", "“");
+        html = WebTextUtil.unescapeEntities(html);
         if (html.isEmpty())
             return list;
         int pos = 0;

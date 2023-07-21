@@ -71,6 +71,7 @@
         <module>webfx-extras-webtext-peers-openjfx</module>
         <module>webfx-extras-webtext-registry</module>
         <module>webfx-extras-webtext-registry-spi</module>
+        <module>webfx-extras-webtext-util</module>
     </modules>
 
 </project>

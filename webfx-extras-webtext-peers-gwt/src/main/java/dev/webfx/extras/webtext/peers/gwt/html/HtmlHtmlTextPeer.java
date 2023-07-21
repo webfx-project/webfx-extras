@@ -1,5 +1,6 @@
 package dev.webfx.extras.webtext.peers.gwt.html;
 
+import dev.webfx.extras.webtext.util.WebTextUtil;
 import dev.webfx.extras.webtext.peers.base.HtmlTextPeerBase;
 import dev.webfx.extras.webtext.peers.base.HtmlTextPeerMixin;
 import dev.webfx.kit.mapper.peers.javafxgraphics.gwt.util.HtmlPaints;
@@ -34,8 +35,9 @@ public final class HtmlHtmlTextPeer
 
     @Override
     public void updateText(String text) {
-        text = Strings.toSafeString(text);
-        getElement().innerHTML = text;
+        String html = Strings.toSafeString(text);
+        html = WebTextUtil.unescapeEntities(html);
+        getElement().innerHTML = html;
         if (text.contains("<script"))
             executeScripts(getElement());
         clearCache();

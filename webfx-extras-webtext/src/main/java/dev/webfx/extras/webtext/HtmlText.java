@@ -4,6 +4,7 @@ import dev.webfx.extras.webtext.registry.WebTextRegistry;
 import dev.webfx.kit.mapper.peers.javafxgraphics.HasNoChildrenPeers;
 import javafx.beans.property.Property;
 import javafx.beans.property.SimpleObjectProperty;
+import javafx.geometry.Orientation;
 import javafx.scene.control.Control;
 import javafx.scene.control.Skin;
 import javafx.scene.paint.Paint;
@@ -85,7 +86,7 @@ public class HtmlText extends Control implements HasNoChildrenPeers {
         checkPeer();
         if (computePrefWidthFunction != null)
             return computePrefWidthFunction.apply(height);
-        return super.computePrefWidth(height);
+        return 10000;
     }
 
     @Override
@@ -101,7 +102,7 @@ public class HtmlText extends Control implements HasNoChildrenPeers {
         checkPeer();
         if (computeMaxWidthFunction != null)
             return computeMaxWidthFunction.apply(height);
-        return super.computeMaxWidth(height);
+        return 10000;
     }
 
     @Override
@@ -121,6 +122,11 @@ public class HtmlText extends Control implements HasNoChildrenPeers {
     @Override
     protected Skin<?> createDefaultSkin() {
         return DEFAULT_SKIN_FACTORY == null ? null : DEFAULT_SKIN_FACTORY.apply(this);
+    }
+
+    @Override
+    public Orientation getContentBias() {
+        return Orientation.HORIZONTAL; // To say that the min/pref/max height depends on the width (like TextFlow)
     }
 
     static {

@@ -1,0 +1,39 @@
+package dev.webfx.extras.theme.layout;
+
+import dev.webfx.extras.theme.ThemeRegistry;
+import javafx.beans.property.ObjectProperty;
+import javafx.beans.property.SimpleObjectProperty;
+
+/**
+ * @author Bruno Salmon
+ */
+public final class FXLayoutMode {
+
+    private final static ObjectProperty<LayoutMode> layoutModeProperty = new SimpleObjectProperty<>(LayoutMode.STANDARD_LAYOUT) {
+        @Override
+        protected void invalidated() {
+            ThemeRegistry.fireModeChanged();
+        }
+    };
+
+    public static ObjectProperty<LayoutMode> layoutModeProperty() {
+        return layoutModeProperty;
+    }
+
+    public static LayoutMode getLayoutMode() {
+        return layoutModeProperty.get();
+    }
+
+    public static void setLayoutMode(LayoutMode layoutMode) {
+        layoutModeProperty.set(layoutMode);
+    }
+
+    public static boolean isCompactMode() {
+        return getLayoutMode() == LayoutMode.COMPACT_LAYOUT;
+    }
+
+    public static void setCompactMode(boolean compactMode) {
+        setLayoutMode(compactMode ? LayoutMode.COMPACT_LAYOUT : LayoutMode.STANDARD_LAYOUT);
+    }
+
+}

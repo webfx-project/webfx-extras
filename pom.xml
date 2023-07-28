@@ -12,7 +12,7 @@
         <relativePath/>
     </parent>
 
-    <artifactId>webfx-extras-private</artifactId>
+    <artifactId>webfx-extras</artifactId>
 
     <repositories>
 
@@ -38,12 +38,18 @@
         <module>webfx-extras-canvas-layer</module>
         <module>webfx-extras-canvas-pane</module>
         <module>webfx-extras-cell</module>
+        <module>webfx-extras-filepicker</module>
+        <module>webfx-extras-filepicker-gwt</module>
+        <module>webfx-extras-filepicker-openjfx</module>
+        <module>webfx-extras-flexbox</module>
         <module>webfx-extras-geometry</module>
         <module>webfx-extras-imagestore</module>
         <module>webfx-extras-label</module>
         <module>webfx-extras-layer</module>
         <module>webfx-extras-led</module>
         <module>webfx-extras-materialdesign</module>
+        <module>webfx-extras-scalepane</module>
+        <module>webfx-extras-theme</module>
         <module>webfx-extras-time</module>
         <module>webfx-extras-time-layout</module>
         <module>webfx-extras-time-layout-calendar</module>
@@ -51,6 +57,13 @@
         <module>webfx-extras-time-window</module>
         <module>webfx-extras-type</module>
         <module>webfx-extras-util</module>
+        <module>webfx-extras-util-animation</module>
+        <module>webfx-extras-util-background</module>
+        <module>webfx-extras-util-border</module>
+        <module>webfx-extras-util-color</module>
+        <module>webfx-extras-util-layout</module>
+        <module>webfx-extras-util-paint</module>
+        <module>webfx-extras-util-scene</module>
         <module>webfx-extras-visual</module>
         <module>webfx-extras-visual-charts</module>
         <module>webfx-extras-visual-charts-peers-base</module>

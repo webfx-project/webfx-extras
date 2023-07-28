@@ -1,15 +1,11 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<project name="webfx-extras-private">
+<project name="webfx-extras">
 
     <parent name="webfx-parent"/>
 
     <update-options>
         <generate-export-snapshot/>
     </update-options>
-
-    <required-libraries>
-        <webfx-library artifact="dev.webfx:webfx-extras:0.1.0-SNAPSHOT"/>
-    </required-libraries>
 
     <modules>
         <subdirectories-modules/>

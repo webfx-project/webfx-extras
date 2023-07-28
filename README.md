@@ -14,8 +14,6 @@ WebFX Extras is a collection of additional JavaFX controls and other materials, 
       <img src="https://docs.webfx.dev/webfx-readmes/webfx-extras-light.svg" />
     </picture>
 
-<p></p>
-
 | UI module          | Description                                                                                                                    | Purpose(s) |                    Demo                     |
 |--------------------|:-------------------------------------------------------------------------------------------------------------------------------|:----------:|:-------------------------------------------:|
 | **Visual API**     | Simple API for UI data (similar to [Google visualization](https://developers.google.com/chart/interactive/docs/reference) API) |   ① ② ③    |                                             |
@@ -28,6 +26,7 @@ WebFX Extras is a collection of additional JavaFX controls and other materials, 
 | **Led**            | A simple led component                                                                                                         |     ③      | [Led Packing](https://ledpacking.webfx.dev) |
 | **MaterialDesign** | A material design style (API & implementation - no CSS)                                                                        |     ②      |                                             |
 
+</div>
 
 ## License
 

@@ -6,7 +6,6 @@ module webfx.extras.time.layout {
     requires java.base;
     requires javafx.base;
     requires javafx.graphics;
-    requires org.jresearch.gwt.time.tzdb;
     requires webfx.extras.canvas;
     requires transitive webfx.extras.canvas.layer;
     requires webfx.extras.canvas.pane;

@@ -28,11 +28,6 @@
         </dependency>
 
         <dependency>
-            <groupId>org.jresearch.gwt.time</groupId>
-            <artifactId>org.jresearch.gwt.time.tzdb</artifactId>
-        </dependency>
-
-        <dependency>
             <groupId>dev.webfx</groupId>
             <artifactId>webfx-extras-canvas</artifactId>
             <version>0.1.0-SNAPSHOT</version>

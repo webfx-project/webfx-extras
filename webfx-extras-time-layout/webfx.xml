@@ -7,11 +7,11 @@
 
     <dependencies>
         <used-by-source-modules>
-            <!-- Ensuring the GWT-time timezone database will be integrated in the final GWT application -->
-            <undetected-module>org.jresearch.gwt.time.tzdb</undetected-module> <!-- TODO: should be a runtime module for GWT only -->
             <module transitive="true">webfx-extras-geometry</module>
             <module transitive="true">webfx-extras-canvas-layer</module>
         </used-by-source-modules>
+        <!-- Ensuring the GWT-time timezone database will be integrated in the final GWT application -->
+        <resource-module executable-target="gwt">org.jresearch.gwt.time.tzdb</resource-module>
     </dependencies>
 
 </project>

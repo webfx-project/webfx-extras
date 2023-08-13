@@ -6,7 +6,7 @@ import dev.webfx.extras.time.layout.impl.LazyObjectBounds;
 import dev.webfx.extras.time.layout.impl.TimeLayoutBase;
 
 /**
- * A base class for enclosing rows (parent & grandparent row). Its bounds represent the enclosing bounds that contain
+ * A base class for enclosing rows (parent &amp; grandparent row). Its bounds represent the enclosing bounds that contain
  * all elements inside (the header plus all the content such as the children for a parent row). The header is a separate
  * LazyObjectBounds that can be in different positions (see HeaderPosition) inside that enclosing row and that will be
  * drawn by the application.

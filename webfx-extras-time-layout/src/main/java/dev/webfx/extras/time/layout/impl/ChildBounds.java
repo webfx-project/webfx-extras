@@ -2,7 +2,7 @@ package dev.webfx.extras.time.layout.impl;
 
 /**
  * This class is a LazyObjectBounds specialised for the children of a TimeLayout. Compared to LazyObjectBounds, it holds
- * some additional input information (start & end times) and some additional layout outputs (row & column indexes - for
+ * some additional input information (start &amp; end times) and some additional layout outputs (row &amp; column indexes - for
  * calendar-based TimeLayout). These new fields are also lazy (read or computed only when required).
  *
  * @author Bruno Salmon

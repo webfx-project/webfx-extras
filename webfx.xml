@@ -19,4 +19,21 @@
         <snapshot-repository id="webfx-snapshots">https://oss.sonatype.org/content/repositories/snapshots/</snapshot-repository>
     </maven-repositories>
 
+    <maven-pom-manual>
+        <build>
+            <pluginManagement>
+                <plugins>
+                    <!-- Removing implementation modules from JavaDoc because 1) they are not useful for users 2) gwt modules don't have a module-info.java which generates JavaDoc errors -->
+                    <plugin>
+                        <groupId>org.apache.maven.plugins</groupId>
+                        <artifactId>maven-javadoc-plugin</artifactId>
+                        <configuration>
+                            <skippedModules>webfx-extras-filepicker-gwt,webfx-extras-filepicker-openjfx,webfx-extras-visual-charts-peers-base,webfx-extras-visual-charts-peers-gwt-charba,webfx-extras-visual-charts-peers-openjfx,webfx-extras-visual-charts-registry,webfx-extras-visual-charts-registry-spi,webfx-extras-visual-grid-peers-base,webfx-extras-visual-grid-peers-gwt,webfx-extras-visual-grid-peers-openjfx,webfx-extras-visual-grid-registry,webfx-extras-visual-grid-registry-spi,webfx-extras-visual-peers-base,webfx-extras-webtext-peers-base,webfx-extras-webtext-peers-gwt,webfx-extras-webtext-peers-openjfx,webfx-extras-webtext-registry,webfx-extras-webtext-registry-spi</skippedModules>
+                        </configuration>
+                    </plugin>
+                </plugins>
+            </pluginManagement>
+        </build>
+    </maven-pom-manual>
+
 </project>

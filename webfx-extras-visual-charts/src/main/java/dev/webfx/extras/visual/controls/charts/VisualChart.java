@@ -13,7 +13,7 @@ import dev.webfx.extras.visual.controls.SelectableVisualResultControl;
  * columns and the row format where series are stored in rows (formats are just transposed - they both produce the same
  * visual result).
  *
- * <pre>
+ *
  * ===================
  * ==== Pie chart ====
  * ===================
@@ -23,17 +23,17 @@ import dev.webfx.extras.visual.controls.SelectableVisualResultControl;
  * 1) Column format: series are stored in columns (better for fixed number of series) and there is one single row
  *    - The columns headers values contain the series names
  *    - The columns values contain the point values (only 1 row - any additional row will be ignored).
- *
+ * {@code <pre>
  *    +--------+---------+------+--------+
  *    | Europe | America | Asia | Africa |
  *    +--------+---------+------+--------+
  *    |   10   |    18   |  12  |    7   |
  *    +--------+---------+------+--------+
- *
+ *  </pre> }
  * 2) Row format: Series are stored in rows (better for variable number of series) and there are 2 columns
  *    - The first column values contain the series names (the header value is ignored)
  *    - The second columns values contain the point values (the header value is ignored)
- *
+ * {@code <pre>
  *    +---------+-------+
  *    | Series  | Value |
  *    +---------+-------+
@@ -45,7 +45,7 @@ import dev.webfx.extras.visual.controls.SelectableVisualResultControl;
  *    +---------+-------+
  *    | Africa |     7  |
  *    +---------+-------+
- *
+ * </pre> }
  * ==========================================================
  * ==== Line chart, Area chart, Bar chart, Scatter chart ====
  * ==========================================================
@@ -57,7 +57,7 @@ import dev.webfx.extras.visual.controls.SelectableVisualResultControl;
  *    - The first column values contain the X values (shared by all series). The header value is ignored.
  *    - Other columns headers values contain the series names
  *    - Other columns values contain Y values (specific to the series).
- *
+ * {@code <pre>
  *    +--------+--------+---------+------+--------+
  *    | Year   | Europe | America | Asia | Africa |
  *    +--------+--------+---------+------+--------+
@@ -68,12 +68,12 @@ import dev.webfx.extras.visual.controls.SelectableVisualResultControl;
  *    |  2016  |   11   |    19   |  13  |    8   |
  *    +--------+--------+---------+------+--------+
  *    <   X   ><              Y                  >
- *
+ * </pre> }
  * 2) Row format: series are stored in rows (better for variable number of series but fixed number of points in each series)
  *    - The first column values contain the series names (the header value is ignored).
  *    - Other columns headers values contain the shared point values on the major axis (shared by all series).
  *    - Other columns values contain the point values for the minor axis
- *
+ * {@code <pre>
  *    +---------+-------+-------+-------+
  *    | Series  |  2014 |  2015 |  2016 |  X
  *    +---------+-------+-------+-------+  ^
@@ -85,7 +85,7 @@ import dev.webfx.extras.visual.controls.SelectableVisualResultControl;
  *    +---------+-------+-------+-------+
  *    | Africa  |    6  |    7  |    8  |
  *    +---------+-------+-------+-------+  ^
- * </pre>
+ * </pre> }
  *
  * @author Bruno Salmon
  */

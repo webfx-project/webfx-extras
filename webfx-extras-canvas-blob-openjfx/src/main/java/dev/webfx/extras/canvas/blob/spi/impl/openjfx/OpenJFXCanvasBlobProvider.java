@@ -2,7 +2,7 @@ package dev.webfx.extras.canvas.blob.spi.impl.openjfx;
 
 import dev.webfx.extras.canvas.blob.spi.CanvasBlobProvider;
 import dev.webfx.platform.async.Future;
-import dev.webfx.platform.file.Blob;
+import dev.webfx.platform.blob.Blob;
 
 /**
  * @author Bruno Salmon

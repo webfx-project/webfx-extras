@@ -4,7 +4,7 @@ import dev.webfx.extras.canvas.blob.spi.CanvasBlobProvider;
 import dev.webfx.kit.mapper.peers.javafxgraphics.gwt.shared.HtmlSvgNodePeer;
 import dev.webfx.platform.async.Future;
 import dev.webfx.platform.async.Promise;
-import dev.webfx.platform.file.Blob;
+import dev.webfx.platform.blob.Blob;
 import elemental2.dom.HTMLCanvasElement;
 import javafx.scene.canvas.Canvas;
 

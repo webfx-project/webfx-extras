@@ -9,9 +9,9 @@
         <used-by-source-modules>
             <module transitive="true">webfx-extras-geometry</module>
             <module transitive="true">webfx-extras-canvas-layer</module>
+            <!-- Ensuring the GWT-time timezone database will be integrated in the final GWT application -->
+            <module executable-target="gwt">org.jresearch.gwt.time.tzdb</module>
         </used-by-source-modules>
-        <!-- Ensuring the GWT-time timezone database will be integrated in the final GWT application -->
-        <resource-module executable-target="gwt">org.jresearch.gwt.time.tzdb</resource-module>
     </dependencies>
 
 </project>

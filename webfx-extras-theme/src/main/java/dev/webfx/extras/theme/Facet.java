@@ -219,12 +219,24 @@ public class Facet {
         return setFacetStateProperty(INVERTED, invertedProperty);
     }
 
-    public Facet setInverted(boolean shadowed) {
-        return setBooleanFacetState(INVERTED, shadowed);
+    public Facet setInverted(boolean inverted) {
+        return setBooleanFacetState(INVERTED, inverted);
     }
 
     public boolean isInverted() {
         return getBooleanFacetState(INVERTED);
+    }
+
+    public Facet setDisabledProperty(ObservableValue<Boolean> disabledProperty) {
+        return setFacetStateProperty(DISABLED, disabledProperty);
+    }
+
+    public Facet setDisabled(boolean disabled) {
+        return setBooleanFacetState(DISABLED, disabled);
+    }
+
+    public boolean isDisabled() {
+        return getBooleanFacetState(DISABLED);
     }
 
     public Facet setFillProperty(Property<Paint> fillProperty) {

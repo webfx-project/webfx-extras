@@ -35,6 +35,10 @@ public class ShapeTheme implements Theme {
     private final static Color LIGHT_SECONDARY_COLOR_INVERTED = Color.WHITE;
     private final static Color DARK_SECONDARY_COLOR_INVERTED = Color.WHITE;
 
+    private final static Color LIGHT_COLOR_DISABLED = Color.gray(0.8);
+    private final static Color DARK_COLOR_DISABLED = Color.GRAY;
+
+
     static {
         ThemeRegistry.registerTheme(new ShapeTheme());
     }
@@ -70,10 +74,10 @@ public class ShapeTheme implements Theme {
         boolean primary = shapeFacetCategory == ShapeFacetCategory.PRIMARY_SHAPE_FACET;
         boolean secondary = shapeFacetCategory == ShapeFacetCategory.SECONDARY_SHAPE_FACET;
 
-        Color textColor = getShapeColor(primary, secondary, facet.isInverted());
+        Color textColor = getShapeColor(primary, secondary, facet.isInverted(), facet.isDisabled());
 
-        Color invertedColor = getShapeColor(primary, secondary, !facet.isInverted());
-        Color oppositeLightColor = getShapeColor(primary, secondary, facet.isInverted(), !FXLuminanceMode.isLightMode());
+        Color invertedColor = getShapeColor(primary, secondary, !facet.isInverted(), facet.isDisabled());
+        Color oppositeLightColor = getShapeColor(primary, secondary, facet.isInverted(), facet.isDisabled(), !FXLuminanceMode.isLightMode());
         setGraphicFill(graphicNode, textColor, invertedColor, oppositeLightColor);
     }
 
@@ -96,11 +100,13 @@ public class ShapeTheme implements Theme {
         }
     }
 
-    private static Color getShapeColor(boolean primary, boolean secondary, boolean inverted) {
-        return getShapeColor(primary, secondary, inverted, FXLuminanceMode.isLightMode());
+    private static Color getShapeColor(boolean primary, boolean secondary, boolean inverted, boolean disabled) {
+        return getShapeColor(primary, secondary, inverted, disabled, FXLuminanceMode.isLightMode());
     }
 
-    private static Color getShapeColor(boolean primary, boolean secondary, boolean inverted, boolean lightMode) {
+    private static Color getShapeColor(boolean primary, boolean secondary, boolean inverted, boolean disabled, boolean lightMode) {
+        if (disabled)
+            return lightMode ? LIGHT_COLOR_DISABLED : DARK_COLOR_DISABLED;
         return lightMode ?
                 // Light mode
                 (primary ? (inverted ? LIGHT_PRIMARY_COLOR_INVERTED : LIGHT_PRIMARY_COLOR) : secondary ? (inverted ? LIGHT_SECONDARY_COLOR_INVERTED : LIGHT_SECONDARY_COLOR) : (inverted ? LIGHT_DEFAULT_COLOR_INVERTED : LIGHT_DEFAULT_COLOR))

@@ -30,8 +30,8 @@ public class LuminanceTheme implements Theme {
     private final static Color LIGHT_SECONDARY_PANEL_BACKGROUND_COLOR_INVERTED = Color.rgb(0, 150, 214);
     private final static Color DARK_SECONDARY_PANEL_BACKGROUND_COLOR_INVERTED = LIGHT_SECONDARY_PANEL_BACKGROUND_COLOR_INVERTED.brighter();
 
-    private final static Color LIGHT_BORDER_COLOR = Color.LIGHTGRAY;
-    private final static Color DARK_BORDER_COLOR = Color.GRAY;
+    private final static Color LIGHT_BORDER_COLOR = Color.GRAY;
+    private final static Color DARK_BORDER_COLOR = Color.DARKGRAY;
 
     private final static Effect LIGHT_SHADOW_DIAGONAL = new DropShadow(10, 5, 5, Color.LIGHTGRAY);
     private final static Effect DARK_SHADOW_DIAGONAL = null; //new DropShadow(10, 5, 5, Color.WHITE);

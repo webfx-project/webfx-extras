@@ -73,7 +73,8 @@ public final class ThemeUtil {
     }
 
     public static void applyTextFill(Property<Paint> textFillProperty, Paint textFill) {
-        textFillProperty.setValue(textFill);
+        if (!textFillProperty.isBound())
+            textFillProperty.setValue(textFill);
         StyleCapture styleCapture = StyleCapture.getStyleCapture();
         if (styleCapture != null)
             styleCapture.setTextFill(textFill);

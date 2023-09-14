@@ -43,6 +43,10 @@ public class CanvasPane extends Pane {
         }
     }
 
+    public double getRequestedCanvasHeight() {
+        return requestedCanvasHeight;
+    }
+
     protected boolean shouldAnimateHeightChange() {
         if (!enableHeightAnimation)
             return false;

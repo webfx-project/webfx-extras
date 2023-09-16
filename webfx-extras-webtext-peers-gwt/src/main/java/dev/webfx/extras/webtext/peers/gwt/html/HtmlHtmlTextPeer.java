@@ -1,19 +1,20 @@
 package dev.webfx.extras.webtext.peers.gwt.html;
 
-import dev.webfx.extras.webtext.util.WebTextUtil;
+import dev.webfx.extras.webtext.HtmlText;
 import dev.webfx.extras.webtext.peers.base.HtmlTextPeerBase;
 import dev.webfx.extras.webtext.peers.base.HtmlTextPeerMixin;
+import dev.webfx.extras.webtext.util.WebTextUtil;
+import dev.webfx.kit.mapper.peers.javafxcontrols.gwt.html.HtmlControlPeer;
+import dev.webfx.kit.mapper.peers.javafxgraphics.HasNoChildrenPeers;
+import dev.webfx.kit.mapper.peers.javafxgraphics.gwt.html.NormalWhiteSpacePeer;
+import dev.webfx.kit.mapper.peers.javafxgraphics.gwt.html.layoutmeasurable.HtmlLayoutMeasurable;
 import dev.webfx.kit.mapper.peers.javafxgraphics.gwt.util.HtmlPaints;
+import dev.webfx.kit.mapper.peers.javafxgraphics.gwt.util.HtmlUtil;
+import dev.webfx.platform.util.Strings;
 import elemental2.dom.Element;
 import elemental2.dom.HTMLScriptElement;
 import elemental2.dom.Node;
 import elemental2.dom.NodeList;
-import dev.webfx.extras.webtext.HtmlText;
-import dev.webfx.kit.mapper.peers.javafxcontrols.gwt.html.HtmlControlPeer;
-import dev.webfx.kit.mapper.peers.javafxgraphics.gwt.html.NormalWhiteSpacePeer;
-import dev.webfx.kit.mapper.peers.javafxgraphics.gwt.html.layoutmeasurable.HtmlLayoutMeasurable;
-import dev.webfx.kit.mapper.peers.javafxgraphics.gwt.util.HtmlUtil;
-import dev.webfx.platform.util.Strings;
 import javafx.scene.paint.Paint;
 import javafx.scene.text.Font;
 
@@ -23,7 +24,7 @@ import javafx.scene.text.Font;
 public final class HtmlHtmlTextPeer
         <N extends HtmlText, NB extends HtmlTextPeerBase<N, NB, NM>, NM extends HtmlTextPeerMixin<N, NB, NM>>
         extends HtmlControlPeer<N, NB, NM>
-        implements HtmlTextPeerMixin<N, NB, NM>, HtmlLayoutMeasurable, NormalWhiteSpacePeer {
+        implements HtmlTextPeerMixin<N, NB, NM>, HtmlLayoutMeasurable, NormalWhiteSpacePeer, HasNoChildrenPeers {
 
     public HtmlHtmlTextPeer() {
         this((NB) new HtmlTextPeerBase());

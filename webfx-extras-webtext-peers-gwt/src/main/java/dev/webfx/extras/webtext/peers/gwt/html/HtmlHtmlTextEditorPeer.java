@@ -1,18 +1,19 @@
 package dev.webfx.extras.webtext.peers.gwt.html;
 
 import com.google.gwt.core.client.JavaScriptObject;
-import dev.webfx.extras.webtext.peers.base.HtmlTextEditorPeerBase;
-import dev.webfx.platform.console.Console;
-import elemental2.dom.Element;
-import elemental2.dom.HTMLDivElement;
 import dev.webfx.extras.webtext.HtmlTextEditor;
+import dev.webfx.extras.webtext.peers.base.HtmlTextEditorPeerBase;
 import dev.webfx.extras.webtext.peers.base.HtmlTextEditorPeerMixin;
+import dev.webfx.kit.mapper.peers.javafxgraphics.HasNoChildrenPeers;
 import dev.webfx.kit.mapper.peers.javafxgraphics.SceneRequester;
 import dev.webfx.kit.mapper.peers.javafxgraphics.gwt.html.HtmlRegionPeer;
 import dev.webfx.kit.mapper.peers.javafxgraphics.gwt.html.layoutmeasurable.HtmlLayoutMeasurable;
 import dev.webfx.kit.mapper.peers.javafxgraphics.gwt.util.HtmlUtil;
+import dev.webfx.platform.console.Console;
 import dev.webfx.platform.util.Objects;
 import dev.webfx.platform.util.Strings;
+import elemental2.dom.Element;
+import elemental2.dom.HTMLDivElement;
 import javafx.scene.paint.Paint;
 import javafx.scene.text.Font;
 
@@ -22,7 +23,7 @@ import javafx.scene.text.Font;
 public final class HtmlHtmlTextEditorPeer
         <N extends HtmlTextEditor, NB extends HtmlTextEditorPeerBase<N, NB, NM>, NM extends HtmlTextEditorPeerMixin<N, NB, NM>>
         extends HtmlRegionPeer<N, NB, NM>
-        implements HtmlTextEditorPeerMixin<N, NB, NM>, HtmlLayoutMeasurable {
+        implements HtmlTextEditorPeerMixin<N, NB, NM>, HtmlLayoutMeasurable, HasNoChildrenPeers {
 
     private static final String ckEditorUrl = "https://cdn.ckeditor.com/4.7.2/full/ckeditor.js";
 

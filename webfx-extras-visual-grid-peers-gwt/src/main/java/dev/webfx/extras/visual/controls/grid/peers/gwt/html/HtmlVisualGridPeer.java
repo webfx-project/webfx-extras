@@ -1,17 +1,12 @@
 package dev.webfx.extras.visual.controls.grid.peers.gwt.html;
 
-import elemental2.dom.*;
-import javafx.scene.Node;
-import javafx.scene.Parent;
-import javafx.scene.control.CheckBox;
-import javafx.scene.layout.HBox;
-import javafx.scene.layout.Region;
 import dev.webfx.extras.cell.renderer.ImageTextRenderer;
 import dev.webfx.extras.label.Label;
 import dev.webfx.extras.visual.*;
 import dev.webfx.extras.visual.controls.grid.VisualGrid;
 import dev.webfx.extras.visual.controls.grid.peers.base.VisualGridPeerBase;
 import dev.webfx.extras.visual.controls.grid.peers.base.VisualGridPeerMixin;
+import dev.webfx.kit.mapper.peers.javafxgraphics.HasNoChildrenPeers;
 import dev.webfx.kit.mapper.peers.javafxgraphics.gwt.html.HtmlRegionPeer;
 import dev.webfx.kit.mapper.peers.javafxgraphics.gwt.html.layoutmeasurable.HtmlLayoutMeasurable;
 import dev.webfx.kit.mapper.peers.javafxgraphics.gwt.shared.HtmlSvgNodePeer;
@@ -20,6 +15,12 @@ import dev.webfx.kit.mapper.peers.javafxgraphics.gwt.util.HtmlPaints;
 import dev.webfx.kit.mapper.peers.javafxgraphics.gwt.util.HtmlUtil;
 import dev.webfx.platform.util.Strings;
 import dev.webfx.platform.util.tuples.Unit;
+import elemental2.dom.*;
+import javafx.scene.Node;
+import javafx.scene.Parent;
+import javafx.scene.control.CheckBox;
+import javafx.scene.layout.HBox;
+import javafx.scene.layout.Region;
 
 import static dev.webfx.kit.mapper.peers.javafxgraphics.gwt.util.HtmlUtil.setStyleAttribute;
 
@@ -30,7 +31,7 @@ public final class HtmlVisualGridPeer
         <N extends VisualGrid, NB extends VisualGridPeerBase<HTMLTableCellElement, N, NB, NM>, NM extends VisualGridPeerMixin<HTMLTableCellElement, N, NB, NM>>
 
         extends HtmlRegionPeer<N, NB, NM>
-        implements VisualGridPeerMixin<HTMLTableCellElement, N, NB, NM>, HtmlLayoutMeasurable {
+        implements VisualGridPeerMixin<HTMLTableCellElement, N, NB, NM>, HtmlLayoutMeasurable, HasNoChildrenPeers {
 
 
     private final HTMLTableElement table = HtmlUtil.createTableElement();

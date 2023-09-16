@@ -1,7 +1,6 @@
 package dev.webfx.extras.webtext;
 
 import dev.webfx.extras.webtext.registry.WebTextRegistry;
-import dev.webfx.kit.mapper.peers.javafxgraphics.HasNoChildrenPeers;
 import javafx.beans.property.Property;
 import javafx.beans.property.SimpleObjectProperty;
 import javafx.geometry.Orientation;
@@ -15,7 +14,7 @@ import java.util.function.Function;
 /**
  * @author Bruno Salmon
  */
-public class HtmlText extends Control implements HasNoChildrenPeers {
+public class HtmlText extends Control {
 
     public HtmlText() {
     }

@@ -1,5 +1,13 @@
 package dev.webfx.extras.materialdesign.textfield;
 
+import dev.webfx.extras.materialdesign.util.ComputeBaselineOffsetWithInsetsFunction;
+import dev.webfx.extras.materialdesign.util.ComputeHeightWithInsetsFunction;
+import dev.webfx.extras.materialdesign.util.LayoutChildrenFunction;
+import dev.webfx.extras.materialdesign.util.MaterialAnimation;
+import dev.webfx.extras.materialdesign.util.layout.LayoutUtil;
+import dev.webfx.extras.materialdesign.util.scene.SceneUtil;
+import dev.webfx.kit.util.properties.Unregisterable;
+import dev.webfx.platform.util.Strings;
 import javafx.beans.property.*;
 import javafx.beans.value.ObservableValue;
 import javafx.collections.ObservableList;
@@ -12,15 +20,6 @@ import javafx.scene.paint.Color;
 import javafx.scene.paint.Paint;
 import javafx.scene.text.Text;
 import javafx.scene.transform.Scale;
-import dev.webfx.extras.materialdesign.util.ComputeBaselineOffsetWithInsetsFunction;
-import dev.webfx.extras.materialdesign.util.ComputeHeightWithInsetsFunction;
-import dev.webfx.extras.materialdesign.util.LayoutChildrenFunction;
-import dev.webfx.extras.materialdesign.util.MaterialAnimation;
-import dev.webfx.extras.materialdesign.util.background.BackgroundUtil;
-import dev.webfx.extras.materialdesign.util.layout.LayoutUtil;
-import dev.webfx.extras.materialdesign.util.scene.SceneUtil;
-import dev.webfx.kit.util.properties.Unregisterable;
-import dev.webfx.platform.util.Strings;
 
 /**
  * @author Bruno Salmon
@@ -285,8 +284,8 @@ public final class MaterialTextFieldImpl implements MaterialTextField {
         labelText.setFill(labelFill);
         if (line != null) {
             line.setBorder(disabled ? new Border(new BorderStroke(lineFill, BorderStrokeStyle.DOTTED, null, new BorderWidths(1))) : null);
-            line.setBackground(disabled ? BackgroundUtil.TRANSPARENT_BACKGROUND : BackgroundUtil.newBackground(lineFill));
-            focusedLine.setBackground(BackgroundUtil.newBackground(focusedLineFill));
+            line.setBackground(Background.fill(disabled ? Color.TRANSPARENT : lineFill));
+            focusedLine.setBackground(Background.fill(focusedLineFill));
             if (disabled || !focused)
                 if (focusedLineScale.getX() >= 1)
                     focusedLineScale.setX(0d);

@@ -13,7 +13,6 @@ module webfx.extras.materialdesign {
     // Exported packages
     exports dev.webfx.extras.materialdesign.textfield;
     exports dev.webfx.extras.materialdesign.util;
-    exports dev.webfx.extras.materialdesign.util.background;
     exports dev.webfx.extras.materialdesign.util.layout;
     exports dev.webfx.extras.materialdesign.util.scene;
 

@@ -43,7 +43,7 @@ public final class VisualGridSkin extends SelectableVisualResultControlSkinBase<
         super(visualGrid, false);
         visualGrid.getStyleClass().add("grid");
         clipChildren(gridBody);
-        gridBody.setBackground(new Background(new BackgroundFill(Color.grayRgb(245), null, null)));
+        gridBody.setBackground(Background.fill(Color.grayRgb(245)));
         FXProperties.runNowAndOnPropertiesChange(() -> {
             if (visualGrid.isFullHeight()) {
                 if (bodyScrollPane != null)

@@ -39,7 +39,7 @@ public final class HtmlHtmlTextPeer
         String html = Strings.toSafeString(text);
         html = WebTextUtil.unescapeEntities(html);
         getElement().innerHTML = html;
-        if (text.contains("<script"))
+        if (html.contains("<script"))
             executeScripts(getElement());
         clearCache();
     }

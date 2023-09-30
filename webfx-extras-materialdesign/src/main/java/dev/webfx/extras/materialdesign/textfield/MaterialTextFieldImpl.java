@@ -21,6 +21,8 @@ import javafx.scene.paint.Paint;
 import javafx.scene.text.Text;
 import javafx.scene.transform.Scale;
 
+import java.util.Objects;
+
 /**
  * @author Bruno Salmon
  */
@@ -31,9 +33,9 @@ public final class MaterialTextFieldImpl implements MaterialTextField {
     private final static double PLACEHOLDER_LEFT_PADDING_FOR_NON_INPUT_TEXT = 8;
     private final static double FLOATING_LABEL_SCALE_FACTOR = 0.85;
 
-    private ObservableValue inputProperty;
+    private ObservableValue<String> inputProperty;
     @Override
-    public ObservableValue inputProperty() {
+    public ObservableValue<String> inputProperty() {
         return inputProperty;
     }
 
@@ -165,7 +167,7 @@ public final class MaterialTextFieldImpl implements MaterialTextField {
         labelText.getTransforms().add(labelScale);
     }
 
-    public void setContent(Region content, ObservableValue inputProperty) {
+    public void setContent(Region content, ObservableValue<String> inputProperty) {
         setContent(content, null, inputProperty);
     }
 
@@ -173,7 +175,7 @@ public final class MaterialTextFieldImpl implements MaterialTextField {
         setContent(content, textInputControl, textInputControl.textProperty());
     }
 
-    private void setContent(Region content, TextInputControl textInputControl, ObservableValue inputProperty) {
+    private void setContent(Region content, TextInputControl textInputControl, ObservableValue<String> inputProperty) {
         this.content = content;
         this.textInputControl = textInputControl;
         recomputeLabelPositionOnNextLayoutPass = true;
@@ -224,7 +226,8 @@ public final class MaterialTextFieldImpl implements MaterialTextField {
                     placeholderTextProperty(),
                     errorMessageProperty(),
                     // also focus owner property used in SceneUtil.isFocusInside() (not necessary for text input control)
-                    textInputControl == null ? scene.focusOwnerProperty() : null
+                    textInputControl == null ? scene.focusOwnerProperty() : null,
+                    textInputControl == null ? null : textInputControl.heightProperty()
             );
             // Releasing focus owner listener on scene change to prevent overload
             if (textInputControl == null)
@@ -254,8 +257,6 @@ public final class MaterialTextFieldImpl implements MaterialTextField {
         double labelScaleFactor = floating ? FLOATING_LABEL_SCALE_FACTOR : 1;
         boolean animate = labelScale.getX() != labelScaleFactor;
         Paint labelFill = focused ? getFocusLabelFill() : getIdleTextFill(),
-                placeholderFill = getDisabledFill(),
-                inputTextFill = getInputTextFill(),
                 lineFill = getIdleTextFill(),
                 focusedLineFill = getFocusLineFill(),
                 bottomTextFill = labelFill;
@@ -265,7 +266,7 @@ public final class MaterialTextFieldImpl implements MaterialTextField {
             lineFill = focusedLineFill = getInvalidLineFill();
             bottomString = getErrorMessage();
         } else if (disabled)
-            labelFill = inputTextFill = lineFill = bottomTextFill = getDisabledFill();
+            labelFill = lineFill = bottomTextFill = getDisabledFill();
         if (focused && focusedLineScale != null && focusedLineScale.getX() < 1) {
             materialAnimation.addEaseOut(focusedLineScale.xProperty(), 1d);
             animate = true;
@@ -275,15 +276,15 @@ public final class MaterialTextFieldImpl implements MaterialTextField {
         String labelString = floating ? label : placeholder;
         if (labelString == null)
             labelString = !floating ? label : placeholder;
-        if (animate && labelString == placeholder && label != null) {
+        if (label != null) {
             labelString = label;
-            materialAnimation.setOnFinished(() -> labelText.setText(placeholder));
+            materialAnimation.addEaseOut(labelText.opacityProperty(), focused || Objects.equals(labelString, placeholder) ? 1 : 0);
         }
         labelText.setText(labelString);
         labelText.setTextOrigin(floating ? VPos.TOP : VPos.CENTER);
         labelText.setFill(labelFill);
         if (line != null) {
-            line.setBorder(disabled ? new Border(new BorderStroke(lineFill, BorderStrokeStyle.DOTTED, null, new BorderWidths(1))) : null);
+            line.setBorder(disabled ? new Border(new BorderStroke(lineFill, BorderStrokeStyle.DOTTED, null, BorderStroke.THIN)) : null);
             line.setBackground(Background.fill(disabled ? Color.TRANSPARENT : lineFill));
             focusedLine.setBackground(Background.fill(focusedLineFill));
             if (disabled || !focused)
@@ -327,7 +328,7 @@ public final class MaterialTextFieldImpl implements MaterialTextField {
     }
 
     private double getFloatingLabelHeight() {
-        if (recomputeLabelPositionOnNextLayoutPass)
+        //if (recomputeLabelPositionOnNextLayoutPass) // Commented optimization (issue with web version)
             labelTextHeight = labelText.prefHeight(-1);
         return LayoutUtil.snapSize(labelTextHeight * FLOATING_LABEL_SCALE_FACTOR);
     }

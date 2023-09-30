@@ -105,6 +105,7 @@ public final class HtmlVisualGridPeer
         HTMLCollection<HTMLTableRowElement> rows = tBody.rows;
         lastRow = Math.min(lastRow, rows.getLength() - 1);
         for (int trIndex = firstRow; trIndex <= lastRow; trIndex++)
+            // TODO: investigate possible strange ClassCastException here
             HtmlUtil.setPseudoClass(rows.item(trIndex), "selected", selected);
     }
 
@@ -165,6 +166,12 @@ public final class HtmlVisualGridPeer
         HtmlSvgNodePeer nodePeer = content == null ? null : toNodePeer(content, getNode().getScene());
         Element contentElement =  nodePeer == null ? null : nodePeer.getContainer();
         if (contentElement != null) {
+            // Note: the content was produced by a cell renderer and is not directly part of the JavaFX scene graph, but
+            // its html element (managed by nodePeer) is inserted in the DOM below (inside a table cell). So if the user
+            // clicks on it (such as a right-click on a table cell), we want the event dispatch chain find any possible
+            // listener set by the application code (such as onContextMenuRequested). To make this work, we need to set
+            // this VisualGrid as the parent of the content.
+            content.setParent(getNode()); // Allows the event bubbling phase find possible event listeners in ancestors.
             Element visibleContainer = nodePeer.getVisibleContainer();
             setStyleAttribute(visibleContainer, "position", "relative");
             //setStyleAttribute(contentElement, "width", null);

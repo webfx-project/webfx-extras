@@ -26,12 +26,20 @@ public final class Animations {
         return animateProperty(target, finalValue, animate ? EASE_OUT_INTERPOLATOR : null);
     }
 
+    public static <T> Timeline animateProperty(WritableValue<T> target, T finalValue, Duration duration) {
+        return animateProperty(target, finalValue, duration, EASE_OUT_INTERPOLATOR);
+    }
+
     public static <T> Timeline animateProperty(WritableValue<T> target, T finalValue, Interpolator interpolator) {
+        return animateProperty(target, finalValue, Duration.seconds(1), interpolator);
+    }
+
+    public static <T> Timeline animateProperty(WritableValue<T> target, T finalValue, Duration duration, Interpolator interpolator) {
         if (!Objects.areEquals(target.getValue(), finalValue)) {
-            if (interpolator == null)
+            if (interpolator == null || duration == null || duration.equals(Duration.ZERO))
                 target.setValue(finalValue);
             else {
-                Timeline timeline = new Timeline(new KeyFrame(Duration.seconds(1), new KeyValue(target, finalValue, interpolator)));
+                Timeline timeline = new Timeline(new KeyFrame(duration, new KeyValue(target, finalValue, interpolator)));
                 timeline.play();
                 return timeline;
             }

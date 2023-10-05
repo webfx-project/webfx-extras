@@ -13,7 +13,7 @@ public class JavaFxVisualGridRegistryProvider implements VisualGridRegistryProvi
         registerNodePeerFactory(GridCollator.class, GridCollator.GridCollatorPeer::new);
     }
 
-    public void registerDataGrid() {
+    public void registerVisualGrid() {
         registerNodePeerFactory(VisualGrid.class, FxVisualGridPeer::new);
     }
 

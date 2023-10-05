@@ -11,8 +11,8 @@ public class VisualGridRegistry {
         return SingleServiceProvider.getProvider(VisualGridRegistryProvider.class, () -> ServiceLoader.load(VisualGridRegistryProvider.class));
     }
 
-    public static void registerDataGrid() {
-        getProvider().registerDataGrid();
+    public static void registerVisualGrid() {
+        getProvider().registerVisualGrid();
     }
 
 }

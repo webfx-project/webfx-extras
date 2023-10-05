@@ -47,6 +47,6 @@ public class VisualGrid extends SelectableVisualResultControl {
     }
 
     static {
-        VisualGridRegistry.registerDataGrid();
+        VisualGridRegistry.registerVisualGrid();
     }
 }

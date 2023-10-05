@@ -7,12 +7,15 @@ import dev.webfx.extras.visual.controls.grid.VisualGrid;
 import dev.webfx.extras.visual.controls.grid.peers.base.VisualGridPeerBase;
 import dev.webfx.extras.visual.controls.grid.peers.base.VisualGridPeerMixin;
 import dev.webfx.kit.mapper.peers.javafxgraphics.HasNoChildrenPeers;
+import dev.webfx.kit.mapper.peers.javafxgraphics.SceneRequester;
 import dev.webfx.kit.mapper.peers.javafxgraphics.gwt.html.HtmlRegionPeer;
 import dev.webfx.kit.mapper.peers.javafxgraphics.gwt.html.layoutmeasurable.HtmlLayoutMeasurable;
 import dev.webfx.kit.mapper.peers.javafxgraphics.gwt.shared.HtmlSvgNodePeer;
 import dev.webfx.kit.mapper.peers.javafxgraphics.gwt.util.DomType;
 import dev.webfx.kit.mapper.peers.javafxgraphics.gwt.util.HtmlPaints;
 import dev.webfx.kit.mapper.peers.javafxgraphics.gwt.util.HtmlUtil;
+import dev.webfx.kit.util.properties.FXProperties;
+import dev.webfx.platform.uischeduler.UiScheduler;
 import dev.webfx.platform.util.Strings;
 import dev.webfx.platform.util.tuples.Unit;
 import elemental2.dom.*;
@@ -54,8 +57,18 @@ public final class HtmlVisualGridPeer
             scrollTop = element.scrollTop;
             return null;
         };
+    }
+
+    @Override
+    public void bind(N node, SceneRequester sceneRequester) {
+        super.bind(node, sceneRequester);
         // Restoring scroll position when visiting back the page
-        HtmlUtil.onNodeInsertedIntoDocument(element, () -> element.scrollTop = scrollTop);
+        FXProperties.runOnPropertiesChange(() -> {
+            if (node.getScene() != null) // Going back to the page
+                // We postpone the scroll position restore, because it must happen after the element is inserted back
+                // into the DOM, which should happen just after this scene change in the scene graph
+                UiScheduler.scheduleDeferred(() -> getElement().scrollTop = scrollTop);
+        }, node.sceneProperty());
     }
 
     @Override
@@ -163,7 +176,7 @@ public final class HtmlVisualGridPeer
         }
         if (textAlign != null)
             cssStyle.textAlign = textAlign;
-        HtmlSvgNodePeer nodePeer = content == null ? null : toNodePeer(content, getNode().getScene());
+        HtmlSvgNodePeer nodePeer = content == null ? null : toNodePeer(content);
         Element contentElement =  nodePeer == null ? null : nodePeer.getContainer();
         if (contentElement != null) {
             // Note: the content was produced by a cell renderer and is not directly part of the JavaFX scene graph, but

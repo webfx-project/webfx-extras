@@ -7,7 +7,7 @@ import static dev.webfx.kit.mapper.peers.javafxgraphics.NodePeerFactoryRegistry.
 
 public final class VisualGridRegistry {
 
-    public static void registerDataGrid() {
+    public static void registerVisualGrid() {
         registerNodePeerFactory(VisualGrid.class, HtmlVisualGridPeer::new);
     }
 

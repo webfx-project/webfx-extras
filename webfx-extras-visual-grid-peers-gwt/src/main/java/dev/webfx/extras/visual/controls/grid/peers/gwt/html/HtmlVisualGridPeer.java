@@ -7,12 +7,15 @@ import dev.webfx.extras.visual.controls.grid.VisualGrid;
 import dev.webfx.extras.visual.controls.grid.peers.base.VisualGridPeerBase;
 import dev.webfx.extras.visual.controls.grid.peers.base.VisualGridPeerMixin;
 import dev.webfx.kit.mapper.peers.javafxgraphics.HasNoChildrenPeers;
+import dev.webfx.kit.mapper.peers.javafxgraphics.SceneRequester;
 import dev.webfx.kit.mapper.peers.javafxgraphics.gwt.html.HtmlRegionPeer;
 import dev.webfx.kit.mapper.peers.javafxgraphics.gwt.html.layoutmeasurable.HtmlLayoutMeasurable;
 import dev.webfx.kit.mapper.peers.javafxgraphics.gwt.shared.HtmlSvgNodePeer;
 import dev.webfx.kit.mapper.peers.javafxgraphics.gwt.util.DomType;
 import dev.webfx.kit.mapper.peers.javafxgraphics.gwt.util.HtmlPaints;
 import dev.webfx.kit.mapper.peers.javafxgraphics.gwt.util.HtmlUtil;
+import dev.webfx.kit.util.properties.FXProperties;
+import dev.webfx.platform.uischeduler.UiScheduler;
 import dev.webfx.platform.util.Strings;
 import dev.webfx.platform.util.tuples.Unit;
 import elemental2.dom.*;
@@ -54,8 +57,18 @@ public final class HtmlVisualGridPeer
             scrollTop = element.scrollTop;
             return null;
         };
+    }
+
+    @Override
+    public void bind(N node, SceneRequester sceneRequester) {
+        super.bind(node, sceneRequester);
         // Restoring scroll position when visiting back the page
-        HtmlUtil.onNodeInsertedIntoDocument(element, () -> element.scrollTop = scrollTop);
+        FXProperties.runOnPropertiesChange(() -> {
+            if (node.getScene() != null) // Going back to the page
+                // We postpone the scroll position restore, because it must happen after the element is inserted back
+                // into the DOM, which should happen just after this scene change in the scene graph
+                UiScheduler.scheduleDeferred(() -> getElement().scrollTop = scrollTop);
+        }, node.sceneProperty());
     }
 
     @Override
@@ -105,6 +118,7 @@ public final class HtmlVisualGridPeer
         HTMLCollection<HTMLTableRowElement> rows = tBody.rows;
         lastRow = Math.min(lastRow, rows.getLength() - 1);
         for (int trIndex = firstRow; trIndex <= lastRow; trIndex++)
+            // TODO: investigate possible strange ClassCastException here
             HtmlUtil.setPseudoClass(rows.item(trIndex), "selected", selected);
     }
 
@@ -162,9 +176,15 @@ public final class HtmlVisualGridPeer
         }
         if (textAlign != null)
             cssStyle.textAlign = textAlign;
-        HtmlSvgNodePeer nodePeer = content == null ? null : toNodePeer(content, getNode().getScene());
+        HtmlSvgNodePeer nodePeer = content == null ? null : toNodePeer(content);
         Element contentElement =  nodePeer == null ? null : nodePeer.getContainer();
         if (contentElement != null) {
+            // Note: the content was produced by a cell renderer and is not directly part of the JavaFX scene graph, but
+            // its html element (managed by nodePeer) is inserted in the DOM below (inside a table cell). So if the user
+            // clicks on it (such as a right-click on a table cell), we want the event dispatch chain find any possible
+            // listener set by the application code (such as onContextMenuRequested). To make this work, we need to set
+            // this VisualGrid as the parent of the content.
+            content.setParent(getNode()); // Allows the event bubbling phase find possible event listeners in ancestors.
             Element visibleContainer = nodePeer.getVisibleContainer();
             setStyleAttribute(visibleContainer, "position", "relative");
             //setStyleAttribute(contentElement, "width", null);

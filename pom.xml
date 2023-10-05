@@ -58,14 +58,13 @@
         <module>webfx-extras-filepicker-gwt</module>
         <module>webfx-extras-filepicker-openjfx</module>
         <module>webfx-extras-flexbox</module>
-        <module>webfx-extras-flippane</module>
         <module>webfx-extras-geometry</module>
         <module>webfx-extras-imagestore</module>
         <module>webfx-extras-label</module>
         <module>webfx-extras-layer</module>
         <module>webfx-extras-led</module>
         <module>webfx-extras-materialdesign</module>
-        <module>webfx-extras-scalepane</module>
+        <module>webfx-extras-panes</module>
         <module>webfx-extras-switches</module>
         <module>webfx-extras-theme</module>
         <module>webfx-extras-time</module>
@@ -81,7 +80,6 @@
         <module>webfx-extras-util-color</module>
         <module>webfx-extras-util-layout</module>
         <module>webfx-extras-util-paint</module>
-        <module>webfx-extras-util-pane</module>
         <module>webfx-extras-util-scene</module>
         <module>webfx-extras-visual</module>
         <module>webfx-extras-visual-charts</module>

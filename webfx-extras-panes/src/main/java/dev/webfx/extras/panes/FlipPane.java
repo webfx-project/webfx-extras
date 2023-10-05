@@ -1,4 +1,4 @@
-package dev.webfx.extras.flippane;
+package dev.webfx.extras.panes;
 
 import dev.webfx.extras.util.animation.Animations;
 import dev.webfx.kit.util.properties.FXProperties;

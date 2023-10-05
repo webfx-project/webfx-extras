@@ -1,4 +1,4 @@
-package dev.webfx.extras.scalepane;
+package dev.webfx.extras.panes;
 
 /**
  * @author Bruno Salmon

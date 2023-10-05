@@ -1,24 +1,24 @@
-package dev.webfx.extras.scalepane;
+package dev.webfx.extras.panes;
 
 import javafx.geometry.HPos;
 import javafx.geometry.VPos;
 import javafx.scene.Node;
-import javafx.scene.layout.Pane;
 import javafx.scene.layout.Region;
 
 /**
  * @author Bruno Salmon
  */
-public class ScalePane extends Pane {
+public class ScalePane extends MonoPane {
 
     private ScaleMode scaleMode;
-    private Node node;
     private boolean scaleEnabled = true;
     private boolean canGrow = true, canShrink = true;
     private boolean canScaleX = true, canScaleY = true;
     private boolean alwaysTry = false;
     private double maxScale = Double.NaN;
     private double scale;
+
+    private double scaleX, scaleY;
 
     public ScalePane() {
         this((Node) null);
@@ -38,15 +38,11 @@ public class ScalePane extends Pane {
     }
 
     public void setNode(Node node) {
-        this.node = node;
-        if (node != null)
-            getChildren().setAll(node);
-        else
-            getChildren().clear();
+        setContent(node);
     }
 
     public Node getNode() {
-        return node;
+        return getContent();
     }
 
     public ScaleMode getScaleMode() {
@@ -104,26 +100,21 @@ public class ScalePane extends Pane {
         return scale;
     }
 
-    @Override
-    protected void layoutChildren() {
-        if (node == null)
-            return;
-        double width = getWidth();
-        double height = getHeight();
+    private void computedScales(double width, double height) {
         scale = 1;
         if (scaleEnabled) {
-            boolean tryRescale = !node.isResizable() || alwaysTry;
-            if (!tryRescale && node instanceof Region) {
-                Region region = (Region) this.node;
+            boolean tryRescale = !content.isResizable() || alwaysTry;
+            if (!tryRescale && content instanceof Region) {
+                Region region = (Region) content;
                 tryRescale = region.minWidth(height) > width || region.maxWidth(height) < width || region.minHeight(width) > height || region.maxHeight(width) < height;
             }
             if (tryRescale) {
-                double w = node.prefWidth(height), h = node.prefHeight(width);
+                double w = content.prefWidth(height), h = content.prefHeight(width);
                 switch (scaleMode) {
-                    case FIT_HEIGHT: scale = height / h; break;
-                    case FIT_WIDTH:  scale = width  / w; break;
-                    case BEST_FIT:   scale = Math.min(height / h, width / w); break;
-                    case BEST_ZOOM:  scale = Math.max(height / h, width / w); break;
+                    case FIT_HEIGHT: scale = height == -1 ? 1 : height / h; break;
+                    case FIT_WIDTH:  scale = width == -1 ? 1 : width  / w; break;
+                    case BEST_FIT:   scale = Math.min(height == -1 ? 1 : height / h, width == -1 ? 1 : width / w); break;
+                    case BEST_ZOOM:  scale = Math.max(height == -1 ? 1 : height / h, width == -1 ? 1 : width / w); break;
                 }
                 if (!canShrink && scale < 1 || !canGrow && scale > 1)
                     scale = 1;
@@ -131,8 +122,54 @@ public class ScalePane extends Pane {
             if (scale > maxScale)
                 scale = maxScale;
         }
-        node.setScaleX(canScaleX ? scale : 1);
-        node.setScaleY(canScaleY ? scale : 1);
-        layoutInArea(node, 0, 0, width, height, 0, HPos.CENTER, VPos.CENTER);
+        scaleX = canScaleX ? scale : 1;
+        scaleY = canScaleY ? scale : 1;
     }
+
+    @Override
+    protected void layoutChildren() {
+        if (content == null)
+            return;
+        double width = getWidth();
+        double height = getHeight();
+        computedScales(width, height);
+        content.setScaleX(scaleX);
+        content.setScaleY(scaleY);
+        layoutInArea(content, 0, 0, width, height, 0, HPos.CENTER, VPos.CENTER);
+    }
+
+    @Override
+    protected double computeContentMinWidth(double height) {
+        return 0;
+    }
+
+    @Override
+    protected double computeContentMinHeight(double width) {
+        return 0;
+    }
+
+    @Override
+    protected double computeContentPrefWidth(double height) {
+        double prefWidth = super.computeContentPrefWidth(height);
+        computedScales(prefWidth, height);
+        return scaleX * prefWidth;
+    }
+
+    @Override
+    protected double computeContentPrefHeight(double width) {
+        double prefHeight = super.computeContentPrefHeight(width);
+        computedScales(width, prefHeight);
+        return scaleY * prefHeight;
+    }
+
+    @Override
+    protected double computeMaxWidth(double height) {
+        return Double.MAX_VALUE;
+    }
+
+    @Override
+    protected double computeMaxHeight(double width) {
+        return Double.MAX_VALUE;
+    }
+
 }

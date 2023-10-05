@@ -1,4 +1,4 @@
-package dev.webfx.extras.util.pane;
+package dev.webfx.extras.panes;
 
 import javafx.geometry.HPos;
 import javafx.geometry.Insets;
@@ -15,7 +15,9 @@ import javafx.scene.layout.Pane;
  */
 public class MonoPane extends Pane {
 
-    private Node content;
+    protected Node content;
+    private HPos contentHalignment = HPos.CENTER;
+    private VPos contentValignment = VPos.CENTER;
 
     public MonoPane() {
     }
@@ -36,6 +38,22 @@ public class MonoPane extends Pane {
             getChildren().setAll(content);
     }
 
+    public HPos getContentHalignment() {
+        return contentHalignment;
+    }
+
+    public void setContentHalignment(HPos contentHalignment) {
+        this.contentHalignment = contentHalignment;
+    }
+
+    public VPos getContentValignment() {
+        return contentValignment;
+    }
+
+    public void setContentValignment(VPos contentValignment) {
+        this.contentValignment = contentValignment;
+    }
+
     @Override
     protected void layoutChildren() {
         if (content != null) {
@@ -43,9 +61,7 @@ public class MonoPane extends Pane {
             Insets padding = getPadding();
             layoutInArea(content, padding.getLeft(), padding.getTop()
                     , width - paddingWidth(), height - paddingHeight()
-                    , 0, HPos.CENTER, VPos.BOTTOM);
-            // Note: the VPos.BOTTOM is for a possible folding animation from bottom to top (used for header tabs
-            // in Modality backoffice). Should this be parameterised?
+                    , 0, contentHalignment, contentValignment);
         }
     }
 
@@ -67,32 +83,56 @@ public class MonoPane extends Pane {
 
     @Override
     protected double computeMinWidth(double height) {
-        return paddingWidth() + (content == null ?  0 : content.minWidth(height));
+        return paddingWidth() + computeContentMinWidth(height);
+    }
+
+    protected double computeContentMinWidth(double height) {
+        return content == null ?  0 : content.minWidth(height);
     }
 
     @Override
     protected double computeMinHeight(double width) {
-        return paddingHeight() + (content == null ?  0 : content.minHeight(width));
+        return paddingHeight() + computeContentMinHeight(width);
+    }
+
+    protected double computeContentMinHeight(double width) {
+        return content == null ?  0 : content.minHeight(width);
     }
 
     @Override
     protected double computePrefWidth(double height) {
-        return paddingWidth() + (content == null ?  0 : content.prefWidth(height));
+        return paddingWidth() + computeContentPrefWidth(height);
+    }
+
+    protected double computeContentPrefWidth(double height) {
+        return content == null ?  0 : content.prefWidth(height);
     }
 
     @Override
     protected double computePrefHeight(double width) {
-        return paddingHeight() + (content == null ?  0 : content.prefHeight(width));
+        return paddingHeight() + computeContentPrefHeight(width);
+    }
+
+    protected double computeContentPrefHeight(double width) {
+        return content == null ?  0 : content.prefHeight(width);
     }
 
     @Override
     protected double computeMaxWidth(double height) {
-        return paddingWidth() + (content == null ?  0 : content.maxWidth(height));
+        return paddingWidth() + computeContentMaxWidth(height);
+    }
+
+    protected double computeContentMaxWidth(double height) {
+        return content == null ?  0 : content.maxWidth(height);
     }
 
     @Override
     protected double computeMaxHeight(double width) {
-        return paddingHeight() + (content == null ?  0 : content.maxHeight(width));
+        return paddingHeight() + computeContentMaxHeight(width);
+    }
+
+    protected double computeContentMaxHeight(double width) {
+        return content == null ?  0 : content.maxHeight(width);
     }
 
 }

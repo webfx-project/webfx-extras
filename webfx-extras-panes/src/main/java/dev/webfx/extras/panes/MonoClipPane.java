@@ -1,4 +1,4 @@
-package dev.webfx.extras.util.pane;
+package dev.webfx.extras.panes;
 
 import javafx.scene.Node;
 import javafx.scene.shape.Rectangle;

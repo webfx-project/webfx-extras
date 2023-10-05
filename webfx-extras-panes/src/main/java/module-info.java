@@ -1,6 +1,6 @@
 // File managed by WebFX (DO NOT EDIT MANUALLY)
 
-module webfx.extras.flippane {
+module webfx.extras.panes {
 
     // Direct dependencies modules
     requires javafx.base;
@@ -9,6 +9,6 @@ module webfx.extras.flippane {
     requires webfx.kit.util;
 
     // Exported packages
-    exports dev.webfx.extras.flippane;
+    exports dev.webfx.extras.panes;
 
 }

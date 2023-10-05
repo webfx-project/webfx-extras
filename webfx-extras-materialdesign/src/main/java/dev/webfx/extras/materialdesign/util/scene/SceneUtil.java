@@ -13,7 +13,8 @@ import java.util.function.Consumer;
 public final class SceneUtil {
 
     public static void onSceneReady(Node node, Consumer<Scene> sceneConsumer) {
-        onSceneReady(node.sceneProperty(), sceneConsumer);
+        if (node != null)
+            onSceneReady(node.sceneProperty(), sceneConsumer);
     }
 
     public static void onSceneReady(ObservableValue<Scene> sceneProperty, Consumer<Scene> sceneConsumer) {
@@ -29,7 +30,7 @@ public final class SceneUtil {
         return hasAncestor(focusOwner, node);
     }
 
-    private static boolean hasAncestor(Node node, Node parent) {
+    public static boolean hasAncestor(Node node, Node parent) {
         while (true) {
             if (node == parent)
                 return true;

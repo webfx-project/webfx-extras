@@ -66,6 +66,7 @@
         <module>webfx-extras-led</module>
         <module>webfx-extras-materialdesign</module>
         <module>webfx-extras-scalepane</module>
+        <module>webfx-extras-switches</module>
         <module>webfx-extras-theme</module>
         <module>webfx-extras-time</module>
         <module>webfx-extras-time-layout</module>

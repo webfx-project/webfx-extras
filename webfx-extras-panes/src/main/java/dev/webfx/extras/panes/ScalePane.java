@@ -1,6 +1,7 @@
 package dev.webfx.extras.panes;
 
 import javafx.geometry.HPos;
+import javafx.geometry.Insets;
 import javafx.geometry.VPos;
 import javafx.scene.Node;
 import javafx.scene.layout.Region;
@@ -16,8 +17,13 @@ public class ScalePane extends MonoPane {
     private boolean canScaleX = true, canScaleY = true;
     private boolean alwaysTry = false;
     private double maxScale = Double.NaN;
-    private double scale;
+    private boolean fillWidth = true;
+    private boolean fillHeight = true;
+    private HPos hAlignment = HPos.CENTER;
+    private VPos vAlignment = VPos.CENTER;
+    private double fixedWidth = -1, fixedHeight = -1;
 
+    private double scale;
     private double scaleX, scaleY;
 
     public ScalePane() {
@@ -100,6 +106,37 @@ public class ScalePane extends MonoPane {
         return scale;
     }
 
+    public void setFillWidth(boolean fillWidth) {
+        this.fillWidth = fillWidth;
+    }
+
+    public void setFillHeight(boolean fillHeight) {
+        this.fillHeight = fillHeight;
+    }
+
+    public void setHAlignment(HPos hAlignment) {
+        this.hAlignment = hAlignment;
+    }
+
+    public void setVAlignment(VPos vAlignment) {
+        this.vAlignment = vAlignment;
+    }
+
+    public void setFixedWidth(double fixedWidth) {
+        this.fixedWidth = fixedWidth;
+        requestLayout();
+    }
+
+    public void setFixedHeight(double fixedHeight) {
+        this.fixedHeight = fixedHeight;
+        requestLayout();
+    }
+
+    public void setFixedSize(double forcedWidth, double forcedHeight) {
+        setFixedWidth(forcedWidth);
+        setFixedHeight(forcedHeight);
+    }
+
     private void computedScales(double width, double height) {
         scale = 1;
         if (scaleEnabled) {
@@ -130,12 +167,12 @@ public class ScalePane extends MonoPane {
     protected void layoutChildren() {
         if (content == null)
             return;
-        double width = getWidth();
-        double height = getHeight();
+        double width = fixedWidth != -1 ? fixedWidth : getWidth();
+        double height = fixedHeight != -1 ? fixedHeight : getHeight();
         computedScales(width, height);
         content.setScaleX(scaleX);
         content.setScaleY(scaleY);
-        layoutInArea(content, 0, 0, width, height, 0, HPos.CENTER, VPos.CENTER);
+        layoutInArea(content, 0, 0, width, height, 0, Insets.EMPTY, fillWidth, fillHeight, hAlignment, vAlignment);
     }
 
     @Override

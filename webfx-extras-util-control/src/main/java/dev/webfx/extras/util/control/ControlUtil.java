@@ -1,10 +1,13 @@
 package dev.webfx.extras.util.control;
 
+import dev.webfx.extras.panes.ScalePane;
 import dev.webfx.extras.util.layout.LayoutUtil;
 import dev.webfx.kit.launcher.WebFxKitLauncher;
 import dev.webfx.kit.util.properties.FXProperties;
 import dev.webfx.platform.util.Numbers;
 import javafx.collections.ObservableList;
+import javafx.geometry.Bounds;
+import javafx.geometry.VPos;
 import javafx.scene.Node;
 import javafx.scene.Parent;
 import javafx.scene.control.ScrollPane;
@@ -38,6 +41,23 @@ public class ControlUtil {
             );
         scrollPane.setHbarPolicy(ScrollPane.ScrollBarPolicy.NEVER);
         registerParentScrollPaneProperty(scrollPane);
+        return scrollPane;
+    }
+
+    public static ScrollPane createScalableVerticalScrollPane(Region content) {
+        ScalePane scalePane = new ScalePane(content);
+        scalePane.setCanShrink(false);
+        scalePane.setFillWidth(false);
+        scalePane.setFillHeight(false);
+        scalePane.setAlwaysTry(true);
+        ScrollPane scrollPane = createVerticalScrollPane(scalePane);
+        FXProperties.runOnPropertiesChange(p -> {
+            Bounds viewportBounds = scrollPane.getViewportBounds();
+            double width = viewportBounds.getWidth();
+            double height = viewportBounds.getHeight();
+            scalePane.setFixedSize(width, height);
+            scalePane.setVAlignment(height > content.prefHeight(width) ? VPos.CENTER : VPos.TOP);
+        }, scrollPane.viewportBoundsProperty());
         return scrollPane;
     }
 

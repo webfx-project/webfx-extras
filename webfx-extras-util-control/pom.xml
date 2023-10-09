@@ -11,7 +11,7 @@
         <version>0.1.0-SNAPSHOT</version>
     </parent>
 
-    <artifactId>webfx-extras-util-layout</artifactId>
+    <artifactId>webfx-extras-util-control</artifactId>
 
     <dependencies>
 
@@ -23,19 +23,37 @@
 
         <dependency>
             <groupId>org.openjfx</groupId>
+            <artifactId>javafx-controls</artifactId>
+            <scope>provided</scope>
+        </dependency>
+
+        <dependency>
+            <groupId>org.openjfx</groupId>
             <artifactId>javafx-graphics</artifactId>
             <scope>provided</scope>
         </dependency>
 
         <dependency>
             <groupId>dev.webfx</groupId>
-            <artifactId>webfx-extras-util-background</artifactId>
+            <artifactId>webfx-extras-util-layout</artifactId>
+            <version>0.1.0-SNAPSHOT</version>
+        </dependency>
+
+        <dependency>
+            <groupId>dev.webfx</groupId>
+            <artifactId>webfx-kit-launcher</artifactId>
             <version>0.1.0-SNAPSHOT</version>
         </dependency>
 
         <dependency>
             <groupId>dev.webfx</groupId>
             <artifactId>webfx-kit-util</artifactId>
+            <version>0.1.0-SNAPSHOT</version>
+        </dependency>
+
+        <dependency>
+            <groupId>dev.webfx</groupId>
+            <artifactId>webfx-platform-util</artifactId>
             <version>0.1.0-SNAPSHOT</version>
         </dependency>
 

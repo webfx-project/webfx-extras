@@ -1,4 +1,4 @@
-package dev.webfx.extras.util.layout;
+package dev.webfx.extras.util.control;
 
 import javafx.geometry.Insets;
 import javafx.scene.Node;

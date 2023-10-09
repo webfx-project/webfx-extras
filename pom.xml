@@ -78,6 +78,7 @@
         <module>webfx-extras-util-background</module>
         <module>webfx-extras-util-border</module>
         <module>webfx-extras-util-color</module>
+        <module>webfx-extras-util-control</module>
         <module>webfx-extras-util-layout</module>
         <module>webfx-extras-util-paint</module>
         <module>webfx-extras-util-scene</module>

@@ -1,7 +1,17 @@
 package dev.webfx.extras.util.scene;
 
 import dev.webfx.extras.util.animation.Animations;
+import dev.webfx.extras.util.control.ControlUtil;
 import dev.webfx.extras.util.layout.LayoutUtil;
+import dev.webfx.kit.launcher.WebFxKitLauncher;
+import dev.webfx.kit.util.properties.FXProperties;
+import dev.webfx.kit.util.properties.Unregisterable;
+import dev.webfx.kit.util.properties.UnregisterableListener;
+import dev.webfx.platform.scheduler.Scheduled;
+import dev.webfx.platform.uischeduler.AnimationFramePass;
+import dev.webfx.platform.uischeduler.UiScheduler;
+import dev.webfx.platform.util.Booleans;
+import dev.webfx.platform.util.tuples.Unit;
 import javafx.animation.Timeline;
 import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.Property;
@@ -16,15 +26,6 @@ import javafx.scene.Scene;
 import javafx.scene.control.ScrollPane;
 import javafx.scene.control.TextInputControl;
 import javafx.stage.Window;
-import dev.webfx.kit.launcher.WebFxKitLauncher;
-import dev.webfx.kit.util.properties.FXProperties;
-import dev.webfx.kit.util.properties.Unregisterable;
-import dev.webfx.kit.util.properties.UnregisterableListener;
-import dev.webfx.platform.uischeduler.AnimationFramePass;
-import dev.webfx.platform.uischeduler.UiScheduler;
-import dev.webfx.platform.scheduler.Scheduled;
-import dev.webfx.platform.util.Booleans;
-import dev.webfx.platform.util.tuples.Unit;
 
 import java.util.function.Consumer;
 
@@ -46,7 +47,7 @@ public final class SceneUtil {
     }
 
     public static boolean scrollNodeToBeVerticallyVisibleOnScene(Node node, boolean onlyIfNotVisible, boolean animate) {
-        ScrollPane scrollPane = LayoutUtil.findScrollPaneAncestor(node);
+        ScrollPane scrollPane = ControlUtil.findScrollPaneAncestor(node);
         if (scrollPane != null && (!onlyIfNotVisible || !isNodeVerticallyVisibleOnScene(node))) {
             double contentHeight = scrollPane.getContent().getLayoutBounds().getHeight();
             double viewportHeight = scrollPane.getViewportBounds().getHeight();
@@ -59,7 +60,7 @@ public final class SceneUtil {
             double currentScrollPaneSceneTop = scrollPane.localToScene(0, 0).getY();
             wishedSceneNodeTop = LayoutUtil.boundedSize(wishedSceneNodeTop, currentScrollPaneSceneTop, currentScrollPaneSceneTop + viewportHeight);
             double currentNodeSceneTop = node.localToScene(0, 0).getY();
-            double currentViewportSceneTop = LayoutUtil.computeScrollPaneVoffset(scrollPane);
+            double currentViewportSceneTop = ControlUtil.computeScrollPaneVoffset(scrollPane);
             double wishedViewportSceneTop = currentViewportSceneTop +  currentNodeSceneTop - wishedSceneNodeTop;
             double vValue = wishedViewportSceneTop / (contentHeight - viewportHeight);
             vValue = LayoutUtil.boundedSize(vValue, 0, 1);

@@ -1,4 +1,4 @@
-package dev.webfx.extras.flexbox;
+package dev.webfx.extras.panes;
 
 import javafx.beans.InvalidationListener;
 import javafx.beans.property.BooleanProperty;
@@ -20,7 +20,7 @@ import java.util.stream.Collectors;
 /**
  * @author Bruno Salmon
  */
-public final class FlexBox extends Pane {
+public final class FlexPane extends Pane {
     private static final String GROW_CONSTRAINT = "flexbox-grow";
     private static final String MARGIN_CONSTRAINT = "flexbox-margin";
     private final DoubleProperty horizontalSpace = new SimpleDoubleProperty(0) {
@@ -64,14 +64,14 @@ public final class FlexBox extends Pane {
     private double computedMinHeight;
     private boolean performingLayout;
 
-    public FlexBox(Node... children) {
+    public FlexPane(Node... children) {
         getChildren().setAll(children);
         // This is necessary to clear the previous computed min/pref/max height cached value memorized in Region.min/pref/maxHeight()
         widthProperty().addListener(observable -> clearSizeCache());
         getChildren().addListener((InvalidationListener) observable -> clearSizeCache());
     }
 
-    public FlexBox(double horizontalSpace, double verticalSpace, Node... children) {
+    public FlexPane(double horizontalSpace, double verticalSpace, Node... children) {
         this(children);
         setHorizontalSpace(horizontalSpace);
         setVerticalSpace(verticalSpace);

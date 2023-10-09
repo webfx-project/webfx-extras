@@ -149,7 +149,7 @@ public class ScalePane extends MonoPane {
                 double w = content.prefWidth(height), h = content.prefHeight(width);
                 switch (scaleMode) {
                     case FIT_HEIGHT: scale = height == -1 ? 1 : height / h; break;
-                    case FIT_WIDTH:  scale = width == -1 ? 1 : width  / w; break;
+                    case FIT_WIDTH:  scale = width  == -1 ? 1 : width  / w; break;
                     case BEST_FIT:   scale = Math.min(height == -1 ? 1 : height / h, width == -1 ? 1 : width / w); break;
                     case BEST_ZOOM:  scale = Math.max(height == -1 ? 1 : height / h, width == -1 ? 1 : width / w); break;
                 }

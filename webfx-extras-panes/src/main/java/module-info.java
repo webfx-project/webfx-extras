@@ -3,6 +3,7 @@
 module webfx.extras.panes {
 
     // Direct dependencies modules
+    requires java.base;
     requires javafx.base;
     requires javafx.graphics;
     requires webfx.extras.util.animation;

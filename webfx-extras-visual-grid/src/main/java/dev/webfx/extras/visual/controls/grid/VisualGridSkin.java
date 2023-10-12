@@ -421,7 +421,7 @@ public final class VisualGridSkin extends SelectableVisualResultControlSkinBase<
         }
     }
 
-    private static final Insets CELL_MARGIN = Insets.EMPTY; // new Insets(5);
+    private static final Insets CELL_MARGIN = new Insets(0, 0, 0, 5);
 
     private final class GridColumn extends Pane {
         private Double fixedWidth;

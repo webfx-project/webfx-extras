@@ -11,6 +11,7 @@ import dev.webfx.platform.scheduler.Scheduled;
 import dev.webfx.platform.uischeduler.AnimationFramePass;
 import dev.webfx.platform.uischeduler.UiScheduler;
 import dev.webfx.platform.util.Booleans;
+import dev.webfx.platform.util.tuples.Pair;
 import dev.webfx.platform.util.tuples.Unit;
 import javafx.animation.Timeline;
 import javafx.beans.property.BooleanProperty;
@@ -26,6 +27,8 @@ import javafx.scene.Scene;
 //TODO: Move methods introducing dependency to javafx-controls elsewhere
 import javafx.scene.control.ScrollPane;
 import javafx.scene.control.TextInputControl;
+import javafx.scene.input.KeyCode;
+import javafx.scene.input.KeyCodeCombination;
 import javafx.stage.Window;
 
 import java.util.function.Consumer;
@@ -34,6 +37,149 @@ import java.util.function.Consumer;
  * @author Bruno Salmon
  */
 public final class SceneUtil {
+
+    public static void onSceneReady(Node node, Consumer<Scene> sceneConsumer) {
+        onSceneReady(node.sceneProperty(), sceneConsumer);
+    }
+
+    public static void onSceneReady(Window window, Consumer<Scene> sceneConsumer) {
+        onSceneReady(window.sceneProperty(), sceneConsumer);
+    }
+
+    public static void onSceneReady(ObservableValue<Scene> sceneProperty, Consumer<Scene> sceneConsumer) {
+        FXProperties.onPropertySet(sceneProperty, sceneConsumer);
+    }
+
+    public static void onPrimarySceneReady(Consumer<Scene> sceneConsumer) {
+        WebFxKitLauncher.onReady(() -> onSceneReady(WebFxKitLauncher.getPrimaryStage(), sceneConsumer));
+    }
+
+    public static Runnable getDefaultAccelerator(Scene scene) {
+        return getAccelerator(scene, KeyCode.ENTER);
+    }
+
+    public static void setDefaultAccelerator(Scene scene, Runnable defaultAccelerator) {
+        setAccelerator(scene, KeyCode.ENTER, defaultAccelerator);
+    }
+
+    public static Runnable getCancelAccelerator(Scene scene) {
+        return getAccelerator(scene, KeyCode.ESCAPE);
+    }
+
+    public static void setCancelAccelerator(Scene scene, Runnable cancelAccelerator) {
+        setAccelerator(scene, KeyCode.ESCAPE, cancelAccelerator);
+    }
+
+    public static Pair<Runnable, Runnable> getDefaultAndCancelAccelerators(Scene scene) {
+        return new Pair(getDefaultAccelerator(scene), getCancelAccelerator(scene));
+    }
+
+    public static void setDefaultAndCancelAccelerators(Scene scene, Pair<Runnable, Runnable> accelerators) {
+        setDefaultAccelerator(scene, accelerators.get1());
+        setCancelAccelerator(scene, accelerators.get2());
+    }
+
+    private static Runnable getAccelerator(Scene scene, KeyCode keyCode) {
+        KeyCodeCombination acceleratorKeyCodeCombination = new KeyCodeCombination(keyCode);
+        return scene.getAccelerators().get(acceleratorKeyCodeCombination);
+    }
+
+    private static void setAccelerator(Scene scene, KeyCode keyCode, Runnable accelerator) {
+        KeyCodeCombination acceleratorKeyCodeCombination = new KeyCodeCombination(keyCode);
+        scene.getAccelerators().put(acceleratorKeyCodeCombination, accelerator);
+    }
+
+    public static Unregisterable runOnceFocusIsOutside(Node node, boolean includesNullFocus, Runnable runnable) {
+        Property<Node> localFocusOwnerProperty;
+        ObservableValue<Node> focusOwnerProperty;
+        Unit<Unregisterable> unregisterableUnit = new Unit<>();
+        if (node.getScene() != null) {
+            focusOwnerProperty = node.getScene().focusOwnerProperty();
+            localFocusOwnerProperty = null;
+        } else {
+            focusOwnerProperty = localFocusOwnerProperty = new SimpleObjectProperty<>();
+            onSceneReady(node, scene -> localFocusOwnerProperty.bind(scene.focusOwnerProperty()));
+        }
+        unregisterableUnit.set(new UnregisterableListener(p -> {
+            Node newFocusOwner = (Node) p.getValue();
+            if ((newFocusOwner == null ? includesNullFocus : !isFocusInsideNode(newFocusOwner, node))) {
+                runnable.run();
+                unregisterableUnit.get().unregister();
+            }
+        }, focusOwnerProperty) {
+            @Override
+            public void unregister() {
+                if (localFocusOwnerProperty != null)
+                    localFocusOwnerProperty.unbind();
+                super.unregister();
+            }
+        });
+        return unregisterableUnit.get();
+    }
+
+    public static boolean isFocusInsideNode(Node node) {
+        Scene scene = node == null ? null : node.getScene();
+        return scene != null && isFocusInsideNode(scene.getFocusOwner(), node);
+    }
+
+    private static boolean isFocusInsideNode(Node focusOwner, Node node) {
+        return hasAncestor(focusOwner, node);
+    }
+
+    private static boolean hasAncestor(Node node, Node parent) {
+        while (true) {
+            if (node == parent)
+                return true;
+            if (node == null)
+                return false;
+            node = node.getParent();
+        }
+    }
+
+    public static void autoFocusIfEnabled(Node node) {
+        onSceneReady(node, scene -> {
+            if (isAutoFocusEnabled(scene))
+                node.requestFocus();
+        });
+    }
+
+    public static boolean isAutoFocusEnabled(Scene scene) {
+        // TODO: make it a user setting that can be stored in the device
+        // Default behavior is to disable auto focus if this can cause a (probably unwanted) virtual keyboard to appear
+        return isVirtualKeyboardShowing(scene) || !willAVirtualKeyboardAppearOnFocus(scene);
+    }
+
+    public static boolean willAVirtualKeyboardAppearOnFocus(Scene scene) {
+        Boolean virtualKeyboardDetected = getSceneInfo(scene).virtualKeyboardDetected;
+        if (virtualKeyboardDetected != null)
+            return virtualKeyboardDetected;
+        // No API for this so temporary implementation based on scene size
+        return Math.min(scene.getWidth(), scene.getHeight()) < 800;
+    }
+
+    public static void installSceneFocusOwnerAutoScroll(Scene scene) {
+        scene.focusOwnerProperty().addListener((observable, oldValue, newFocusOwner) -> {
+            scrollNodeToBeVerticallyVisibleOnScene(newFocusOwner, true, true);
+            if (newFocusOwner instanceof TextInputControl)
+                getSceneInfo(scene).touchTextInputFocusTime();
+        });
+    }
+
+    public static void installPrimarySceneFocusOwnerAutoScroll() {
+        onPrimarySceneReady(SceneUtil::installSceneFocusOwnerAutoScroll);
+    }
+
+    public static boolean isVirtualKeyboardShowing(Scene scene) {
+        return getSceneInfo(scene).isVirtualKeyboardShowing();
+    }
+
+    public static Unregisterable onVirtualKeyboardShowing(Scene scene, Runnable runnable) {
+        return FXProperties.runOnPropertiesChange(p -> {
+            if (Booleans.isTrue(p.getValue()))
+                runnable.run();
+        }, getSceneInfo(scene).virtualKeyboardShowingProperty);
+    }
+
 
     public static boolean isNodeVerticallyVisibleOnScene(Node node) {
         Bounds layoutBounds = node.getLayoutBounds();
@@ -83,112 +229,6 @@ public final class SceneUtil {
         return wishedPosition instanceof VPos ? (VPos) wishedPosition : VPos.CENTER;
     }
 
-    public static void autoFocusIfEnabled(Node node) {
-        onSceneReady(node, scene -> {
-            if (isAutoFocusEnabled(scene))
-                node.requestFocus();
-        });
-    }
-
-    public static boolean isAutoFocusEnabled(Scene scene) {
-        // TODO: make it a user setting that can be stored in the device
-        // Default behavior is to disable auto focus if this can cause a (probably unwanted) virtual keyboard to appear
-        return isVirtualKeyboardShowing(scene) || !willAVirtualKeyboardAppearOnFocus(scene);
-    }
-
-    public static boolean willAVirtualKeyboardAppearOnFocus(Scene scene) {
-        Boolean virtualKeyboardDetected = getSceneInfo(scene).virtualKeyboardDetected;
-        if (virtualKeyboardDetected != null)
-            return virtualKeyboardDetected;
-        // No API for this so temporary implementation based on scene size
-        return Math.min(scene.getWidth(), scene.getHeight()) < 800;
-    }
-
-    public static void onSceneReady(Node node, Consumer<Scene> sceneConsumer) {
-        onSceneReady(node.sceneProperty(), sceneConsumer);
-    }
-
-    public static void onSceneReady(Window window, Consumer<Scene> sceneConsumer) {
-        onSceneReady(window.sceneProperty(), sceneConsumer);
-    }
-
-    public static void onSceneReady(ObservableValue<Scene> sceneProperty, Consumer<Scene> sceneConsumer) {
-        FXProperties.onPropertySet(sceneProperty, sceneConsumer);
-    }
-
-    public static void onPrimarySceneReady(Consumer<Scene> sceneConsumer) {
-        WebFxKitLauncher.onReady(() -> onSceneReady(WebFxKitLauncher.getPrimaryStage(), sceneConsumer));
-    }
-
-    public static void installSceneFocusOwnerAutoScroll(Scene scene) {
-        scene.focusOwnerProperty().addListener((observable, oldValue, newFocusOwner) -> {
-            scrollNodeToBeVerticallyVisibleOnScene(newFocusOwner, true, true);
-            if (newFocusOwner instanceof TextInputControl)
-                getSceneInfo(scene).touchTextInputFocusTime();
-        });
-    }
-
-    public static void installPrimarySceneFocusOwnerAutoScroll() {
-        onPrimarySceneReady(SceneUtil::installSceneFocusOwnerAutoScroll);
-    }
-
-    public static boolean isVirtualKeyboardShowing(Scene scene) {
-        return getSceneInfo(scene).isVirtualKeyboardShowing();
-    }
-
-    public static Unregisterable onVirtualKeyboardShowing(Scene scene, Runnable runnable) {
-        return FXProperties.runOnPropertiesChange(p -> {
-            if (Booleans.isTrue(p.getValue()))
-                runnable.run();
-        }, getSceneInfo(scene).virtualKeyboardShowingProperty);
-    }
-
-    public static Unregisterable runOnceFocusIsOutside(Node node, boolean includesNullFocus, Runnable runnable) {
-        Property<Node> localFocusOwnerProperty;
-        ObservableValue<Node> focusOwnerProperty;
-        Unit<Unregisterable> unregisterableUnit = new Unit<>();
-        if (node.getScene() != null) {
-            focusOwnerProperty = node.getScene().focusOwnerProperty();
-            localFocusOwnerProperty = null;
-        } else {
-            focusOwnerProperty = localFocusOwnerProperty = new SimpleObjectProperty<>();
-            onSceneReady(node, scene -> localFocusOwnerProperty.bind(scene.focusOwnerProperty()));
-        }
-        unregisterableUnit.set(new UnregisterableListener(p -> {
-            Node newFocusOwner = (Node) p.getValue();
-            if ((newFocusOwner == null ? includesNullFocus : !isFocusInsideNode(newFocusOwner, node))) {
-                runnable.run();
-                unregisterableUnit.get().unregister();
-            }
-        }, focusOwnerProperty) {
-            @Override
-            public void unregister() {
-                if (localFocusOwnerProperty != null)
-                    localFocusOwnerProperty.unbind();
-                super.unregister();
-            }
-        });
-        return unregisterableUnit.get();
-    }
-
-    public static boolean isFocusInsideNode(Node node) {
-        Scene scene = node == null ? null : node.getScene();
-        return scene != null && isFocusInsideNode(scene.getFocusOwner(), node);
-    }
-
-    private static boolean isFocusInsideNode(Node focusOwner, Node node) {
-        return hasAncestor(focusOwner, node);
-    }
-
-    private static boolean hasAncestor(Node node, Node parent) {
-        while (true) {
-            if (node == parent)
-                return true;
-            if (node == null)
-                return false;
-            node = node.getParent();
-        }
-    }
 
     private static SceneInfo getSceneInfo(Scene scene) {
         ObservableMap<Object, Object> properties = scene.getProperties();

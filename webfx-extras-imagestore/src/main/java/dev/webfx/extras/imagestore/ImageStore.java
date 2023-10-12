@@ -18,23 +18,26 @@ public final class ImageStore {
 
     public static ImageView createImageView(String iconPath) {
         double wh = 0;
-        boolean resetToIntrinsicSizeOnceLoaded = false;
+        boolean resetToNaturalSizeOnceLoaded = false;
         if (iconPath != null) {
-            if (resetToIntrinsicSizeOnceLoaded = iconPath.contains("/s16/"))
+            if (iconPath.contains("/s16/")) {
+                resetToNaturalSizeOnceLoaded = !iconPath.endsWith(".svg");
                 wh = 16;
-            else if (resetToIntrinsicSizeOnceLoaded = iconPath.contains("/s32/"))
+            } else if (iconPath.contains("/s32/")) {
+                resetToNaturalSizeOnceLoaded = !iconPath.endsWith(".svg");
                 wh = 32;
+            }
         }
-        return createImageView(iconPath, wh, wh, resetToIntrinsicSizeOnceLoaded);
+        return createImageView(iconPath, wh, wh, resetToNaturalSizeOnceLoaded);
     }
 
     public static ImageView createImageView(String iconPath, double w, double h) {
         return createImageView(iconPath, w, h, false);
     }
 
-    public static ImageView createImageView(String iconPath, double w, double h, boolean resetToIntrinsicSizeOnceLoaded) {
+    public static ImageView createImageView(String iconPath, double w, double h, boolean resetToNaturalSizeOnceLoaded) {
         ImageView imageView = new ImageView();
-        boolean loaded = loadImageViewImage(imageView, iconPath, w, h, resetToIntrinsicSizeOnceLoaded);
+        boolean loaded = loadImageViewImage(imageView, iconPath, w, h, resetToNaturalSizeOnceLoaded);
         if (!loaded) {
             if (w > 0)
                 imageView.setFitWidth(w);
@@ -44,17 +47,17 @@ public final class ImageStore {
         return imageView;
     }
 
-    private static boolean loadImageViewImage(ImageView imageView, String iconPath, double w, double h, boolean resetToIntrinsicSizeOnceLoaded) {
+    private static boolean loadImageViewImage(ImageView imageView, String iconPath, double w, double h, boolean resetToNaturalSizeOnceLoaded) {
         if (iconPath != null) {
             // Checking the FxKit is ready (especially under JavaFX) because any attempt loading an image before JavaFX is ready results in crash
             if (!WebFxKitLauncher.isReady()) { // If not ready, just postponing the image load once it is ready
-                WebFxKitLauncher.onReady(() -> loadImageViewImage(imageView, iconPath, w, h, resetToIntrinsicSizeOnceLoaded));
+                WebFxKitLauncher.onReady(() -> loadImageViewImage(imageView, iconPath, w, h, resetToNaturalSizeOnceLoaded));
                 return false;
             }
-            Image image = getOrCreateImage(iconPath, w, h, resetToIntrinsicSizeOnceLoaded);
+            Image image = getOrCreateImage(iconPath, w, h, resetToNaturalSizeOnceLoaded);
             if (image != null) {
                 imageView.setImage(image);
-                if (resetToIntrinsicSizeOnceLoaded) {
+                if (resetToNaturalSizeOnceLoaded) {
                     if (isImageLoaded(image))
                         return true;
                     runOnImageLoaded(image, () -> {
@@ -85,8 +88,8 @@ public final class ImageStore {
         return getOrCreateImage(url, 0, 0);
     }
 
-    public static Image getOrCreateImage(String url, double w, double h, boolean resetToIntrinsicSizeOnceLoaded) {
-        if (resetToIntrinsicSizeOnceLoaded) // width & height are not applied to the image in this case
+    public static Image getOrCreateImage(String url, double w, double h, boolean resetToNaturalSizeOnceLoaded) {
+        if (resetToNaturalSizeOnceLoaded) // width & height are not applied to the image in this case
             w = h = 0; // keeping 0 (natural size) instead
         return getOrCreateImage(url, w, h);
     }

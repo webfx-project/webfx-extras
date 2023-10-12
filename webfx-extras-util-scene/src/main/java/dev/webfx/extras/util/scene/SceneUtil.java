@@ -143,7 +143,7 @@ public final class SceneUtil {
         }, getSceneInfo(scene).virtualKeyboardShowingProperty);
     }
 
-    public static Unregisterable runOnceFocusIsOutside(Node node, Runnable runnable) {
+    public static Unregisterable runOnceFocusIsOutside(Node node, boolean includesNullFocus, Runnable runnable) {
         Property<Node> localFocusOwnerProperty;
         ObservableValue<Node> focusOwnerProperty;
         Unit<Unregisterable> unregisterableUnit = new Unit<>();
@@ -156,7 +156,7 @@ public final class SceneUtil {
         }
         unregisterableUnit.set(new UnregisterableListener(p -> {
             Node newFocusOwner = (Node) p.getValue();
-            if (!isFocusInsideNode(newFocusOwner, node)) {
+            if ((newFocusOwner == null ? includesNullFocus : !isFocusInsideNode(newFocusOwner, node))) {
                 runnable.run();
                 unregisterableUnit.get().unregister();
             }

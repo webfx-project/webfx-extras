@@ -23,6 +23,7 @@ import javafx.geometry.Bounds;
 import javafx.geometry.VPos;
 import javafx.scene.Node;
 import javafx.scene.Scene;
+//TODO: Move methods introducing dependency to javafx-controls elsewhere
 import javafx.scene.control.ScrollPane;
 import javafx.scene.control.TextInputControl;
 import javafx.stage.Window;
@@ -154,7 +155,8 @@ public final class SceneUtil {
             onSceneReady(node, scene -> localFocusOwnerProperty.bind(scene.focusOwnerProperty()));
         }
         unregisterableUnit.set(new UnregisterableListener(p -> {
-            if (!isFocusInside(node, (Node) p.getValue())) {
+            Node newFocusOwner = (Node) p.getValue();
+            if (!isFocusInsideNode(newFocusOwner, node)) {
                 runnable.run();
                 unregisterableUnit.get().unregister();
             }
@@ -169,12 +171,12 @@ public final class SceneUtil {
         return unregisterableUnit.get();
     }
 
-    public static boolean isFocusInside(Node node) {
+    public static boolean isFocusInsideNode(Node node) {
         Scene scene = node == null ? null : node.getScene();
-        return scene != null && isFocusInside(node, scene.getFocusOwner());
+        return scene != null && isFocusInsideNode(scene.getFocusOwner(), node);
     }
 
-    private static boolean isFocusInside(Node node, Node focusOwner) {
+    private static boolean isFocusInsideNode(Node focusOwner, Node node) {
         return hasAncestor(focusOwner, node);
     }
 

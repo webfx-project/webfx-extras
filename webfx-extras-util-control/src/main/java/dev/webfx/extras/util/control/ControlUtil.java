@@ -49,7 +49,7 @@ public class ControlUtil {
         scalePane.setCanShrink(false);
         scalePane.setFillWidth(false);
         scalePane.setFillHeight(false);
-        scalePane.setAlwaysTry(true);
+        scalePane.setScaleRegion(true);
         ScrollPane scrollPane = createVerticalScrollPane(scalePane);
         FXProperties.runOnPropertiesChange(p -> {
             Bounds viewportBounds = scrollPane.getViewportBounds();

@@ -15,8 +15,10 @@ public class ScalePane extends MonoPane {
     private boolean scaleEnabled = true;
     private boolean canGrow = true, canShrink = true;
     private boolean canScaleX = true, canScaleY = true;
-    private boolean alwaysTry = false;
+    private boolean scaleRegion = false;
     private double maxScale = Double.NaN;
+    private boolean stretchWidth = false;
+    private boolean stretchHeight = false;
     private boolean fillWidth = true;
     private boolean fillHeight = true;
     private HPos hAlignment = HPos.CENTER;
@@ -88,8 +90,8 @@ public class ScalePane extends MonoPane {
         requestLayout();
     }
 
-    public void setAlwaysTry(boolean alwaysTry) {
-        this.alwaysTry = alwaysTry;
+    public void setScaleRegion(boolean scaleRegion) {
+        this.scaleRegion = scaleRegion;
         requestLayout();
     }
 
@@ -104,6 +106,14 @@ public class ScalePane extends MonoPane {
 
     public double getScale() {
         return scale;
+    }
+
+    public void setStretchWidth(boolean stretchWidth) {
+        this.stretchWidth = stretchWidth;
+    }
+
+    public void setStretchHeight(boolean stretchHeight) {
+        this.stretchHeight = stretchHeight;
     }
 
     public void setFillWidth(boolean fillWidth) {
@@ -140,7 +150,7 @@ public class ScalePane extends MonoPane {
     private void computedScales(double width, double height) {
         scale = 1;
         if (scaleEnabled) {
-            boolean tryRescale = !content.isResizable() || alwaysTry;
+            boolean tryRescale = !content.isResizable() || scaleRegion;
             if (!tryRescale && content instanceof Region) {
                 Region region = (Region) content;
                 tryRescale = region.minWidth(height) > width || region.maxWidth(height) < width || region.minHeight(width) > height || region.maxHeight(width) < height;
@@ -172,7 +182,44 @@ public class ScalePane extends MonoPane {
         computedScales(width, height);
         content.setScaleX(scaleX);
         content.setScaleY(scaleY);
-        layoutInArea(content, 0, 0, width, height, 0, Insets.EMPTY, fillWidth, fillHeight, hAlignment, vAlignment);
+        boolean stretch = stretchWidth || stretchHeight;
+        // With OpenJFX, we can use w = width / scaleX & h = height / scaleY even when stretch = false, but not with
+        // WebFX due to scale origin mapping issue (ex: "Java full-stack" card of the WebFX website).
+        double w = stretchWidth ?  width / scaleX  : width;
+        double h = stretchHeight ? height / scaleY : height;
+        double maxWidth = -1, maxHeight = -1;
+        Region region = null;
+        if (stretch && content instanceof Region) {
+            region = (Region) content;
+            if (stretchWidth) {
+                maxWidth = region.getMaxWidth();
+                region.setMaxWidth(w);
+            }
+            if (stretchHeight) {
+                maxHeight = region.getMaxHeight();
+                region.setMaxHeight(h);
+            }
+        }
+        double areaY;
+        if (vAlignment == VPos.TOP) {
+            double unscaledHeight = content.prefHeight(width);
+            double scaledHeight = unscaledHeight * scaleY;
+            if (scaledHeight < height) {
+                areaY = (scaledHeight - unscaledHeight) / 2;
+            } else {
+                h = height / scaleY;
+                areaY = (height - h) / 2;
+            }
+        } else {
+            areaY = (height - h) / 2;
+        }
+        layoutInArea(content, (width - w) / 2, areaY, w, h, 0, Insets.EMPTY, fillWidth, fillHeight, hAlignment, vAlignment);
+        if (stretchWidth && region != null) {
+            region.setMaxWidth(maxWidth);
+        }
+        if (stretchHeight && region != null) {
+            region.setMaxHeight(maxHeight);
+        }
     }
 
     @Override

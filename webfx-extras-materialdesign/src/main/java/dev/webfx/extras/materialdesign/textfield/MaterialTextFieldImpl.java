@@ -4,8 +4,8 @@ import dev.webfx.extras.materialdesign.util.ComputeBaselineOffsetWithInsetsFunct
 import dev.webfx.extras.materialdesign.util.ComputeHeightWithInsetsFunction;
 import dev.webfx.extras.materialdesign.util.LayoutChildrenFunction;
 import dev.webfx.extras.materialdesign.util.MaterialAnimation;
-import dev.webfx.extras.materialdesign.util.layout.LayoutUtil;
-import dev.webfx.extras.materialdesign.util.scene.SceneUtil;
+import dev.webfx.extras.util.layout.LayoutUtil;
+import dev.webfx.extras.util.scene.SceneUtil;
 import dev.webfx.kit.util.properties.Unregisterable;
 import dev.webfx.platform.util.Strings;
 import javafx.beans.property.*;
@@ -249,7 +249,7 @@ public final class MaterialTextFieldImpl implements MaterialTextField {
     }
 
     private void updateMaterialUi() {
-        boolean focused = isFocused() || textInputControl == null && SceneUtil.isFocusInside(content);
+        boolean focused = isFocused() || textInputControl == null && SceneUtil.isFocusInsideNode(content);
         boolean disabled = isDisabled(); // TODO: isDisabled() || isEditable() (requires new editable property)
         boolean empty = isInputEmpty();
         boolean invalid = Strings.isNotEmpty(getErrorMessage());

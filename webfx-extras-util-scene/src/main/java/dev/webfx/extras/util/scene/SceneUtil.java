@@ -126,7 +126,7 @@ public final class SceneUtil {
         return hasAncestor(focusOwner, node);
     }
 
-    private static boolean hasAncestor(Node node, Node parent) {
+    public static boolean hasAncestor(Node node, Node parent) {
         while (true) {
             if (node == parent)
                 return true;

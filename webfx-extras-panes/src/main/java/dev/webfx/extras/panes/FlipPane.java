@@ -14,10 +14,9 @@ import javafx.scene.transform.Rotate;
 import javafx.util.Duration;
 
 
+
 /**
- * User: hansolo
- * Date: 16.04.14
- * Time: 22:06
+ * @author Bruno Salmon
  */
 public class FlipPane extends StackPane {
 

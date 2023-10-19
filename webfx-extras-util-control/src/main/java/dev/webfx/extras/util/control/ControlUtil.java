@@ -44,12 +44,16 @@ public class ControlUtil {
         return scrollPane;
     }
 
-    public static ScrollPane createScalableVerticalScrollPane(Region content) {
+    public static ScrollPane createScalableVerticalScrollPane(Region content, boolean stretchWidth) {
         ScalePane scalePane = new ScalePane(content);
         scalePane.setCanShrink(false);
         scalePane.setFillWidth(false);
         scalePane.setFillHeight(false);
         scalePane.setScaleRegion(true);
+        scalePane.setStretchWidth(stretchWidth);
+        /*scalePane.setOnMouseClicked(e -> {
+            scalePane.setScaleEnabled(!scalePane.isScaleEnabled());
+        });*/
         ScrollPane scrollPane = createVerticalScrollPane(scalePane);
         FXProperties.runOnPropertiesChange(p -> {
             Bounds viewportBounds = scrollPane.getViewportBounds();

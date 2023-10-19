@@ -156,7 +156,13 @@ public class ScalePane extends MonoPane {
                 tryRescale = region.minWidth(height) > width || region.maxWidth(height) < width || region.minHeight(width) > height || region.maxHeight(width) < height;
             }
             if (tryRescale) {
-                double w = content.prefWidth(height), h = content.prefHeight(width);
+                if (width > 0 && height > 0 && content instanceof HasPrefRatio) {
+                    double ratio = width / height;
+                    System.out.println("ScalePane width = " + width + ", height = " + height + ", ratio = " + ratio);
+                    ((HasPrefRatio) content).setPrefRatio(ratio);
+                }
+                double w = content.prefWidth(height);
+                double h = content.prefHeight(width);
                 switch (scaleMode) {
                     case FIT_HEIGHT: scale = height == -1 ? 1 : height / h; break;
                     case FIT_WIDTH:  scale = width  == -1 ? 1 : width  / w; break;

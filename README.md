@@ -4,7 +4,6 @@
 ![Scc Comments Count Badge](https://sloc.xyz/github/webfx-project/webfx-extras/?category=comments)
 ![Scc Lines Count Badge](https://sloc.xyz/github/webfx-project/webfx-extras/?category=lines)
 ![Scc COCOMO Badge](https://sloc.xyz/github/webfx-project/webfx-extras/?category=cocomo)
-![Discover Vulnerabilities Using CodeQL](https://github.com/webfx-project/webfx-extras/actions/workflows/discover-vulnerabilities.yml/badge.svg)
 
 # WebFX Extras
 

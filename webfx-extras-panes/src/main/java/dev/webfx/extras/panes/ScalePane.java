@@ -187,17 +187,17 @@ public class ScalePane extends MonoPane {
         // WebFX due to scale origin mapping issue (ex: "Java full-stack" card of the WebFX website).
         double w = stretchWidth ?  width / scaleX  : width;
         double h = stretchHeight ? height / scaleY : height;
-        double maxWidth = -1, maxHeight = -1;
+        double prefWidth = -1, prefHeight = -1;
         Region region = null;
         if (stretch && content instanceof Region) {
             region = (Region) content;
             if (stretchWidth) {
-                maxWidth = region.getMaxWidth();
-                region.setMaxWidth(w);
+                prefWidth = region.getPrefWidth();
+                region.setPrefWidth(w);
             }
             if (stretchHeight) {
-                maxHeight = region.getMaxHeight();
-                region.setMaxHeight(h);
+                prefHeight = region.getPrefHeight();
+                region.setPrefHeight(h);
             }
         }
         double areaY;
@@ -215,10 +215,10 @@ public class ScalePane extends MonoPane {
         }
         layoutInArea(content, (width - w) / 2, areaY, w, h, 0, Insets.EMPTY, fillWidth, fillHeight, hAlignment, vAlignment);
         if (stretchWidth && region != null) {
-            region.setMaxWidth(maxWidth);
+            region.setPrefWidth(prefWidth);
         }
         if (stretchHeight && region != null) {
-            region.setMaxHeight(maxHeight);
+            region.setPrefHeight(prefHeight);
         }
     }
 

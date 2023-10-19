@@ -39,11 +39,13 @@ import java.util.function.Consumer;
 public final class SceneUtil {
 
     public static void onSceneReady(Node node, Consumer<Scene> sceneConsumer) {
-        onSceneReady(node.sceneProperty(), sceneConsumer);
+        if (node != null)
+            onSceneReady(node.sceneProperty(), sceneConsumer);
     }
 
     public static void onSceneReady(Window window, Consumer<Scene> sceneConsumer) {
-        onSceneReady(window.sceneProperty(), sceneConsumer);
+        if (window != null)
+            onSceneReady(window.sceneProperty(), sceneConsumer);
     }
 
     public static void onSceneReady(ObservableValue<Scene> sceneProperty, Consumer<Scene> sceneConsumer) {

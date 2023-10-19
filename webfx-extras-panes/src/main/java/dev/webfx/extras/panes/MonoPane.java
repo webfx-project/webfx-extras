@@ -1,5 +1,7 @@
 package dev.webfx.extras.panes;
 
+import javafx.beans.InvalidationListener;
+import javafx.beans.Observable;
 import javafx.geometry.HPos;
 import javafx.geometry.Insets;
 import javafx.geometry.Orientation;
@@ -19,6 +21,20 @@ public class MonoPane extends Pane {
     private HPos contentHalignment = HPos.CENTER;
     private VPos contentValignment = VPos.CENTER;
 
+    {
+        getChildren().addListener(new InvalidationListener() {
+            @Override
+            public void invalidated(Observable observable) {
+                if (getChildren().isEmpty())
+                    content = null;
+                else if (getChildren().size() == 1)
+                    content = getChildren().get(0);
+                else
+                    throw new IllegalStateException();
+            }
+        });
+    }
+
     public MonoPane() {
     }
 
@@ -31,7 +47,6 @@ public class MonoPane extends Pane {
     }
 
     public void setContent(Node content) {
-        this.content = content;
         if (content == null)
             getChildren().clear();
         else

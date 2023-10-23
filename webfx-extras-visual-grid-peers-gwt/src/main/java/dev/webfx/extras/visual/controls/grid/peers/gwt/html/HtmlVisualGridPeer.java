@@ -136,9 +136,15 @@ public final class HtmlVisualGridPeer
             for (int row = 0; row < rowCount; row++) {
                 HTMLTableRowElement tBodyRow = (HTMLTableRowElement) tBody.insertRow(-1);
                 int finalRow = row;
+                // Selection management on devices with mouse such as desktops
                 tBodyRow.onmousedown = e -> {
                     MouseEvent me = (MouseEvent) e;
                     node.setVisualSelection(VisualSelection.updateRowsSelection(node.getVisualSelection(), node.getSelectionMode(), finalRow, me.button == 0, me.ctrlKey, me.shiftKey));
+                    return null;
+                };
+                // Selection management on touch devices such as mobiles
+                tBodyRow.ontouchstart = e -> {
+                    node.setVisualSelection(VisualSelection.updateRowsSelection(node.getVisualSelection(), node.getSelectionMode(), finalRow, true, e.ctrlKey, e.shiftKey));
                     return null;
                 };
                 String rowStyle = base.getRowStyle(row);

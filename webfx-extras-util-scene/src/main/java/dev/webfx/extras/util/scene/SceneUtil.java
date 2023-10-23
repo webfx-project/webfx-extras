@@ -161,9 +161,10 @@ public final class SceneUtil {
 
     public static void installSceneFocusOwnerAutoScroll(Scene scene) {
         scene.focusOwnerProperty().addListener((observable, oldValue, newFocusOwner) -> {
-            scrollNodeToBeVerticallyVisibleOnScene(newFocusOwner, true, true);
-            if (newFocusOwner instanceof TextInputControl)
+            if (newFocusOwner instanceof TextInputControl) {
+                scrollNodeToBeVerticallyVisibleOnScene(newFocusOwner, true, true);
                 getSceneInfo(scene).touchTextInputFocusTime();
+            }
         });
     }
 

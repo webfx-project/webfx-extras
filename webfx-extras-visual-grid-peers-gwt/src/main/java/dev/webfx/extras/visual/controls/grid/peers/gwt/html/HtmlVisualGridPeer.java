@@ -22,6 +22,7 @@ import elemental2.dom.*;
 import javafx.scene.Node;
 import javafx.scene.Parent;
 import javafx.scene.control.CheckBox;
+import javafx.scene.input.KeyEvent;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.Region;
 
@@ -69,6 +70,20 @@ public final class HtmlVisualGridPeer
                 // into the DOM, which should happen just after this scene change in the scene graph
                 UiScheduler.scheduleDeferred(() -> getElement().scrollTop = scrollTop);
         }, node.sceneProperty());
+        node.setOnKeyPressed(e -> {
+            switch (e.getCode()) {
+                case UP: onArrowKey(true, e); break;
+                case DOWN: onArrowKey(false, e); break;
+            }
+        });
+    }
+
+    private void onArrowKey(boolean up, KeyEvent e) {
+        N node = getNode();
+        VisualSelection visualSelection = node.getVisualSelection();
+        int selectedRow = visualSelection.getSelectedRow() + (up ? -1 : +1);
+        selectedRow = Math.max(0, Math.min(node.getVisualResult().getRowCount() - 1, selectedRow));
+        node.setVisualSelection(VisualSelection.updateRowsSelection(visualSelection, node.getSelectionMode(), selectedRow, true, e.isControlDown(), e.isShiftDown()));
     }
 
     @Override
@@ -140,11 +155,13 @@ public final class HtmlVisualGridPeer
                 tBodyRow.onmousedown = e -> {
                     MouseEvent me = (MouseEvent) e;
                     node.setVisualSelection(VisualSelection.updateRowsSelection(node.getVisualSelection(), node.getSelectionMode(), finalRow, me.button == 0, me.ctrlKey, me.shiftKey));
+                    node.requestFocus(); // to enable keyPressed detection and therefore arrow selection navigation
                     return null;
                 };
                 // Selection management on touch devices such as mobiles
                 tBodyRow.ontouchstart = e -> {
                     node.setVisualSelection(VisualSelection.updateRowsSelection(node.getVisualSelection(), node.getSelectionMode(), finalRow, true, e.ctrlKey, e.shiftKey));
+                    node.requestFocus(); // to enable keyPressed detection and therefore arrow selection navigation
                     return null;
                 };
                 String rowStyle = base.getRowStyle(row);

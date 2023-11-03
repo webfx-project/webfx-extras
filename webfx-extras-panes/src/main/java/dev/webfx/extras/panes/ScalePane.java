@@ -156,19 +156,13 @@ public class ScalePane extends MonoPane {
                 tryRescale = region.minWidth(height) > width || region.maxWidth(height) < width || region.minHeight(width) > height || region.maxHeight(width) < height;
             }
             if (tryRescale) {
-                if (width > 0 && height > 0 && content instanceof HasPrefRatio) {
-                    double ratio = width / height;
-                    System.out.println("ScalePane width = " + width + ", height = " + height + ", ratio = " + ratio);
-                    ((HasPrefRatio) content).setPrefRatio(ratio);
+                if (width > 0 && height > 0 && content instanceof Scalable) {
+                    ((Scalable) content).prepareScale(0,
+                            (contentWidth, contentHeight) -> ScalePane.this.computeScale(width, height, contentWidth, contentHeight));
                 }
                 double w = content.prefWidth(height);
                 double h = content.prefHeight(width);
-                switch (scaleMode) {
-                    case FIT_HEIGHT: scale = height == -1 ? 1 : height / h; break;
-                    case FIT_WIDTH:  scale = width  == -1 ? 1 : width  / w; break;
-                    case BEST_FIT:   scale = Math.min(height == -1 ? 1 : height / h, width == -1 ? 1 : width / w); break;
-                    case BEST_ZOOM:  scale = Math.max(height == -1 ? 1 : height / h, width == -1 ? 1 : width / w); break;
-                }
+                scale = computeScale(width, height, w, h);
                 if (!canShrink && scale < 1 || !canGrow && scale > 1)
                     scale = 1;
             }
@@ -177,6 +171,16 @@ public class ScalePane extends MonoPane {
         }
         scaleX = canScaleX ? scale : 1;
         scaleY = canScaleY ? scale : 1;
+    }
+
+    private double computeScale(double width, double height, double w, double h) {
+        switch (scaleMode) {
+            case FIT_HEIGHT: return height == -1 ? 1 : height / h;
+            case FIT_WIDTH:  return width  == -1 ? 1 : width  / w;
+            case BEST_FIT:   return Math.min(height == -1 ? 1 : height / h, width == -1 ? 1 : width / w);
+            case BEST_ZOOM:  return Math.max(height == -1 ? 1 : height / h, width == -1 ? 1 : width / w);
+        }
+        return 1;
     }
 
     @Override

@@ -1,39 +1,34 @@
 package dev.webfx.extras.panes;
 
+import dev.webfx.platform.util.Arrays;
 import javafx.geometry.HPos;
-import javafx.geometry.Orientation;
 import javafx.geometry.VPos;
 import javafx.scene.Node;
 import javafx.scene.layout.Pane;
 
+import java.util.ArrayList;
 import java.util.List;
 
 /**
  * @author Bruno Salmon
  */
-public class FlexColumnPane extends Pane implements HasPrefRatio {
+public class FlexColumnPane extends Pane implements Scalable {
 
-    private double prefRatio = -1;
+    private double additionalContentHeight;
+    private ScaleComputer scaleComputer;
 
     public FlexColumnPane() {
     }
 
     public FlexColumnPane(Node... children) {
         super(children);
-        //setBackground(Background.fill(Color.LIGHTPINK));
     }
 
     @Override
-    public Orientation getContentBias() {
-        return null; // Orientation.HORIZONTAL;
-    }
-
-    @Override
-    public void setPrefRatio(double prefRatio) {
-        if (prefRatio != this.prefRatio) {
-            this.prefRatio = prefRatio;
-            requestLayout();
-        }
+    public void prepareScale(double additionalContentHeight, ScaleComputer scaleComputer) {
+        this.additionalContentHeight = additionalContentHeight;
+        this.scaleComputer = scaleComputer;
+        requestLayout(); // necessary?
     }
 
     @Override
@@ -42,7 +37,6 @@ public class FlexColumnPane extends Pane implements HasPrefRatio {
     }
 
     private double maxX, maxY;
-    private int lastColChildCount;
     private ChildInfo[] childInfos;
 
     private void computeLayout(double width, double height, boolean apply) {
@@ -50,29 +44,28 @@ public class FlexColumnPane extends Pane implements HasPrefRatio {
         if (children.isEmpty())
             return;
         log("computeLayout(" + width + ", " + height + ", " + apply + ")");
-        double bestComputedRatio = -1, bestComptedRationHeight = -1;
-        int bestComputedRatioColCount = 0;
-        int lastColChildCount = 0;
-        for (int colCount = 1; colCount < children.size() ; colCount++) {
+        double bestComputedScale = -1;
+        int bestComputedScaleColCount = 0;
+        double colFactor = 1;
+        for (int colCount = 1; colCount < children.size(); colCount++) {
             boolean fit = computeFixedColumnLayout(width, height, colCount, children, apply);
-            /*if (this.lastColChildCount == 1 && children.size() > 2)
-                fit = false;*/
-            if (prefRatio <= 0) {
+            if (scaleComputer == null) {
                 if (fit)
                     break;
             } else {
-                double computedRatio = maxX / maxY;
-                if (fit && (bestComputedRatio < 0 || isBetterRatio(computedRatio, bestComputedRatio))) {
-                    bestComputedRatio = computedRatio;
-                    bestComputedRatioColCount = colCount;
-                    bestComptedRationHeight = maxY;
-                    lastColChildCount = this.lastColChildCount;
+                double computedScale = scaleComputer.computeScale(maxX, maxY + additionalContentHeight);
+                computedScale *= colFactor;
+                if (fit && (bestComputedScale < 0 || computedScale > bestComputedScale)) {
+                    bestComputedScale = computedScale;
+                    bestComputedScaleColCount = colCount;
                 }
             }
+            colFactor *= 0.9;
         }
-        if (prefRatio > 0) {
-            log("colCount = " + bestComputedRatioColCount + ", bestRatio = " + bestComputedRatio + " (requested prefRatio = " + prefRatio + ") - lastColChildCount = " + lastColChildCount);
-            computeFixedColumnLayout(bestComptedRationHeight * bestComputedRatio, bestComptedRationHeight, bestComputedRatioColCount, children, apply);
+        if (scaleComputer != null) {
+            log("colCount = " + bestComputedScaleColCount + ", bestScale = " + bestComputedScale);
+            //computeFixedColumnLayout(bestComputedScaleHeight * bestComputedScale, bestComputedScaleHeight, bestComputedScaleColCount, children, apply);
+            computeFixedColumnLayout(width, height, bestComputedScaleColCount, children, apply);
         }
         if (apply) {
             for (ChildInfo ci : childInfos) {
@@ -81,90 +74,68 @@ public class FlexColumnPane extends Pane implements HasPrefRatio {
         }
     }
 
-    private boolean isBetterRatio(double ratio1, double ratio2) {
-        double d1 = ratio1 < prefRatio ? prefRatio - ratio1 : 1 * (ratio1 - prefRatio);
-        double d2 = ratio2 < prefRatio ? prefRatio - ratio2 : 1 * (ratio2 - prefRatio);
-        return d1 < d2;
-    }
-
-    private final double hGap = 15, vGap = 15;
+    private final static double hGap = 15, vGap = 15;
+    double[] childHeights;
+    private double colWidthOnLastChildHeightsComputation;
 
     private boolean computeFixedColumnLayout(double width, double height, int colCount, List<Node> children, boolean apply) {
-        if (childInfos == null || childInfos.length != children.size()) {
-            childInfos = new ChildInfo[children.size()];
-        }
         double colWidth = (width - hGap * (colCount - 1)) / colCount;
-        if (prefRatio > 0 && !apply) {
+        if (scaleComputer != null && !apply) {
             colWidth = 200;
-            width = colWidth * colCount + hGap * (colCount - 1);
-            height = width / prefRatio;
         }
-        ComputeRound cr = new ComputeRound(colCount);
-        while (true) {
-            executeComputeRound(cr, width, height, colWidth, children);
-            boolean fit = cr.colIndex == colCount - 1;
-            if (apply || fit || cr.colIndex < colCount - 1) {
-                maxX = cr.maxX;
-                maxY = cr.maxY;
-                lastColChildCount = cr.lastColChildCount;
-                if (!apply && fit && prefRatio > 0 && colCount > 1) {
-                    double ratio = maxX / maxY;
-                    if (ratio > prefRatio) {
-                        cr.increaseSmallestColumn();
-                        executeComputeRound(cr, width, height, colWidth, children);
-                        if (cr.colIndex == colCount -1) {
-                            double newRatio = cr.maxX / cr.maxY;
-                            log(ratio + " -> " + newRatio + " for " + prefRatio + "? " + isBetterRatio(newRatio, ratio));
-                            if (isBetterRatio(newRatio, ratio)) {
-                                maxX = cr.maxX;
-                                maxY = cr.maxY;
-                                lastColChildCount = cr.lastColChildCount;
-                            }
-                        }
-                    }
-                }
-                return fit;
+
+        int n = children.size();
+        if (childHeights == null || childHeights.length != n || colWidthOnLastChildHeightsComputation != colWidth) {
+            childHeights = new double[n];
+            for (int i = 0; i < n; i++) {
+                Node child = children.get(i);
+                childHeights[i] = child.prefHeight(colWidth);
             }
-            cr.increaseSmallestColumn();
+            colWidthOnLastChildHeightsComputation = colWidth;
         }
+
+        List<Integer> splitPoints = splitIntoColumns(childHeights, colCount);
+        if (splitPoints.size() != colCount)
+            return false;
+
+        if (childInfos == null || childInfos.length != n) {
+            childInfos = new ChildInfo[n];
+        }
+
+        maxY = 0;
+        double x = 0, y = 0;
+        int i = 0;
+        for (int j : splitPoints) {
+            // Filling the column
+            while (i <= j) {
+                Node child = children.get(i);
+                ChildInfo ci = childInfos[i];
+                if (ci == null || ci.child != child) {
+                    ci = childInfos[i] = new ChildInfo(child, x, y, colWidth, childHeights[i]);
+                } else {
+                    ci.x = x;
+                    ci.y = y;
+                    ci.w = colWidth;
+                    ci.h = childHeights[i];
+                }
+                i++;
+                y += ci.h;
+                if (y > maxY)
+                    maxY = y;
+                y += vGap;
+            }
+            // Preparing the position for the next column
+            x += colWidth + hGap;
+            y = 0;
+        }
+        maxX = x;
+
+        if (apply)
+            return maxY <= height;
+
+        return true;
     }
 
-    private void executeComputeRound(ComputeRound cr, double width, double height, double colWidth, List<Node> children) {
-        double x = 0, y = 0;
-        cr.maxX = cr.maxY = 0;
-        cr.smallestNewIncreaseHeight = -1;
-        cr.smallestNewIncreaseColumnIndex = -1;
-        cr.colIndex = 0;
-        cr.lastColChildCount = 0;
-        int childIndex = 0, increaseColumn = cr.increaseColumns[cr.colIndex];
-        for (Node child : children) {
-            double w = colWidth;
-            double h = child.prefHeight(w);
-            double bottom = y + h;
-            if (width > 0 && height > 0 && bottom > height) {
-                if (increaseColumn > 0)
-                    increaseColumn--;
-                else {
-                    if (++cr.colIndex >= cr.colCount)
-                        break;
-                    if (cr.colIndex < cr.colCount - 1 && (cr.smallestNewIncreaseHeight < 0 || bottom < cr.smallestNewIncreaseHeight)) {
-                        cr.smallestNewIncreaseHeight = bottom;
-                        cr.smallestNewIncreaseColumnIndex = cr.colIndex;
-                    }
-                    increaseColumn = cr.increaseColumns[cr.colIndex];
-                    x += w + hGap;
-                    y = 0;
-                }
-            }
-            if (cr.colIndex == cr.colCount - 1)
-                cr.lastColChildCount++;
-            childInfos[childIndex] = new ChildInfo(child, x, y, w, h);
-            cr.maxX = Math.max(cr.maxX, x + w);
-            cr.maxY = Math.max(cr.maxY, y + h);
-            y += h + vGap;
-            childIndex++;
-        }
-    }
 
     @Override
     protected double computePrefWidth(double height) {
@@ -190,7 +161,7 @@ public class FlexColumnPane extends Pane implements HasPrefRatio {
 
     private static final class ChildInfo {
         private final Node child;
-        private final double x, y, w, h;
+        private double x, y, w, h;
 
         public ChildInfo(Node child, double x, double y, double w, double h) {
             this.child = child;
@@ -212,25 +183,62 @@ public class FlexColumnPane extends Pane implements HasPrefRatio {
         }
     }
 
-    private static final class ComputeRound {
-        private final int colCount;
-        private int colIndex;
-        private int[] increaseColumns;
-        private int smallestNewIncreaseColumnIndex;
-        private double smallestNewIncreaseHeight;
-        double maxX, maxY;
-        int lastColChildCount;
+    public static List<Integer> splitIntoColumns(double[] childHeights, int colCount) {
+        List<Integer> result = new ArrayList<>();
+        if (colCount == 1) {
+            result.add(childHeights.length - 1);
+            return result;
+        }
+        double low = 0, high = Arrays.sum(childHeights);
 
-        public ComputeRound(int colCount) {
-            this.colCount = colCount;
-            increaseColumns = new int[colCount];
+        while (low < high) {
+            double mid = (low + high) / 2;
+            if (canSplit(childHeights, colCount, mid)) {
+                high = mid;
+                result.clear();
+                result.addAll(findSplitPoints(childHeights, mid));
+            } else {
+                low = mid + 1;
+            }
         }
 
-        private void increaseSmallestColumn() {
-            int newIncreaseColumnIndex = Math.max(0, smallestNewIncreaseColumnIndex);
-            increaseColumns[newIncreaseColumnIndex]++;
-            for (int i = newIncreaseColumnIndex + 1; i < increaseColumns.length; i++)
-                increaseColumns[i] = 0;
-        }
+        return result;
     }
+
+    private static boolean canSplit(double[] childHeights, int colCount, double maxSum) {
+        int count = 0;
+        double sum = 0;
+
+        for (double h : childHeights) {
+            sum += h;
+            if (sum > maxSum) {
+                sum = 0;
+                count++;
+            }
+        }
+
+        return count < colCount;
+    }
+
+    private static List<Integer> findSplitPoints(double[] childHeights, double maxSum) {
+        List<Integer> splitPoints = new ArrayList<>();
+        double sum = 0;
+        int lastSplitIndex = -1;
+
+        for (int i = 0; i < childHeights.length; i++) {
+            sum += childHeights[i];
+            if (sum > maxSum) {
+                sum = 0;
+                splitPoints.add(i);
+                lastSplitIndex = i;
+            }
+        }
+
+        if (lastSplitIndex != childHeights.length - 1) {
+            splitPoints.add(childHeights.length - 1);
+        }
+
+        return splitPoints;
+    }
+
 }

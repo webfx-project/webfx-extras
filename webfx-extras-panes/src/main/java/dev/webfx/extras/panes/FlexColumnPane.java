@@ -14,8 +14,15 @@ import java.util.List;
  */
 public class FlexColumnPane extends Pane implements Scalable {
 
+    private final static double hGap = 15, vGap = 15;
+    private final static double minZoomFactorJustifyingColumnIncrease = 1.15;
+    private final static double unscaledColumnWidth = 300;
     private double additionalContentHeight;
     private ScaleComputer scaleComputer;
+    private double maxX, maxY;
+    private ChildInfo[] childInfos;
+    double[] childHeights;
+    private double colWidthOnLastChildHeightsComputation;
 
     public FlexColumnPane() {
     }
@@ -36,9 +43,6 @@ public class FlexColumnPane extends Pane implements Scalable {
         computeLayout(getWidth(), getHeight(), true);
     }
 
-    private double maxX, maxY;
-    private ChildInfo[] childInfos;
-
     private void computeLayout(double width, double height, boolean apply) {
         List<Node> children = getManagedChildren();
         if (children.isEmpty())
@@ -54,13 +58,13 @@ public class FlexColumnPane extends Pane implements Scalable {
                     break;
             } else {
                 double computedScale = scaleComputer.computeScale(maxX, maxY + additionalContentHeight);
-                computedScale *= colFactor;
+                computedScale /= colFactor;
                 if (fit && (bestComputedScale < 0 || computedScale > bestComputedScale)) {
                     bestComputedScale = computedScale;
                     bestComputedScaleColCount = colCount;
                 }
             }
-            colFactor *= 0.9;
+            colFactor *= minZoomFactorJustifyingColumnIncrease;
         }
         if (scaleComputer != null) {
             log("colCount = " + bestComputedScaleColCount + ", bestScale = " + bestComputedScale);
@@ -74,14 +78,10 @@ public class FlexColumnPane extends Pane implements Scalable {
         }
     }
 
-    private final static double hGap = 15, vGap = 15;
-    double[] childHeights;
-    private double colWidthOnLastChildHeightsComputation;
-
     private boolean computeFixedColumnLayout(double width, double height, int colCount, List<Node> children, boolean apply) {
         double colWidth = (width - hGap * (colCount - 1)) / colCount;
         if (scaleComputer != null && !apply) {
-            colWidth = 200;
+            colWidth = unscaledColumnWidth;
         }
 
         int n = children.size();
@@ -171,16 +171,6 @@ public class FlexColumnPane extends Pane implements Scalable {
             this.h = h;
         }
 
-        @Override
-        public String toString() {
-            return "ChildInfo{" +
-                    "child=" + child +
-                    ", x=" + x +
-                    ", y=" + y +
-                    ", w=" + w +
-                    ", h=" + h +
-                    '}';
-        }
     }
 
     public static List<Integer> splitIntoColumns(double[] childHeights, int colCount) {

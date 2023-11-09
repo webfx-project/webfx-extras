@@ -2,6 +2,7 @@ package dev.webfx.extras.panes;
 
 import javafx.geometry.HPos;
 import javafx.geometry.Insets;
+import javafx.geometry.Orientation;
 import javafx.geometry.VPos;
 import javafx.scene.Node;
 import javafx.scene.layout.Region;
@@ -145,6 +146,12 @@ public class ScalePane extends MonoPane {
     public void setFixedSize(double forcedWidth, double forcedHeight) {
         setFixedWidth(forcedWidth);
         setFixedHeight(forcedHeight);
+    }
+
+    @Override
+    public Orientation getContentBias() {
+        return Orientation.HORIZONTAL; // Necessary to have correct prefHeight computation when scaling images in FIT_WIDTH mode
+        // TODO: investigate if we should return different content bias in some other cases
     }
 
     private void computedScales(double width, double height) {

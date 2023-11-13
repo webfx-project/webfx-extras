@@ -208,13 +208,14 @@ public final class HtmlVisualGridPeer
             // listener set by the application code (such as onContextMenuRequested). To make this work, we need to set
             // this VisualGrid as the parent of the content.
             content.setParent(getNode()); // Allows the event bubbling phase find possible event listeners in ancestors.
-            Element visibleContainer = nodePeer.getVisibleContainer();
-            setStyleAttribute(visibleContainer, "position", "relative");
+            setStyleAttribute(nodePeer.getVisibleContainer(), "position", "relative");
             //setStyleAttribute(contentElement, "width", null);
             //setStyleAttribute(contentElement, "height", null);
             if (content instanceof HBox || content instanceof CheckBox) { // temporary code for HBox, especially for table headers
                 double spacing = content instanceof HBox ? ((HBox) content).getSpacing() : 0;
-                resetChildrenPositionToRelative(visibleContainer, spacing);
+                Element childrenContainer = nodePeer.getChildrenContainer();
+                setStyleAttribute(childrenContainer, "display", "contents");
+                resetChildrenPositionToRelative(childrenContainer, spacing);
             } else if (content instanceof Parent) {
                 if (content instanceof Region) {
                     Region region = (Region) content;

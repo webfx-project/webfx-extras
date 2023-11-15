@@ -73,9 +73,9 @@ public class MonoPane extends Pane {
     protected void layoutChildren() {
         if (content != null) {
             double width = getWidth(), height = getHeight();
-            Insets padding = getPadding();
-            layoutInArea(content, padding.getLeft(), padding.getTop()
-                    , width - paddingWidth(), height - paddingHeight()
+            Insets insets = getInsets();
+            layoutInArea(content, insets.getLeft(), insets.getTop()
+                    , width - insetsWidth(), height - insetsHeight()
                     , 0, contentHalignment, contentValignment);
         }
     }
@@ -86,19 +86,19 @@ public class MonoPane extends Pane {
         return content == null ? super.getContentBias() : content.getContentBias();
     }
 
-    protected double paddingWidth() {
-        Insets padding = getPadding();
-        return padding.getLeft() + padding.getRight();
+    protected double insetsWidth() {
+        Insets insets = getInsets();
+        return insets.getLeft() + insets.getRight();
     }
 
-    protected double paddingHeight() {
-        Insets padding = getPadding();
-        return padding.getTop() + padding.getBottom();
+    protected double insetsHeight() {
+        Insets insets = getInsets();
+        return insets.getTop() + insets.getBottom();
     }
 
     @Override
     protected double computeMinWidth(double height) {
-        return paddingWidth() + computeContentMinWidth(height);
+        return insetsWidth() + computeContentMinWidth(height);
     }
 
     protected double computeContentMinWidth(double height) {
@@ -107,7 +107,7 @@ public class MonoPane extends Pane {
 
     @Override
     protected double computeMinHeight(double width) {
-        return paddingHeight() + computeContentMinHeight(width);
+        return insetsHeight() + computeContentMinHeight(width);
     }
 
     protected double computeContentMinHeight(double width) {
@@ -116,7 +116,7 @@ public class MonoPane extends Pane {
 
     @Override
     protected double computePrefWidth(double height) {
-        return paddingWidth() + computeContentPrefWidth(height);
+        return insetsWidth() + computeContentPrefWidth(height);
     }
 
     protected double computeContentPrefWidth(double height) {
@@ -125,7 +125,7 @@ public class MonoPane extends Pane {
 
     @Override
     protected double computePrefHeight(double width) {
-        return paddingHeight() + computeContentPrefHeight(width);
+        return insetsHeight() + computeContentPrefHeight(width);
     }
 
     protected double computeContentPrefHeight(double width) {
@@ -134,7 +134,7 @@ public class MonoPane extends Pane {
 
     @Override
     protected double computeMaxWidth(double height) {
-        return paddingWidth() + computeContentMaxWidth(height);
+        return insetsWidth() + computeContentMaxWidth(height);
     }
 
     protected double computeContentMaxWidth(double height) {
@@ -143,7 +143,7 @@ public class MonoPane extends Pane {
 
     @Override
     protected double computeMaxHeight(double width) {
-        return paddingHeight() + computeContentMaxHeight(width);
+        return insetsHeight() + computeContentMaxHeight(width);
     }
 
     protected double computeContentMaxHeight(double width) {

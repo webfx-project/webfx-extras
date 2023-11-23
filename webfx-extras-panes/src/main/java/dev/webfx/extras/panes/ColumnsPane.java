@@ -1,6 +1,7 @@
 package dev.webfx.extras.panes;
 
 import javafx.geometry.HPos;
+import javafx.geometry.Orientation;
 import javafx.geometry.VPos;
 import javafx.scene.Node;
 import javafx.scene.layout.Pane;
@@ -17,6 +18,11 @@ public class ColumnsPane extends Pane {
 
     public ColumnsPane(Node... children) {
         super(children);
+    }
+
+    @Override
+    public Orientation getContentBias() {
+        return Orientation.HORIZONTAL;
     }
 
     @Override
@@ -43,8 +49,12 @@ public class ColumnsPane extends Pane {
     @Override
     protected double computeMinHeight(double width) {
         double minHeight = 0;
-        for (Node child : getManagedChildren())
-            minHeight = Math.max(minHeight, child.minHeight(width));
+        List<Node> children = getManagedChildren();
+        if (!children.isEmpty()) {
+            double w = width < 0 ? -1 : width / children.size();
+            for (Node child : children)
+                minHeight = Math.max(minHeight, child.minHeight(w));
+        }
         return minHeight;
     }
 
@@ -59,8 +69,12 @@ public class ColumnsPane extends Pane {
     @Override
     protected double computePrefHeight(double width) {
         double prefHeight = 0;
-        for (Node child : getManagedChildren())
-            prefHeight = Math.max(prefHeight, child.prefHeight(width));
+        List<Node> children = getManagedChildren();
+        if (!children.isEmpty()) {
+            double w = width < 0 ? -1 : width / children.size();
+            for (Node child : children)
+                prefHeight = Math.max(prefHeight, child.prefHeight(w));
+        }
         return prefHeight;
     }
 
@@ -75,8 +89,12 @@ public class ColumnsPane extends Pane {
     @Override
     protected double computeMaxHeight(double width) {
         double maxHeight = 0;
-        for (Node child : getManagedChildren())
-            maxHeight = Math.max(maxHeight, child.maxHeight(width));
+        List<Node> children = getManagedChildren();
+        if (!children.isEmpty()) {
+            double w = width < 0 ? -1 : width / children.size();
+            for (Node child : children)
+                maxHeight = Math.max(maxHeight, child.maxHeight(w));
+        }
         return maxHeight;
     }
 }

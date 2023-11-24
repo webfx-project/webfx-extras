@@ -34,8 +34,8 @@ public class FlipPane extends StackPane {
         }
     };
 
-    private final StackPane frontStack = new StackPane();
-    private final StackPane backStack = new StackPane();
+    private final MonoPane frontPane = new MonoPane();
+    private final MonoPane backPane = new MonoPane();
 
     private final Rotate rotate = new Rotate(0);
     private final Rotate backRotate = new Rotate(180);
@@ -45,7 +45,7 @@ public class FlipPane extends StackPane {
     private final ObjectProperty<Orientation> flipDirectionProperty = new SimpleObjectProperty<>() {
         @Override
         public void addListener(InvalidationListener listener) {
-            updateRotates();
+            updateRotates(false);
         }
     };
 
@@ -56,18 +56,18 @@ public class FlipPane extends StackPane {
     }
 
     public FlipPane(Orientation flipDirection) {
-        getChildren().setAll(backStack, frontStack);
+        getChildren().setAll(backPane, frontPane);
         getTransforms().add(rotate);
-        backStack.getTransforms().add(backRotate);
+        backPane.getTransforms().add(backRotate);
         setFlipDirection(flipDirection);
-        FXProperties.runOnPropertiesChange(this::updateRotates, frontStack.widthProperty(), frontStack.heightProperty(), backStack.widthProperty(), backStack.heightProperty());
+        FXProperties.runOnPropertiesChange(() -> updateRotates(false), frontPane.widthProperty(), frontPane.heightProperty(), backPane.widthProperty(), backPane.heightProperty());
         FXProperties.runOnPropertiesChange(this::updateVisibilities, rotate.angleProperty());
     }
 
     private void updateVisibilities() {
         boolean showingFront = isShowingFront();
-        frontStack.setVisible(showingFront);
-        backStack.setVisible(!showingFront);
+        frontPane.setVisible(showingFront);
+        backPane.setVisible(!showingFront);
     }
 
     public Duration getFlipDuration() {
@@ -116,35 +116,31 @@ public class FlipPane extends StackPane {
     public boolean isShowingBack() { return !isShowingFront(); }
 
     private void onNodesChanged() {
-        Node front = getFront(), back = getBack();
-        if (front == null)
-            frontStack.getChildren().clear();
-        else
-            frontStack.getChildren().setAll(front);
-        if (back == null)
-            backStack.getChildren().clear();
-        else
-            backStack.getChildren().setAll(back);
+        frontPane.setContent(getFront());
+        backPane.setContent(getBack());
         updateVisibilities();
-        updateRotates();
+        updateRotates(false);
     }
 
     private void flip(boolean toFront) {
         double endAngle = toFront ? 0 : 180;
         if (flipTimeline != null)
             flipTimeline.stop();
+        updateRotates(true);
         flipTimeline = Animations.animateProperty(rotate.angleProperty(), endAngle, flipDuration);
         if (flipTimeline != null) {
-            frontStack.setCache(true);
-            frontStack.setCacheHint(CacheHint.ROTATE);
-            backStack.setCache(true);
-            backStack.setCacheHint(CacheHint.ROTATE);
+            frontPane.setCache(true);
+            frontPane.setCacheHint(CacheHint.ROTATE);
+            backPane.setCache(true);
+            backPane.setCacheHint(CacheHint.ROTATE);
 
             flipTimeline.setOnFinished(event -> {
-                frontStack.setCache(false);
-                backStack.setCache(false);
+                frontPane.setCache(false);
+                backPane.setCache(false);
+                updateRotates(false);
             });
-        }
+        } else
+            updateRotates(false);
     }
 
     public void flipToFront() {
@@ -159,12 +155,15 @@ public class FlipPane extends StackPane {
         flip(!isShowingFront());
     }
 
-    private void updateRotates() {
-        double width  = Math.max(frontStack.getWidth(), backStack.getWidth());
-        double height = Math.max(frontStack.getHeight(), backStack.getHeight());
+    private void updateRotates(boolean freezePrefSize) {
+        double width  = Math.max(frontPane.getWidth(),  backPane.getWidth());
+        double height = Math.max(frontPane.getHeight(), backPane.getHeight());
         if (width < 0 || height < 0)
             return;
-        setPrefSize(width, height);
+        if (freezePrefSize)
+            setPrefSize(width, height);
+        else
+            setPrefSize(USE_COMPUTED_SIZE, USE_COMPUTED_SIZE);
 
         if (getFlipDirection() == Orientation.HORIZONTAL) {
             rotate.setAxis(Rotate.Y_AXIS);

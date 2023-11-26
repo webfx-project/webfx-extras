@@ -91,7 +91,15 @@ public final class SceneUtil {
         scene.getAccelerators().put(acceleratorKeyCodeCombination, accelerator);
     }
 
+    public static Unregisterable runOnceFocusIsInside(Node node, boolean includesNullFocus, Runnable runnable) {
+        return runOnceFocusIsInsideOrOutside(node, includesNullFocus, runnable, true);
+    }
+
     public static Unregisterable runOnceFocusIsOutside(Node node, boolean includesNullFocus, Runnable runnable) {
+        return runOnceFocusIsInsideOrOutside(node, includesNullFocus, runnable, false);
+    }
+
+    public static Unregisterable runOnceFocusIsInsideOrOutside(Node node, boolean includesNullFocus, Runnable runnable, boolean inside) {
         Property<Node> localFocusOwnerProperty;
         ObservableValue<Node> focusOwnerProperty;
         Unit<Unregisterable> unregisterableUnit = new Unit<>();
@@ -104,7 +112,7 @@ public final class SceneUtil {
         }
         unregisterableUnit.set(new UnregisterableListener(p -> {
             Node newFocusOwner = (Node) p.getValue();
-            if ((newFocusOwner == null ? includesNullFocus : !isFocusInsideNode(newFocusOwner, node))) {
+            if ((newFocusOwner == null ? includesNullFocus : inside == isFocusInsideNode(newFocusOwner, node))) {
                 runnable.run();
                 unregisterableUnit.get().unregister();
             }

@@ -156,7 +156,7 @@ public class ScalePane extends MonoPane {
 
     private void computedScales(double width, double height) {
         scale = 1;
-        if (scaleEnabled) {
+        if (scaleEnabled && content != null) {
             boolean tryRescale = !content.isResizable() || scaleRegion;
             if (!tryRescale && content instanceof Region) {
                 Region region = (Region) content;

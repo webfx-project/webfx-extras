@@ -49,7 +49,7 @@ public class MonoPane extends Pane {
     public void setContent(Node content) {
         if (content == null)
             getChildren().clear();
-        else
+        else if (content != this.content) // Skipping if same content - important for WebView in browser (resetting iFrame will unload it)
             getChildren().setAll(content);
     }
 

@@ -45,7 +45,7 @@ public class FlipPane extends StackPane {
     private final ObjectProperty<Orientation> flipDirectionProperty = new SimpleObjectProperty<>() {
         @Override
         public void addListener(InvalidationListener listener) {
-            updateRotates(false);
+            updateRotatesAxisAndPivot(false);
         }
     };
 
@@ -57,11 +57,25 @@ public class FlipPane extends StackPane {
 
     public FlipPane(Orientation flipDirection) {
         getChildren().setAll(backPane, frontPane);
-        getTransforms().add(rotate);
-        backPane.getTransforms().add(backRotate);
         setFlipDirection(flipDirection);
-        FXProperties.runOnPropertiesChange(() -> updateRotates(false), frontPane.widthProperty(), frontPane.heightProperty(), backPane.widthProperty(), backPane.heightProperty());
+        FXProperties.runOnPropertiesChange(() -> updateRotatesAxisAndPivot(false), frontPane.widthProperty(), frontPane.heightProperty(), backPane.widthProperty(), backPane.heightProperty());
         FXProperties.runOnPropertiesChange(this::updateVisibilities, rotate.angleProperty());
+    }
+
+    private void applyRotates(boolean flipFinished) {
+        // Removing rotates when not necessary (ie flip finished)
+        if (flipFinished) {
+            // When flip is finished, we can remove the rotates because only one side is visible and this side is either
+            // with rotate = 0 (front) or rotate = 180 + 180 = 360 (back).
+            getTransforms().remove(rotate);
+            backPane.getTransforms().clear();
+            // Removing rotates makes the graph simpler to render, which can solve issues with some browsers, and also
+            // on mobiles when there is a WebView inside the front or back slide (the WebView won't be correctly
+            // attached if there is a non-zero rotate, ex: 360 doesn't work).
+        } else if (backPane.getTransforms().isEmpty()) {
+            getTransforms().add(rotate);
+            backPane.getTransforms().setAll(backRotate);
+        }
     }
 
     private void updateVisibilities() {
@@ -119,16 +133,21 @@ public class FlipPane extends StackPane {
         frontPane.setContent(getFront());
         backPane.setContent(getBack());
         updateVisibilities();
-        updateRotates(false);
+        updateRotatesAxisAndPivot(false);
     }
 
     private void flip(boolean toFront) {
         double endAngle = toFront ? 0 : 180;
+        if (rotate.getAngle() == endAngle)
+            return;
         if (flipTimeline != null)
             flipTimeline.stop();
-        updateRotates(true);
+        updateRotatesAxisAndPivot(true);
+        applyRotates(false);
         flipTimeline = Animations.animateProperty(rotate.angleProperty(), endAngle, flipDuration);
-        if (flipTimeline != null) {
+        if (flipTimeline == null)
+            onFlipFinished();
+        else {
             frontPane.setCache(true);
             frontPane.setCacheHint(CacheHint.ROTATE);
             backPane.setCache(true);
@@ -137,10 +156,14 @@ public class FlipPane extends StackPane {
             flipTimeline.setOnFinished(event -> {
                 frontPane.setCache(false);
                 backPane.setCache(false);
-                updateRotates(false);
+                onFlipFinished();
             });
-        } else
-            updateRotates(false);
+        }
+    }
+
+    private void onFlipFinished() {
+        updateRotatesAxisAndPivot(false);
+        applyRotates(true);
     }
 
     public void flipToFront() {
@@ -155,7 +178,7 @@ public class FlipPane extends StackPane {
         flip(!isShowingFront());
     }
 
-    private void updateRotates(boolean freezePrefSize) {
+    private void updateRotatesAxisAndPivot(boolean freezePrefSize) {
         double width  = Math.max(frontPane.getWidth(),  backPane.getWidth());
         double height = Math.max(frontPane.getHeight(), backPane.getHeight());
         if (width < 0 || height < 0)

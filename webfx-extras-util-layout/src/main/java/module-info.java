@@ -7,6 +7,7 @@ module webfx.extras.util.layout {
     requires javafx.graphics;
     requires webfx.extras.util.background;
     requires webfx.kit.util;
+    requires webfx.platform.util;
 
     // Exported packages
     exports dev.webfx.extras.util.layout;

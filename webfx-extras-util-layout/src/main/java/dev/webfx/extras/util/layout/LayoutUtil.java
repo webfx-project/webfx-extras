@@ -2,6 +2,7 @@ package dev.webfx.extras.util.layout;
 
 import dev.webfx.extras.util.background.BackgroundFactory;
 import dev.webfx.kit.util.properties.FXProperties;
+import dev.webfx.platform.util.Arrays;
 import javafx.application.Platform;
 import javafx.beans.value.ObservableValue;
 import javafx.geometry.Insets;
@@ -193,6 +194,15 @@ public final class LayoutUtil {
     public static <N extends Node> N setUnmanagedWhenInvisible(N node, ObservableValue<Boolean> visibleProperty) {
         node.visibleProperty().bind(visibleProperty);
         return setUnmanagedWhenInvisible(node);
+    }
+
+    public static void setAllUnmanagedWhenInvisible(Node... nodes) {
+        Arrays.forEach(nodes, LayoutUtil::setUnmanagedWhenInvisible);
+    }
+
+    public static void setAllUnmanagedWhenInvisible(boolean initialVisibility, Node... nodes) {
+        Arrays.forEach(nodes, node -> node.setVisible(initialVisibility));
+        setAllUnmanagedWhenInvisible(nodes);
     }
 
     public static <N extends Region> N setPadding(N content, double top, double right, double bottom, double left) {

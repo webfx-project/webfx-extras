@@ -136,7 +136,7 @@ public class FlipPane extends StackPane {
         updateRotatesAxisAndPivot(false);
     }
 
-    private void flip(boolean toFront) {
+    private void flip(boolean toFront, Runnable onFinished) {
         double endAngle = toFront ? 0 : 180;
         if (rotate.getAngle() == endAngle)
             return;
@@ -146,7 +146,7 @@ public class FlipPane extends StackPane {
         applyRotates(false);
         flipTimeline = Animations.animateProperty(rotate.angleProperty(), endAngle, flipDuration);
         if (flipTimeline == null)
-            onFlipFinished();
+            onFlipFinished(onFinished);
         else {
             frontPane.setCache(true);
             frontPane.setCacheHint(CacheHint.ROTATE);
@@ -156,26 +156,40 @@ public class FlipPane extends StackPane {
             flipTimeline.setOnFinished(event -> {
                 frontPane.setCache(false);
                 backPane.setCache(false);
-                onFlipFinished();
+                onFlipFinished(onFinished);
             });
         }
     }
 
-    private void onFlipFinished() {
+    private void onFlipFinished(Runnable onFinished) {
         updateRotatesAxisAndPivot(false);
         applyRotates(true);
+        if (onFinished != null)
+            onFinished.run();
     }
 
     public void flipToFront() {
-        flip(true);
+        flipToFront(null);
+    }
+
+    public void flipToFront(Runnable onFinished) {
+        flip(true, onFinished);
     }
 
     public void flipToBack() {
-        flip(false);
+        flipToBack(null);
+    }
+
+    public void flipToBack(Runnable onFinished) {
+        flip(false, onFinished);
     }
 
     public void flip() {
-        flip(!isShowingFront());
+        flip(null);
+    }
+
+    public void flip(Runnable onFinished) {
+        flip(!isShowingFront(), onFinished);
     }
 
     private void updateRotatesAxisAndPivot(boolean freezePrefSize) {

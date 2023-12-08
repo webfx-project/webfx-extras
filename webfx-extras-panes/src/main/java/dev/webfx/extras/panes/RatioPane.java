@@ -1,5 +1,7 @@
 package dev.webfx.extras.panes;
 
+import javafx.beans.property.DoubleProperty;
+import javafx.beans.property.SimpleDoubleProperty;
 import javafx.geometry.Orientation;
 import javafx.scene.Node;
 
@@ -8,7 +10,12 @@ import javafx.scene.Node;
  */
 public class RatioPane extends MonoPane {
 
-    private double ratio = 1;
+    private final DoubleProperty ratioProperty = new SimpleDoubleProperty(1) {
+        @Override
+        protected void invalidated() {
+            requestLayout();
+        }
+    };
 
     public RatioPane() {
         this(null);
@@ -27,12 +34,16 @@ public class RatioPane extends MonoPane {
         setRatio(ratio);
     }
 
+    public DoubleProperty ratioProperty() {
+        return ratioProperty;
+    }
+
     public double getRatio() {
-        return ratio;
+        return ratioProperty.get();
     }
 
     public void setRatio(double ratio) {
-        this.ratio = ratio;
+        ratioProperty.set(ratio);
     }
 
     @Override
@@ -42,16 +53,16 @@ public class RatioPane extends MonoPane {
 
     @Override
     protected double computeMinHeight(double width) {
-        return width / ratio;
+        return width / getRatio();
     }
 
     @Override
     protected double computePrefHeight(double width) {
-        return width / ratio;
+        return width / getRatio();
     }
 
     @Override
     protected double computeMaxHeight(double width) {
-        return width / ratio;
+        return width / getRatio();
     }
 }

@@ -248,7 +248,9 @@ public class ScalePane extends MonoPane {
 
     @Override
     protected double computeContentMinWidth(double height) {
-        return 0;
+        if (canScaleX && canShrink)
+            return 0;
+        return super.computeContentMinWidth(height);
     }
 
     @Override
@@ -260,7 +262,9 @@ public class ScalePane extends MonoPane {
 
     @Override
     protected double computeContentMinHeight(double width) {
-        return 0;
+        if (canScaleY && canShrink)
+            return 0;
+        return super.computeContentMinHeight(width);
     }
 
     @Override
@@ -297,14 +301,18 @@ public class ScalePane extends MonoPane {
     protected double computeMaxWidth(double height) {
         if (fixedWidth > 0)
             return fixedWidth;
-        return Double.MAX_VALUE;
+        if (canScaleX && canGrow && Double.isNaN(maxScale))
+            return Double.MAX_VALUE;
+        return super.computeContentMaxWidth(height) * (canScaleX && canGrow ? maxScale : 1);
     }
 
     @Override
     protected double computeMaxHeight(double width) {
         if (fixedHeight > 0)
             return fixedHeight;
-        return Double.MAX_VALUE;
+        if (canScaleY && canGrow && Double.isNaN(maxScale))
+            return Double.MAX_VALUE;
+        return super.computeContentMaxHeight(width) * (canScaleY && canGrow ? maxScale : 1);
     }
 
 }

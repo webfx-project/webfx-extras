@@ -9,10 +9,13 @@ import dev.webfx.extras.visual.VisualResult;
 public final class SkinnedVisualGrid extends VisualGrid {
 
     public SkinnedVisualGrid() {
+        this(null);
     }
 
     public SkinnedVisualGrid(VisualResult rs) {
         super(rs);
+        // Creating the skin now, otherwise the first layout may have a wrong cached pref size
+        skinProperty().set(createDefaultSkin());
     }
 
     @Override

@@ -61,6 +61,13 @@ public final class FlexPane extends Pane {
             requestLayout();
         }
     };
+
+    private final BooleanProperty distributeRemainingRowSpace = new SimpleBooleanProperty(false) {
+        protected void invalidated() {
+            requestLayout();
+        }
+    };
+
     private double computedMinHeight;
     private boolean performingLayout;
 
@@ -164,6 +171,18 @@ public final class FlexPane extends Pane {
 
     public void setFlexLastRow(boolean flexLastRow) {
         this.flexLastRow.set(flexLastRow);
+    }
+
+    public boolean getDistributeRemainingRowSpace() {
+        return distributeRemainingRowSpace.get();
+    }
+
+    public BooleanProperty distributeRemainingRowSpaceProperty() {
+        return distributeRemainingRowSpace;
+    }
+
+    public void setDistributeRemainingRowSpace(boolean distributeRemainingRowSpace) {
+        this.distributeRemainingRowSpace.set(distributeRemainingRowSpace);
     }
 
     private final Map<Integer, FlexBoxRow> grid = new HashMap<>();
@@ -317,6 +336,15 @@ public final class FlexPane extends Pane {
                     layoutInArea(rowNode, snapPositionX(x), snapPositionY(y), snapSizeX(x + rowNodeWidth) - snapPositionX(x), snapSizeY(h), 0, flexBoxItem.margin, HPos.LEFT, VPos.TOP);
                 rowMaxHeight = Math.max(rowMaxHeight, h);
                 x += rowNodeWidth + horizontalSpace;
+            }
+
+            if (apply && x < width && getDistributeRemainingRowSpace()) {
+                double remainingSpaceX = (width - x) / (rowItems.size() + 1);
+                double deltaX = remainingSpaceX;
+                for (FlexBoxItem flexBoxItem : rowItems) {
+                    flexBoxItem.node.setLayoutX(flexBoxItem.node.getLayoutX() + deltaX);
+                    deltaX += remainingSpaceX;
+                }
             }
 
             y += rowMaxHeight;

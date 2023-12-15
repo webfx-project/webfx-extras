@@ -1,13 +1,9 @@
 package dev.webfx.extras.panes;
 
 import javafx.beans.InvalidationListener;
-import javafx.beans.property.BooleanProperty;
-import javafx.beans.property.DoubleProperty;
-import javafx.beans.property.SimpleBooleanProperty;
-import javafx.beans.property.SimpleDoubleProperty;
-import javafx.geometry.HPos;
+import javafx.beans.property.*;
 import javafx.geometry.Insets;
-import javafx.geometry.VPos;
+import javafx.geometry.Pos;
 import javafx.scene.Node;
 import javafx.scene.layout.Pane;
 
@@ -23,46 +19,52 @@ import java.util.stream.Collectors;
 public final class FlexPane extends Pane {
     private static final String GROW_CONSTRAINT = "flexbox-grow";
     private static final String MARGIN_CONSTRAINT = "flexbox-margin";
-    private final DoubleProperty horizontalSpace = new SimpleDoubleProperty(0) {
+    private final DoubleProperty horizontalSpaceProperty = new SimpleDoubleProperty(0) {
         @Override
         protected void invalidated() {
             requestLayout();
         }
     };
-    private final DoubleProperty verticalSpace = new SimpleDoubleProperty(0)  {
+    private final DoubleProperty verticalSpaceProperty = new SimpleDoubleProperty(0)  {
         @Override
         protected void invalidated() {
             requestLayout();
         }
     };
 
-    private final BooleanProperty spaceTop = new SimpleBooleanProperty() {
+    private final BooleanProperty spaceTopProperty = new SimpleBooleanProperty() {
         protected void invalidated() {
             requestLayout();
         }
     };
-    private final BooleanProperty spaceLeft = new SimpleBooleanProperty() {
+    private final BooleanProperty spaceLeftProperty = new SimpleBooleanProperty() {
         protected void invalidated() {
             requestLayout();
         }
     };
-    private final BooleanProperty spaceRight = new SimpleBooleanProperty() {
+    private final BooleanProperty spaceRightProperty = new SimpleBooleanProperty() {
         protected void invalidated() {
             requestLayout();
         }
     };
-    private final BooleanProperty spaceBottom = new SimpleBooleanProperty() {
+    private final BooleanProperty spaceBottomProperty = new SimpleBooleanProperty() {
         protected void invalidated() {
             requestLayout();
         }
     };
-    private final BooleanProperty flexLastRow = new SimpleBooleanProperty(true) {
+    private final BooleanProperty flexLastRowProperty = new SimpleBooleanProperty(true) {
         protected void invalidated() {
             requestLayout();
         }
     };
 
-    private final BooleanProperty distributeRemainingRowSpace = new SimpleBooleanProperty(false) {
+    private final ObjectProperty<Pos> alignmentProperty = new SimpleObjectProperty<>(Pos.TOP_LEFT) {
+        protected void invalidated() {
+            requestLayout();
+        }
+    };
+
+    private final BooleanProperty distributeRemainingRowSpaceProperty = new SimpleBooleanProperty(false) {
         protected void invalidated() {
             requestLayout();
         }
@@ -90,99 +92,111 @@ public final class FlexPane extends Pane {
     }
 
     public double getHorizontalSpace() {
-        return horizontalSpace.get();
+        return horizontalSpaceProperty.get();
     }
 
     public DoubleProperty horizontalSpaceProperty() {
-        return horizontalSpace;
+        return horizontalSpaceProperty;
     }
 
     public void setHorizontalSpace(double horizontalSpace) {
-        this.horizontalSpace.set(horizontalSpace);
+        this.horizontalSpaceProperty.set(horizontalSpace);
     }
 
     public double getVerticalSpace() {
-        return verticalSpace.get();
+        return verticalSpaceProperty.get();
     }
 
     public DoubleProperty verticalSpaceProperty() {
-        return verticalSpace;
+        return verticalSpaceProperty;
     }
 
     public void setVerticalSpace(double verticalSpace) {
-        this.verticalSpace.set(verticalSpace);
+        this.verticalSpaceProperty.set(verticalSpace);
     }
 
     public boolean isSpaceTop() {
-        return spaceTop.get();
+        return spaceTopProperty.get();
     }
 
     public BooleanProperty spaceTopProperty() {
-        return spaceTop;
+        return spaceTopProperty;
     }
 
     public void setSpaceTop(boolean spaceTop) {
-        this.spaceTop.set(spaceTop);
+        this.spaceTopProperty.set(spaceTop);
     }
 
     public boolean isSpaceLeft() {
-        return spaceLeft.get();
+        return spaceLeftProperty.get();
     }
 
     public BooleanProperty spaceLeftProperty() {
-        return spaceLeft;
+        return spaceLeftProperty;
     }
 
     public void setSpaceLeft(boolean spaceLeft) {
-        this.spaceLeft.set(spaceLeft);
+        this.spaceLeftProperty.set(spaceLeft);
     }
 
     public boolean isSpaceRight() {
-        return spaceRight.get();
+        return spaceRightProperty.get();
     }
 
     public BooleanProperty spaceRightProperty() {
-        return spaceRight;
+        return spaceRightProperty;
     }
 
     public void setSpaceRight(boolean spaceRight) {
-        this.spaceRight.set(spaceRight);
+        this.spaceRightProperty.set(spaceRight);
     }
 
     public boolean isSpaceBottom() {
-        return spaceBottom.get();
+        return spaceBottomProperty.get();
     }
 
     public BooleanProperty spaceBottomProperty() {
-        return spaceBottom;
+        return spaceBottomProperty;
     }
 
     public void setSpaceBottom(boolean spaceBottom) {
-        this.spaceBottom.set(spaceBottom);
+        this.spaceBottomProperty.set(spaceBottom);
     }
 
     public boolean isFlexLastRow() {
-        return flexLastRow.get();
+        return flexLastRowProperty.get();
     }
 
     public BooleanProperty flexLastRowProperty() {
-        return flexLastRow;
+        return flexLastRowProperty;
     }
 
     public void setFlexLastRow(boolean flexLastRow) {
-        this.flexLastRow.set(flexLastRow);
+        this.flexLastRowProperty.set(flexLastRow);
     }
 
-    public boolean getDistributeRemainingRowSpace() {
-        return distributeRemainingRowSpace.get();
+    public Pos getAlignment() {
+        return alignmentProperty.get();
+    }
+
+    public ObjectProperty<Pos> alignmentProperty() {
+        return alignmentProperty;
+    }
+
+    public void setAlignment(Pos alignment) {
+        this.alignmentProperty.set(alignment);
+    }
+
+    public boolean isDistributeRemainingRowSpace() {
+        return distributeRemainingRowSpaceProperty.get();
     }
 
     public BooleanProperty distributeRemainingRowSpaceProperty() {
-        return distributeRemainingRowSpace;
+        return distributeRemainingRowSpaceProperty;
     }
 
     public void setDistributeRemainingRowSpace(boolean distributeRemainingRowSpace) {
-        this.distributeRemainingRowSpace.set(distributeRemainingRowSpace);
+        this.distributeRemainingRowSpaceProperty.set(distributeRemainingRowSpace);
     }
 
     private final Map<Integer, FlexBoxRow> grid = new HashMap<>();
@@ -332,18 +346,22 @@ public final class FlexPane extends Pane {
                 double rowNodeWidth = isLastRow && !isFlexLastRow() ? rowNodeMinWidth : Math.min(rowNodeMaxWidth, Math.max(rowNodeStretchedWidth, rowNodeMinWidth));
 
                 double h = rowNode.prefHeight(rowNodeWidth);
-                if (apply)
-                    layoutInArea(rowNode, snapPositionX(x), snapPositionY(y), snapSizeX(x + rowNodeWidth) - snapPositionX(x), snapSizeY(h), 0, flexBoxItem.margin, HPos.LEFT, VPos.TOP);
                 rowMaxHeight = Math.max(rowMaxHeight, h);
+                /*if (apply)
+                    layoutInArea(rowNode, snapPositionX(x), snapPositionY(y), snapSizeX(x + rowNodeWidth) - snapPositionX(x), snapSizeY(h), 0, flexBoxItem.margin, getAlignment().getHpos(), VPos.TOP);*/
+                flexBoxItem.layoutX = x;
+                flexBoxItem.layoutWidth = rowNodeWidth;
                 x += rowNodeWidth + horizontalSpace;
             }
 
-            if (apply && x < width && getDistributeRemainingRowSpace()) {
-                double remainingSpaceX = (width - x) / (rowItems.size() + 1);
-                double deltaX = remainingSpaceX;
+            if (apply) {
+                double remainingSpaceX = isDistributeRemainingRowSpace() ? (width - x) / (rowItems.size() + 1) : 0;
+                double deltaLayoutX = remainingSpaceX;
                 for (FlexBoxItem flexBoxItem : rowItems) {
-                    flexBoxItem.node.setLayoutX(flexBoxItem.node.getLayoutX() + deltaX);
-                    deltaX += remainingSpaceX;
+                    Node rowNode = flexBoxItem.node;
+                    flexBoxItem.layoutX += deltaLayoutX;
+                    layoutInArea(rowNode, snapPositionX(flexBoxItem.layoutX), snapPositionY(y), snapSizeX(flexBoxItem.layoutX + flexBoxItem.layoutWidth) - snapPositionX(flexBoxItem.layoutX), snapSizeY(rowMaxHeight), 0, flexBoxItem.margin, getAlignment().getHpos(), getAlignment().getVpos());
+                    deltaLayoutX += remainingSpaceX;
                 }
             }
 
@@ -354,7 +372,7 @@ public final class FlexPane extends Pane {
         }
 
         // Computing and memorising computedMinHeight just from the last y position
-        computedMinHeight = y + (spaceBottom.get() ? verticalSpace : 0) + padding.getBottom();
+        computedMinHeight = y + (spaceBottomProperty.get() ? verticalSpace : 0) + padding.getBottom();
     }
 
     private void addToGrid(int row, FlexBoxRow flexBoxRow) {
@@ -366,6 +384,8 @@ public final class FlexPane extends Pane {
         final double grow;
         final double minWidth;
         final Insets margin;
+        double layoutX;
+        double layoutWidth;
 
         FlexBoxItem(Node node) {
             this.node = node;

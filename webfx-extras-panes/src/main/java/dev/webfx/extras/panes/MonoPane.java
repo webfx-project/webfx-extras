@@ -2,10 +2,9 @@ package dev.webfx.extras.panes;
 
 import javafx.beans.InvalidationListener;
 import javafx.beans.Observable;
-import javafx.geometry.HPos;
-import javafx.geometry.Insets;
-import javafx.geometry.Orientation;
-import javafx.geometry.VPos;
+import javafx.beans.property.ObjectProperty;
+import javafx.beans.property.SimpleObjectProperty;
+import javafx.geometry.*;
 import javafx.scene.Node;
 import javafx.scene.layout.Pane;
 
@@ -18,8 +17,12 @@ import javafx.scene.layout.Pane;
 public class MonoPane extends Pane {
 
     protected Node content;
-    private HPos contentHalignment = HPos.CENTER;
-    private VPos contentValignment = VPos.CENTER;
+
+    private final ObjectProperty<Pos> alignmentProperty = new SimpleObjectProperty<>(Pos.CENTER) {
+        protected void invalidated() {
+            requestLayout();
+        }
+    };
 
     {
         getChildren().addListener(new InvalidationListener() {
@@ -53,20 +56,16 @@ public class MonoPane extends Pane {
             getChildren().setAll(content);
     }
 
-    public HPos getContentHalignment() {
-        return contentHalignment;
+    public Pos getAlignment() {
+        return alignmentProperty.get();
     }
 
-    public void setContentHalignment(HPos contentHalignment) {
-        this.contentHalignment = contentHalignment;
+    public ObjectProperty<Pos> alignmentProperty() {
+        return alignmentProperty;
     }
 
-    public VPos getContentValignment() {
-        return contentValignment;
-    }
-
-    public void setContentValignment(VPos contentValignment) {
-        this.contentValignment = contentValignment;
+    public void setAlignment(Pos alignment) {
+        this.alignmentProperty.set(alignment);
     }
 
     @Override
@@ -76,7 +75,7 @@ public class MonoPane extends Pane {
             Insets insets = getInsets();
             layoutInArea(content, insets.getLeft(), insets.getTop()
                     , width - insetsWidth(), height - insetsHeight()
-                    , 0, contentHalignment, contentValignment);
+                    , 0, getAlignment().getHpos(), getAlignment().getVpos());
         }
     }
 

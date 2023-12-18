@@ -64,6 +64,13 @@
         <module>webfx-extras-led</module>
         <module>webfx-extras-materialdesign</module>
         <module>webfx-extras-panes</module>
+        <module>webfx-extras-player</module>
+        <module>webfx-extras-player-audio</module>
+        <module>webfx-extras-player-audio-media</module>
+        <module>webfx-extras-player-video</module>
+        <module>webfx-extras-player-video-media</module>
+        <module>webfx-extras-player-video-wistia</module>
+        <module>webfx-extras-player-video-youtube</module>
         <module>webfx-extras-switches</module>
         <module>webfx-extras-theme</module>
         <module>webfx-extras-time</module>

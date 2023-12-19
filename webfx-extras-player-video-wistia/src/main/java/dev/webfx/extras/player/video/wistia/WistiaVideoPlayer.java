@@ -33,7 +33,7 @@ public class WistiaVideoPlayer extends WebEmbedVideoPlayerBase {
         MAIN_WINDOW_SCRIPT_ENGINE.executeScript("const video = window.webfx_extras_wistia_videos['" + track + "'];" +
                 " if (video) {" + script +
                 "} else {" +
-                "    _wq.push({ id: '" + track + "', onReady: function(video) {\n" +
+                "    _wq.push({ id: '" + track + "', playerColor: 'EE7130', onReady: function(video) {\n" +
                 "    if (!window.webfx_extras_wistia_videos['" + track + "']) {\n" +
                 "    " + script + "}\n" +
                 "    window.webfx_extras_wistia_videos['" + track + "'] = video;\n" +
@@ -64,7 +64,8 @@ public class WistiaVideoPlayer extends WebEmbedVideoPlayerBase {
         else {
             String track = getCurrentTrack();
             seamlessContainer.getStyleClass().setAll("wistia_embed", "wistia_async_" + track);
-            callVideo("video.play()");
+            // The replaceWith() call purpose is actually to set the color player.
+            callVideo("video.replaceWith('" + track + "', { playerColor: 'EE7130'}); video.play();");
             setStatus(Status.PLAYING);
         }
     }

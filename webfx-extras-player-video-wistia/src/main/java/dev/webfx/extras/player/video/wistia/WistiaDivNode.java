@@ -1,5 +1,7 @@
 package dev.webfx.extras.player.video.wistia;
 
+import dev.webfx.extras.player.video.impl.ResizableRectangle;
+
 /**
  * @author Bruno Salmon
  */

@@ -1,4 +1,4 @@
-package dev.webfx.extras.player.video.wistia;
+package dev.webfx.extras.player.video.impl;
 
 import javafx.scene.paint.Paint;
 import javafx.scene.shape.Rectangle;
@@ -6,7 +6,7 @@ import javafx.scene.shape.Rectangle;
 /**
  * @author Bruno Salmon
  */
-class ResizableRectangle extends Rectangle {
+public class ResizableRectangle extends Rectangle {
 
     public ResizableRectangle() {
     }

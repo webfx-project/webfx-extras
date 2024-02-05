@@ -1,6 +1,5 @@
 package dev.webfx.extras.webtext.peers.gwt.html;
 
-import com.google.gwt.core.client.JavaScriptObject;
 import dev.webfx.extras.webtext.HtmlTextEditor;
 import dev.webfx.extras.webtext.peers.base.HtmlTextEditorPeerBase;
 import dev.webfx.extras.webtext.peers.base.HtmlTextEditorPeerMixin;
@@ -13,10 +12,13 @@ import dev.webfx.kit.util.properties.FXProperties;
 import dev.webfx.platform.console.Console;
 import dev.webfx.platform.util.Objects;
 import dev.webfx.platform.util.Strings;
+import elemental2.dom.Document;
 import elemental2.dom.Element;
 import elemental2.dom.HTMLDivElement;
+import elemental2.dom.HTMLIFrameElement;
 import javafx.scene.paint.Paint;
 import javafx.scene.text.Font;
+import jsinterop.base.JsPropertyMap;
 
 /**
  * @author Bruno Salmon
@@ -29,7 +31,7 @@ public final class HtmlHtmlTextEditorPeer
     private static final String ckEditorUrl = "https://cdn.ckeditor.com/4.22.1/full/ckeditor.js";
 
     private final HTMLDivElement div = HtmlUtil.createDivElement();
-    private JavaScriptObject ckEditor;
+    private CKEditor ckEditor;
     private boolean instanceReady;
 
     public HtmlHtmlTextEditorPeer() {
@@ -49,7 +51,7 @@ public final class HtmlHtmlTextEditorPeer
         FXProperties.runOnPropertiesChange(() -> {
             if (node.getScene() == null) {
                 if (ckEditor != null) {
-                    callCKEditorDestroy(ckEditor);
+                    ckEditor.destroy();
                     ckEditor = null;
                 }
             } else { // Going back to the page
@@ -60,8 +62,9 @@ public final class HtmlHtmlTextEditorPeer
 
     @Override
     public void updateText(String text) {
-        if (ckEditor != null && instanceReady && !Objects.areEquals(text, callCKEditorGetData(ckEditor)))
-            callCKEditorSetData(ckEditor, Strings.toSafeString(text));
+        if (ckEditor != null && instanceReady && !Objects.areEquals(text, ckEditor.getData())) {
+            ckEditor.setData(Strings.toSafeString(text));
+        }
     }
 
     @Override
@@ -77,15 +80,17 @@ public final class HtmlHtmlTextEditorPeer
     @Override
     public void updateWidth(Number width) {
         super.updateWidth(width);
-        if (ckEditor != null && instanceReady)
-            callCKEditorResize(ckEditor, width.doubleValue(), getNode().getHeight());
+        if (ckEditor != null && instanceReady) {
+            ckEditor.resize(width.doubleValue(), getNode().getHeight());
+        }
     }
 
     @Override
     public void updateHeight(Number height) {
         super.updateHeight(height);
-        if (ckEditor != null && instanceReady)
-            callCKEditorResize(ckEditor, getNode().getWidth(), height.doubleValue());
+        if (ckEditor != null && instanceReady) {
+            ckEditor.resize(getNode().getWidth(), height.doubleValue());
+        }
     }
 
     private boolean recreateCKEditorIfRequired() {
@@ -93,54 +98,42 @@ public final class HtmlHtmlTextEditorPeer
             return false;
         Console.log("Recreating CKEditor");
         if (ckEditor != null)
-            callCKEditorDestroy(ckEditor);
+            ckEditor.destroy();
         instanceReady = false;
         N node = getNode();
-        ckEditor = callCKEditorReplace(div, node.getWidth(), node.getHeight(), this);
+        ckEditor = CKEditor.replace(div, JsPropertyMap.of(
+                "resize_enabled", false,
+                "on", JsPropertyMap.of(
+                        "instanceReady", (CKEditor.InstanceReadyFn) e -> {
+                            e.editor.resize(node.getWidth(), node.getHeight());
+                            resyncEditorFromNodeText(true);
+                            e.editor.on("change", e2 -> resyncNodeTextFromEditor());
+                        }
+                )
+        ));
         resyncEditorFromNodeText(false);
         return true;
     }
 
-    private static native String getCKEditorInnerHTML(JavaScriptObject ckEditor) /*-{
-        var container = ckEditor.container;
-        if (container) {
-            var contentDocument = container.getElementsByTag('iframe').$[0].contentDocument;
-            if (contentDocument)
-                return contentDocument.body.innerHTML;
+    private static String getCKEditorInnerHTML(CKEditor ckEditor) {
+        Element container = ckEditor.container;
+        if (container != null) {
+            HTMLIFrameElement iframe = (HTMLIFrameElement) container.getElementsByTagName("iframe").getAt(0);
+            Document contentDocument = iframe.contentDocument;
+            if (contentDocument != null)
+                return contentDocument.getElementsByTagName("body").getAt(0).innerHTML;
         }
         return null;
-    }-*/;
+    }
 
-    private static native JavaScriptObject callCKEditorReplace(Element textArea, double width, double height, HtmlHtmlTextEditorPeer javaPeer) /*-{
-        return $wnd.CKEDITOR.replace(textArea, {resize_enabled: false, on: {'instanceReady': function(e) {e.editor.resize(width, height); javaPeer.@HtmlHtmlTextEditorPeer::resyncEditorFromNodeText(Z)(true); e.editor.on('change', javaPeer.@HtmlHtmlTextEditorPeer::resyncNodeTextFromEditor().bind(javaPeer));}}});
-    }-*/;
-
-    private static native void callCKEditorSetData(JavaScriptObject ckEditor, String data) /*-{
-        //$wnd.console.log('Calling setData() with data = ' + data);
-        ckEditor.setData(data);
-    }-*/;
-
-    private static native String callCKEditorGetData(JavaScriptObject ckEditor) /*-{
-        return ckEditor.getData();
-    }-*/;
-
-    private static native void callCKEditorResize(JavaScriptObject ckEditor, double width, double height) /*-{
-        //$wnd.console.log('Calling resize() with width = ' + width + ', height = ' + height);
-        ckEditor.resize(width, height);
-    }-*/;
-
-    private static native void callCKEditorDestroy(JavaScriptObject ckEditor) /*-{
-        ckEditor.destroy();
-    }-*/;
-
-    private void resyncNodeTextFromEditor() { // Called back from JS - see callCKEditorReplace()
-        getNode().setText(callCKEditorGetData(ckEditor));
+    private void resyncNodeTextFromEditor() {
+        getNode().setText(ckEditor.getData());
     }
 
     private void resyncEditorFromNodeText(boolean js) {
         if (js)
             instanceReady = true;
-        callCKEditorSetData(ckEditor, getNode().getText());
+        ckEditor.setData(getNode().getText());
     }
 
 }

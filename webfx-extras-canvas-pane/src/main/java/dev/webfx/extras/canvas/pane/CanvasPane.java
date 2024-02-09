@@ -12,6 +12,7 @@ public class CanvasPane extends Pane {
 
     protected final Canvas canvas;
     private final CanvasRefresher canvasRefresher;
+    private final long creationTimeMillis = System.currentTimeMillis();
     protected double requestedCanvasHeight = -1;
     protected boolean enableHeightAnimation = true;
     protected boolean skipAnimationOnVisibilityChange = true;
@@ -48,7 +49,8 @@ public class CanvasPane extends Pane {
     }
 
     protected boolean shouldAnimateHeightChange() {
-        if (!enableHeightAnimation)
+        // No animation if not enabled, or less than 2s after initialisation (ex: refreshing page with cached data)
+        if (!enableHeightAnimation || System.currentTimeMillis() < creationTimeMillis + 2000)
             return false;
         if (!skipAnimationOnVisibilityChange)
             return true;

@@ -22,13 +22,13 @@ import java.util.stream.Stream;
  */
 public abstract class TimeLayoutBase<C, T> extends ListenableTimeWindowImpl<T> implements TimeLayout<C, T> {
 
-    private final DoubleProperty widthProperty = new SimpleDoubleProperty() {
+    private final DoubleProperty widthProperty = new SimpleDoubleProperty(-1) {
         @Override
         protected void invalidated() {
              invalidateHorizontalLayout();
         }
     };
-    private final DoubleProperty heightProperty = new SimpleDoubleProperty() {
+    private final DoubleProperty heightProperty = new SimpleDoubleProperty(-1) {
         @Override
         protected void invalidated() {
             if (fillHeight)
@@ -216,7 +216,8 @@ public abstract class TimeLayoutBase<C, T> extends ListenableTimeWindowImpl<T> i
 
     @Override
     public void layout() {
-        if (isVisible()) {
+        // We don't do the layout until the width is set (may produce unexpected results otherwise, such as too many tetris rows)
+        if (getWidth() != -1 /* -1 = initial value */ && isVisible()) { // Also skipping when not visible (saving CPU)
             int newLayoutCount = getLayoutCount() + 1;
             layoutCountProperty.set(-newLayoutCount); // trigger onBeforeLayout runnable(s)
             if (!fillHeight && !heightProperty.isBound())

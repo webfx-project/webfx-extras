@@ -1,6 +1,6 @@
 package dev.webfx.extras.time.projector;
 
-import dev.webfx.platform.util.Dates;
+import dev.webfx.platform.util.time.Times;
 
 import java.time.*;
 
@@ -17,7 +17,7 @@ public class TimeProjectorUtil {
             YearMonth yearMonth = (YearMonth) time;
             return yearMonth.atDay(1);
         }
-        return Dates.toLocalDate(time);
+        return Times.toLocalDate(time);
     }
 
     public static int getDayOfWeekColumn(DayOfWeek dayOfWeek) {

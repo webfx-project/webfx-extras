@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project>
+
+    <implements>
+        <module>webfx-extras-visual-charts-registry</module>
+    </implements>
+
+    <dependencies>
+        <used-by-source-modules>
+            <undetected-module>javafx-controls</undetected-module>
+            <undetected-module>elemental2-dom</undetected-module>
+        </used-by-source-modules>
+    </dependencies>
+
+    <required-libraries>
+        <library artifact="org.pepstock:charba:6.4"/>
+    </required-libraries>
+
+</project>

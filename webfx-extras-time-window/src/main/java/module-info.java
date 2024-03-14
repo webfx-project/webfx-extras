@@ -6,7 +6,7 @@ module webfx.extras.time.window {
     requires java.base;
     requires javafx.base;
     requires javafx.graphics;
-    requires webfx.platform.util;
+    requires webfx.platform.util.time;
 
     // Exported packages
     exports dev.webfx.extras.time.projector;

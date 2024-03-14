@@ -3,7 +3,6 @@
 module webfx.extras.time.layout.calendar {
 
     // Direct dependencies modules
-    requires java.base;
     requires javafx.base;
     requires webfx.extras.time.layout;
     requires webfx.extras.time.window;

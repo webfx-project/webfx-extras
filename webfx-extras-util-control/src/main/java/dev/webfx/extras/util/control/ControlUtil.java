@@ -4,7 +4,6 @@ import dev.webfx.extras.panes.ScalePane;
 import dev.webfx.extras.util.layout.LayoutUtil;
 import dev.webfx.kit.launcher.WebFxKitLauncher;
 import dev.webfx.kit.util.properties.FXProperties;
-import dev.webfx.platform.util.Numbers;
 import javafx.collections.ObservableList;
 import javafx.geometry.Bounds;
 import javafx.geometry.VPos;
@@ -32,13 +31,15 @@ public class ControlUtil {
     public static ScrollPane setupVerticalScrollPane(ScrollPane scrollPane, Region content) {
         scrollPane.setContent(LayoutUtil.setMinMaxWidthToPref(content));
         double verticalScrollbarExtraWidth = WebFxKitLauncher.getVerticalScrollbarExtraWidth();
-        if (verticalScrollbarExtraWidth == 0)
-            content.prefWidthProperty().bind(scrollPane.widthProperty());
-        else
-            content.prefWidthProperty().bind(
-                    // scrollPane.widthProperty().subtract(verticalScrollbarExtraWidth) // doesn't compile with GWT
-                    FXProperties.compute(scrollPane.widthProperty(), width -> Numbers.toDouble(width.doubleValue() - verticalScrollbarExtraWidth))
-            );
+        content.prefWidthProperty().bind(
+              FXProperties.compute(scrollPane.widthProperty(), width -> {
+                  double contentWidth = width.doubleValue() - verticalScrollbarExtraWidth;
+                  double maxWidth = content.getMaxWidth();
+                  if (maxWidth > 0 && contentWidth > maxWidth)
+                      contentWidth = maxWidth;
+                  return contentWidth;
+              })
+        );
         scrollPane.setHbarPolicy(ScrollPane.ScrollBarPolicy.NEVER);
         registerParentScrollPaneProperty(scrollPane);
         return scrollPane;

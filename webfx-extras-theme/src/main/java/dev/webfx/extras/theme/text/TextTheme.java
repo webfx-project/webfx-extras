@@ -39,6 +39,9 @@ public class TextTheme implements Theme {
     private final static Color LIGHT_SECONDARY_COLOR_INVERTED = Color.WHITE;
     private final static Color DARK_SECONDARY_COLOR_INVERTED = Color.WHITE;
 
+    private final static Color LIGHT_COLOR_DISABLED = Color.gray(0.8);
+    private final static Color DARK_COLOR_DISABLED = Color.GRAY;
+
     static {
         ThemeRegistry.registerTheme(new TextTheme());
     }
@@ -75,7 +78,7 @@ public class TextTheme implements Theme {
         boolean primary = textFacetCategory == TextFacetCategory.PRIMARY_TEXT_FACET;
         boolean secondary = textFacetCategory == TextFacetCategory.SECONDARY_TEXT_FACET;
         
-        Color textColor = getTextColor(primary, secondary, facet.isInverted());
+        Color textColor = getTextColor(primary, secondary, facet.isInverted(), facet.isDisabled());
 
         applyFacetFont(facet, facet.getRequestedFont());
 
@@ -122,19 +125,27 @@ public class TextTheme implements Theme {
     public static Color getTextColor(TextFacetCategory textFacetCategory, boolean inverted) {
         boolean primary = textFacetCategory == TextFacetCategory.PRIMARY_TEXT_FACET;
         boolean secondary = textFacetCategory == TextFacetCategory.SECONDARY_TEXT_FACET;
-        return getTextColor(primary, secondary, inverted, FXLuminanceMode.isLightMode());
+        return getTextColor(primary, secondary, inverted, FXLuminanceMode.isLightMode(), false);
     }
 
-    public static Color getTextColor(boolean primary, boolean secondary, boolean inverted) {
-        return getTextColor(primary, secondary, inverted, FXLuminanceMode.isLightMode());
+    public static Color getTextColor(boolean primary, boolean secondary, boolean inverted, boolean disabled) {
+        return getTextColor(primary, secondary, inverted, FXLuminanceMode.isLightMode(), disabled);
     }
 
-    private static Color getTextColor(boolean primary, boolean secondary, boolean inverted, boolean lightMode) {
+    private static Color getTextColor(boolean primary, boolean secondary, boolean inverted, boolean lightMode, boolean disabled) {
+        if (disabled)
+            return lightMode ? LIGHT_COLOR_DISABLED : DARK_COLOR_DISABLED;
+        if (primary)
+            return lightMode ?
+                    (inverted ? LIGHT_PRIMARY_COLOR_INVERTED : LIGHT_PRIMARY_COLOR)
+                    : (inverted ? DARK_PRIMARY_COLOR_INVERTED : DARK_PRIMARY_COLOR);
+        if (secondary)
+            return lightMode ?
+                    (inverted ? LIGHT_SECONDARY_COLOR_INVERTED : LIGHT_SECONDARY_COLOR)
+                    : (inverted ? DARK_SECONDARY_COLOR_INVERTED : DARK_SECONDARY_COLOR);
         return lightMode ?
-                // Light mode
-                (primary ? (inverted ? LIGHT_PRIMARY_COLOR_INVERTED : LIGHT_PRIMARY_COLOR) : secondary ? (inverted ? LIGHT_SECONDARY_COLOR_INVERTED : LIGHT_SECONDARY_COLOR) : (inverted ? LIGHT_DEFAULT_COLOR_INVERTED : LIGHT_DEFAULT_COLOR))
-                // Dark mode
-                : primary ? (inverted ? DARK_PRIMARY_COLOR_INVERTED : DARK_PRIMARY_COLOR) : secondary ? (inverted ? DARK_SECONDARY_COLOR_INVERTED : DARK_SECONDARY_COLOR) : (inverted ? DARK_DEFAULT_COLOR_INVERTED : DARK_DEFAULT_COLOR);
+                (inverted ? LIGHT_DEFAULT_COLOR_INVERTED : LIGHT_DEFAULT_COLOR)
+                : (inverted ? DARK_DEFAULT_COLOR_INVERTED : DARK_DEFAULT_COLOR);
     }
 
 }

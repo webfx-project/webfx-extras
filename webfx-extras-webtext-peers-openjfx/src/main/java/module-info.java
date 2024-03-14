@@ -12,8 +12,8 @@ module webfx.extras.webtext.peers.openjfx {
     requires webfx.extras.webtext.peers.base;
     requires webfx.extras.webtext.registry;
     requires webfx.extras.webtext.util;
+    requires webfx.kit.javafxgraphics.openjfx;
     requires webfx.kit.javafxgraphics.peers;
-    requires webfx.kit.openjfx;
     requires webfx.platform.util;
 
     // Exported packages

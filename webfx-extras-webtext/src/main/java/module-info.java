@@ -8,7 +8,6 @@ module webfx.extras.webtext {
     requires javafx.controls;
     requires javafx.graphics;
     requires webfx.extras.webtext.registry;
-    requires webfx.kit.javafxgraphics.peers;
 
     // Exported packages
     exports dev.webfx.extras.webtext;

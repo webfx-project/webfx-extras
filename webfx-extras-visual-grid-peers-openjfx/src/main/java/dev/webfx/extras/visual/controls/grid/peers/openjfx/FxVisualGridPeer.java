@@ -317,10 +317,12 @@ public final class FxVisualGridPeer
                                 int size = ((TableView) control).getItems().size();
                                 try {
                                     Method m = flow.getClass().getDeclaredMethod("getCellLength", int.class);
-                                    m.setAccessible(true);
+                                    m.setAccessible(true); // may raise an exception
                                     for (int i = 0; i < size; i++)
-                                        nodePrefHeight +=  (Double) m.invoke(flow, i);
+                                        nodePrefHeight += (Double) m.invoke(flow, i);
                                 } catch (Exception e) {
+                                    // If exception was raised, we just assume an empiric default height value:
+                                    nodePrefHeight += 32;
                                 }
                             }
                         }

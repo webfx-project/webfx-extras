@@ -6,6 +6,7 @@ import dev.webfx.extras.canvas.layer.interact.CanvasInteractionManager;
 import dev.webfx.extras.canvas.layer.interact.HasCanvasInteractionManager;
 import dev.webfx.extras.time.layout.MultilayerTimeLayout;
 import dev.webfx.extras.time.layout.TimeLayout;
+import dev.webfx.platform.util.collection.Collections;
 import javafx.geometry.Bounds;
 import javafx.scene.canvas.Canvas;
 
@@ -45,7 +46,8 @@ public class MultilayerTimeCanvasDrawer<T extends Temporal> extends CanvasDrawer
     @Override
     protected void drawObjectsInArea() {
         Bounds bounds = getDrawAreaOrCanvasBounds();
-        multilayerTimeLayout.getLayers().forEach(layer -> {
+        // Using safe Collections.forEach() - otherwise ConcurrentModificationException have been noticed.
+        Collections.forEach(multilayerTimeLayout.getLayers(), layer -> {
             if (layer.isVisible()) {
                 ChildDrawer<?> childDrawer = childDrawers.get(layer);
                 TimeCanvasDrawer.drawVisibleChildren(bounds, getLayoutOriginX(), getLayoutOriginY(), (TimeLayout) layer, (ChildDrawer) childDrawer, gc);

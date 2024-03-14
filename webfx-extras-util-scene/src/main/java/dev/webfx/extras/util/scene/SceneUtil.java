@@ -1,7 +1,18 @@
 package dev.webfx.extras.util.scene;
 
 import dev.webfx.extras.util.animation.Animations;
+import dev.webfx.extras.util.control.ControlUtil;
 import dev.webfx.extras.util.layout.LayoutUtil;
+import dev.webfx.kit.launcher.WebFxKitLauncher;
+import dev.webfx.kit.util.properties.FXProperties;
+import dev.webfx.kit.util.properties.Unregisterable;
+import dev.webfx.kit.util.properties.UnregisterableListener;
+import dev.webfx.platform.scheduler.Scheduled;
+import dev.webfx.platform.uischeduler.AnimationFramePass;
+import dev.webfx.platform.uischeduler.UiScheduler;
+import dev.webfx.platform.util.Booleans;
+import dev.webfx.platform.util.tuples.Pair;
+import dev.webfx.platform.util.tuples.Unit;
 import javafx.animation.Timeline;
 import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.Property;
@@ -13,18 +24,12 @@ import javafx.geometry.Bounds;
 import javafx.geometry.VPos;
 import javafx.scene.Node;
 import javafx.scene.Scene;
+//TODO: Move methods introducing dependency to javafx-controls elsewhere
 import javafx.scene.control.ScrollPane;
 import javafx.scene.control.TextInputControl;
+import javafx.scene.input.KeyCode;
+import javafx.scene.input.KeyCodeCombination;
 import javafx.stage.Window;
-import dev.webfx.kit.launcher.WebFxKitLauncher;
-import dev.webfx.kit.util.properties.FXProperties;
-import dev.webfx.kit.util.properties.Unregisterable;
-import dev.webfx.kit.util.properties.UnregisterableListener;
-import dev.webfx.platform.uischeduler.AnimationFramePass;
-import dev.webfx.platform.uischeduler.UiScheduler;
-import dev.webfx.platform.scheduler.Scheduled;
-import dev.webfx.platform.util.Booleans;
-import dev.webfx.platform.util.tuples.Unit;
 
 import java.util.function.Consumer;
 
@@ -33,52 +38,112 @@ import java.util.function.Consumer;
  */
 public final class SceneUtil {
 
-    public static boolean isNodeVerticallyVisibleOnScene(Node node) {
-        Bounds layoutBounds = node.getLayoutBounds();
-        double minY = node.localToScene(0, layoutBounds.getMinY()).getY();
-        double maxY = node.localToScene(0, layoutBounds.getMaxY()).getY();
-        Scene scene = node.getScene();
-        return minY >= 0 && maxY <= scene.getHeight();
+    public static void onSceneReady(Node node, Consumer<Scene> sceneConsumer) {
+        if (node != null)
+            onSceneReady(node.sceneProperty(), sceneConsumer);
     }
 
-    public static boolean scrollNodeToBeVerticallyVisibleOnScene(Node node) {
-        return scrollNodeToBeVerticallyVisibleOnScene(node, false, true);
+    public static void onSceneReady(Window window, Consumer<Scene> sceneConsumer) {
+        if (window != null)
+            onSceneReady(window.sceneProperty(), sceneConsumer);
     }
 
-    public static boolean scrollNodeToBeVerticallyVisibleOnScene(Node node, boolean onlyIfNotVisible, boolean animate) {
-        ScrollPane scrollPane = LayoutUtil.findScrollPaneAncestor(node);
-        if (scrollPane != null && (!onlyIfNotVisible || !isNodeVerticallyVisibleOnScene(node))) {
-            double contentHeight = scrollPane.getContent().getLayoutBounds().getHeight();
-            double viewportHeight = scrollPane.getViewportBounds().getHeight();
-            double nodeHeight = node.getLayoutBounds().getHeight();
-            double sceneHeight = node.getScene().getHeight();
-            VPos wishedPosition = getVerticalScrollNodeWishedPosition(node);
-            double wishedSceneNodeTop = wishedPosition == VPos.TOP ? 0
-                    : wishedPosition == VPos.BOTTOM ? sceneHeight - nodeHeight
-                    : sceneHeight / 2 - nodeHeight / 2;
-            double currentScrollPaneSceneTop = scrollPane.localToScene(0, 0).getY();
-            wishedSceneNodeTop = LayoutUtil.boundedSize(wishedSceneNodeTop, currentScrollPaneSceneTop, currentScrollPaneSceneTop + viewportHeight);
-            double currentNodeSceneTop = node.localToScene(0, 0).getY();
-            double currentViewportSceneTop = LayoutUtil.computeScrollPaneVoffset(scrollPane);
-            double wishedViewportSceneTop = currentViewportSceneTop +  currentNodeSceneTop - wishedSceneNodeTop;
-            double vValue = wishedViewportSceneTop / (contentHeight - viewportHeight);
-            vValue = LayoutUtil.boundedSize(vValue, 0, 1);
-            Object timeline = scrollPane.getProperties().get("timeline");
-            if (timeline instanceof Timeline)
-                ((Timeline) timeline).stop();
-            scrollPane.getProperties().put("timeline", Animations.animateProperty(scrollPane.vvalueProperty(), vValue, animate));
-            return true;
+    public static void onSceneReady(ObservableValue<Scene> sceneProperty, Consumer<Scene> sceneConsumer) {
+        FXProperties.onPropertySet(sceneProperty, sceneConsumer);
+    }
+
+    public static void onPrimarySceneReady(Consumer<Scene> sceneConsumer) {
+        WebFxKitLauncher.onReady(() -> onSceneReady(WebFxKitLauncher.getPrimaryStage(), sceneConsumer));
+    }
+
+    public static Runnable getDefaultAccelerator(Scene scene) {
+        return getAccelerator(scene, KeyCode.ENTER);
+    }
+
+    public static void setDefaultAccelerator(Scene scene, Runnable defaultAccelerator) {
+        setAccelerator(scene, KeyCode.ENTER, defaultAccelerator);
+    }
+
+    public static Runnable getCancelAccelerator(Scene scene) {
+        return getAccelerator(scene, KeyCode.ESCAPE);
+    }
+
+    public static void setCancelAccelerator(Scene scene, Runnable cancelAccelerator) {
+        setAccelerator(scene, KeyCode.ESCAPE, cancelAccelerator);
+    }
+
+    public static Pair<Runnable, Runnable> getDefaultAndCancelAccelerators(Scene scene) {
+        return new Pair(getDefaultAccelerator(scene), getCancelAccelerator(scene));
+    }
+
+    public static void setDefaultAndCancelAccelerators(Scene scene, Pair<Runnable, Runnable> accelerators) {
+        setDefaultAccelerator(scene, accelerators.get1());
+        setCancelAccelerator(scene, accelerators.get2());
+    }
+
+    private static Runnable getAccelerator(Scene scene, KeyCode keyCode) {
+        KeyCodeCombination acceleratorKeyCodeCombination = new KeyCodeCombination(keyCode);
+        return scene.getAccelerators().get(acceleratorKeyCodeCombination);
+    }
+
+    private static void setAccelerator(Scene scene, KeyCode keyCode, Runnable accelerator) {
+        KeyCodeCombination acceleratorKeyCodeCombination = new KeyCodeCombination(keyCode);
+        scene.getAccelerators().put(acceleratorKeyCodeCombination, accelerator);
+    }
+
+    public static Unregisterable runOnceFocusIsInside(Node node, boolean includesNullFocus, Runnable runnable) {
+        return runOnceFocusIsInsideOrOutside(node, includesNullFocus, runnable, true);
+    }
+
+    public static Unregisterable runOnceFocusIsOutside(Node node, boolean includesNullFocus, Runnable runnable) {
+        return runOnceFocusIsInsideOrOutside(node, includesNullFocus, runnable, false);
+    }
+
+    public static Unregisterable runOnceFocusIsInsideOrOutside(Node node, boolean includesNullFocus, Runnable runnable, boolean inside) {
+        Property<Node> localFocusOwnerProperty;
+        ObservableValue<Node> focusOwnerProperty;
+        Unit<Unregisterable> unregisterableUnit = new Unit<>();
+        if (node.getScene() != null) {
+            focusOwnerProperty = node.getScene().focusOwnerProperty();
+            localFocusOwnerProperty = null;
+        } else {
+            focusOwnerProperty = localFocusOwnerProperty = new SimpleObjectProperty<>();
+            onSceneReady(node, scene -> localFocusOwnerProperty.bind(scene.focusOwnerProperty()));
         }
-        return false;
+        unregisterableUnit.set(new UnregisterableListener(p -> {
+            Node newFocusOwner = (Node) p.getValue();
+            if ((newFocusOwner == null ? includesNullFocus : inside == isFocusInsideNode(newFocusOwner, node))) {
+                runnable.run();
+                unregisterableUnit.get().unregister();
+            }
+        }, focusOwnerProperty) {
+            @Override
+            public void unregister() {
+                if (localFocusOwnerProperty != null)
+                    localFocusOwnerProperty.unbind();
+                super.unregister();
+            }
+        });
+        return unregisterableUnit.get();
     }
 
-    public static void setVerticalScrollNodeWishedPosition(Node node, VPos wishedPosition) {
-        node.getProperties().put("verticalScrollNodeWishedPosition", wishedPosition);
+    public static boolean isFocusInsideNode(Node node) {
+        Scene scene = node == null ? null : node.getScene();
+        return scene != null && isFocusInsideNode(scene.getFocusOwner(), node);
     }
 
-    public static VPos getVerticalScrollNodeWishedPosition(Node node) {
-        Object wishedPosition = node.getProperties().get("verticalScrollNodeWishedPosition");
-        return wishedPosition instanceof VPos ? (VPos) wishedPosition : VPos.CENTER;
+    private static boolean isFocusInsideNode(Node focusOwner, Node node) {
+        return hasAncestor(focusOwner, node);
+    }
+
+    public static boolean hasAncestor(Node node, Node parent) {
+        while (true) {
+            if (node == parent)
+                return true;
+            if (node == null)
+                return false;
+            node = node.getParent();
+        }
     }
 
     public static void autoFocusIfEnabled(Node node) {
@@ -102,27 +167,12 @@ public final class SceneUtil {
         return Math.min(scene.getWidth(), scene.getHeight()) < 800;
     }
 
-    public static void onSceneReady(Node node, Consumer<Scene> sceneConsumer) {
-        onSceneReady(node.sceneProperty(), sceneConsumer);
-    }
-
-    public static void onSceneReady(Window window, Consumer<Scene> sceneConsumer) {
-        onSceneReady(window.sceneProperty(), sceneConsumer);
-    }
-
-    public static void onSceneReady(ObservableValue<Scene> sceneProperty, Consumer<Scene> sceneConsumer) {
-        FXProperties.onPropertySet(sceneProperty, sceneConsumer);
-    }
-
-    public static void onPrimarySceneReady(Consumer<Scene> sceneConsumer) {
-        WebFxKitLauncher.onReady(() -> onSceneReady(WebFxKitLauncher.getPrimaryStage(), sceneConsumer));
-    }
-
     public static void installSceneFocusOwnerAutoScroll(Scene scene) {
         scene.focusOwnerProperty().addListener((observable, oldValue, newFocusOwner) -> {
-            scrollNodeToBeVerticallyVisibleOnScene(newFocusOwner, true, true);
-            if (newFocusOwner instanceof TextInputControl)
+            if (newFocusOwner instanceof TextInputControl) {
+                scrollNodeToBeVerticallyVisibleOnScene(newFocusOwner, true, true);
                 getSceneInfo(scene).touchTextInputFocusTime();
+            }
         });
     }
 
@@ -141,51 +191,55 @@ public final class SceneUtil {
         }, getSceneInfo(scene).virtualKeyboardShowingProperty);
     }
 
-    public static Unregisterable runOnceFocusIsOutside(Node node, Runnable runnable) {
-        Property<Node> localFocusOwnerProperty;
-        ObservableValue<Node> focusOwnerProperty;
-        Unit<Unregisterable> unregisterableUnit = new Unit<>();
-        if (node.getScene() != null) {
-            focusOwnerProperty = node.getScene().focusOwnerProperty();
-            localFocusOwnerProperty = null;
-        } else {
-            focusOwnerProperty = localFocusOwnerProperty = new SimpleObjectProperty<>();
-            onSceneReady(node, scene -> localFocusOwnerProperty.bind(scene.focusOwnerProperty()));
+
+    public static boolean isNodeVerticallyVisibleOnScene(Node node) {
+        Bounds layoutBounds = node.getLayoutBounds();
+        double minY = node.localToScene(0, layoutBounds.getMinY()).getY();
+        double maxY = node.localToScene(0, layoutBounds.getMaxY()).getY();
+        Scene scene = node.getScene();
+        return minY >= 0 && maxY <= scene.getHeight();
+    }
+
+    public static boolean scrollNodeToBeVerticallyVisibleOnScene(Node node) {
+        return scrollNodeToBeVerticallyVisibleOnScene(node, false, true);
+    }
+
+    public static boolean scrollNodeToBeVerticallyVisibleOnScene(Node node, boolean onlyIfNotVisible, boolean animate) {
+        ScrollPane scrollPane = ControlUtil.findScrollPaneAncestor(node);
+        if (scrollPane != null && (!onlyIfNotVisible || !isNodeVerticallyVisibleOnScene(node))) {
+            double contentHeight = scrollPane.getContent().getLayoutBounds().getHeight();
+            double viewportHeight = scrollPane.getViewportBounds().getHeight();
+            double nodeHeight = node.getLayoutBounds().getHeight();
+            double sceneHeight = node.getScene().getHeight();
+            VPos wishedPosition = getVerticalScrollNodeWishedPosition(node);
+            double wishedSceneNodeTop = wishedPosition == VPos.TOP ? 0
+                    : wishedPosition == VPos.BOTTOM ? sceneHeight - nodeHeight
+                    : sceneHeight / 2 - nodeHeight / 2;
+            double currentScrollPaneSceneTop = scrollPane.localToScene(0, 0).getY();
+            wishedSceneNodeTop = LayoutUtil.boundedSize(wishedSceneNodeTop, currentScrollPaneSceneTop, currentScrollPaneSceneTop + viewportHeight);
+            double currentNodeSceneTop = node.localToScene(0, 0).getY();
+            double currentViewportSceneTop = ControlUtil.computeScrollPaneVoffset(scrollPane);
+            double wishedViewportSceneTop = currentViewportSceneTop +  currentNodeSceneTop - wishedSceneNodeTop;
+            double vValue = wishedViewportSceneTop / (contentHeight - viewportHeight);
+            vValue = LayoutUtil.boundedSize(vValue, 0, 1);
+            Object timeline = scrollPane.getProperties().get("timeline");
+            if (timeline instanceof Timeline)
+                ((Timeline) timeline).stop();
+            scrollPane.getProperties().put("timeline", Animations.animateProperty(scrollPane.vvalueProperty(), vValue, animate));
+            return true;
         }
-        unregisterableUnit.set(new UnregisterableListener(p -> {
-            if (!isFocusInside(node, (Node) p.getValue())) {
-                runnable.run();
-                unregisterableUnit.get().unregister();
-            }
-        }, focusOwnerProperty) {
-            @Override
-            public void unregister() {
-                if (localFocusOwnerProperty != null)
-                    localFocusOwnerProperty.unbind();
-                super.unregister();
-            }
-        });
-        return unregisterableUnit.get();
+        return false;
     }
 
-    public static boolean isFocusInside(Node node) {
-        Scene scene = node == null ? null : node.getScene();
-        return scene != null && isFocusInside(node, scene.getFocusOwner());
+    public static void setVerticalScrollNodeWishedPosition(Node node, VPos wishedPosition) {
+        node.getProperties().put("verticalScrollNodeWishedPosition", wishedPosition);
     }
 
-    private static boolean isFocusInside(Node node, Node focusOwner) {
-        return hasAncestor(focusOwner, node);
+    public static VPos getVerticalScrollNodeWishedPosition(Node node) {
+        Object wishedPosition = node.getProperties().get("verticalScrollNodeWishedPosition");
+        return wishedPosition instanceof VPos ? (VPos) wishedPosition : VPos.CENTER;
     }
 
-    private static boolean hasAncestor(Node node, Node parent) {
-        while (true) {
-            if (node == parent)
-                return true;
-            if (node == null)
-                return false;
-            node = node.getParent();
-        }
-    }
 
     private static SceneInfo getSceneInfo(Scene scene) {
         ObservableMap<Object, Object> properties = scene.getProperties();

@@ -204,7 +204,7 @@ public final class Led extends Region {
         return create(ledColor, null, null);
     }
 
-    public static Led createHihlighted(Color ledColor) {
+    public static Led createHighlighted(Color ledColor) {
         Led led = create(ledColor);
         led.setHighlighted(true);
         return led;

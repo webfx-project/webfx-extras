@@ -14,6 +14,7 @@ module webfx.extras.time.layout {
     requires webfx.extras.time.window;
     requires webfx.extras.util;
     requires webfx.kit.util;
+    requires webfx.platform.util;
 
     // Exported packages
     exports dev.webfx.extras.time.layout;

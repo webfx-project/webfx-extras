@@ -3,7 +3,6 @@
 module webfx.extras.visual.grid.peers.base {
 
     // Direct dependencies modules
-    requires java.base;
     requires javafx.base;
     requires javafx.controls;
     requires javafx.graphics;
@@ -15,7 +14,6 @@ module webfx.extras.visual.grid.peers.base {
     requires webfx.platform.util;
 
     // Exported packages
-    exports dev.webfx.extras.cell.collator.grid;
     exports dev.webfx.extras.visual.controls.grid.peers.base;
 
 }

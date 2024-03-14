@@ -11,6 +11,7 @@ public enum FacetState {
     ROUNDED,
     BORDERED,
     INVERTED,
+    DISABLED,
     REQUESTED_FONT,
 
     // Output states (for non-standard controls such as HtmlText)

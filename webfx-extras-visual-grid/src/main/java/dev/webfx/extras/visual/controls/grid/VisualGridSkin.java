@@ -43,7 +43,7 @@ public final class VisualGridSkin extends SelectableVisualResultControlSkinBase<
         super(visualGrid, false);
         visualGrid.getStyleClass().add("grid");
         clipChildren(gridBody);
-        gridBody.setBackground(new Background(new BackgroundFill(Color.grayRgb(245), null, null)));
+        gridBody.setBackground(Background.fill(Color.grayRgb(245)));
         FXProperties.runNowAndOnPropertiesChange(() -> {
             if (visualGrid.isFullHeight()) {
                 if (bodyScrollPane != null)
@@ -421,7 +421,7 @@ public final class VisualGridSkin extends SelectableVisualResultControlSkinBase<
         }
     }
 
-    private static final Insets CELL_MARGIN = Insets.EMPTY; // new Insets(5);
+    private static final Insets CELL_MARGIN = new Insets(0, 0, 0, 5);
 
     private final class GridColumn extends Pane {
         private Double fixedWidth;

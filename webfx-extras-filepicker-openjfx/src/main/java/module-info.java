@@ -3,7 +3,6 @@
 module webfx.extras.filepicker.openjfx {
 
     // Direct dependencies modules
-    requires java.base;
     requires javafx.graphics;
     requires webfx.extras.filepicker;
     requires webfx.platform.file;

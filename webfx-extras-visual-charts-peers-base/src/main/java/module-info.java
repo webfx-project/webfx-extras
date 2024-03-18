@@ -3,7 +3,6 @@
 module webfx.extras.visual.charts.peers.base {
 
     // Direct dependencies modules
-    requires java.base;
     requires javafx.controls;
     requires webfx.extras.type;
     requires webfx.extras.visual;

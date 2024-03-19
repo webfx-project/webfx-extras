@@ -3,7 +3,6 @@
 module webfx.extras.canvas.blob {
 
     // Direct dependencies modules
-    requires java.base;
     requires javafx.graphics;
     requires webfx.platform.async;
     requires webfx.platform.blob;

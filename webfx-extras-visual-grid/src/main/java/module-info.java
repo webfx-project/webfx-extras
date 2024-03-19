@@ -3,7 +3,6 @@
 module webfx.extras.visual.grid {
 
     // Direct dependencies modules
-    requires java.base;
     requires javafx.base;
     requires javafx.controls;
     requires javafx.graphics;

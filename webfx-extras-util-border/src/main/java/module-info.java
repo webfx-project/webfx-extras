@@ -3,7 +3,6 @@
 module webfx.extras.util.border {
 
     // Direct dependencies modules
-    requires java.base;
     requires javafx.graphics;
     requires webfx.extras.util.paint;
     requires webfx.platform.util;

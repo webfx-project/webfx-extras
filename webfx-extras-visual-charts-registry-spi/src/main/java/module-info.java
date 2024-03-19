@@ -3,7 +3,6 @@
 module webfx.extras.visual.charts.registry {
 
     // Direct dependencies modules
-    requires java.base;
     requires webfx.platform.util;
 
     // Exported packages

@@ -3,7 +3,6 @@
 module webfx.extras.player.audio.media {
 
     // Direct dependencies modules
-    requires java.base;
     requires javafx.base;
     requires javafx.media;
     requires webfx.extras.player;

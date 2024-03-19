@@ -3,7 +3,6 @@
 module webfx.extras.canvas.layer {
 
     // Direct dependencies modules
-    requires java.base;
     requires javafx.graphics;
     requires webfx.extras.geometry;
 

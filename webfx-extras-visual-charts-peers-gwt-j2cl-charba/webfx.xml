@@ -5,6 +5,10 @@
         <module>webfx-extras-visual-charts-registry</module>
     </implements>
 
+    <exported-packages>
+        <source-packages/>
+    </exported-packages>
+
     <dependencies>
         <used-by-source-modules>
             <undetected-module>javafx-controls</undetected-module>

@@ -1,0 +1,7 @@
+VisualLineChart, VisualPieChart, VisualBarChart, VisualAreaChart {
+    -fx-skin: "dev.webfx.kit.mapper.peers.javafxcontrols.openjfx.skin.FxControlPeerSkin";
+}
+
+.chart-series-line {
+    -fx-stroke-width: 1.5px;
+}

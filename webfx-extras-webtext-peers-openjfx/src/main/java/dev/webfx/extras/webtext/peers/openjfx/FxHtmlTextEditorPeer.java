@@ -43,12 +43,6 @@ public final class FxHtmlTextEditorPeer
                 } );
     }
 
-    @Override
-    public void updateText(String text) {
-        if (ckEditor != null && !Objects.areEquals(text, getEditorData()))
-            ckEditor.call("setData", text);
-    }
-
 /*
     @Override
     protected void resizeWebView(double width, double height) {
@@ -57,8 +51,30 @@ public final class FxHtmlTextEditorPeer
             ckEditor.call("resize", width - 20, height - 20);
     }
 */
+
+    private String lastUpdateText; // last text passed to updateText() by application code
+    private String lastUpdateTextEditorData; // editor data corresponding to last text (may be reformatted by editor)
+
+    @Override
+    public void updateText(String text) {
+        // We pass the text to the editor, unless this is the same text as last time and the editor data hasn't changed
+        if (ckEditor != null) {
+            boolean identical = Objects.areEquals(text, lastUpdateText) && Objects.areEquals(lastUpdateTextEditorData, getEditorData());
+            if (!identical) {
+                lastUpdateText = text;
+                lastUpdateTextEditorData = null;
+                ckEditor.call("setData", text);
+            }
+        }
+    }
+
     public void onEditorDataChanged() {
-        getNode().setText(getEditorData());
+        // We don't reset the node text on subsequent editor notification after updateText(), because the editor probably
+        // reformatted the text, be this shouldn't be considered as a user change.
+        if (lastUpdateTextEditorData == null)
+            lastUpdateTextEditorData = getEditorData();
+        else // Should be a user change, so we reset the node text in this case
+            getNode().setText(getEditorData());
     }
 
     private String getEditorData() {

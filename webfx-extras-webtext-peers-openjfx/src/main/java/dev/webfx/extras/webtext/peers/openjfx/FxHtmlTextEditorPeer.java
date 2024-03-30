@@ -18,7 +18,7 @@ public final class FxHtmlTextEditorPeer
         extends FxHtmlTextWebViewPeer<FxN, N, NB, NM>
         implements HtmlTextEditorPeerMixin<N, NB, NM> {
 
-    private static final String ckEditorUrl = "http://cdn.ckeditor.com/4.7.2/full/ckeditor.js";
+    private static final String CK_EDITOR_URL_TEMPLATE = "http://cdn.ckeditor.com/4.22.1/${mode}/ckeditor.js";
     private JSObject ckEditor;
 
     public FxHtmlTextEditorPeer() {
@@ -27,7 +27,12 @@ public final class FxHtmlTextEditorPeer
 
     public FxHtmlTextEditorPeer(NB base) {
         super(base);
+    }
+
+    @Override
+    public void updateMode(HtmlTextEditor.Mode mode) {
         WebEngine webEngine = webView.getEngine();
+        String ckEditorUrl = CK_EDITOR_URL_TEMPLATE.replace("${mode}", mode.name().toLowerCase());
         webEngine.loadContent("<html><head><script src='" + ckEditorUrl + "'></script></head><body><div id='ckEditorDiv'></div></body></html>");
         webEngine.getLoadWorker().stateProperty().addListener(
                 (ObservableValue<? extends Worker.State> observable, Worker.State oldValue, Worker.State newValue) -> {
@@ -43,7 +48,7 @@ public final class FxHtmlTextEditorPeer
                 } );
     }
 
-/*
+    /*
     @Override
     protected void resizeWebView(double width, double height) {
         super.resizeWebView(width, height);
@@ -71,10 +76,11 @@ public final class FxHtmlTextEditorPeer
     public void onEditorDataChanged() {
         // We don't reset the node text on subsequent editor notification after updateText(), because the editor probably
         // reformatted the text, be this shouldn't be considered as a user change.
-        if (lastUpdateTextEditorData == null)
-            lastUpdateTextEditorData = getEditorData();
-        else // Should be a user change, so we reset the node text in this case
-            getNode().setText(getEditorData());
+        boolean skipNodeText = lastUpdateTextEditorData == null;
+        lastUpdateTextEditorData = getEditorData();
+        if (!skipNodeText) { // Should be a user change, so we reset the node text in this case
+            getNode().setText(lastUpdateText = lastUpdateTextEditorData);
+        }
     }
 
     private String getEditorData() {

@@ -10,4 +10,6 @@ public interface HtmlTextEditorPeerMixin
 
         extends HtmlTextPeerMixin<N, NB, NM> {
 
+    void updateMode(HtmlTextEditor.Mode mode);
+
 }

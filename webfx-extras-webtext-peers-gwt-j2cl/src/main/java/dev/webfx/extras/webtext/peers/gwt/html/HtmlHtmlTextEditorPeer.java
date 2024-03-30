@@ -28,7 +28,7 @@ public final class HtmlHtmlTextEditorPeer
         extends HtmlRegionPeer<N, NB, NM>
         implements HtmlTextEditorPeerMixin<N, NB, NM>, HtmlLayoutMeasurable, HasNoChildrenPeers {
 
-    private static final String ckEditorUrl = "https://cdn.ckeditor.com/4.22.1/full/ckeditor.js";
+    private static final String CK_EDITOR_URL_TEMPLATE = "https://cdn.ckeditor.com/4.22.1/${mode}/ckeditor.js";
 
     private final HTMLDivElement div = HtmlUtil.createDivElement();
     private CKEditor ckEditor;
@@ -46,7 +46,6 @@ public final class HtmlHtmlTextEditorPeer
     @Override
     public void bind(N node, SceneRequester sceneRequester) {
         super.bind(node, sceneRequester);
-        HtmlUtil.loadScript(ckEditorUrl, this::recreateCKEditorIfRequired);
 
         FXProperties.runOnPropertiesChange(() -> {
             if (node.getScene() == null) {
@@ -58,6 +57,12 @@ public final class HtmlHtmlTextEditorPeer
                 recreateCKEditorIfRequired();
             }
         }, node.sceneProperty());
+    }
+
+    @Override
+    public void updateMode(HtmlTextEditor.Mode mode) {
+        String ckEditorUrl = CK_EDITOR_URL_TEMPLATE.replace("${mode}", mode.name().toLowerCase());
+        HtmlUtil.loadScript(ckEditorUrl, this::recreateCKEditorIfRequired);
     }
 
     @Override

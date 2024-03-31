@@ -156,7 +156,7 @@ public class FlexColumnPane extends Pane implements Scalable {
     }
 
     private void log(String message) {
-        System.out.println(message);
+        //System.out.println(message);
     }
 
     private static final class ChildInfo {

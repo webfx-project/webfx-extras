@@ -6,7 +6,7 @@ module webfx.extras.canvas.blob {
     requires javafx.graphics;
     requires webfx.platform.async;
     requires webfx.platform.blob;
-    requires webfx.platform.util;
+    requires webfx.platform.service;
 
     // Exported packages
     exports dev.webfx.extras.canvas.blob;

@@ -3,7 +3,7 @@
 module webfx.extras.visual.charts.registry {
 
     // Direct dependencies modules
-    requires webfx.platform.util;
+    requires webfx.platform.service;
 
     // Exported packages
     exports dev.webfx.extras.visual.controls.charts.registry;

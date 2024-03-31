@@ -28,7 +28,7 @@ public final class HtmlHtmlTextEditorPeer
         extends HtmlRegionPeer<N, NB, NM>
         implements HtmlTextEditorPeerMixin<N, NB, NM>, HtmlLayoutMeasurable, HasNoChildrenPeers {
 
-    private static final String ckEditorUrl = "https://cdn.ckeditor.com/4.22.1/full/ckeditor.js";
+    private static final String CK_EDITOR_URL_TEMPLATE = "https://cdn.ckeditor.com/4.22.1/${mode}/ckeditor.js";
 
     private final HTMLDivElement div = HtmlUtil.createDivElement();
     private CKEditor ckEditor;
@@ -46,7 +46,6 @@ public final class HtmlHtmlTextEditorPeer
     @Override
     public void bind(N node, SceneRequester sceneRequester) {
         super.bind(node, sceneRequester);
-        HtmlUtil.loadScript(ckEditorUrl, this::recreateCKEditorIfRequired);
 
         FXProperties.runOnPropertiesChange(() -> {
             if (node.getScene() == null) {
@@ -61,11 +60,51 @@ public final class HtmlHtmlTextEditorPeer
     }
 
     @Override
+    public void updateMode(HtmlTextEditor.Mode mode) {
+        String ckEditorUrl = CK_EDITOR_URL_TEMPLATE.replace("${mode}", mode.name().toLowerCase());
+        HtmlUtil.loadScript(ckEditorUrl, this::recreateCKEditorIfRequired);
+    }
+
+    private String lastUpdateText; // last text passed to updateText() by application code
+    private String lastUpdateTextEditorData; // editor data corresponding to last text (may be reformatted by editor)
+
+    @Override
     public void updateText(String text) {
-        if (ckEditor != null && instanceReady && !Objects.areEquals(text, ckEditor.getData())) {
-            ckEditor.setData(Strings.toSafeString(text));
+        // We pass the text to the editor, unless this is the same text as last time and the editor data hasn't changed
+        if (ckEditor != null) {
+            boolean identical = Objects.areEquals(text, lastUpdateText) && Objects.areEquals(lastUpdateTextEditorData, getEditorData());
+            if (!identical) {
+                lastUpdateText = text;
+                lastUpdateTextEditorData = null;
+                ckEditor.setData(Strings.toSafeString(text));
+            }
         }
     }
+
+    public void onEditorDataChanged() {
+        // We don't reset the node text on subsequent editor notification after updateText(), because the editor probably
+        // reformatted the text, be this shouldn't be considered as a user change.
+        boolean skipNodeText = lastUpdateTextEditorData == null;
+        lastUpdateTextEditorData = getEditorData();
+        if (!skipNodeText) { // Should be a user change, so we reset the node text in this case
+            getNode().setText(lastUpdateText = lastUpdateTextEditorData);
+        }
+    }
+
+    private String getEditorData() {
+        return ckEditor.getData();
+    }
+
+    private void resyncNodeTextFromEditor() {
+        onEditorDataChanged();
+    }
+
+    private void resyncEditorFromNodeText(boolean js) {
+        if (js)
+            instanceReady = true;
+        updateText(getNode().getText());
+    }
+
 
     @Override
     public void updateFont(Font font) {
@@ -124,16 +163,6 @@ public final class HtmlHtmlTextEditorPeer
                 return contentDocument.getElementsByTagName("body").getAt(0).innerHTML;
         }
         return null;
-    }
-
-    private void resyncNodeTextFromEditor() {
-        getNode().setText(ckEditor.getData());
-    }
-
-    private void resyncEditorFromNodeText(boolean js) {
-        if (js)
-            instanceReady = true;
-        ckEditor.setData(getNode().getText());
     }
 
 }

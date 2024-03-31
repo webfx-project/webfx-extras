@@ -1,7 +1,7 @@
 package dev.webfx.extras.visual.controls.grid.registry;
 
 import dev.webfx.extras.visual.controls.grid.registry.spi.VisualGridRegistryProvider;
-import dev.webfx.platform.util.serviceloader.SingleServiceProvider;
+import dev.webfx.platform.service.SingleServiceProvider;
 
 import java.util.ServiceLoader;
 

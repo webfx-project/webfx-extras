@@ -1,0 +1,8 @@
+
+fx-textfield.material > fx-border {
+    border: none;
+}
+
+fx-textfield.material > fx-background {
+    background: none;
+}

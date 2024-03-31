@@ -1,0 +1,3 @@
+HtmlText, HtmlTextEditor {
+    -fx-skin: "dev.webfx.kit.mapper.peers.javafxcontrols.openjfx.skin.FxControlPeerSkin";
+}

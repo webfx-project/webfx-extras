@@ -3,7 +3,7 @@
 module webfx.extras.visual.grid.registry {
 
     // Direct dependencies modules
-    requires webfx.platform.util;
+    requires webfx.platform.service;
 
     // Exported packages
     exports dev.webfx.extras.visual.controls.grid.registry;

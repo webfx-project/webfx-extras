@@ -1,7 +1,7 @@
 package dev.webfx.extras.filepicker.spi;
 
 import dev.webfx.extras.filepicker.FilePicker;
-import dev.webfx.platform.util.serviceloader.SingleServiceProvider;
+import dev.webfx.platform.service.SingleServiceProvider;
 
 import java.util.ServiceLoader;
 

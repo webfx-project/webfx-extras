@@ -3,7 +3,7 @@ package dev.webfx.extras.canvas.blob;
 import dev.webfx.extras.canvas.blob.spi.CanvasBlobProvider;
 import dev.webfx.platform.async.Future;
 import dev.webfx.platform.blob.Blob;
-import dev.webfx.platform.util.serviceloader.SingleServiceProvider;
+import dev.webfx.platform.service.SingleServiceProvider;
 import javafx.scene.canvas.Canvas;
 
 import java.util.ServiceLoader;

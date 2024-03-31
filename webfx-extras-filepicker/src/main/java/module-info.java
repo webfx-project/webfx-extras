@@ -7,7 +7,7 @@ module webfx.extras.filepicker {
     requires javafx.graphics;
     requires webfx.kit.util;
     requires transitive webfx.platform.file;
-    requires webfx.platform.util;
+    requires webfx.platform.service;
 
     // Exported packages
     exports dev.webfx.extras.filepicker;

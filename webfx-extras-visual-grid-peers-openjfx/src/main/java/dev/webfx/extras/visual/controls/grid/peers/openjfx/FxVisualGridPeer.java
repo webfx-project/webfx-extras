@@ -11,6 +11,7 @@ import javafx.geometry.Pos;
 import javafx.scene.Node;
 import javafx.scene.Parent;
 import javafx.scene.control.*;
+import javafx.scene.control.skin.TableHeaderRow;
 import javafx.scene.control.skin.TableViewSkin;
 import javafx.scene.control.skin.VirtualFlow;
 import javafx.scene.input.ScrollEvent;
@@ -62,6 +63,7 @@ public final class FxVisualGridPeer
         tableView.setColumnResizePolicy(TableView.CONSTRAINED_RESIZE_POLICY);
         tableView.setRowFactory(createRowFactory());
         tableView.getSelectionModel().getSelectedIndices().addListener((ListChangeListener<Integer>) c -> updateNodeVisualSelection());
+        // Overriding the table skin for a better pref width computation, and height management (with fullHeight mode)
         try { // Try catch block for java 9 where TableViewSkin is not accessible anymore
             tableView.setSkin(new TableViewSkin<>(tableView) {
                 @Override
@@ -117,6 +119,29 @@ public final class FxVisualGridPeer
                     }
                     return pw;
                 }
+                @Override
+                protected double computeMinHeight(double width, double topInset, double rightInset, double bottomInset, double leftInset) {
+                    N visualGrid = FxVisualGridPeer.this.getNode();
+                    if (visualGrid == null || !visualGrid.isFullHeight())
+                        return super.computeMinHeight(width, topInset, rightInset, bottomInset, leftInset);
+                    return computeTableViewFullHeight(tableView); // TODO: omtimize and prevent 3 calls for min/pref/max
+                }
+
+                @Override
+                protected double computePrefHeight(double width, double topInset, double rightInset, double bottomInset, double leftInset) {
+                    N visualGrid = FxVisualGridPeer.this.getNode();
+                    if (visualGrid == null || !visualGrid.isFullHeight())
+                        return super.computePrefHeight(width, topInset, rightInset, bottomInset, leftInset);
+                    return computeTableViewFullHeight(tableView); // TODO: omtimize and prevent 3 calls for min/pref/max
+                }
+
+                @Override
+                protected double computeMaxHeight(double width, double topInset, double rightInset, double bottomInset, double leftInset) {
+                    N visualGrid = FxVisualGridPeer.this.getNode();
+                    if (visualGrid == null || !visualGrid.isFullHeight())
+                        return super.computeMaxHeight(width, topInset, rightInset, bottomInset, leftInset);
+                    return computeTableViewFullHeight(tableView); // TODO: omtimize and prevent 3 calls for min/pref/max
+                }
             });
         } catch (Throwable e) { // Probably java 9
             System.out.println("FxDataGridPeer can't access TableViewSkin to override computePrefWidth() -- Java 9 issue");
@@ -127,10 +152,10 @@ public final class FxVisualGridPeer
     @Override
     protected void onFxNodeCreated() {
         TableView<Integer> tableView = getFxNode();
-        N node = getNode();
-        tableView.prefHeightProperty().bind(node.prefHeightProperty());
-        tableView.minHeightProperty().bind(node.minHeightProperty());
-        tableView.maxHeightProperty().bind(node.maxHeightProperty());
+        N visualGrid = getNode();
+        tableView.minHeightProperty().bind(visualGrid.minHeightProperty());
+        tableView.prefHeightProperty().bind(visualGrid.prefHeightProperty());
+        tableView.maxHeightProperty().bind(visualGrid.maxHeightProperty());
     }
 
     @Override
@@ -214,8 +239,6 @@ public final class FxVisualGridPeer
                 tableView.setColumnResizePolicy(TableView.UNCONSTRAINED_RESIZE_POLICY);
                 UiScheduler.scheduleDelay(100, () -> tableView.setColumnResizePolicy(TableView.CONSTRAINED_RESIZE_POLICY));
             }
-            if (dataGrid.isFullHeight())
-                fitHeightToContent(tableView, dataGrid);
         }
         dataGrid.requestLayout(); // this is essentially to clear the cached sized values (prefWith, etc...)
     }
@@ -296,45 +319,42 @@ public final class FxVisualGridPeer
         return base.getRowBackground(value);
     }
 
-    private static void fitHeightToContent(Control control, VisualGrid visualGrid) {
-        // Quick ugly hacked code to make the table height fit with the content
-        FXProperties.onPropertySet(control.skinProperty(), skin -> {
-            ObservableList<javafx.scene.Node> children = null;
-            if (skin instanceof Parent) // happens in java 7
-                children = ((Parent) skin).getChildrenUnmodifiable();
-            else if (skin instanceof SkinBase) // happens in java 8
-                children = ((SkinBase) skin).getChildren();
-            if (children != null) {
-                Insets insets = control.getInsets();
-                double h = insets.getTop() + insets.getBottom();
-                for (javafx.scene.Node node : new ArrayList<>(children)) {
-                    double nodePrefHeight = 0;
-                    // Note: not compatible with Java 9 (VirtualFlow made inaccessible)
+// Code not working anymore since Java 9 - can't access call VirtualFlow.getCellLength()
+    private static double computeTableViewFullHeight(TableView tableView) {
+        Insets insets = tableView.getInsets();
+        double h = insets.getTop() + insets.getBottom();
+        Skin<?> skin = tableView.getSkin();
+        ObservableList<javafx.scene.Node> children = null;
+        if (skin instanceof Parent) // happens in java 7
+            children = ((Parent) skin).getChildrenUnmodifiable();
+        else if (skin instanceof SkinBase) // happens in java 8
+            children = ((SkinBase) skin).getChildren();
+        if (children != null) {
+            double tableHeaderRowHeight = -1;
+            for (javafx.scene.Node node : new ArrayList<>(children)) {
+                double nodePrefHeight = 0;
+                if (node instanceof TableHeaderRow) {
+                    nodePrefHeight = tableHeaderRowHeight = node.prefHeight(-1);
+                } else if (node instanceof VirtualFlow) {
+                    VirtualFlow flow = (VirtualFlow) node;
+                    int size = tableView.getItems().size();
                     try {
-                        if (node instanceof VirtualFlow) { // the problem with Virtual Flow is that it limits the computation to the first 10 rows
-                            VirtualFlow flow = (VirtualFlow) node;
-                            if (control instanceof TableView) {
-                                int size = ((TableView) control).getItems().size();
-                                try {
-                                    Method m = flow.getClass().getDeclaredMethod("getCellLength", int.class);
-                                    m.setAccessible(true); // may raise an exception
-                                    for (int i = 0; i < size; i++)
-                                        nodePrefHeight += (Double) m.invoke(flow, i);
-                                } catch (Exception e) {
-                                    // If exception was raised, we just assume an empiric default height value:
-                                    nodePrefHeight += 32;
-                                }
-                            }
-                        }
-                    } catch (Throwable e) {
-                        // Java 9
+                        // Note: not compatible with Java 9+ (VirtualFlow made inaccessible)
+                        Method m = flow.getClass().getDeclaredMethod("getCellLength", int.class);
+                        m.setAccessible(true); // may raise an exception
+                        for (int i = 0; i < size; i++)
+                            nodePrefHeight += (Double) m.invoke(flow, i);
+                    } catch (Exception e) { // Java 9+
+                        // If exception was raised, we just assume an empiric default height value:
+                        double rowHeight = tableHeaderRowHeight; // Taking same height as table header by default
+                        if (rowHeight < 0) // If not set,
+                            rowHeight = 26; // taking empiric value
+                        nodePrefHeight += rowHeight * size;
                     }
-                    if (nodePrefHeight == 0)
-                        nodePrefHeight = node.prefHeight(-1);
-                    h += nodePrefHeight;
                 }
-                FXProperties.setIfNotBound(visualGrid.prefHeightProperty(), h);
+                h += nodePrefHeight;
             }
-        });
+        }
+        return h;
     }
 }

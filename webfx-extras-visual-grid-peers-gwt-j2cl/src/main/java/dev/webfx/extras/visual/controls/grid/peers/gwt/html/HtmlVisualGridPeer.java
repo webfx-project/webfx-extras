@@ -52,7 +52,6 @@ public final class HtmlVisualGridPeer
         super(base, element);
         table.appendChild(tBody);
         HtmlUtil.setChild(element, table);
-        setStyleAttribute(table, "width", "100%");
         // Capturing scroll position (in scrollTop field)
         element.onscroll = p0 -> {
             scrollTop = element.scrollTop;
@@ -114,33 +113,39 @@ public final class HtmlVisualGridPeer
     }
 
     @Override
-    public void updateVisualSelection(VisualSelection selection) {
-        Unit<Integer> lastUnselectedRowIndex = new Unit<>(0);
-        VisualGrid node = getNode();
-        VisualSelection visualSelection = node.getVisualSelection();
-        if (visualSelection != null)
+    public void updateVisualSelection(VisualSelection visualSelection) {
+        int[] lastUnselectedRowIndex = { 0 };
+        if (visualSelection != null) {
             visualSelection.forEachRow(rowIndex -> {
-                applyVisualSelectionRange(lastUnselectedRowIndex.get(), rowIndex - 1, false);
+                applyVisualSelectionRange(lastUnselectedRowIndex[0], rowIndex - 1, false);
                 applyVisualSelectionRange(rowIndex, rowIndex, true);
-                lastUnselectedRowIndex.set(rowIndex + 1);
+                lastUnselectedRowIndex[0] = rowIndex + 1;
             });
-        VisualResult rs = node.getVisualResult();
+        }
+        VisualResult rs = getNode().getVisualResult();
         if (rs != null)
-            applyVisualSelectionRange(lastUnselectedRowIndex.get(), rs.getRowCount(), false);
+            applyVisualSelectionRange(lastUnselectedRowIndex[0], rs.getRowCount(), false);
     }
 
     private void applyVisualSelectionRange(int firstRow, int lastRow, boolean selected) {
         HTMLCollection<HTMLTableRowElement> rows = tBody.rows;
         lastRow = Math.min(lastRow, rows.getLength() - 1);
-        for (int trIndex = firstRow; trIndex <= lastRow; trIndex++)
+        for (int trIndex = firstRow; trIndex <= lastRow; trIndex++) {
             // TODO: investigate possible strange ClassCastException here
-            HtmlUtil.setPseudoClass(rows.item(trIndex), "selected", selected);
+            try {
+                //DomGlobal.console.log("row " + trIndex + " selected: " + selected);
+                HTMLTableRowElement row = rows.item(trIndex);
+                HtmlUtil.setPseudoClass(row, "selected", selected);
+            } catch (Throwable e) {
+                DomGlobal.console.log("Exception occurred on selection: " + e);
+            }
+        }
     }
 
     @Override
     public void updateVisualResult(VisualResult rs) {
-        VisualGrid node = getNode();
-        node.setVisualSelection(null);
+        VisualGrid visualGrid = getNode();
+        visualGrid.setVisualSelection(null);
         NB base = getNodePeerBase();
         HtmlUtil.removeChildren(tHeadRow);
         HtmlUtil.removeChildren(tBody);
@@ -154,14 +159,14 @@ public final class HtmlVisualGridPeer
                 // Selection management on devices with mouse such as desktops
                 tBodyRow.onmousedown = e -> {
                     MouseEvent me = (MouseEvent) e;
-                    node.setVisualSelection(VisualSelection.updateRowsSelection(node.getVisualSelection(), node.getSelectionMode(), finalRow, me.button == 0, me.ctrlKey, me.shiftKey));
-                    node.requestFocus(); // to enable keyPressed detection and therefore arrow selection navigation
+                    visualGrid.setVisualSelection(VisualSelection.updateRowsSelection(visualGrid.getVisualSelection(), visualGrid.getSelectionMode(), finalRow, me.button == 0, me.ctrlKey, me.shiftKey));
+                    visualGrid.requestFocus(); // to enable keyPressed detection and therefore arrow selection navigation
                     return null;
                 };
                 // Selection management on touch devices such as mobiles
                 tBodyRow.ontouchstart = e -> {
-                    node.setVisualSelection(VisualSelection.updateRowsSelection(node.getVisualSelection(), node.getSelectionMode(), finalRow, true, e.ctrlKey, e.shiftKey));
-                    node.requestFocus(); // to enable keyPressed detection and therefore arrow selection navigation
+                    visualGrid.setVisualSelection(VisualSelection.updateRowsSelection(visualGrid.getVisualSelection(), visualGrid.getSelectionMode(), finalRow, true, e.ctrlKey, e.shiftKey));
+                    visualGrid.requestFocus(); // to enable keyPressed detection and therefore arrow selection navigation
                     return null;
                 };
                 String rowStyle = base.getRowStyle(row);
@@ -180,7 +185,10 @@ public final class HtmlVisualGridPeer
     @Override
     public void setUpGridColumn(int gridColumnIndex, int rsColumnIndex, VisualColumn visualColumn) {
         Label label = visualColumn.getLabel();
-        getNodePeerBase().fillCell((HTMLTableCellElement) tHeadRow.insertCell(gridColumnIndex), new Object[]{label.getIconPath(), label.getText()}, visualColumn, ImageTextRenderer.SINGLETON);
+        //HTMLTableCellElement cell = (HTMLTableCellElement) tHeadRow.insertCell(gridColumnIndex); // Creates td instead of th
+        HTMLTableCellElement cell = (HTMLTableCellElement) DomGlobal.document.createElement("th");
+        tHeadRow.appendChild(cell);
+        getNodePeerBase().fillCell(cell, new Object[] { label.getIconPath(), label.getText() }, visualColumn, ImageTextRenderer.SINGLETON);
     }
 
     @Override

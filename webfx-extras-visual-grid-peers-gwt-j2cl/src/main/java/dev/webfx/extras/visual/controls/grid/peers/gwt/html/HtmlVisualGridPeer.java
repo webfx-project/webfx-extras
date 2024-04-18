@@ -180,6 +180,13 @@ public final class HtmlVisualGridPeer
             }
         }
         clearCache();
+        if (visualGrid.isFullHeight()) {
+            double height = measure(table, false);
+            // TODO: find another method that doesn't change visualGrid min/perf/height (as application code may want to set them)
+            visualGrid.setMinHeight(height);
+            visualGrid.setPrefHeight(height);
+            visualGrid.setMaxHeight(height);
+        }
     }
 
     @Override

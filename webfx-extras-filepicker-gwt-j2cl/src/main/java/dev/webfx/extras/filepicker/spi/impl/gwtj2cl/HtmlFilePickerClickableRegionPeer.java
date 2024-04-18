@@ -39,6 +39,9 @@ public class HtmlFilePickerClickableRegionPeer
             for (int i = 0; i < webFiles.length; i++)
                 webFXFiles.add(dev.webfx.platform.file.File.create(webFiles.getAt(i)));
             getNode().getFileChooser().getSelectedFiles().setAll(webFXFiles);
+            // Resetting the input value to null, otherwise this listener won't be called again if the user opens the
+            // file picker again and chooses the same file(s)
+            fileInput.value = null;
         });
     }
 

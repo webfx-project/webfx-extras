@@ -2,7 +2,7 @@
 <project>
 
     <providers>
-        <provider interface="dev.webfx.extras.filepicker.spi.FilePickerProvider">dev.webfx.extras.filepicker.spi.impl.gwt.GwtFilePickerProvider</provider>
+        <provider interface="dev.webfx.extras.filepicker.spi.FilePickerProvider">dev.webfx.extras.filepicker.spi.impl.gwtj2cl.GwtJ2clFilePickerProvider</provider>
     </providers>
 
     <exported-packages>

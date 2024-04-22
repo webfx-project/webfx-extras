@@ -34,7 +34,7 @@ public final class TimeWindowUtil {
 
     public static <T extends Temporal> void setTimeWindowStart(TimeWindow<T> timeWindow, T newStart, TemporalUnit temporalUnit) {
         long timeWindowDuration = getTimeWindowDuration(timeWindow, temporalUnit);
-        T newEnd = (T) timeWindow.getTimeWindowStart().plus(timeWindowDuration, temporalUnit);
+        T newEnd = (T) newStart.plus(timeWindowDuration - 1, temporalUnit);
         timeWindow.setTimeWindow(newStart, newEnd);
     }
 

@@ -199,4 +199,21 @@ public final class VisualSelection {
             return new VisualSelection(units.toArray(new Unit[units.size()]), hitRow);
         }
     }
+
+    public static boolean isEmptySelection(VisualSelection selection) {
+        return selection == null || selection.isEmpty();
+    }
+
+    public static boolean isSingleSelection(VisualSelection selection) {
+        return selection != null && selection.isSingle();
+    }
+
+    public static boolean isMultipleSelection(VisualSelection selection) {
+        return selection != null && selection.isMultiple();
+    }
+
+    public static boolean isEmptyOrSingleSelection(VisualSelection selection) {
+        return isEmptySelection(selection) || isSingleSelection(selection);
+    }
+
 }

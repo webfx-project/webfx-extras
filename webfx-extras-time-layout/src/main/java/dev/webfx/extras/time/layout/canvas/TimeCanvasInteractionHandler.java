@@ -11,6 +11,7 @@ import javafx.scene.input.ScrollEvent;
 
 import java.time.temporal.Temporal;
 import java.time.temporal.TemporalUnit;
+import java.util.Objects;
 
 /**
  * @author Bruno Salmon
@@ -79,6 +80,10 @@ public class TimeCanvasInteractionHandler<T extends Temporal> implements CanvasI
 
     @Override
     public boolean handleScroll(ScrollEvent e, Canvas canvas) {
+        // if the scroll time window feature is disabled on this canvas, we immediately return
+        if (isScrollTimeWindowDisabledOnCanvas(canvas)) {
+            return true; // -> Ok to continue propagation (ex: ScrollPane)
+        }
         if (e.isControlDown()) { // Zoom in/out
             long duration = TimeWindowUtil.getTimeWindowDuration(timeWindow, temporalUnit);
             if (e.getDeltaY() > 0) // Mouse wheel up => Zoom in
@@ -106,6 +111,14 @@ public class TimeCanvasInteractionHandler<T extends Temporal> implements CanvasI
 
     private void selectObjectAt(double x, double y) {
         canSelectChild.selectChildAt(x, y);
+    }
+
+    public static void disableScrollTimeWindowOnCanvas(Canvas canvas) {
+        canvas.getProperties().put("disableScollTimeWindow", true);
+    }
+
+    public static boolean isScrollTimeWindowDisabledOnCanvas(Canvas canvas) {
+        return Objects.equals(canvas.getProperties().get("disableScollTimeWindow"), true);
     }
 
 }

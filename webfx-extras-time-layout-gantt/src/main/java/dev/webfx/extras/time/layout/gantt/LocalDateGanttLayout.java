@@ -33,6 +33,11 @@ public final class LocalDateGanttLayout<C> extends GanttLayoutImpl<C, LocalDate>
     }
 
     @Override
+    public LocalDateGanttLayout<C> setChildYPositionGetter(Function<C, Double> childYPositionGetter) {
+        return (LocalDateGanttLayout<C>) super.setChildYPositionGetter(childYPositionGetter);
+    }
+
+    @Override
     public LocalDateGanttLayout<C> setChildParentReader(Function<C, ?> childParentReader) {
         return (LocalDateGanttLayout<C>) super.setChildParentReader(childParentReader);
     }

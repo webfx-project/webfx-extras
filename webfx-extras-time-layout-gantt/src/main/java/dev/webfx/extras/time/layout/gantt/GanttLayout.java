@@ -19,6 +19,8 @@ public interface GanttLayout<C, T extends Temporal> extends TimeLayout<C, T> {
 
     GanttLayout<C, T> setChildTetrisMinWidthReader(Function<C, Double> childTetrisMinWidthReader);
 
+    GanttLayout<C, T> setChildYPositionGetter(Function<C, Double> childYPositionGetter);
+
     GanttLayout<C, T> setGrandparentHeaderPosition(HeaderPosition headerPosition);
 
     GanttLayout<C, T> setParentHeaderPosition(HeaderPosition headerPosition);

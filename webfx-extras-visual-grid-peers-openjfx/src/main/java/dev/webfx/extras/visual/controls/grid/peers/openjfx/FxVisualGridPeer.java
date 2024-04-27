@@ -60,9 +60,17 @@ public final class FxVisualGridPeer
     @Override
     protected TableView<Integer> createFxNode() {
         TableView<Integer> tableView = new TableView<>();
-        tableView.setColumnResizePolicy(TableView.CONSTRAINED_RESIZE_POLICY);
         tableView.setRowFactory(createRowFactory());
         tableView.getSelectionModel().getSelectedIndices().addListener((ListChangeListener<Integer>) c -> updateNodeVisualSelection());
+        tableView.setColumnResizePolicy(TableView.CONSTRAINED_RESIZE_POLICY);
+        // Disabling sort for now as the default sort policy doesn't work in Modality with ReactiveVisualMapper (the
+        // selected line doesn't match the selected entity)
+        tableView.setSortPolicy(new Callback<TableView<Integer>, Boolean>() {
+            @Override
+            public Boolean call(TableView<Integer> param) {
+                return false;
+            }
+        });
         // Overriding the table skin for a better pref width computation, and height management (with fullHeight mode)
         try { // Try catch block for java 9 where TableViewSkin is not accessible anymore
             tableView.setSkin(new TableViewSkin<>(tableView) {

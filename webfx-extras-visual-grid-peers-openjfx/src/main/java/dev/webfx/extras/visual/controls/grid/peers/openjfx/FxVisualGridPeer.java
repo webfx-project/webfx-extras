@@ -61,7 +61,7 @@ public final class FxVisualGridPeer
     protected TableView<Integer> createFxNode() {
         TableView<Integer> tableView = new TableView<>();
         tableView.setRowFactory(createRowFactory());
-        tableView.getSelectionModel().getSelectedIndices().addListener((ListChangeListener<Integer>) c -> updateNodeVisualSelection());
+        tableView.getSelectionModel().getSelectedIndices().addListener((ListChangeListener<Integer>) c -> syncVisualSelectionFromTableViewIfEnabled());
         tableView.setColumnResizePolicy(TableView.CONSTRAINED_RESIZE_POLICY);
         // Disabling sort for now as the default sort policy doesn't work in Modality with ReactiveVisualMapper (the
         // selected line doesn't match the selected entity)
@@ -177,26 +177,40 @@ public final class FxVisualGridPeer
         getFxNode().getSelectionModel().setSelectionMode(fxSelectionMode);
     }
 
-    private boolean syncingVisualSelection;
+    private boolean enableSyncVisualSelectionFromTableView;
+    private boolean syncingVisualSelectionFromTableView;
 
-    private void updateNodeVisualSelection() {
-        if (!syncingVisualSelection) {
-            syncingVisualSelection = true;
-            getNode().setVisualSelection(VisualSelection.createRowsSelection(getFxNode().getSelectionModel().getSelectedIndices()));
-            syncingVisualSelection = false;
-        }
+    private void syncVisualSelectionFromTableViewIfEnabled() {
+        // Skipping if not enabled
+        if (!enableSyncVisualSelectionFromTableView)
+            return;
+
+        // Preventing reentrant calls from internal operations
+        if (syncingVisualSelectionFromTableView)
+            return;
+
+        syncingVisualSelectionFromTableView = true;
+        VisualSelection rowsSelection = VisualSelection.createRowsSelection(getFxNode().getSelectionModel().getSelectedIndices());
+        FXProperties.setIfNotEquals(getNode().visualSelectionProperty(), rowsSelection);
+        syncingVisualSelectionFromTableView = false;
+    }
+
+    private void syncTableViewSelectionFromVisualSelection() {
+        updateVisualSelection(getNode().getVisualSelection());
     }
 
     @Override
     public void updateVisualSelection(VisualSelection selection) {
-        if (!syncingVisualSelection) {
-            syncingVisualSelection = true;
-            TableView.TableViewSelectionModel<Integer> selectionModel = getFxNode().getSelectionModel();
-            selectionModel.clearSelection();
-            if (selection != null)
-                selection.forEachRow(selectionModel::select);
-            syncingVisualSelection = false;
-        }
+        // Preventing reentrant calls from internal operations
+        if (syncingVisualSelectionFromTableView)
+            return;
+
+        enableSyncVisualSelectionFromTableView = false;
+        TableView.TableViewSelectionModel<Integer> selectionModel = getFxNode().getSelectionModel();
+        selectionModel.clearSelection();
+        if (selection != null)
+            selection.forEachRow(selectionModel::select);
+        enableSyncVisualSelectionFromTableView = true;
     }
 
     @Override
@@ -238,11 +252,14 @@ public final class FxVisualGridPeer
             if (tableView.getItems().isEmpty() && rowCount > 0)
                 currentColumns.clear();
             getNodePeerBase().fillGrid(rs);
+            enableSyncVisualSelectionFromTableView = false;
             tableView.getSelectionModel().clearSelection(); // To avoid internal java 8 API call on Android
             tableView.getColumns().setAll(newColumns);
             currentColumns = newColumns = null;
             tableView.getSelectionModel().clearSelection(); // Clearing selection otherwise an undesired selection event is triggered on new items
             tableView.getItems().setAll(new IdentityList(rowCount));
+            enableSyncVisualSelectionFromTableView = true;
+            syncTableViewSelectionFromVisualSelection();
             if (rowCount > 0) { // Workaround for the JavaFX wrong resize columns problem when vertical scroll bar appears
                 tableView.setColumnResizePolicy(TableView.UNCONSTRAINED_RESIZE_POLICY);
                 UiScheduler.scheduleDelay(100, () -> tableView.setColumnResizePolicy(TableView.CONSTRAINED_RESIZE_POLICY));

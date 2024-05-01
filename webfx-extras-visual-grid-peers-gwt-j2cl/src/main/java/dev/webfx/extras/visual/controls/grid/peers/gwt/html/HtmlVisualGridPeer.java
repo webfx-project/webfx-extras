@@ -145,7 +145,6 @@ public final class HtmlVisualGridPeer
     @Override
     public void updateVisualResult(VisualResult rs) {
         VisualGrid visualGrid = getNode();
-        visualGrid.setVisualSelection(null);
         NB base = getNodePeerBase();
         HtmlUtil.removeChildren(tHeadRow);
         HtmlUtil.removeChildren(tBody);
@@ -187,6 +186,10 @@ public final class HtmlVisualGridPeer
             visualGrid.setPrefHeight(height);
             visualGrid.setMaxHeight(height);
         }
+        // Since we just created a new html table (with no selection), we need to apply the selection again at this
+        // point. This is important for example to not loose the selection when receiving a server push notication
+        // that updates the content of this visual grid.
+        updateVisualSelection(visualGrid.getVisualSelection());
     }
 
     @Override

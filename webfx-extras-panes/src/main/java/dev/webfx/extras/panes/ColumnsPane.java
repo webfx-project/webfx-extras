@@ -11,7 +11,9 @@ import java.util.List;
 /**
  * @author Bruno Salmon
  */
-public class ColumnsPane extends Pane {
+public final class ColumnsPane extends Pane {
+
+    private double fixedColumnWidth = -1;
 
     public ColumnsPane() {
     }
@@ -25,17 +27,31 @@ public class ColumnsPane extends Pane {
         return Orientation.HORIZONTAL;
     }
 
+    public double getFixedColumnWidth() {
+        return fixedColumnWidth;
+    }
+
+    public void setFixedColumnWidth(double fixedColumnWidth) {
+        this.fixedColumnWidth = fixedColumnWidth;
+    }
+
     @Override
     protected void layoutChildren() {
         List<Node> children = getManagedChildren();
         if (children.isEmpty())
             return;
         double width = getWidth(), height = getHeight();
-        double x = 0, y = 0, colWidth = width / children.size();
+        double x = 0, y = 0, colWidth = getColWidth(width, children.size());
         for (Node child : children) {
-            layoutInArea(child, x, y, colWidth, height, 0, null, true, true, HPos.CENTER, VPos.CENTER);
+            layoutInArea(child, x, y, colWidth, height, 0, HPos.CENTER, VPos.CENTER);
             x += colWidth;
         }
+    }
+
+    private double getColWidth(double totalWidth, int childrenSize) {
+        if (fixedColumnWidth > 0)
+            return fixedColumnWidth;
+        return totalWidth / childrenSize;
     }
 
     @Override

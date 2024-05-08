@@ -7,7 +7,7 @@ import javafx.scene.layout.BorderPane;
 /**
  * @author Bruno Salmon
  */
-public class ScalableBorderPane extends BorderPane implements Scalable {
+public final class ScalableBorderPane extends BorderPane implements Scalable {
 
     @Override
     public void prepareScale(double additionalContentHeight, ScaleComputer scaleComputer) {

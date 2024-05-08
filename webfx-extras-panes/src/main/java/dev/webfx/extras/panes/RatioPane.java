@@ -8,7 +8,7 @@ import javafx.scene.Node;
 /**
  * @author Bruno Salmon
  */
-public class RatioPane extends MonoPane {
+public final class RatioPane extends MonoPane {
 
     private final DoubleProperty ratioProperty = new SimpleDoubleProperty(1) {
         @Override

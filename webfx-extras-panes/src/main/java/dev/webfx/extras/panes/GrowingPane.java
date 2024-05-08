@@ -5,7 +5,7 @@ import javafx.scene.Node;
 /**
  * @author Bruno Salmon
  */
-public class GrowingPane extends MonoPane {
+public final class GrowingPane extends MonoPane {
 
     private double minContentMinWidth, minContentPrefWidth, minContentMaxWidth;
     private double minContentMinHeight, minContentPrefHeight, minContentMaxHeight;

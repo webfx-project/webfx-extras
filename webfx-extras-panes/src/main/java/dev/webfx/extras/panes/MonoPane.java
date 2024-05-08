@@ -1,5 +1,6 @@
 package dev.webfx.extras.panes;
 
+import dev.webfx.platform.util.collection.Collections;
 import javafx.beans.InvalidationListener;
 import javafx.beans.Observable;
 import javafx.beans.property.ObjectProperty;
@@ -17,6 +18,14 @@ import javafx.scene.layout.Pane;
 public class MonoPane extends Pane {
 
     protected Node content;
+    protected boolean internalSync;
+
+    private final ObjectProperty<Node> contentProperty = new SimpleObjectProperty<>() {
+        @Override
+        protected void invalidated() {
+            onContentChanged(get());
+        }
+    };
 
     private final ObjectProperty<Pos> alignmentProperty = new SimpleObjectProperty<>(Pos.CENTER) {
         protected void invalidated() {
@@ -28,12 +37,13 @@ public class MonoPane extends Pane {
         getChildren().addListener(new InvalidationListener() {
             @Override
             public void invalidated(Observable observable) {
-                if (getChildren().isEmpty())
-                    content = null;
-                else if (getChildren().size() == 1)
-                    content = getChildren().get(0);
-                else
+                if (internalSync)
+                    return;
+                if (getChildren().size() > 1)
                     throw new IllegalStateException();
+                internalSync = true;
+                setContent(Collections.first(getChildren()));
+                internalSync = false;
             }
         });
     }
@@ -46,14 +56,27 @@ public class MonoPane extends Pane {
     }
 
     public Node getContent() {
-        return content;
+        return contentProperty.get();
+    }
+
+    public ObjectProperty<Node> contentProperty() {
+        return contentProperty;
     }
 
     public void setContent(Node content) {
-        if (content == null)
-            getChildren().clear();
-        else if (content != this.content) // Skipping if same content - important for WebView in browser (resetting iFrame will unload it)
-            getChildren().setAll(content);
+        contentProperty.set(content);
+    }
+
+    protected void onContentChanged(Node newContent) {
+        if (!internalSync) {
+            internalSync = true;
+            if (newContent == null)
+                getChildren().clear();
+            else if (newContent != content) // Skipping if same newContent - important for WebView in browser (resetting iFrame will unload it)
+                getChildren().setAll(newContent);
+            internalSync = false;
+        }
+        content = newContent;
     }
 
     public Pos getAlignment() {

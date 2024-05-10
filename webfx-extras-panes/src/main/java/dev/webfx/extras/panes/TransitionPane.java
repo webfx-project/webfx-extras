@@ -2,6 +2,9 @@ package dev.webfx.extras.panes;
 
 import dev.webfx.extras.util.animation.Animations;
 import javafx.animation.Timeline;
+import javafx.beans.property.BooleanProperty;
+import javafx.beans.property.ReadOnlyBooleanProperty;
+import javafx.beans.property.SimpleBooleanProperty;
 import javafx.geometry.HPos;
 import javafx.scene.Node;
 
@@ -15,6 +18,7 @@ public final class TransitionPane extends MonoClipPane {
 
     private HPos direction = HPos.LEFT;
     private ColumnsPane columnsPane;
+    private final BooleanProperty transitingProperty = new SimpleBooleanProperty();
 
     public TransitionPane() {
     }
@@ -32,7 +36,11 @@ public final class TransitionPane extends MonoClipPane {
     }
 
     public boolean isTransiting() {
-        return columnsPane != null;
+        return transitingProperty.get();
+    }
+
+    public ReadOnlyBooleanProperty transitingProperty() {
+        return transitingProperty;
     }
 
     @Override
@@ -42,33 +50,30 @@ public final class TransitionPane extends MonoClipPane {
         if (content == null || newContent == null)
             super.onContentChanged(newContent);
         else {
-            double w = getWidth(), h = getHeight();
+            double w = getWidth();
             if (columnsPane != null)
                 columnsPane.getChildren().clear();
             ColumnsPane cp = columnsPane = new ColumnsPane();
+            cp.setMinWidth(w);
+            cp.setPrefWidth(w);
+            cp.setMaxWidth(w);
             cp.setFixedColumnWidth(w);
-            if (direction == HPos.LEFT)
-                cp.getChildren().setAll(content, newContent);
-            else {
-                cp.getChildren().setAll(newContent, content);
+            if (direction == HPos.LEFT) // transition from right to left
+                cp.getChildren().setAll(content, newContent); // new content entering from the right
+            else { // transition from left to right
+                cp.getChildren().setAll(newContent, content); // new content entering from the left
                 cp.setTranslateX(-w);
             }
-            cp.setMinSize(w, h);
-            cp.setPrefSize(w, h);
-            cp.setMaxSize(w, h);
-            internalSync = true;
-            getChildren().setAll(content = cp);
-            internalSync = false;
+            super.onContentChanged(cp);
+            transitingProperty.set(true);
             Timeline timeline = Animations.animateProperty(cp.translateXProperty(), direction == HPos.LEFT ? -w : 0);
             timeline.setOnFinished(e -> {
                         if (content == cp) {
-                            columnsPane = null;
-                            internalSync = true;
-                            setContent(newContent);
-                            getChildren().setAll(content = newContent);
-                            internalSync = false;
+                            transitingProperty.set(false);
+                            super.onContentChanged(newContent);
                         }
                     });
+            Animations.scrollToTop(newContent);
         }
     }
 }

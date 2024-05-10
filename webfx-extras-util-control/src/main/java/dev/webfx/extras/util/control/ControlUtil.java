@@ -1,6 +1,7 @@
 package dev.webfx.extras.util.control;
 
 import dev.webfx.extras.panes.ScalePane;
+import dev.webfx.extras.util.animation.Animations;
 import dev.webfx.extras.util.layout.LayoutUtil;
 import dev.webfx.kit.launcher.WebFxKitLauncher;
 import dev.webfx.kit.util.properties.FXProperties;
@@ -132,6 +133,17 @@ public class ControlUtil {
             }
         }
         return null;
+    }
+
+    public static void scrollToTop(Node node) {
+        ScrollPane scrollPaneAncestor = ControlUtil.findScrollPaneAncestor(node);
+        if (scrollPaneAncestor != null) {
+            Animations.animateProperty(scrollPaneAncestor.vvalueProperty(), 0);
+        }
+    }
+
+    static {
+        Animations.setScrollToTopFeature(ControlUtil::scrollToTop);
     }
 
 }

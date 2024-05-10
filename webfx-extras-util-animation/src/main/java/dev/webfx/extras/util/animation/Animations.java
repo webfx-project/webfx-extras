@@ -10,6 +10,8 @@ import javafx.scene.Node;
 import javafx.util.Duration;
 import dev.webfx.platform.util.Objects;
 
+import java.util.function.Consumer;
+
 /**
  * @author Bruno Salmon
  */
@@ -66,5 +68,21 @@ public final class Animations {
                 // Restoring the managed value
                 new KeyFrame(Duration.millis(1000), new KeyValue(node.managedProperty(), node.isManaged()))
         ).play();
+    }
+
+    // scrollToTop() feature that is not implemented here (because we don't want to introduce a dependency to
+    // javafx-control here), but its implementation is provided by dev.webfx.extras.util.control.ControlUtil.
+    // So modules that depend on javafx-graphics only can use it, it won't do anything if the final application doesn't
+    // use javafx-control (and therefore no ScrollPane), but it will if the final application uses it (and ControlUtil).
+
+    private static Consumer<Node> scrollToTopFeature;
+
+    public static void scrollToTop(Node content) {
+        if (scrollToTopFeature != null)
+            scrollToTopFeature.accept(content);
+    }
+
+    public static void setScrollToTopFeature(Consumer<Node> scrollToTopFeature) {
+        Animations.scrollToTopFeature = scrollToTopFeature;
     }
 }

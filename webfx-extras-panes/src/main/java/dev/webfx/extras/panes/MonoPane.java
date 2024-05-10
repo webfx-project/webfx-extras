@@ -5,7 +5,9 @@ import javafx.beans.InvalidationListener;
 import javafx.beans.Observable;
 import javafx.beans.property.ObjectProperty;
 import javafx.beans.property.SimpleObjectProperty;
-import javafx.geometry.*;
+import javafx.geometry.Insets;
+import javafx.geometry.Orientation;
+import javafx.geometry.Pos;
 import javafx.scene.Node;
 import javafx.scene.layout.Pane;
 
@@ -34,6 +36,7 @@ public class MonoPane extends Pane {
     };
 
     {
+        // Automatically setting the content field from the unique child when children is changed by the application code
         getChildren().addListener(new InvalidationListener() {
             @Override
             public void invalidated(Observable observable) {
@@ -64,7 +67,8 @@ public class MonoPane extends Pane {
     }
 
     public void setContent(Node content) {
-        contentProperty.set(content);
+        if (content != this.content)
+            contentProperty.set(content);
     }
 
     protected void onContentChanged(Node newContent) {
@@ -124,7 +128,7 @@ public class MonoPane extends Pane {
     }
 
     protected double computeContentMinWidth(double height) {
-        return content == null ?  0 : content.minWidth(height);
+        return content == null ? 0 : content.minWidth(height);
     }
 
     @Override
@@ -133,7 +137,7 @@ public class MonoPane extends Pane {
     }
 
     protected double computeContentMinHeight(double width) {
-        return content == null ?  0 : content.minHeight(width);
+        return content == null ? 0 : content.minHeight(width);
     }
 
     @Override
@@ -142,7 +146,7 @@ public class MonoPane extends Pane {
     }
 
     protected double computeContentPrefWidth(double height) {
-        return content == null ?  0 : content.prefWidth(height);
+        return content == null ? 0 : content.prefWidth(height);
     }
 
     @Override
@@ -151,7 +155,7 @@ public class MonoPane extends Pane {
     }
 
     protected double computeContentPrefHeight(double width) {
-        return content == null ?  0 : content.prefHeight(width);
+        return content == null ? 0 : content.prefHeight(width);
     }
 
     @Override
@@ -160,7 +164,7 @@ public class MonoPane extends Pane {
     }
 
     protected double computeContentMaxWidth(double height) {
-        return content == null ?  0 : content.maxWidth(height);
+        return content == null ? 0 : content.maxWidth(height);
     }
 
     @Override
@@ -169,7 +173,7 @@ public class MonoPane extends Pane {
     }
 
     protected double computeContentMaxHeight(double width) {
-        return content == null ?  0 : content.maxHeight(width);
+        return content == null ? 0 : content.maxHeight(width);
     }
 
 }

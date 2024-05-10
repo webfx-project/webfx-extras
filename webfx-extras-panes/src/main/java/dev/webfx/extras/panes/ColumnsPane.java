@@ -1,6 +1,7 @@
 package dev.webfx.extras.panes;
 
 import javafx.geometry.HPos;
+import javafx.geometry.Insets;
 import javafx.geometry.Orientation;
 import javafx.geometry.VPos;
 import javafx.scene.Node;
@@ -40,8 +41,9 @@ public final class ColumnsPane extends Pane {
         List<Node> children = getManagedChildren();
         if (children.isEmpty())
             return;
-        double width = getWidth(), height = getHeight();
-        double x = 0, y = 0, colWidth = getColWidth(width, children.size());
+        Insets insets = getInsets();
+        double width = getWidth() - insetsWidth(), height = getHeight() - insetsHeight();
+        double x = insets.getLeft(), y = insets.getTop(), colWidth = getColWidth(width, children.size());
         for (Node child : children) {
             layoutInArea(child, x, y, colWidth, height, 0, HPos.CENTER, VPos.CENTER);
             x += colWidth;
@@ -54,12 +56,22 @@ public final class ColumnsPane extends Pane {
         return totalWidth / childrenSize;
     }
 
+    private double insetsWidth() {
+        Insets insets = getInsets();
+        return insets.getLeft() + insets.getRight();
+    }
+
+    private double insetsHeight() {
+        Insets insets = getInsets();
+        return insets.getTop() + insets.getBottom();
+    }
+
     @Override
     protected double computeMinWidth(double height) {
         double minWidth = 0;
         for (Node child : getManagedChildren())
             minWidth += child.minWidth(height);
-        return minWidth;
+        return minWidth + insetsWidth();
     }
 
     @Override
@@ -71,7 +83,7 @@ public final class ColumnsPane extends Pane {
             for (Node child : children)
                 minHeight = Math.max(minHeight, child.minHeight(w));
         }
-        return minHeight;
+        return minHeight + insetsHeight();
     }
 
     @Override
@@ -79,7 +91,7 @@ public final class ColumnsPane extends Pane {
         double prefWidth = 0;
         for (Node child : getManagedChildren())
             prefWidth += child.prefWidth(height);
-        return prefWidth;
+        return prefWidth + insetsWidth();
     }
 
     @Override
@@ -91,7 +103,7 @@ public final class ColumnsPane extends Pane {
             for (Node child : children)
                 prefHeight = Math.max(prefHeight, child.prefHeight(w));
         }
-        return prefHeight;
+        return prefHeight + insetsHeight();
     }
 
     @Override
@@ -99,7 +111,7 @@ public final class ColumnsPane extends Pane {
         double maxWidth = 0;
         for (Node child : getManagedChildren())
             maxWidth += child.maxWidth(height);
-        return maxWidth;
+        return maxWidth + insetsWidth();
     }
 
     @Override
@@ -111,6 +123,6 @@ public final class ColumnsPane extends Pane {
             for (Node child : children)
                 maxHeight = Math.max(maxHeight, child.maxHeight(w));
         }
-        return maxHeight;
+        return maxHeight + insetsHeight();
     }
 }

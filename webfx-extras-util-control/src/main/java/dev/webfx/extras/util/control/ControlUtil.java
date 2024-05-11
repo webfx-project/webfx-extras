@@ -25,8 +25,8 @@ public class ControlUtil {
         return setupVerticalScrollPane(createScrollPane(), content);
     }
 
-    public static ScrollPane createVerticalScrollPaneWithPadding(Region content) {
-        return createVerticalScrollPane(LayoutUtil.createPadding(content));
+    public static ScrollPane createVerticalScrollPaneWithPadding(double padding, Region content) {
+        return createVerticalScrollPane(LayoutUtil.createPadding(content, padding));
     }
 
     public static ScrollPane setupVerticalScrollPane(ScrollPane scrollPane, Region content) {

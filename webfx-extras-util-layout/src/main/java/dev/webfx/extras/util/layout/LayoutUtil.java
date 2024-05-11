@@ -223,8 +223,8 @@ public final class LayoutUtil {
         return content;
     }
 
-    public static <N extends Region> N createPadding(N content) {
-        return setPadding(content, new Insets(10));
+    public static <N extends Region> N createPadding(N content, double padding) {
+        return setPadding(content, new Insets(padding));
     }
 
     public static <N extends Region> N removePadding(N content) {

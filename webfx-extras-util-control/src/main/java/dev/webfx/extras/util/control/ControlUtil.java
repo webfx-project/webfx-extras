@@ -135,15 +135,13 @@ public class ControlUtil {
         return null;
     }
 
-    public static void scrollToTop(Node node) {
-        ScrollPane scrollPaneAncestor = ControlUtil.findScrollPaneAncestor(node);
-        if (scrollPaneAncestor != null) {
-            Animations.animateProperty(scrollPaneAncestor.vvalueProperty(), 0);
-        }
-    }
-
     static {
-        Animations.setScrollToTopFeature(ControlUtil::scrollToTop);
+        Animations.setScrollPaneAncestorFinder(ControlUtil::findScrollPaneAncestor);
+        Animations.setScrollPaneValuePropertyGetter(node -> {
+            if (node instanceof ScrollPane)
+                return ((ScrollPane) node).vvalueProperty();
+            return null;
+        });
     }
 
 }

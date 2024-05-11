@@ -1,5 +1,6 @@
 package dev.webfx.extras.util.animation;
 
+import dev.webfx.platform.util.Objects;
 import javafx.animation.Interpolator;
 import javafx.animation.KeyFrame;
 import javafx.animation.KeyValue;
@@ -8,9 +9,8 @@ import javafx.beans.property.DoubleProperty;
 import javafx.beans.value.WritableValue;
 import javafx.scene.Node;
 import javafx.util.Duration;
-import dev.webfx.platform.util.Objects;
 
-import java.util.function.Consumer;
+import java.util.function.Function;
 
 /**
  * @author Bruno Salmon
@@ -70,19 +70,35 @@ public final class Animations {
         ).play();
     }
 
-    // scrollToTop() feature that is not implemented here (because we don't want to introduce a dependency to
-    // javafx-control here), but its implementation is provided by dev.webfx.extras.util.control.ControlUtil.
+    // scrollToTop() feature that is partially implemented here (because we don't want to introduce a dependency to
+    // javafx-control here), but its implementation is complemented by dev.webfx.extras.util.control.ControlUtil.
     // So modules that depend on javafx-graphics only can use it, it won't do anything if the final application doesn't
-    // use javafx-control (and therefore no ScrollPane), but it will if the final application uses it (and ControlUtil).
+    // use javafx-control (=> no ScrollPane), but it will if the final application uses it (and ControlUtil).
 
-    private static Consumer<Node> scrollToTopFeature;
-
-    public static void scrollToTop(Node content) {
-        if (scrollToTopFeature != null)
-            scrollToTopFeature.accept(content);
+    public static void scrollToTop(Node content, boolean animated) {
+        if (scrollPaneAncestorFinder != null && scrollPaneValuePropertyGetter != null) {
+            Node scrollPane = scrollPaneAncestorFinder.apply(content);
+            if (scrollPane != null) {
+                DoubleProperty valueProperty = scrollPaneValuePropertyGetter.apply(scrollPane);
+                if (valueProperty != null) {
+                    if (!animated)
+                        valueProperty.set(0);
+                    else
+                        animateProperty(valueProperty, 0);
+                }
+            }
+        }
     }
 
-    public static void setScrollToTopFeature(Consumer<Node> scrollToTopFeature) {
-        Animations.scrollToTopFeature = scrollToTopFeature;
+    private static Function<Node, Node> scrollPaneAncestorFinder;
+    private static Function<Node, DoubleProperty> scrollPaneValuePropertyGetter;
+
+    public static void setScrollPaneAncestorFinder(Function<Node, Node> scrollPaneAncestorFinder) {
+        Animations.scrollPaneAncestorFinder = scrollPaneAncestorFinder;
     }
+
+    public static void setScrollPaneValuePropertyGetter(Function<Node, DoubleProperty> scrollPaneValuePropertyGetter) {
+        Animations.scrollPaneValuePropertyGetter = scrollPaneValuePropertyGetter;
+    }
+
 }

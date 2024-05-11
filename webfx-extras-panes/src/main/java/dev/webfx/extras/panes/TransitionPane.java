@@ -73,7 +73,7 @@ public final class TransitionPane extends MonoClipPane {
                             super.onContentChanged(newContent);
                         }
                     });
-            Animations.scrollToTop(newContent);
+            Animations.scrollToTop(newContent, false);
         }
     }
 }

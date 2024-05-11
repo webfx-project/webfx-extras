@@ -6,6 +6,7 @@ import dev.webfx.extras.webtext.peers.base.HtmlTextPeerMixin;
 import dev.webfx.extras.webtext.util.WebTextUtil;
 import dev.webfx.kit.mapper.peers.javafxcontrols.gwtj2cl.html.HtmlControlPeer;
 import dev.webfx.kit.mapper.peers.javafxgraphics.HasNoChildrenPeers;
+import dev.webfx.kit.mapper.peers.javafxgraphics.emul_coupling.HasSizeChangedCallback;
 import dev.webfx.kit.mapper.peers.javafxgraphics.gwtj2cl.html.NormalWhiteSpacePeer;
 import dev.webfx.kit.mapper.peers.javafxgraphics.gwtj2cl.html.layoutmeasurable.HtmlLayoutMeasurable;
 import dev.webfx.kit.mapper.peers.javafxgraphics.gwtj2cl.util.HtmlPaints;
@@ -24,7 +25,7 @@ import javafx.scene.text.Font;
 public final class HtmlHtmlTextPeer
         <N extends HtmlText, NB extends HtmlTextPeerBase<N, NB, NM>, NM extends HtmlTextPeerMixin<N, NB, NM>>
         extends HtmlControlPeer<N, NB, NM>
-        implements HtmlTextPeerMixin<N, NB, NM>, HtmlLayoutMeasurable, NormalWhiteSpacePeer, HasNoChildrenPeers {
+        implements HtmlTextPeerMixin<N, NB, NM>, HtmlLayoutMeasurable/*NoVGrow?*/, NormalWhiteSpacePeer, HasNoChildrenPeers, HasSizeChangedCallback {
 
     public HtmlHtmlTextPeer() {
         this((NB) new HtmlTextPeerBase());
@@ -34,6 +35,20 @@ public final class HtmlHtmlTextPeer
         super(base, HtmlUtil.createElement("fx-htmltext"));
     }
 
+    private Runnable sizeChangedCallback;
+
+    @Override
+    public void setSizeChangedCallback(Runnable sizeChangedCallback) {
+        this.sizeChangedCallback = sizeChangedCallback;
+    }
+
+    private void onSizeChanged() {
+        clearCache();
+        // Informing WebFX that the size has changed to update the layout
+        if (sizeChangedCallback != null)
+            sizeChangedCallback.run();
+    }
+
     @Override
     public void updateText(String text) {
         String html = Strings.toSafeString(text);
@@ -41,13 +56,13 @@ public final class HtmlHtmlTextPeer
         getElement().innerHTML = html;
         if (html.contains("<script"))
             executeScripts(getElement());
-        clearCache();
+        onSizeChanged();
     }
 
     @Override
     public void updateFont(Font font) {
         setFontAttributes(font);
-        clearCache();
+        onSizeChanged();
     }
 
     @Override

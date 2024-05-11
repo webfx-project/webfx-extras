@@ -66,7 +66,7 @@ public final class HtmlHtmlTextEditorPeer
     }
 
     private String lastUpdateText; // last text passed to updateText() by application code
-    private String lastUpdateTextEditorData; // editor data corresponding to last text (may be reformatted by editor)
+    private String lastUpdateTextEditorData; // editor data corresponding to last text (maybe reformatted by editor)
 
     @Override
     public void updateText(String text) {

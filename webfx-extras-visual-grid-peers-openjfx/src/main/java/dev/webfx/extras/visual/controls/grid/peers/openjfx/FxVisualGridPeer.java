@@ -1,25 +1,5 @@
 package dev.webfx.extras.visual.controls.grid.peers.openjfx;
 
-import javafx.beans.property.SimpleObjectProperty;
-import javafx.beans.value.ObservableValue;
-import javafx.collections.ListChangeListener;
-import javafx.collections.ObservableList;
-import javafx.event.Event;
-import javafx.event.EventHandler;
-import javafx.geometry.Insets;
-import javafx.geometry.Pos;
-import javafx.scene.Node;
-import javafx.scene.Parent;
-import javafx.scene.control.*;
-import javafx.scene.control.skin.TableHeaderRow;
-import javafx.scene.control.skin.TableViewSkin;
-import javafx.scene.control.skin.VirtualFlow;
-import javafx.scene.input.ScrollEvent;
-import javafx.scene.layout.Background;
-import javafx.scene.layout.BackgroundFill;
-import javafx.scene.layout.Region;
-import javafx.scene.paint.Paint;
-import javafx.util.Callback;
 import dev.webfx.extras.cell.rowstyle.RowAdapter;
 import dev.webfx.extras.cell.rowstyle.RowStyleUpdater;
 import dev.webfx.extras.imagestore.ImageStore;
@@ -37,6 +17,25 @@ import dev.webfx.kit.mapper.peers.javafxgraphics.openjfx.FxRegionPeer;
 import dev.webfx.kit.util.properties.FXProperties;
 import dev.webfx.platform.uischeduler.UiScheduler;
 import dev.webfx.platform.util.collection.IdentityList;
+import javafx.beans.property.SimpleObjectProperty;
+import javafx.beans.value.ObservableValue;
+import javafx.collections.ListChangeListener;
+import javafx.collections.ObservableList;
+import javafx.event.Event;
+import javafx.event.EventHandler;
+import javafx.geometry.Insets;
+import javafx.geometry.Pos;
+import javafx.scene.Node;
+import javafx.scene.Parent;
+import javafx.scene.control.*;
+import javafx.scene.control.skin.TableHeaderRow;
+import javafx.scene.control.skin.TableViewSkin;
+import javafx.scene.control.skin.VirtualFlow;
+import javafx.scene.input.ScrollEvent;
+import javafx.scene.layout.Background;
+import javafx.scene.layout.Region;
+import javafx.scene.paint.Paint;
+import javafx.util.Callback;
 
 import java.lang.reflect.Method;
 import java.util.ArrayList;
@@ -65,12 +64,7 @@ public final class FxVisualGridPeer
         tableView.setColumnResizePolicy(TableView.CONSTRAINED_RESIZE_POLICY);
         // Disabling sort for now as the default sort policy doesn't work in Modality with ReactiveVisualMapper (the
         // selected line doesn't match the selected entity)
-        tableView.setSortPolicy(new Callback<TableView<Integer>, Boolean>() {
-            @Override
-            public Boolean call(TableView<Integer> param) {
-                return false;
-            }
-        });
+        tableView.setSortPolicy(param -> false);
         // Overriding the table skin for a better pref width computation, and height management (with fullHeight mode)
         try { // Try catch block for java 9 where TableViewSkin is not accessible anymore
             tableView.setSkin(new TableViewSkin<>(tableView) {
@@ -319,7 +313,7 @@ public final class FxVisualGridPeer
                     if (fill == null)
                         row.backgroundProperty().unbind();
                     else
-                        row.backgroundProperty().bind(new SimpleObjectProperty<>(new Background(new BackgroundFill(fill, null, null))));
+                        row.backgroundProperty().bind(new SimpleObjectProperty<>(Background.fill(fill)));
                 }
             }, this::getRowStyleClasses, this::getRowBackground);
             row.getProperties().put("nodeStyleUpdater", rowStyleUpdater); // keeping strong reference to avoid garbage collection

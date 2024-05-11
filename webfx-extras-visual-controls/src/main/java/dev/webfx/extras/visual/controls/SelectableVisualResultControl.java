@@ -1,11 +1,11 @@
 package dev.webfx.extras.visual.controls;
 
+import dev.webfx.extras.visual.HasSelectionModeProperty;
+import dev.webfx.extras.visual.HasVisualSelectionProperty;
+import dev.webfx.extras.visual.SelectionMode;
+import dev.webfx.extras.visual.VisualSelection;
 import javafx.beans.property.ObjectProperty;
 import javafx.beans.property.SimpleObjectProperty;
-import dev.webfx.extras.visual.VisualSelection;
-import dev.webfx.extras.visual.HasVisualSelectionProperty;
-import dev.webfx.extras.visual.HasSelectionModeProperty;
-import dev.webfx.extras.visual.SelectionMode;
 
 /**
  * @author Bruno Salmon
@@ -14,7 +14,7 @@ public abstract class SelectableVisualResultControl extends VisualResultControl 
         HasVisualSelectionProperty,
         HasSelectionModeProperty {
 
-    private final ObjectProperty<VisualSelection> visualSelectionProperty = new SimpleObjectProperty<>();
+    private final ObjectProperty<VisualSelection> visualSelectionProperty = VisualSelection.createVisualSelectionProperty();
     @Override
     public ObjectProperty<VisualSelection> visualSelectionProperty() {
         return visualSelectionProperty;

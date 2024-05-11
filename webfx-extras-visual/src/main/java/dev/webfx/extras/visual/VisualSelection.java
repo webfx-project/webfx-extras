@@ -1,5 +1,10 @@
 package dev.webfx.extras.visual;
 
+import dev.webfx.platform.console.Console;
+import javafx.beans.property.ObjectProperty;
+import javafx.beans.property.SimpleObjectProperty;
+import javafx.beans.value.ObservableValue;
+
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
@@ -214,6 +219,16 @@ public final class VisualSelection {
 
     public static boolean isEmptyOrSingleSelection(VisualSelection selection) {
         return isEmptySelection(selection) || isSingleSelection(selection);
+    }
+
+    public static ObjectProperty<VisualSelection> createVisualSelectionProperty() {
+        return new SimpleObjectProperty<>() {
+            @Override
+            public void bind(ObservableValue<? extends VisualSelection> newObservable) {
+                Console.log("⚠️ WARNING: please use bindBidirectional() rather than bind() when binding VisualSelection");
+                super.bind(newObservable);
+            }
+        };
     }
 
 }

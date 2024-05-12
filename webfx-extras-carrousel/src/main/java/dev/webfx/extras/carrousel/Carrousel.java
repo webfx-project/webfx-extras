@@ -12,9 +12,9 @@ import javafx.geometry.HPos;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.Node;
+import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.Region;
-import javafx.scene.layout.VBox;
 import javafx.scene.paint.Color;
 import javafx.scene.shape.Circle;
 
@@ -32,7 +32,7 @@ public final class Carrousel {
     private boolean loop = true;
     private final TransitionPane transitionPane = new TransitionPane();
     private final HBox dotsBox = new HBox(10);
-    private final VBox container = new VBox(transitionPane, dotsBox);
+    private final BorderPane container = new BorderPane(transitionPane);
 
     public Carrousel() {
         transitionPane.setMaxWidth(Double.MAX_VALUE);
@@ -40,7 +40,7 @@ public final class Carrousel {
         dotsBox.setAlignment(Pos.CENTER);
         dotsBox.getStyleClass().add("dots");
         ObservableLists.bind(dotsBox.getChildren(), dots);
-        //container.setBottom(dotsBox);
+        container.setBottom(dotsBox);
         dotsBox.setOnMouseClicked(e -> {
             if (e.getX() < dotsBox.getWidth() / 2)
                 moveBackward();

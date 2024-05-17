@@ -20,6 +20,7 @@ public final class TransitionPane extends MonoClipPane {
     private HPos direction = HPos.LEFT;
     private ColumnsPane columnsPane;
     private final BooleanProperty transitingProperty = new SimpleBooleanProperty();
+    private boolean animate = true;
 
     public TransitionPane() {
     }
@@ -34,6 +35,14 @@ public final class TransitionPane extends MonoClipPane {
 
     public void setDirection(HPos direction) {
         this.direction = direction;
+    }
+
+    public boolean isAnimate() {
+        return animate;
+    }
+
+    public void setAnimate(boolean animate) {
+        this.animate = animate;
     }
 
     public boolean isTransiting() {
@@ -77,7 +86,7 @@ public final class TransitionPane extends MonoClipPane {
             }
             super.onContentChanged(cp);
             transitingProperty.set(true);
-            Timeline timeline = Animations.animateProperty(cp.translateXProperty(), direction == HPos.LEFT ? -w : 0);
+            Timeline timeline = Animations.animateProperty(cp.translateXProperty(), direction == HPos.LEFT ? -w : 0, animate);
             timeline.setOnFinished(e -> {
                 if (content == cp) {
                     transitingProperty.set(false);

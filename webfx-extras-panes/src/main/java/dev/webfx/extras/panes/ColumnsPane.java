@@ -1,9 +1,8 @@
 package dev.webfx.extras.panes;
 
-import javafx.geometry.HPos;
-import javafx.geometry.Insets;
-import javafx.geometry.Orientation;
-import javafx.geometry.VPos;
+import javafx.beans.property.ObjectProperty;
+import javafx.beans.property.SimpleObjectProperty;
+import javafx.geometry.*;
 import javafx.scene.Node;
 import javafx.scene.layout.Pane;
 
@@ -15,6 +14,11 @@ import java.util.List;
 public final class ColumnsPane extends Pane {
 
     private double fixedColumnWidth = -1;
+    private final ObjectProperty<Pos> alignmentProperty = new SimpleObjectProperty<>(Pos.CENTER) {
+        protected void invalidated() {
+            requestLayout();
+        }
+    };
 
     public ColumnsPane() {
     }
@@ -36,6 +40,18 @@ public final class ColumnsPane extends Pane {
         this.fixedColumnWidth = fixedColumnWidth;
     }
 
+    public Pos getAlignment() {
+        return alignmentProperty.get();
+    }
+
+    public ObjectProperty<Pos> alignmentProperty() {
+        return alignmentProperty;
+    }
+
+    public void setAlignment(Pos alignment) {
+        this.alignmentProperty.set(alignment);
+    }
+
     @Override
     protected void layoutChildren() {
         List<Node> children = getManagedChildren();
@@ -44,8 +60,10 @@ public final class ColumnsPane extends Pane {
         Insets insets = getInsets();
         double width = getWidth() - insetsWidth(), height = getHeight() - insetsHeight();
         double x = insets.getLeft(), y = insets.getTop(), colWidth = getColWidth(width, children.size());
+        HPos hpos = getAlignment().getHpos();
+        VPos vpos = getAlignment().getVpos();
         for (Node child : children) {
-            layoutInArea(child, x, y, colWidth, height, 0, HPos.CENTER, VPos.CENTER);
+            layoutInArea(child, x, y, colWidth, height, 0, hpos, vpos);
             x += colWidth;
         }
     }

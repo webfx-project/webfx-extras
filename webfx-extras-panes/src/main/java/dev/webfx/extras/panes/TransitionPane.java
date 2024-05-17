@@ -5,6 +5,8 @@ import javafx.animation.Timeline;
 import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.ReadOnlyBooleanProperty;
 import javafx.beans.property.SimpleBooleanProperty;
+import javafx.event.ActionEvent;
+import javafx.event.EventHandler;
 import javafx.geometry.HPos;
 import javafx.scene.Node;
 import javafx.scene.layout.Region;
@@ -70,10 +72,10 @@ public final class TransitionPane extends MonoClipPane {
             cp.setFixedColumnWidth(w);
             cp.setAlignment(getAlignment());
             // Preventing the leaving node to increase in height if the entering node is bigger, as this breaks the
-            // smoothness of the transition
+            // smoothness of the transition animation (the next layout pass may suddenly move down that node)
             Region leavingNode = content instanceof Region ? (Region) content : null; // only for regions
             double leavingNodeMaxHeight; // memorising the previous max height (to reestablish it at transition end)
-            if (leavingNode != null) {
+            if (leavingNode != null && animate) { // necessary only when animated
                 leavingNodeMaxHeight = leavingNode.getMaxHeight();
                 leavingNode.setMaxHeight(getHeight());
             } else
@@ -86,8 +88,9 @@ public final class TransitionPane extends MonoClipPane {
             }
             super.onContentChanged(cp);
             transitingProperty.set(true);
+            Animations.scrollToTop(newContent, false);
             Timeline timeline = Animations.animateProperty(cp.translateXProperty(), direction == HPos.LEFT ? -w : 0, animate);
-            timeline.setOnFinished(e -> {
+            EventHandler<ActionEvent> onFinished = e -> {
                 if (content == cp) {
                     transitingProperty.set(false);
                     super.onContentChanged(newContent);
@@ -95,8 +98,11 @@ public final class TransitionPane extends MonoClipPane {
                 // Reestablishing the previous max height of the leaving node
                 if (leavingNode != null)
                     leavingNode.setMaxHeight(leavingNodeMaxHeight);
-            });
-            Animations.scrollToTop(newContent, false);
+            };
+            if (timeline != null)
+                timeline.setOnFinished(onFinished);
+            else // happens when animate is false
+                onFinished.handle(null);
         }
     }
 }

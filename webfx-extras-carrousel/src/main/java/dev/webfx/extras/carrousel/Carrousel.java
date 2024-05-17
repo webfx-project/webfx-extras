@@ -90,6 +90,20 @@ public final class Carrousel {
     public void moveBackward() {
         displaySlide(displayedSlideIndex - 1);
     }
+
+    public void displaySlide(Node slide) {
+        displaySlide(slide, true);
+    }
+
+    public void displaySlide(Node slide, boolean animate) {
+        for (int index = 0; index < slideSuppliers.size(); index++) {
+            if (slideSuppliers.get(index).get() == slide) {
+                displaySlide(index, animate);
+                break;
+            }
+        }
+    }
+
     public void displaySlide(int index) {
         displaySlide(index, true);
     }

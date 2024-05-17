@@ -90,8 +90,11 @@ public final class Carrousel {
     public void moveBackward() {
         displaySlide(displayedSlideIndex - 1);
     }
-
     public void displaySlide(int index) {
+        displaySlide(index, true);
+    }
+
+    public void displaySlide(int index, boolean animate) {
         transitionPane.setDirection(index > displayedSlideIndex ? HPos.LEFT : HPos.RIGHT);
         int size = slideSuppliers.size();
         // index correction when it's out of the slides range (i.e. < 0 or >= size)
@@ -107,6 +110,7 @@ public final class Carrousel {
         if (index != displayedSlideIndex || transitionPane.getContent() == null && !isTransiting()) {
             displayedSlideIndex = index;
             Node content = slideSuppliers.get(index).get();
+            transitionPane.setAnimate(animate);
             transitionPane.setContent(content);
         }
         updateDotsStyleClass();

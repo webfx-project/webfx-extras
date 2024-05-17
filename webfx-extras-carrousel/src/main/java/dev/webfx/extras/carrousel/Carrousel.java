@@ -5,6 +5,7 @@ import dev.webfx.kit.util.properties.ObservableLists;
 import dev.webfx.platform.util.Arrays;
 import dev.webfx.platform.util.collection.Collections;
 import javafx.application.Platform;
+import javafx.beans.property.ObjectProperty;
 import javafx.beans.property.ReadOnlyBooleanProperty;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
@@ -90,7 +91,7 @@ public final class Carrousel {
         displaySlide(displayedSlideIndex - 1);
     }
 
-    private void displaySlide(int index) {
+    public void displaySlide(int index) {
         transitionPane.setDirection(index > displayedSlideIndex ? HPos.LEFT : HPos.RIGHT);
         int size = slideSuppliers.size();
         // index correction when it's out of the slides range (i.e. < 0 or >= size)
@@ -121,6 +122,18 @@ public final class Carrousel {
 
     public Node getDisplayedSlide() {
         return transitionPane.getContent();
+    }
+
+    public Pos getAlignment() {
+        return transitionPane.getAlignment();
+    }
+
+    public ObjectProperty<Pos> alignmentProperty() {
+        return transitionPane.alignmentProperty();
+    }
+
+    public void setAlignment(Pos alignment) {
+        transitionPane.setAlignment(alignment);
     }
 
     private Circle createDot() {

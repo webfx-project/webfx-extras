@@ -7,6 +7,7 @@ import javafx.beans.property.ReadOnlyBooleanProperty;
 import javafx.beans.property.SimpleBooleanProperty;
 import javafx.geometry.HPos;
 import javafx.scene.Node;
+import javafx.scene.layout.Region;
 
 /**
  * This Pane creates an animation when changing its content, so the old node looks like leaving, and the new node looks
@@ -58,6 +59,16 @@ public final class TransitionPane extends MonoClipPane {
             cp.setPrefWidth(w);
             cp.setMaxWidth(w);
             cp.setFixedColumnWidth(w);
+            cp.setAlignment(getAlignment());
+            // Preventing the leaving node to increase in height if the entering node is bigger, as this breaks the
+            // smoothness of the transition
+            Region leavingNode = content instanceof Region ? (Region) content : null; // only for regions
+            double leavingNodeMaxHeight; // memorising the previous max height (to reestablish it at transition end)
+            if (leavingNode != null) {
+                leavingNodeMaxHeight = leavingNode.getMaxHeight();
+                leavingNode.setMaxHeight(getHeight());
+            } else
+                leavingNodeMaxHeight = -1;
             if (direction == HPos.LEFT) // transition from right to left
                 cp.getChildren().setAll(content, newContent); // new content entering from the right
             else { // transition from left to right
@@ -68,11 +79,14 @@ public final class TransitionPane extends MonoClipPane {
             transitingProperty.set(true);
             Timeline timeline = Animations.animateProperty(cp.translateXProperty(), direction == HPos.LEFT ? -w : 0);
             timeline.setOnFinished(e -> {
-                        if (content == cp) {
-                            transitingProperty.set(false);
-                            super.onContentChanged(newContent);
-                        }
-                    });
+                if (content == cp) {
+                    transitingProperty.set(false);
+                    super.onContentChanged(newContent);
+                }
+                // Reestablishing the previous max height of the leaving node
+                if (leavingNode != null)
+                    leavingNode.setMaxHeight(leavingNodeMaxHeight);
+            });
             Animations.scrollToTop(newContent, false);
         }
     }

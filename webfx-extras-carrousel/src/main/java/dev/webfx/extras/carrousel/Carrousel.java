@@ -109,8 +109,10 @@ public final class Carrousel {
     }
 
     public void displaySlide(int index, boolean animate) {
-        transitionPane.setDirection(index > displayedSlideIndex ? HPos.LEFT : HPos.RIGHT);
         int size = slideSuppliers.size();
+        if (size == 0)
+            return;
+        transitionPane.setDirection(index > displayedSlideIndex ? HPos.LEFT : HPos.RIGHT);
         // index correction when it's out of the slides range (i.e. < 0 or >= size)
         if (loop)
             index = (index + size) % size;

@@ -1,4 +1,4 @@
-package dev.webfx.extras.filepicker.spi.impl.gwt;
+package dev.webfx.extras.filepicker.spi.impl.gwtj2cl;
 
 import dev.webfx.extras.filepicker.spi.impl.FilePickerClickableRegion;
 import dev.webfx.kit.mapper.peers.javafxgraphics.SceneRequester;
@@ -7,6 +7,7 @@ import dev.webfx.kit.mapper.peers.javafxgraphics.base.RegionPeerMixin;
 import dev.webfx.kit.mapper.peers.javafxgraphics.gwtj2cl.html.HtmlRegionPeer;
 import dev.webfx.kit.mapper.peers.javafxgraphics.gwtj2cl.util.HtmlUtil;
 import dev.webfx.kit.util.properties.FXProperties;
+import dev.webfx.platform.console.Console;
 import elemental2.dom.FileList;
 import elemental2.dom.HTMLInputElement;
 import elemental2.dom.HTMLLabelElement;
@@ -38,6 +39,9 @@ public class HtmlFilePickerClickableRegionPeer
             for (int i = 0; i < webFiles.length; i++)
                 webFXFiles.add(dev.webfx.platform.file.File.create(webFiles.getAt(i)));
             getNode().getFileChooser().getSelectedFiles().setAll(webFXFiles);
+            // Resetting the input value to null, otherwise this listener won't be called again if the user opens the
+            // file picker again and chooses the same file(s)
+            fileInput.value = null;
         });
     }
 

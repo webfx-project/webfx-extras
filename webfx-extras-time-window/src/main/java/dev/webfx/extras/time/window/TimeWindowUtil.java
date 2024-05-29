@@ -34,7 +34,7 @@ public final class TimeWindowUtil {
 
     public static <T extends Temporal> void setTimeWindowStart(TimeWindow<T> timeWindow, T newStart, TemporalUnit temporalUnit) {
         long timeWindowDuration = getTimeWindowDuration(timeWindow, temporalUnit);
-        T newEnd = (T) timeWindow.getTimeWindowStart().plus(timeWindowDuration, temporalUnit);
+        T newEnd = (T) newStart.plus(timeWindowDuration - 1, temporalUnit);
         timeWindow.setTimeWindow(newStart, newEnd);
     }
 
@@ -44,6 +44,19 @@ public final class TimeWindowUtil {
 
     public static <T extends Temporal> void shiftTimeWindow(TimeWindow<T> timeWindow, long amount, TemporalUnit temporalUnit) {
         setTimeWindowStart(timeWindow, (T) timeWindow.getTimeWindowStart().plus(amount, temporalUnit), temporalUnit);
+    }
+
+    public static <T extends Temporal> void ensureTimeRangeVisible(TimeWindow<T> timeWindow, T rangeStart, T rangeEnd, TemporalUnit temporalUnit) {
+        // If the time range is before or after the time window, then it's not visible and we need to shift the time window
+        if (temporalUnit.between(rangeEnd, timeWindow.getTimeWindowStart()) > 0 || temporalUnit.between(timeWindow.getTimeWindowEnd(), rangeStart) > 0) {
+            // If the range is to big to fit in the time window, we start the time window to the range start
+            long rangeDuration = temporalUnit.between(rangeStart, rangeEnd);
+            if (rangeDuration > getTimeWindowDuration(timeWindow, temporalUnit)) {
+                setTimeWindowStart(timeWindow, rangeStart, temporalUnit);
+            } else { // otherwise we shift the time window so the range appears in the center
+                setTimeWindowCenter(timeWindow, (T) rangeStart.plus(rangeDuration / 2, temporalUnit), temporalUnit);
+            }
+        }
     }
 
 }

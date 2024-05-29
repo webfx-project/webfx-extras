@@ -1,6 +1,7 @@
 package dev.webfx.extras.util.control;
 
 import dev.webfx.extras.panes.ScalePane;
+import dev.webfx.extras.util.animation.Animations;
 import dev.webfx.extras.util.layout.LayoutUtil;
 import dev.webfx.kit.launcher.WebFxKitLauncher;
 import dev.webfx.kit.util.properties.FXProperties;
@@ -24,8 +25,8 @@ public class ControlUtil {
         return setupVerticalScrollPane(createScrollPane(), content);
     }
 
-    public static ScrollPane createVerticalScrollPaneWithPadding(Region content) {
-        return createVerticalScrollPane(LayoutUtil.createPadding(content));
+    public static ScrollPane createVerticalScrollPaneWithPadding(double padding, Region content) {
+        return createVerticalScrollPane(LayoutUtil.createPadding(content, padding));
     }
 
     public static ScrollPane setupVerticalScrollPane(ScrollPane scrollPane, Region content) {
@@ -132,6 +133,15 @@ public class ControlUtil {
             }
         }
         return null;
+    }
+
+    static {
+        Animations.setScrollPaneAncestorFinder(ControlUtil::findScrollPaneAncestor);
+        Animations.setScrollPaneValuePropertyGetter(node -> {
+            if (node instanceof ScrollPane)
+                return ((ScrollPane) node).vvalueProperty();
+            return null;
+        });
     }
 
 }

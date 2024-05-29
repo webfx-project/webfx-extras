@@ -12,7 +12,7 @@ import java.util.List;
 /**
  * @author Bruno Salmon
  */
-public class FlexColumnPane extends Pane implements Scalable {
+public final class FlexColumnPane extends Pane implements Scalable {
 
     private final static double hGap = 15, vGap = 15;
     private final static double minZoomFactorJustifyingColumnIncrease = 1.15;

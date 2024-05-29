@@ -4,6 +4,7 @@ import dev.webfx.extras.layer.interact.InteractiveLayer;
 import dev.webfx.extras.time.layout.CanLayout;
 import dev.webfx.extras.time.layout.MultilayerTimeLayout;
 import dev.webfx.extras.time.layout.TimeLayout;
+import dev.webfx.extras.time.projector.TimeProjector;
 import dev.webfx.extras.time.window.TimeWindowTransaction;
 import dev.webfx.extras.time.window.impl.ListenableTimeWindowImpl;
 import dev.webfx.extras.util.DirtyMarker;
@@ -31,6 +32,7 @@ public class MultilayerTimeLayoutImpl<T> extends ListenableTimeWindowImpl<T> imp
             //markLayoutAsDirty();
         }
     };
+    private TimeProjector<T> timeProjector;
     private final IntegerProperty layoutCountProperty = new SimpleIntegerProperty();
     private final ObservableList<TimeLayout<?, T>> layers = FXCollections.observableArrayList();
 
@@ -60,7 +62,22 @@ public class MultilayerTimeLayoutImpl<T> extends ListenableTimeWindowImpl<T> imp
     }
 
     @Override
+    public TimeProjector<T> getTimeProjector() {
+        return timeProjector;
+    }
+
+    @Override
+    public MultilayerTimeLayoutImpl<T> setTimeProjector(TimeProjector<T> timeProjector) {
+        this.timeProjector = timeProjector;
+        if (timeProjector != null)
+            layers.forEach(layer -> layer.setTimeProjector(timeProjector));
+        return this;
+    }
+
+    @Override
     public void addLayer(TimeLayout<?, T> layer) {
+        if (timeProjector != null)
+            layer.setTimeProjector(timeProjector);
         layers.add(layer);
         try (TimeWindowTransaction closable = TimeWindowTransaction.open()) {
             layer.timeWindowStartProperty().bind(timeWindowStartProperty);

@@ -8,6 +8,7 @@ module webfx.extras.visual {
     requires webfx.extras.cell;
     requires webfx.extras.label;
     requires webfx.extras.type;
+    requires webfx.platform.console;
     requires webfx.platform.util;
 
     // Exported packages

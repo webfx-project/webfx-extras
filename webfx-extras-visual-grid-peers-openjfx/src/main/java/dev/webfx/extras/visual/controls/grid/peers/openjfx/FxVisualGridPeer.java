@@ -1,24 +1,5 @@
 package dev.webfx.extras.visual.controls.grid.peers.openjfx;
 
-import javafx.beans.property.SimpleObjectProperty;
-import javafx.beans.value.ObservableValue;
-import javafx.collections.ListChangeListener;
-import javafx.collections.ObservableList;
-import javafx.event.Event;
-import javafx.event.EventHandler;
-import javafx.geometry.Insets;
-import javafx.geometry.Pos;
-import javafx.scene.Node;
-import javafx.scene.Parent;
-import javafx.scene.control.*;
-import javafx.scene.control.skin.TableViewSkin;
-import javafx.scene.control.skin.VirtualFlow;
-import javafx.scene.input.ScrollEvent;
-import javafx.scene.layout.Background;
-import javafx.scene.layout.BackgroundFill;
-import javafx.scene.layout.Region;
-import javafx.scene.paint.Paint;
-import javafx.util.Callback;
 import dev.webfx.extras.cell.rowstyle.RowAdapter;
 import dev.webfx.extras.cell.rowstyle.RowStyleUpdater;
 import dev.webfx.extras.imagestore.ImageStore;
@@ -36,6 +17,25 @@ import dev.webfx.kit.mapper.peers.javafxgraphics.openjfx.FxRegionPeer;
 import dev.webfx.kit.util.properties.FXProperties;
 import dev.webfx.platform.uischeduler.UiScheduler;
 import dev.webfx.platform.util.collection.IdentityList;
+import javafx.beans.property.SimpleObjectProperty;
+import javafx.beans.value.ObservableValue;
+import javafx.collections.ListChangeListener;
+import javafx.collections.ObservableList;
+import javafx.event.Event;
+import javafx.event.EventHandler;
+import javafx.geometry.Insets;
+import javafx.geometry.Pos;
+import javafx.scene.Node;
+import javafx.scene.Parent;
+import javafx.scene.control.*;
+import javafx.scene.control.skin.TableHeaderRow;
+import javafx.scene.control.skin.TableViewSkin;
+import javafx.scene.control.skin.VirtualFlow;
+import javafx.scene.input.ScrollEvent;
+import javafx.scene.layout.Background;
+import javafx.scene.layout.Region;
+import javafx.scene.paint.Paint;
+import javafx.util.Callback;
 
 import java.lang.reflect.Method;
 import java.util.ArrayList;
@@ -59,9 +59,13 @@ public final class FxVisualGridPeer
     @Override
     protected TableView<Integer> createFxNode() {
         TableView<Integer> tableView = new TableView<>();
-        tableView.setColumnResizePolicy(TableView.CONSTRAINED_RESIZE_POLICY);
         tableView.setRowFactory(createRowFactory());
-        tableView.getSelectionModel().getSelectedIndices().addListener((ListChangeListener<Integer>) c -> updateNodeVisualSelection());
+        tableView.getSelectionModel().getSelectedIndices().addListener((ListChangeListener<Integer>) c -> syncVisualSelectionFromTableViewIfEnabled());
+        tableView.setColumnResizePolicy(TableView.CONSTRAINED_RESIZE_POLICY);
+        // Disabling sort for now as the default sort policy doesn't work in Modality with ReactiveVisualMapper (the
+        // selected line doesn't match the selected entity)
+        tableView.setSortPolicy(param -> false);
+        // Overriding the table skin for a better pref width computation, and height management (with fullHeight mode)
         try { // Try catch block for java 9 where TableViewSkin is not accessible anymore
             tableView.setSkin(new TableViewSkin<>(tableView) {
                 @Override
@@ -117,6 +121,29 @@ public final class FxVisualGridPeer
                     }
                     return pw;
                 }
+                @Override
+                protected double computeMinHeight(double width, double topInset, double rightInset, double bottomInset, double leftInset) {
+                    N visualGrid = FxVisualGridPeer.this.getNode();
+                    if (visualGrid == null || !visualGrid.isFullHeight())
+                        return super.computeMinHeight(width, topInset, rightInset, bottomInset, leftInset);
+                    return computeTableViewFullHeight(tableView); // TODO: omtimize and prevent 3 calls for min/pref/max
+                }
+
+                @Override
+                protected double computePrefHeight(double width, double topInset, double rightInset, double bottomInset, double leftInset) {
+                    N visualGrid = FxVisualGridPeer.this.getNode();
+                    if (visualGrid == null || !visualGrid.isFullHeight())
+                        return super.computePrefHeight(width, topInset, rightInset, bottomInset, leftInset);
+                    return computeTableViewFullHeight(tableView); // TODO: omtimize and prevent 3 calls for min/pref/max
+                }
+
+                @Override
+                protected double computeMaxHeight(double width, double topInset, double rightInset, double bottomInset, double leftInset) {
+                    N visualGrid = FxVisualGridPeer.this.getNode();
+                    if (visualGrid == null || !visualGrid.isFullHeight())
+                        return super.computeMaxHeight(width, topInset, rightInset, bottomInset, leftInset);
+                    return computeTableViewFullHeight(tableView); // TODO: omtimize and prevent 3 calls for min/pref/max
+                }
             });
         } catch (Throwable e) { // Probably java 9
             System.out.println("FxDataGridPeer can't access TableViewSkin to override computePrefWidth() -- Java 9 issue");
@@ -127,10 +154,10 @@ public final class FxVisualGridPeer
     @Override
     protected void onFxNodeCreated() {
         TableView<Integer> tableView = getFxNode();
-        N node = getNode();
-        tableView.prefHeightProperty().bind(node.prefHeightProperty());
-        tableView.minHeightProperty().bind(node.minHeightProperty());
-        tableView.maxHeightProperty().bind(node.maxHeightProperty());
+        N visualGrid = getNode();
+        tableView.minHeightProperty().bind(visualGrid.minHeightProperty());
+        tableView.prefHeightProperty().bind(visualGrid.prefHeightProperty());
+        tableView.maxHeightProperty().bind(visualGrid.maxHeightProperty());
     }
 
     @Override
@@ -144,26 +171,40 @@ public final class FxVisualGridPeer
         getFxNode().getSelectionModel().setSelectionMode(fxSelectionMode);
     }
 
-    private boolean syncingVisualSelection;
+    private boolean enableSyncVisualSelectionFromTableView;
+    private boolean syncingVisualSelectionFromTableView;
 
-    private void updateNodeVisualSelection() {
-        if (!syncingVisualSelection) {
-            syncingVisualSelection = true;
-            getNode().setVisualSelection(VisualSelection.createRowsSelection(getFxNode().getSelectionModel().getSelectedIndices()));
-            syncingVisualSelection = false;
-        }
+    private void syncVisualSelectionFromTableViewIfEnabled() {
+        // Skipping if not enabled
+        if (!enableSyncVisualSelectionFromTableView)
+            return;
+
+        // Preventing reentrant calls from internal operations
+        if (syncingVisualSelectionFromTableView)
+            return;
+
+        syncingVisualSelectionFromTableView = true;
+        VisualSelection rowsSelection = VisualSelection.createRowsSelection(getFxNode().getSelectionModel().getSelectedIndices());
+        FXProperties.setIfNotEquals(getNode().visualSelectionProperty(), rowsSelection);
+        syncingVisualSelectionFromTableView = false;
+    }
+
+    private void syncTableViewSelectionFromVisualSelection() {
+        updateVisualSelection(getNode().getVisualSelection());
     }
 
     @Override
     public void updateVisualSelection(VisualSelection selection) {
-        if (!syncingVisualSelection) {
-            syncingVisualSelection = true;
-            TableView.TableViewSelectionModel<Integer> selectionModel = getFxNode().getSelectionModel();
-            selectionModel.clearSelection();
-            if (selection != null)
-                selection.forEachRow(selectionModel::select);
-            syncingVisualSelection = false;
-        }
+        // Preventing reentrant calls from internal operations
+        if (syncingVisualSelectionFromTableView)
+            return;
+
+        enableSyncVisualSelectionFromTableView = false;
+        TableView.TableViewSelectionModel<Integer> selectionModel = getFxNode().getSelectionModel();
+        selectionModel.clearSelection();
+        if (selection != null)
+            selection.forEachRow(selectionModel::select);
+        enableSyncVisualSelectionFromTableView = true;
     }
 
     @Override
@@ -205,17 +246,18 @@ public final class FxVisualGridPeer
             if (tableView.getItems().isEmpty() && rowCount > 0)
                 currentColumns.clear();
             getNodePeerBase().fillGrid(rs);
+            enableSyncVisualSelectionFromTableView = false;
             tableView.getSelectionModel().clearSelection(); // To avoid internal java 8 API call on Android
             tableView.getColumns().setAll(newColumns);
             currentColumns = newColumns = null;
             tableView.getSelectionModel().clearSelection(); // Clearing selection otherwise an undesired selection event is triggered on new items
             tableView.getItems().setAll(new IdentityList(rowCount));
+            enableSyncVisualSelectionFromTableView = true;
+            syncTableViewSelectionFromVisualSelection();
             if (rowCount > 0) { // Workaround for the JavaFX wrong resize columns problem when vertical scroll bar appears
                 tableView.setColumnResizePolicy(TableView.UNCONSTRAINED_RESIZE_POLICY);
                 UiScheduler.scheduleDelay(100, () -> tableView.setColumnResizePolicy(TableView.CONSTRAINED_RESIZE_POLICY));
             }
-            if (dataGrid.isFullHeight())
-                fitHeightToContent(tableView, dataGrid);
         }
         dataGrid.requestLayout(); // this is essentially to clear the cached sized values (prefWith, etc...)
     }
@@ -271,7 +313,7 @@ public final class FxVisualGridPeer
                     if (fill == null)
                         row.backgroundProperty().unbind();
                     else
-                        row.backgroundProperty().bind(new SimpleObjectProperty<>(new Background(new BackgroundFill(fill, null, null))));
+                        row.backgroundProperty().bind(new SimpleObjectProperty<>(Background.fill(fill)));
                 }
             }, this::getRowStyleClasses, this::getRowBackground);
             row.getProperties().put("nodeStyleUpdater", rowStyleUpdater); // keeping strong reference to avoid garbage collection
@@ -296,45 +338,42 @@ public final class FxVisualGridPeer
         return base.getRowBackground(value);
     }
 
-    private static void fitHeightToContent(Control control, VisualGrid visualGrid) {
-        // Quick ugly hacked code to make the table height fit with the content
-        FXProperties.onPropertySet(control.skinProperty(), skin -> {
-            ObservableList<javafx.scene.Node> children = null;
-            if (skin instanceof Parent) // happens in java 7
-                children = ((Parent) skin).getChildrenUnmodifiable();
-            else if (skin instanceof SkinBase) // happens in java 8
-                children = ((SkinBase) skin).getChildren();
-            if (children != null) {
-                Insets insets = control.getInsets();
-                double h = insets.getTop() + insets.getBottom();
-                for (javafx.scene.Node node : new ArrayList<>(children)) {
-                    double nodePrefHeight = 0;
-                    // Note: not compatible with Java 9 (VirtualFlow made inaccessible)
+// Code not working anymore since Java 9 - can't access call VirtualFlow.getCellLength()
+    private static double computeTableViewFullHeight(TableView tableView) {
+        Insets insets = tableView.getInsets();
+        double h = insets.getTop() + insets.getBottom();
+        Skin<?> skin = tableView.getSkin();
+        ObservableList<javafx.scene.Node> children = null;
+        if (skin instanceof Parent) // happens in java 7
+            children = ((Parent) skin).getChildrenUnmodifiable();
+        else if (skin instanceof SkinBase) // happens in java 8
+            children = ((SkinBase) skin).getChildren();
+        if (children != null) {
+            double tableHeaderRowHeight = -1;
+            for (javafx.scene.Node node : new ArrayList<>(children)) {
+                double nodePrefHeight = 0;
+                if (node instanceof TableHeaderRow) {
+                    nodePrefHeight = tableHeaderRowHeight = node.prefHeight(-1);
+                } else if (node instanceof VirtualFlow) {
+                    VirtualFlow flow = (VirtualFlow) node;
+                    int size = tableView.getItems().size();
                     try {
-                        if (node instanceof VirtualFlow) { // the problem with Virtual Flow is that it limits the computation to the first 10 rows
-                            VirtualFlow flow = (VirtualFlow) node;
-                            if (control instanceof TableView) {
-                                int size = ((TableView) control).getItems().size();
-                                try {
-                                    Method m = flow.getClass().getDeclaredMethod("getCellLength", int.class);
-                                    m.setAccessible(true); // may raise an exception
-                                    for (int i = 0; i < size; i++)
-                                        nodePrefHeight += (Double) m.invoke(flow, i);
-                                } catch (Exception e) {
-                                    // If exception was raised, we just assume an empiric default height value:
-                                    nodePrefHeight += 32;
-                                }
-                            }
-                        }
-                    } catch (Throwable e) {
-                        // Java 9
+                        // Note: not compatible with Java 9+ (VirtualFlow made inaccessible)
+                        Method m = flow.getClass().getDeclaredMethod("getCellLength", int.class);
+                        m.setAccessible(true); // may raise an exception
+                        for (int i = 0; i < size; i++)
+                            nodePrefHeight += (Double) m.invoke(flow, i);
+                    } catch (Exception e) { // Java 9+
+                        // If exception was raised, we just assume an empiric default height value:
+                        double rowHeight = tableHeaderRowHeight; // Taking same height as table header by default
+                        if (rowHeight < 0) // If not set,
+                            rowHeight = 26; // taking empiric value
+                        nodePrefHeight += rowHeight * size;
                     }
-                    if (nodePrefHeight == 0)
-                        nodePrefHeight = node.prefHeight(-1);
-                    h += nodePrefHeight;
                 }
-                FXProperties.setIfNotBound(visualGrid.prefHeightProperty(), h);
+                h += nodePrefHeight;
             }
-        });
+        }
+        return h;
     }
 }

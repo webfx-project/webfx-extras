@@ -1,8 +1,8 @@
 package dev.webfx.extras.panes;
 
-import javafx.geometry.HPos;
-import javafx.geometry.Orientation;
-import javafx.geometry.VPos;
+import javafx.beans.property.ObjectProperty;
+import javafx.beans.property.SimpleObjectProperty;
+import javafx.geometry.*;
 import javafx.scene.Node;
 import javafx.scene.layout.Pane;
 
@@ -11,7 +11,14 @@ import java.util.List;
 /**
  * @author Bruno Salmon
  */
-public class ColumnsPane extends Pane {
+public final class ColumnsPane extends Pane {
+
+    private double fixedColumnWidth = -1;
+    private final ObjectProperty<Pos> alignmentProperty = new SimpleObjectProperty<>(Pos.CENTER) {
+        protected void invalidated() {
+            requestLayout();
+        }
+    };
 
     public ColumnsPane() {
     }
@@ -25,17 +32,56 @@ public class ColumnsPane extends Pane {
         return Orientation.HORIZONTAL;
     }
 
+    public double getFixedColumnWidth() {
+        return fixedColumnWidth;
+    }
+
+    public void setFixedColumnWidth(double fixedColumnWidth) {
+        this.fixedColumnWidth = fixedColumnWidth;
+    }
+
+    public Pos getAlignment() {
+        return alignmentProperty.get();
+    }
+
+    public ObjectProperty<Pos> alignmentProperty() {
+        return alignmentProperty;
+    }
+
+    public void setAlignment(Pos alignment) {
+        this.alignmentProperty.set(alignment);
+    }
+
     @Override
     protected void layoutChildren() {
         List<Node> children = getManagedChildren();
         if (children.isEmpty())
             return;
-        double width = getWidth(), height = getHeight();
-        double x = 0, y = 0, colWidth = width / children.size();
+        Insets insets = getInsets();
+        double width = getWidth() - insetsWidth(), height = getHeight() - insetsHeight();
+        double x = insets.getLeft(), y = insets.getTop(), colWidth = getColWidth(width, children.size());
+        HPos hpos = getAlignment().getHpos();
+        VPos vpos = getAlignment().getVpos();
         for (Node child : children) {
-            layoutInArea(child, x, y, colWidth, height, 0, null, true, true, HPos.CENTER, VPos.CENTER);
+            layoutInArea(child, x, y, colWidth, height, 0, hpos, vpos);
             x += colWidth;
         }
+    }
+
+    private double getColWidth(double totalWidth, int childrenSize) {
+        if (fixedColumnWidth > 0)
+            return fixedColumnWidth;
+        return totalWidth / childrenSize;
+    }
+
+    private double insetsWidth() {
+        Insets insets = getInsets();
+        return insets.getLeft() + insets.getRight();
+    }
+
+    private double insetsHeight() {
+        Insets insets = getInsets();
+        return insets.getTop() + insets.getBottom();
     }
 
     @Override
@@ -43,7 +89,7 @@ public class ColumnsPane extends Pane {
         double minWidth = 0;
         for (Node child : getManagedChildren())
             minWidth += child.minWidth(height);
-        return minWidth;
+        return minWidth + insetsWidth();
     }
 
     @Override
@@ -55,7 +101,7 @@ public class ColumnsPane extends Pane {
             for (Node child : children)
                 minHeight = Math.max(minHeight, child.minHeight(w));
         }
-        return minHeight;
+        return minHeight + insetsHeight();
     }
 
     @Override
@@ -63,7 +109,7 @@ public class ColumnsPane extends Pane {
         double prefWidth = 0;
         for (Node child : getManagedChildren())
             prefWidth += child.prefWidth(height);
-        return prefWidth;
+        return prefWidth + insetsWidth();
     }
 
     @Override
@@ -75,7 +121,7 @@ public class ColumnsPane extends Pane {
             for (Node child : children)
                 prefHeight = Math.max(prefHeight, child.prefHeight(w));
         }
-        return prefHeight;
+        return prefHeight + insetsHeight();
     }
 
     @Override
@@ -83,7 +129,7 @@ public class ColumnsPane extends Pane {
         double maxWidth = 0;
         for (Node child : getManagedChildren())
             maxWidth += child.maxWidth(height);
-        return maxWidth;
+        return maxWidth + insetsWidth();
     }
 
     @Override
@@ -95,6 +141,6 @@ public class ColumnsPane extends Pane {
             for (Node child : children)
                 maxHeight = Math.max(maxHeight, child.maxHeight(w));
         }
-        return maxHeight;
+        return maxHeight + insetsHeight();
     }
 }

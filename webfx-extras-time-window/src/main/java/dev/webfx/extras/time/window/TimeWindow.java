@@ -41,6 +41,11 @@ public interface TimeWindow<T> {
         timeWindowEndProperty().bindBidirectional(otherTimeWindow.timeWindowEndProperty());
     }
 
+    default void unbindTimeWindow() {
+        timeWindowStartProperty().unbind();
+        timeWindowEndProperty().unbind();
+    }
+
     default void setTimeWindow(T timeWindowStart, T timeWindowEnd) {
         boolean startUnchanged = Objects.equals(timeWindowStart, getTimeWindowStart());
         boolean endUnchanged = Objects.equals(timeWindowEnd, getTimeWindowEnd());

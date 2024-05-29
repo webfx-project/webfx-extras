@@ -53,6 +53,7 @@
         <module>webfx-extras-canvas-blob-openjfx</module>
         <module>webfx-extras-canvas-layer</module>
         <module>webfx-extras-canvas-pane</module>
+        <module>webfx-extras-carrousel</module>
         <module>webfx-extras-cell</module>
         <module>webfx-extras-filepicker</module>
         <module>webfx-extras-filepicker-gwt-j2cl</module>
@@ -86,6 +87,7 @@
         <module>webfx-extras-util-color</module>
         <module>webfx-extras-util-control</module>
         <module>webfx-extras-util-layout</module>
+        <module>webfx-extras-util-masterslave</module>
         <module>webfx-extras-util-paint</module>
         <module>webfx-extras-util-scene</module>
         <module>webfx-extras-visual</module>

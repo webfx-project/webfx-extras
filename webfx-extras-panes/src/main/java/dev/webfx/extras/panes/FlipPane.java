@@ -22,7 +22,7 @@ import javafx.util.Duration;
 /**
  * @author Bruno Salmon
  */
-public class FlipPane extends StackPane {
+public final class FlipPane extends StackPane {
 
     private final ObjectProperty<Node> frontProperty = new SimpleObjectProperty<>() {
         @Override

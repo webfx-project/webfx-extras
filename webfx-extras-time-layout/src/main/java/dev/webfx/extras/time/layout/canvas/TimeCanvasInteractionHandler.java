@@ -11,6 +11,7 @@ import javafx.scene.input.ScrollEvent;
 
 import java.time.temporal.Temporal;
 import java.time.temporal.TemporalUnit;
+import java.util.Objects;
 
 /**
  * @author Bruno Salmon
@@ -79,7 +80,11 @@ public class TimeCanvasInteractionHandler<T extends Temporal> implements CanvasI
 
     @Override
     public boolean handleScroll(ScrollEvent e, Canvas canvas) {
-        if (e.isControlDown()) {
+        // if the scroll time window feature is disabled on this canvas, we immediately return
+        if (isScrollTimeWindowDisabledOnCanvas(canvas)) {
+            return true; // -> Ok to continue propagation (ex: ScrollPane)
+        }
+        if (e.isControlDown()) { // Zoom in/out
             long duration = TimeWindowUtil.getTimeWindowDuration(timeWindow, temporalUnit);
             if (e.getDeltaY() > 0) // Mouse wheel up => Zoom in
                 duration = (long) (duration / 1.10);
@@ -87,11 +92,13 @@ public class TimeCanvasInteractionHandler<T extends Temporal> implements CanvasI
                 duration = Math.max(duration + 1, (long) (duration * 1.10));
             duration = Math.min(duration, 10_000);
             TimeWindowUtil.setTimeWindowDurationKeepCentered(timeWindow, duration, temporalUnit);
-            // We consume the event to prevent the standard scrolling while zooming
-            e.consume();
-            return false; // -> Stopping propagation
+        } else { // Horizontal scroll
+            long amount = e.getDeltaY() > 0 ? 1 : -1;
+            TimeWindowUtil.shiftTimeWindow(timeWindow, amount, temporalUnit);
         }
-        return true; // Otherwise ok to continue propagation
+        // We consume the event to prevent the standard scrolling while zooming
+        e.consume();
+        return false; // -> Stopping propagation
     }
 
     private void updateCanvasCursor(MouseEvent e, boolean mouseDown, Canvas canvas) {
@@ -104,6 +111,14 @@ public class TimeCanvasInteractionHandler<T extends Temporal> implements CanvasI
 
     private void selectObjectAt(double x, double y) {
         canSelectChild.selectChildAt(x, y);
+    }
+
+    public static void disableScrollTimeWindowOnCanvas(Canvas canvas) {
+        canvas.getProperties().put("disableScollTimeWindow", true);
+    }
+
+    public static boolean isScrollTimeWindowDisabledOnCanvas(Canvas canvas) {
+        return Objects.equals(canvas.getProperties().get("disableScollTimeWindow"), true);
     }
 
 }

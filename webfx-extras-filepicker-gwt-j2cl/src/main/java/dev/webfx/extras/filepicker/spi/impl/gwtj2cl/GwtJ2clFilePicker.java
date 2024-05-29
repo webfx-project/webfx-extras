@@ -1,4 +1,4 @@
-package dev.webfx.extras.filepicker.spi.impl.gwt;
+package dev.webfx.extras.filepicker.spi.impl.gwtj2cl;
 
 
 import dev.webfx.extras.filepicker.spi.impl.BaseFilePicker;
@@ -9,7 +9,7 @@ import static dev.webfx.kit.mapper.peers.javafxgraphics.NodePeerFactoryRegistry.
 /**
  * @author Bruno Salmon
  */
-public class GwtFilePicker extends BaseFilePicker {
+public class GwtJ2clFilePicker extends BaseFilePicker {
 
     static {
         registerNodePeerFactory(FilePickerClickableRegion.class, HtmlFilePickerClickableRegionPeer::new);

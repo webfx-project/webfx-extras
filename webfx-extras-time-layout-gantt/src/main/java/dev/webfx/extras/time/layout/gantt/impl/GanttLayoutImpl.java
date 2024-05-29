@@ -30,10 +30,11 @@ import java.util.stream.Stream;
 public class GanttLayoutImpl<C, T extends Temporal> extends TimeLayoutBase<C, T> implements GanttLayout<C, T> {
 
     // Input fields
-    private Function<C, ?> childParentReader;
-    private Function<C, ?> childGrandparentReader;
-    private Function<Object, ?> parentGrandparentReader;
-    private Function<C, Double> childTetrisMinWidthReader;
+    private Function<C, ?> childParentReader; // optional
+    private Function<C, ?> childGrandparentReader; // optional
+    private Function<C, Double> childYPositionGetter; // optional
+    private Function<Object, ?> parentGrandparentReader; // optional
+    private Function<C, Double> childTetrisMinWidthReader; // optional
     private HeaderPosition grandparentHeaderPosition = HeaderPosition.TOP;
     private double grandparentHeaderWidth = 150; // Used only for LEFT & RIGHT position
     private double grandparentHeaderHeight = 80; // arbitrary non-null default value (so grandparent rows will appear even if
@@ -111,6 +112,12 @@ public class GanttLayoutImpl<C, T extends Temporal> extends TimeLayoutBase<C, T>
     @Override
     public GanttLayoutImpl<C, T> setChildTetrisMinWidthReader(Function<C, Double> childTetrisMinWidthReader) {
         this.childTetrisMinWidthReader = childTetrisMinWidthReader;
+        return this;
+    }
+
+    @Override
+    public GanttLayoutImpl<C, T> setChildYPositionGetter(Function<C, Double> childYPositionGetter) {
+        this.childYPositionGetter = childYPositionGetter;
         return this;
     }
 
@@ -497,13 +504,19 @@ public class GanttLayoutImpl<C, T extends Temporal> extends TimeLayoutBase<C, T>
             childHeight = getChildFixedHeight();
         cb.setHeight(childHeight);
         // 2) Computing child y position
-        double vSpacing = getVSpacing();
-        int childRowIndex = gcb.getRowIndexInParentRow();
-        double y = gcb.getParentRow().getY() // top position of enclosing parent row
+        double y;
+        // If childYPositionGetter has been set, then we call it to get child y position
+        if (childYPositionGetter != null) {
+            y = childYPositionGetter.apply(cb.getObject());
+        } else { // Otherwise (general case) we compute y to reflect its row index within the parent row
+            double vSpacing = getVSpacing();
+            int childRowIndex = gcb.getRowIndexInParentRow();
+            y = gcb.getParentRow().getY() // top position of enclosing parent row
                 + vSpacing // top spacing
                 + (childHeight + vSpacing) * childRowIndex; // vertical shift of that particular child
-        if (isParentHeaderOnTop())
-            y += parentHeaderHeight;
+            if (isParentHeaderOnTop())
+                y += parentHeaderHeight;
+        }
         cb.setY(y);
     }
 

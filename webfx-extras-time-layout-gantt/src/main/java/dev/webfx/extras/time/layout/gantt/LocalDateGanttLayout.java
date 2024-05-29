@@ -33,6 +33,11 @@ public final class LocalDateGanttLayout<C> extends GanttLayoutImpl<C, LocalDate>
     }
 
     @Override
+    public LocalDateGanttLayout<C> setChildYPositionGetter(Function<C, Double> childYPositionGetter) {
+        return (LocalDateGanttLayout<C>) super.setChildYPositionGetter(childYPositionGetter);
+    }
+
+    @Override
     public LocalDateGanttLayout<C> setChildParentReader(Function<C, ?> childParentReader) {
         return (LocalDateGanttLayout<C>) super.setChildParentReader(childParentReader);
     }
@@ -149,37 +154,50 @@ public final class LocalDateGanttLayout<C> extends GanttLayoutImpl<C, LocalDate>
 
     // Static factory methods
 
-    public static LocalDateGanttLayout<Year> createYearLocalDateGanttLayout() {
-        LocalDateGanttLayout<Year> ganttLayout = new LocalDateGanttLayout<Year>()
-                .setInclusiveChildStartTimeReader(TimeUtil::getFirstDayOfYear)
-                .setInclusiveChildEndTimeReader(TimeUtil::getLastDayOfYear);
-        ganttLayout.setOnTimeWindowChanged((start, end) ->
-            ganttLayout.getChildren().setAll(TimeUtil.generateYears(Year.from(start), Year.from(end))));
+    public static LocalDateGanttLayout<LocalDate> createDayLocalDateGanttLayout() {
+        LocalDateGanttLayout<LocalDate> ganttLayout = new LocalDateGanttLayout<>();
+        ganttLayout.setOnTimeWindowChanged((start, end) -> populateDayLocalDateGanttLayout(ganttLayout, start, end));
         return ganttLayout;
     }
 
-    public static LocalDateGanttLayout<YearMonth> createYearMonthLocalDateGanttLayout() {
-        LocalDateGanttLayout<YearMonth> ganttLayout = new LocalDateGanttLayout<YearMonth>()
-                .setInclusiveChildStartTimeReader(TimeUtil::getFirstDayOfMonth)
-                .setInclusiveChildEndTimeReader(TimeUtil::getLastDayOfMonth);
-        ganttLayout.setOnTimeWindowChanged((start, end) ->
-            ganttLayout.getChildren().setAll(TimeUtil.generateYearMonths(YearMonth.from(start), YearMonth.from(end))));
-        return ganttLayout;
+    public static void populateDayLocalDateGanttLayout(LocalDateGanttLayout<LocalDate> ganttLayout, LocalDate start, LocalDate end) {
+        ganttLayout.getChildren().setAll(TimeUtil.generateLocalDates(start, end));
     }
 
     public static LocalDateGanttLayout<YearWeek> createYearWeekLocalDateGanttLayout() {
         LocalDateGanttLayout<YearWeek> ganttLayout = new LocalDateGanttLayout<YearWeek>()
                 .setInclusiveChildStartTimeReader(TimeUtil::getFirstDayOfWeek)
                 .setInclusiveChildEndTimeReader(TimeUtil::getLastDayOfWeek);
-        ganttLayout.setOnTimeWindowChanged((start, end) ->
-            ganttLayout.getChildren().setAll(TimeUtil.generateYearWeeks(YearWeek.from(start), YearWeek.from(end))));
+        ganttLayout.setOnTimeWindowChanged((start, end) -> populateYearWeekLocalDateGanttLayout(ganttLayout, start, end));
         return ganttLayout;
     }
 
-    public static LocalDateGanttLayout<LocalDate> createDayLocalDateGanttLayout() {
-        LocalDateGanttLayout<LocalDate> ganttLayout = new LocalDateGanttLayout<>();
-        ganttLayout.setOnTimeWindowChanged((start, end) ->
-                ganttLayout.getChildren().setAll(TimeUtil.generateLocalDates(start, end)));
+    public static void populateYearWeekLocalDateGanttLayout(LocalDateGanttLayout<YearWeek> ganttLayout, LocalDate start, LocalDate end) {
+        ganttLayout.getChildren().setAll(TimeUtil.generateYearWeeks(YearWeek.from(start), YearWeek.from(end)));
+    }
+
+    public static LocalDateGanttLayout<YearMonth> createYearMonthLocalDateGanttLayout() {
+        LocalDateGanttLayout<YearMonth> ganttLayout = new LocalDateGanttLayout<YearMonth>()
+                .setInclusiveChildStartTimeReader(TimeUtil::getFirstDayOfMonth)
+                .setInclusiveChildEndTimeReader(TimeUtil::getLastDayOfMonth);
+        ganttLayout.setOnTimeWindowChanged((start, end) -> populateYearMonthLocalDateGanttLayout(ganttLayout, start, end));
         return ganttLayout;
     }
+
+    public static void populateYearMonthLocalDateGanttLayout(LocalDateGanttLayout<YearMonth> ganttLayout, LocalDate start, LocalDate end) {
+        ganttLayout.getChildren().setAll(TimeUtil.generateYearMonths(YearMonth.from(start), YearMonth.from(end)));
+    }
+
+    public static LocalDateGanttLayout<Year> createYearLocalDateGanttLayout() {
+        LocalDateGanttLayout<Year> ganttLayout = new LocalDateGanttLayout<Year>()
+                .setInclusiveChildStartTimeReader(TimeUtil::getFirstDayOfYear)
+                .setInclusiveChildEndTimeReader(TimeUtil::getLastDayOfYear);
+        ganttLayout.setOnTimeWindowChanged((start, end) -> populateYearLocalDateGanttLayout(ganttLayout, start, end));
+        return ganttLayout;
+    }
+
+    public static void populateYearLocalDateGanttLayout(LocalDateGanttLayout<Year> ganttLayout, LocalDate start, LocalDate end) {
+        ganttLayout.getChildren().setAll(TimeUtil.generateYears(Year.from(start), Year.from(end)));
+    }
+
 }

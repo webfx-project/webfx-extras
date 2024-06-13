@@ -112,6 +112,7 @@
         <module>webfx-extras-webtext-registry</module>
         <module>webfx-extras-webtext-registry-spi</module>
         <module>webfx-extras-webtext-util</module>
+        <module>webfx-extras-webview-pane</module>
     </modules>
 
 </project>

@@ -1,4 +1,4 @@
-package dev.webfx.extras.player.video.impl;
+package dev.webfx.extras.webview.pane;
 
 import javafx.scene.paint.Paint;
 import javafx.scene.shape.Rectangle;
@@ -7,6 +7,11 @@ import javafx.scene.shape.Rectangle;
  * @author Bruno Salmon
  */
 public class ResizableRectangle extends Rectangle {
+
+    private double minWith = 0;
+    private double maxWith = Double.MAX_VALUE;
+    private double minHeight = 0;
+    private double maxHeight = Double.MAX_VALUE;
 
     public ResizableRectangle() {
     }
@@ -34,23 +39,33 @@ public class ResizableRectangle extends Rectangle {
         setHeight(height);
     }
 
+    public void setMinSize(double minWidth, double minHeight) {
+        this.minWith = minWidth;
+        this.minHeight = minHeight;
+    }
+
+    public void setMaxSize(double maxWidth, double maxHeight) {
+        this.maxWith = maxWidth;
+        this.maxHeight = maxHeight;
+    }
+
     @Override
     public double minWidth(double height) {
-        return 0;
+        return minWith;
     }
 
     @Override
     public double minHeight(double width) {
-        return 0;
+        return minHeight;
     }
 
     @Override
     public double maxWidth(double height) {
-        return Double.MAX_VALUE;
+        return maxWith;
     }
 
     @Override
     public double maxHeight(double width) {
-        return Double.MAX_VALUE;
+        return maxHeight;
     }
 }

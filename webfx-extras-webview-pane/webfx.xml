@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project>
+
+    <exported-packages>
+        <source-packages/>
+        <resource-packages/>
+    </exported-packages>
+
+    <embed-resources>
+        <resource>dev/webfx/extras/webview/pane/WebViewPane.js</resource>
+    </embed-resources>
+
+    <dependencies>
+        <used-by-source-modules/>
+    </dependencies>
+
+    <java-callbacks> <!-- not yet considered by WebFX CLI but will be in the future to automatically generate WebToJavaCallbacks super source in final executable GWT module -->
+        <callback-class name="dev.webfx.extras.webview.pane.WebViewPane">
+            <callback-method name="consoleLog">
+                <callback-argument class="java.lang.String"/>
+            </callback-method>
+            <callback-method name="consoleWarn">
+                <callback-argument class="java.lang.String"/>
+            </callback-method>
+            <callback-method name="consoleError">
+                <callback-argument class="java.lang.String"/>
+            </callback-method>
+        </callback-class>
+    </java-callbacks>
+
+    <graalvm-reflection-json> <!-- Should be generated from callbacks declaration instead -->
+        <![CDATA[
+[
+  {
+    "name" : "dev.webfx.extras.webview.pane.WebViewPane",
+    "methods" : [
+      { "name" : "consoleLog", "parameterTypes" : ["java.lang.String"] },
+      { "name" : "consoleWarn", "parameterTypes" : ["java.lang.String"] },
+      { "name" : "consoleError", "parameterTypes" : ["java.lang.String"] }
+    ]
+  }
+]
+        ]]>
+    </graalvm-reflection-json>
+
+</project>

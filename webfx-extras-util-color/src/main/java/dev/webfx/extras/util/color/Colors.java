@@ -18,9 +18,9 @@ public final class Colors {
     public static Color blendColors(Color fgc, double fgo, Color bgc, double bgo) {
         double opacity = 1 - (1 - fgo) * (1 - bgo);
         //if (r.A < 1.0e-6) return r; // Fully transparent -- R,G,B not important
-        double red = fgc.getRed() * fgo / opacity + bgc.getRed() * bgo * (1 - fgo) / opacity;
-        double green = fgc.getGreen() * fgo / opacity + bgc.getGreen() * bgo * (1 - fgo) / opacity;
-        double blue = fgc.getBlue() * fgo / opacity + bgc.getBlue() * bgo * (1 - fgo) / opacity;
+        double red   = Math.min(1, fgc.getRed()   * fgo / opacity + bgc.getRed()   * bgo * (1 - fgo) / opacity);
+        double green = Math.min(1, fgc.getGreen() * fgo / opacity + bgc.getGreen() * bgo * (1 - fgo) / opacity);
+        double blue  = Math.min(1, fgc.getBlue()  * fgo / opacity + bgc.getBlue()  * bgo * (1 - fgo) / opacity);
         return Color.color(red, green, blue, opacity);
     }
 

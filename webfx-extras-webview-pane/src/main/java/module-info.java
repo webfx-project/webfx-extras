@@ -11,6 +11,8 @@ module webfx.extras.webview.pane {
     requires webfx.kit.util;
     requires webfx.platform.console;
     requires webfx.platform.resource;
+    requires webfx.platform.scheduler;
+    requires webfx.platform.uischeduler;
     requires webfx.platform.useragent;
 
     // Exported packages

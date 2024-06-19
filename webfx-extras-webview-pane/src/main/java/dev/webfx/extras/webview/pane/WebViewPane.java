@@ -5,7 +5,10 @@ import dev.webfx.kit.util.properties.FXProperties;
 import dev.webfx.kit.util.properties.Unregisterable;
 import dev.webfx.platform.console.Console;
 import dev.webfx.platform.resource.Resource;
+import dev.webfx.platform.scheduler.Scheduled;
+import dev.webfx.platform.uischeduler.UiScheduler;
 import dev.webfx.platform.useragent.UserAgent;
+import javafx.application.Platform;
 import javafx.beans.InvalidationListener;
 import javafx.concurrent.Worker;
 import javafx.event.Event;
@@ -38,7 +41,8 @@ public class WebViewPane extends MonoPane {
     private PendingLoad pendingLoad;
     private boolean webWindowReadyNotified;
     private boolean unloading;
-    //private int gluonRetryCounter;
+    private boolean fitHeight;
+    private Scheduled fitHeightJob;
 
     public WebViewPane() {
         initWebEngine();
@@ -55,7 +59,6 @@ public class WebViewPane extends MonoPane {
         pendingLoad = null;
         webWindowReadyNotified = false;
         unloading = false;
-        //gluonRetryCounter = 0;
         /* Not yet supported by WebFX
         engine.getLoadWorker().exceptionProperty().addListener((obs, oldExc, newExc) -> {
             if (newExc != null) {
@@ -72,9 +75,8 @@ public class WebViewPane extends MonoPane {
         }
         if (webEngineStateListener != null)
             webEngineStateListener.unregister();
-        webEngineStateListener = FXProperties.runNowAndOnPropertiesChange(() -> {
-            processWebEngineState();
-            }, webEngine.getLoadWorker().stateProperty());
+        webEngineStateListener = FXProperties.runNowAndOnPropertiesChange(this::processWebEngineState,
+                webEngine.getLoadWorker().stateProperty());
     }
 
     public static boolean isBrowser() {
@@ -89,6 +91,15 @@ public class WebViewPane extends MonoPane {
         if (PARENT_BROWSER_WINDOW_SCRIPT_ENGINE != null) {
             PARENT_BROWSER_WINDOW_SCRIPT_ENGINE.executeScript(script);
         }
+    }
+
+    public boolean isFitHeight() {
+        return fitHeight;
+    }
+
+    public void setFitHeight(boolean fitHeight) {
+        this.fitHeight = fitHeight;
+        manageFitHeightJob();
     }
 
     public WebView getWebView() {
@@ -110,6 +121,7 @@ public class WebViewPane extends MonoPane {
 
     @Override
     public void setContent(Node content) {
+        manageFitHeightJob();
         if (content == getContent())
             return;
         if (content == webView) {
@@ -118,6 +130,32 @@ public class WebViewPane extends MonoPane {
             logDebug("Setting content to " + content);
         }
         super.setContent(content);
+    }
+
+    private void manageFitHeightJob() {
+        if (isWebViewDisplayed()) {
+            if (fitHeight && fitHeightJob == null) {
+                fitHeightJob = UiScheduler.schedulePeriodic(100, () -> {
+                    JSObject window = getWindow();
+                    if (window != null) {
+                        try {
+                            Object height = window.eval("document.documentElement.scrollHeight");
+                            if (height instanceof Number) {
+                                setPrefHeight(((Number) height).doubleValue());
+                            }
+                            Console.log(height);
+                        } catch (JSException e) {
+                            Console.log("Error when evaluating window height: " + e.getMessage());
+                        }
+                    }
+                });
+            }
+        } else {
+            if (fitHeightJob != null) {
+                fitHeightJob.cancel();
+                fitHeightJob = null;
+            }
+        }
     }
 
     public void loadFromUrl(String url, LoadOptions loadOptions, Boolean isGluonLayoutStabilized) {
@@ -152,28 +190,36 @@ public class WebViewPane extends MonoPane {
         initWebEngine(); // TODO investigate why
     }
 
+    private void displayWebViewIfStabilised() {
+        if (IS_GLUON && !isGluonLayoutStabilized)
+            return;
+        setContent(webView);
+    }
+
     public boolean isWebViewDisplayed() {
         return getContent() == webView;
     }
 
     public JSObject getWindow() {
-        if (isSeamless())
-            return PARENT_BROWSER_WINDOW;
         if (IS_GLUON && !isWebViewDisplayed()) // Calling webEngine on Gluon when webView causes a semi crash!
             return null;
-        if (webWindow != null && webWindow.toString() == null) {
-            logDebug("Resetting window because toString() is null");
-            webWindow = null;
-        }
-        if (webWindow == null) {
-            webWindowReadyNotified = false;
-            try {
-                webWindow = (JSObject) webEngine.executeScript("window");
-                if (DEBUG) {
-                    Console.logNative(webWindow);
+        if (isSeamless()) {
+            webWindow = PARENT_BROWSER_WINDOW;
+        } else {
+            if (webWindow != null && webWindow.toString() == null) {
+                logDebug("Resetting window because toString() is null");
+                webWindow = null;
+            }
+            if (webWindow == null) {
+                webWindowReadyNotified = false;
+                try {
+                    webWindow = (JSObject) webEngine.executeScript("window");
+                    if (DEBUG) {
+                        Console.logNative(webWindow);
+                    }
+                } catch (Exception e) {
+                    Console.log("Exception when trying to get window: " + e.getMessage());
                 }
-            } catch (Exception e) {
-                Console.log("Exception when trying to get window: " + e.getMessage());
             }
         }
         if (!webWindowReadyNotified && webWindow != null) {
@@ -199,21 +245,19 @@ public class WebViewPane extends MonoPane {
         }
     }
 
-    public boolean callWindow(String name, Object... args) {
+    public Object callWindow(String name, Object... args) {
         JSObject window = getWindow();
         if (window != null) {
-            logDebug("Calling window." + name + "()");
+            logDebug("Calling window." + name);
             try {
-                window.call(name, args);
-                return true;
+                return window.call(name, args);
             } catch (JSException e) {
-                logDebug("Calling window." + name + "() failed: " + e.getMessage());
-                return false;
+                logDebug("Calling window." + name + " failed: " + e.getMessage());
             }
         } else {
             logDebug("Can't call " + name + " as window is null");
-            return false;
         }
+        return null;
     }
 
     public boolean isRedirectConsole() {
@@ -255,19 +299,13 @@ public class WebViewPane extends MonoPane {
                     return;
                 } else {
                     if (pendingLoad != null)
-                        setContent(webView); // in case it was not yet done on Gluon before it was stabilised
+                        displayWebViewIfStabilised(); // in case it was not yet done
 
                     notifyWebEngineReady();
 
                     if (pendingLoad == null)
                         return;
 
-/*
-                    if (IS_GLUON && getWindow() == null && gluonRetryCounter++ < 20) { // Seems useless, window is not set until we call webEngine.loadUrl()
-                        UiScheduler.scheduleDelay(100, this::processWebEngineState);
-                        return;
-                    }
-*/
                     // Executing next task
                     if (pendingLoad.isUrl()) {
                         String url = pendingLoad.getUrl();
@@ -297,7 +335,7 @@ public class WebViewPane extends MonoPane {
                 }
                 break;
             case SUCCEEDED:
-                setContent(webView); // in case it was unloaded
+                displayWebViewIfStabilised(); // in case it was unloaded
                 notifyLoadSuccess();
                 break;
         }
@@ -318,10 +356,11 @@ public class WebViewPane extends MonoPane {
                 // One-time listener => we remove it
                 widthProperty().removeListener(gluonWidthListener);
                 gluonWidthListener = null;
-                // Now that the container has a stabilized size (which will be the size of the video player),
-                // we can set its content to the web view
-                //Platform.runLater(this::onGluonLayoutStabilized);
-                onGluonLayoutStabilized();
+                // Now that the container has a stabilized size (which will be the size of the video player), we can
+                // move on and attach the webview (will be done in onGluonLayoutStabilized). But we postpone this call
+                // with runLater(), otherwise the webview can be displayed at the wrong place (centered on left top
+                // corner of this WebViewPane). This postpone ensures the layout is completely finished.
+                Platform.runLater(this::onGluonLayoutStabilized);
             });
         }
     }
@@ -329,7 +368,7 @@ public class WebViewPane extends MonoPane {
     public void onGluonLayoutStabilized() {
         logDebug("Gluon stabilised");
         isGluonLayoutStabilized = true;
-        setContent(webView); // maybe needs runLater?
+        displayWebViewIfStabilised();
         processWebEngineState();
     }
 

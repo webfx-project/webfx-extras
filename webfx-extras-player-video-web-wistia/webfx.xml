@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project>
+
+    <target-tags>
+        <!-- in this context web doesn't refer to the webfx platform target -->
+        <ignore-tag>web</ignore-tag>
+    </target-tags>
+
+    <exported-packages>
+        <source-packages/>
+        <resource-packages/>
+    </exported-packages>
+
+    <dependencies>
+        <used-by-source-modules>
+            <module transitive="true">webfx-extras-player-video</module>
+            <module transitive="true">webfx-kit-javafxbase-emul</module>
+        </used-by-source-modules>
+    </dependencies>
+
+</project>

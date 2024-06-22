@@ -1,5 +1,7 @@
 package dev.webfx.extras.webview.pane;
 
+import java.util.function.Consumer;
+
 /**
  * @author Bruno Salmon
  */
@@ -9,6 +11,7 @@ public class LoadOptions {
     private Runnable onWebEngineReady;
     private Runnable onWebWindowReady;
     private Runnable onLoadSuccess;
+    private Consumer<String> onLoadFailure;
 
     public boolean isSeamlessInBrowser() {
         return seamlessInBrowser;
@@ -46,4 +49,12 @@ public class LoadOptions {
         return this;
     }
 
+    public Consumer<String> getOnLoadFailure() {
+        return onLoadFailure;
+    }
+
+    public LoadOptions setOnLoadFailure(Consumer<String> onLoadFailure) {
+        this.onLoadFailure = onLoadFailure;
+        return this;
+    }
 }

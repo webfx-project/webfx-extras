@@ -18,6 +18,8 @@ import javafx.scene.web.WebView;
 import netscape.javascript.JSException;
 import netscape.javascript.JSObject;
 
+import java.util.function.Consumer;
+
 /**
  * @author Bruno Salmon
  */
@@ -52,7 +54,7 @@ public class WebViewPane extends MonoPane {
         logDebug("initWebEngine()");
         webView = new WebView();
         webEngine = webView.getEngine();
-        webEngine.setOnError(error -> Console.log("WebView error: " + error));
+        webEngine.setOnError(error -> notifyLoadFailure(error.getMessage()));
         webWindow = null;
         redirectConsoleApplied = false;
         isGluonLayoutStabilized = false;
@@ -338,6 +340,15 @@ public class WebViewPane extends MonoPane {
                 displayWebViewIfStabilised(); // in case it was unloaded
                 notifyLoadSuccess();
                 break;
+
+            case FAILED:
+                notifyLoadFailure("FAILED");
+                break;
+
+            case CANCELLED:
+                notifyLoadFailure("CANCELLED");
+                break;
+
         }
     }
 
@@ -402,6 +413,16 @@ public class WebViewPane extends MonoPane {
         if (onLoadSuccess != null) {
             logDebug("Calling onLoadSuccess");
             onLoadSuccess.run();
+        }
+        //pendingLoad = null;
+    }
+
+    private void notifyLoadFailure(String error) {
+        LoadOptions loadOptions = pendingLoad == null ? null : pendingLoad.getLoadOptions();
+        Consumer<String> onLoadFailure = loadOptions == null ? null : loadOptions.getOnLoadFailure();
+        if (onLoadFailure != null) {
+            logDebug("Calling onLoadFailure");
+            onLoadFailure.accept(error);
         }
         //pendingLoad = null;
     }

@@ -47,7 +47,7 @@ public abstract class VisualChartPeerBase
                 columnCount = 2;
             int seriesCount = rowCount;
             int pointPerSeriesCount = columnCount - 1;
-            Type xType = hasXAxis ? columns[1].getType() : null;
+            Type xType = hasXAxis ? columns[0].getType() : null;
             Type yType = columns[pointPerSeriesCount].getType();
             mixin.createChartData(xType, yType, pointPerSeriesCount, seriesCount, seriesIndex -> Strings.toString(rs.getValue(seriesIndex, 0)));
             for (int pointIndex = 0; pointIndex < pointPerSeriesCount; pointIndex++) {

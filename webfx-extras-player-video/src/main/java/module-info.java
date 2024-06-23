@@ -3,10 +3,7 @@
 module webfx.extras.player.video {
 
     // Direct dependencies modules
-    requires javafx.base;
     requires javafx.graphics;
-    requires javafx.web;
-    requires webfx.extras.panes;
     requires transitive webfx.extras.player;
 
     // Exported packages

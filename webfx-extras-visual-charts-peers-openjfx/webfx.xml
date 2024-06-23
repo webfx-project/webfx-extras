@@ -6,7 +6,7 @@
     </exported-packages>
 
     <providers>
-        <provider interface="dev.webfx.extras.visual.controls.charts.registry.spi.VisualChartsRegistryProvider">dev.webfx.extras.visual.controls.charts.registry.spi.impl.openjfx.JavaFxVisualChartsRegistryProvider</provider>
+        <provider interface="dev.webfx.extras.visual.controls.charts.registry.spi.VisualChartsRegistryProvider">dev.webfx.extras.visual.controls.charts.registry.spi.impl.openjfx.OpenJFXVisualChartsRegistryProvider</provider>
     </providers>
 
     <dependencies>

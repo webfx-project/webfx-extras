@@ -8,22 +8,22 @@ import static dev.webfx.kit.mapper.peers.javafxgraphics.NodePeerFactoryRegistry.
 public class VisualChartsRegistry {
 
     public static void registerLineChart() {
-        registerNodePeerFactory(VisualLineChart.class, GwtCharbaVisualLineChartPeer::new);
+        registerNodePeerFactory(VisualLineChart.class, GwtJ2clCharbaVisualLineChartPeer::new);
     }
 
     public static void registerAreaChart() {
-        registerNodePeerFactory(VisualAreaChart.class, GwtCharbaVisualAreaChartPeer::new);
+        registerNodePeerFactory(VisualAreaChart.class, GwtJ2clCharbaVisualAreaChartPeer::new);
     }
 
     public static void registerBarChart() {
-        registerNodePeerFactory(VisualBarChart.class, GwtCharbaVisualBarChartPeer::new);
+        registerNodePeerFactory(VisualBarChart.class, GwtJ2clCharbaVisualBarChartPeer::new);
     }
 
     public static void registerPieChart() {
-        registerNodePeerFactory(VisualPieChart.class, GwtCharbaVisualPieChartPeer::new);
+        registerNodePeerFactory(VisualPieChart.class, GwtJ2clCharbaVisualPieChartPeer::new);
     }
 
     public static void registerScatterChart() {
-        registerNodePeerFactory(VisualScatterChart.class, GwtCharbaVisualScatterChartPeer::new);
+        registerNodePeerFactory(VisualScatterChart.class, GwtJ2clCharbaVisualScatterChartPeer::new);
     }
 }

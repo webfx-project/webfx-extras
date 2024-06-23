@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project>
+
+    <exported-packages>
+        <source-packages/>
+        <resource-packages/>
+    </exported-packages>
+
+    <embed-resources>
+        <resource>dev/webfx/extras/webview/pane/WebViewPane.js</resource>
+    </embed-resources>
+
+    <dependencies>
+        <used-by-source-modules/>
+    </dependencies>
+
+    <java-callbacks>
+        <callback-class name="dev.webfx.extras.webview.pane.WebViewPane">
+            <callback-method name="consoleLog">
+                <callback-argument class="java.lang.String"/>
+            </callback-method>
+            <callback-method name="consoleWarn">
+                <callback-argument class="java.lang.String"/>
+            </callback-method>
+            <callback-method name="consoleError">
+                <callback-argument class="java.lang.String"/>
+            </callback-method>
+        </callback-class>
+    </java-callbacks>
+
+</project>

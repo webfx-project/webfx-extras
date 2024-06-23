@@ -19,10 +19,8 @@ public final class FxVisualAreaChartPeer
     }
 
     @Override
-    protected FxN createFxNode() {
-        // The API requires the axis to be defined now whereas we don't know the structure to display yet
-        // So assuming category on x axis and number on y axis (is it possible to generify that?)
-        AreaChart<String, Number> areaChart = new AreaChart<>(createCategoryAxis(), createNumberAxis());
+    protected FxN createFxChart() {
+        AreaChart<String, Number> areaChart = new AreaChart<>(xAxis, yAxis);
         areaChart.setCreateSymbols(false);
         return (FxN) areaChart;
     }

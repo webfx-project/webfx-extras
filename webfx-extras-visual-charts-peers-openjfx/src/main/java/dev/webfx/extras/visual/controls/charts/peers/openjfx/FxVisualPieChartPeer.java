@@ -28,7 +28,7 @@ public final class FxVisualPieChartPeer
     }
 
     @Override
-    protected FxN createFxNode() {
+    protected FxN createFxChart() {
         PieChart pieChart = new PieChart();
         pieChart.setStartAngle(90);
         pieChart.setLegendVisible(false);
@@ -52,6 +52,6 @@ public final class FxVisualPieChartPeer
 
     @Override
     public void applyChartData() {
-        getFxNode().setData(pieData);
+        getOrCreateFxChart().setData(pieData);
     }
 }

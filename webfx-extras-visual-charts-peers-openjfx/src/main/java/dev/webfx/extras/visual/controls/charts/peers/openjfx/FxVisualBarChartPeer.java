@@ -19,9 +19,7 @@ public final class FxVisualBarChartPeer
     }
 
     @Override
-    protected FxN createFxNode() {
-        // The API requires the axis to be defined now whereas we don't know the structure to display yet
-        // So assuming category on x axis and number on y axis (is it possible to generify that?)
-        return (FxN) new BarChart(createCategoryAxis(), createNumberAxis());
+    protected FxN createFxChart() {
+        return (FxN) new BarChart(xAxis, yAxis);
     }
 }

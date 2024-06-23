@@ -19,9 +19,10 @@ public final class FxVisualLineChartPeer
     }
 
     @Override
-    protected FxN createFxNode() {
-        LineChart lineChart = new LineChart(createNumberAxis(), createNumberAxis());
+    protected FxN createFxChart() {
+        LineChart lineChart = new LineChart(xAxis, yAxis);
         lineChart.setCreateSymbols(false);
         return (FxN) lineChart;
     }
+
 }

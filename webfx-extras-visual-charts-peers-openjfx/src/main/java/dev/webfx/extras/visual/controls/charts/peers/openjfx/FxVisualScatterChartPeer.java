@@ -19,7 +19,7 @@ public final class FxVisualScatterChartPeer
     }
 
     @Override
-    protected FxN createFxNode() {
-        return (FxN) new ScatterChart(createNumberAxis(), createNumberAxis());
+    protected FxN createFxChart() {
+        return (FxN) new ScatterChart(xAxis, yAxis);
     }
 }

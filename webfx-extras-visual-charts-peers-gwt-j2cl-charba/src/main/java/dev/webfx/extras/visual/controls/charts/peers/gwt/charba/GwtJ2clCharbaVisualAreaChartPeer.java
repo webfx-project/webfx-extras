@@ -11,16 +11,16 @@ import org.pepstock.charba.client.configuration.ScalesOptions;
 /**
  * @author Bruno Salmon
  */
-public final class GwtCharbaVisualAreaChartPeer
+public final class GwtJ2clCharbaVisualAreaChartPeer
         <C, N extends VisualAreaChart, NB extends VisualAreaChartPeerBase<C, N, NB, NM>, NM extends VisualAreaChartPeerMixin<C, N, NB, NM>>
-        extends GwtCharbaVisualChartPeer<C, N, NB, NM>
+        extends GwtJ2clCharbaVisualChartPeer<C, N, NB, NM>
         implements VisualAreaChartPeerMixin<C, N, NB, NM> {
 
-    public GwtCharbaVisualAreaChartPeer() {
+    public GwtJ2clCharbaVisualAreaChartPeer() {
         this((NB) new VisualAreaChartPeerBase());
     }
 
-    public GwtCharbaVisualAreaChartPeer(NB base) {
+    public GwtJ2clCharbaVisualAreaChartPeer(NB base) {
         super(base);
     }
 

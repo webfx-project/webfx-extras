@@ -11,16 +11,16 @@ import dev.webfx.extras.visual.controls.charts.peers.base.VisualScatterChartPeer
 /**
  * @author Bruno Salmon
  */
-public final class GwtCharbaVisualScatterChartPeer
+public final class GwtJ2clCharbaVisualScatterChartPeer
         <C, N extends VisualScatterChart, NB extends VisualScatterChartPeerBase<C, N, NB, NM>, NM extends VisualScatterChartPeerMixin<C, N, NB, NM>>
-        extends GwtCharbaVisualChartPeer<C, N, NB, NM>
+        extends GwtJ2clCharbaVisualChartPeer<C, N, NB, NM>
         implements VisualScatterChartPeerMixin<C, N, NB, NM> {
 
-    public GwtCharbaVisualScatterChartPeer() {
+    public GwtJ2clCharbaVisualScatterChartPeer() {
         this((NB) new VisualScatterChartPeerBase());
     }
 
-    public GwtCharbaVisualScatterChartPeer(NB base) {
+    public GwtJ2clCharbaVisualScatterChartPeer(NB base) {
         super(base);
     }
 

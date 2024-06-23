@@ -17,9 +17,9 @@ import dev.webfx.kit.mapper.peers.javafxgraphics.gwtj2cl.html.layoutmeasurable.H
 import dev.webfx.kit.mapper.peers.javafxgraphics.gwtj2cl.util.HtmlUtil;
 import dev.webfx.platform.console.Console;
 import dev.webfx.platform.uischeduler.UiScheduler;
-import dev.webfx.platform.util.time.Times;
 import dev.webfx.platform.util.Numbers;
 import dev.webfx.platform.util.Strings;
+import dev.webfx.platform.util.time.Times;
 import javafx.scene.paint.Color;
 import org.pepstock.charba.client.AbstractChart;
 import org.pepstock.charba.client.Charba;
@@ -38,7 +38,7 @@ import java.util.function.Function;
 /**
  * @author Bruno Salmon
  */
-abstract class GwtCharbaVisualChartPeer
+abstract class GwtJ2clCharbaVisualChartPeer
         <C, N extends VisualChart, NB extends VisualChartPeerBase<C, N, NB, NM>, NM extends VisualChartPeerMixin<C, N, NB, NM>>
         extends HtmlRegionPeer<N, NB, NM>
         implements VisualChartPeerMixin<C, N, NB, NM>, HtmlLayoutMeasurable {
@@ -49,7 +49,7 @@ abstract class GwtCharbaVisualChartPeer
 
     protected AbstractChart chartWidget;
 
-    GwtCharbaVisualChartPeer(NB base) {
+    GwtJ2clCharbaVisualChartPeer(NB base) {
         super(base, HtmlUtil.createDivElement());
         chartWidget = createChartWidget();
         // Disabling animation (by setting its duration to 0) because it's annoying when combined with push updates (ex: Monitor activity)

@@ -8,13 +8,13 @@ import dev.webfx.extras.visual.controls.charts.peers.base.VisualAreaChartPeerMix
 /**
  * @author Bruno Salmon
  */
-public final class FxVisualAreaChartPeer
+public final class OpenJFXVisualAreaChartPeer
         <FxN extends AreaChart, N extends VisualAreaChart, NB extends VisualAreaChartPeerBase<FxN, N, NB, NM>, NM extends VisualAreaChartPeerMixin<FxN, N, NB, NM>>
 
-        extends FxVisualXYChartPeer<FxN, N, NB, NM>
+        extends OpenJFXVisualXYChartPeer<FxN, N, NB, NM>
         implements VisualAreaChartPeerMixin<FxN, N, NB, NM> {
 
-    public FxVisualAreaChartPeer() {
+    public OpenJFXVisualAreaChartPeer() {
         super((NB) new VisualAreaChartPeerBase());
     }
 

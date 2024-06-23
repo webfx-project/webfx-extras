@@ -16,14 +16,14 @@ import javafx.scene.layout.BorderPane;
 /**
  * @author Bruno Salmon
  */
-abstract class FxVisualChartPeer
+abstract class OpenJFXVisualChartPeer
         <FxN extends Chart, N extends VisualChart, NB extends VisualChartPeerBase<FxN, N, NB, NM>, NM extends VisualChartPeerMixin<FxN, N, NB, NM>>
         extends FxRegionPeer<BorderPane, N, NB, NM>
         implements VisualChartPeerMixin<FxN, N, NB, NM>, FxLayoutMeasurable {
 
     protected FxN fxChart;
 
-    FxVisualChartPeer(NB base) {
+    OpenJFXVisualChartPeer(NB base) {
         super(base);
     }
 

@@ -5,6 +5,7 @@ module webfx.extras.visual.charts.peers.openjfx {
     // Direct dependencies modules
     requires javafx.base;
     requires javafx.controls;
+    requires javafx.graphics;
     requires javafx.web;
     requires webfx.extras.type;
     requires webfx.extras.visual;
@@ -20,6 +21,6 @@ module webfx.extras.visual.charts.peers.openjfx {
     exports dev.webfx.extras.visual.controls.charts.registry.spi.impl.openjfx;
 
     // Provided services
-    provides dev.webfx.extras.visual.controls.charts.registry.spi.VisualChartsRegistryProvider with dev.webfx.extras.visual.controls.charts.registry.spi.impl.openjfx.JavaFxVisualChartsRegistryProvider;
+    provides dev.webfx.extras.visual.controls.charts.registry.spi.VisualChartsRegistryProvider with dev.webfx.extras.visual.controls.charts.registry.spi.impl.openjfx.OpenJFXVisualChartsRegistryProvider;
 
 }

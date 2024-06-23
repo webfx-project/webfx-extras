@@ -8,13 +8,13 @@ import dev.webfx.extras.visual.controls.charts.peers.base.VisualLineChartPeerMix
 /**
  * @author Bruno Salmon
  */
-public final class FxVisualLineChartPeer
+public final class OpenJFXVisualLineChartPeer
         <FxN extends LineChart, N extends VisualLineChart, NB extends VisualLineChartPeerBase<FxN, N, NB, NM>, NM extends VisualLineChartPeerMixin<FxN, N, NB, NM>>
 
-        extends FxVisualXYChartPeer<FxN, N, NB, NM>
+        extends OpenJFXVisualXYChartPeer<FxN, N, NB, NM>
         implements VisualLineChartPeerMixin<FxN, N, NB, NM> {
 
-    public FxVisualLineChartPeer() {
+    public OpenJFXVisualLineChartPeer() {
         super((NB) new VisualLineChartPeerBase());
     }
 

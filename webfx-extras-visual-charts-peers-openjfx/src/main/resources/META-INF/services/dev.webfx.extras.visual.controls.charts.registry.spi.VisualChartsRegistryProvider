@@ -1,1 +1,1 @@
-dev.webfx.extras.visual.controls.charts.registry.spi.impl.openjfx.JavaFxVisualChartsRegistryProvider
+dev.webfx.extras.visual.controls.charts.registry.spi.impl.openjfx.OpenJFXVisualChartsRegistryProvider

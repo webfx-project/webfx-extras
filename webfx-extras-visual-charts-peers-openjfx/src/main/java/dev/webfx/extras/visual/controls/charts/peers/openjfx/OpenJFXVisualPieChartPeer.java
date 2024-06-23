@@ -14,16 +14,16 @@ import java.util.function.Function;
 /**
  * @author Bruno Salmon
  */
-public final class FxVisualPieChartPeer
+public final class OpenJFXVisualPieChartPeer
         <FxN extends PieChart, N extends VisualPieChart, NB extends VisualPieChartPeerBase<FxN, N, NB, NM>, NM extends VisualPieChartPeerMixin<FxN, N, NB, NM>>
 
-        extends FxVisualChartPeer<FxN, N, NB, NM>
+        extends OpenJFXVisualChartPeer<FxN, N, NB, NM>
         implements VisualPieChartPeerMixin<FxN, N, NB, NM> {
 
     private ObservableList<javafx.scene.chart.PieChart.Data> pieData;
     private Function<Integer, String> seriesNameGetter;
 
-    public FxVisualPieChartPeer() {
+    public OpenJFXVisualPieChartPeer() {
         super((NB) new VisualPieChartPeerBase());
     }
 

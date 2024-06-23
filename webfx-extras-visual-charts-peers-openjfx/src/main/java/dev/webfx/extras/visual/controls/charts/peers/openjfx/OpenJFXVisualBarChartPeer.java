@@ -8,13 +8,13 @@ import dev.webfx.extras.visual.controls.charts.peers.base.VisualBarChartPeerMixi
 /**
  * @author Bruno Salmon
  */
-public final class FxVisualBarChartPeer
+public final class OpenJFXVisualBarChartPeer
         <FxN extends BarChart, N extends VisualBarChart, NB extends VisualBarChartPeerBase<FxN, N, NB, NM>, NM extends VisualBarChartPeerMixin<FxN, N, NB, NM>>
 
-        extends FxVisualXYChartPeer<FxN, N, NB, NM>
+        extends OpenJFXVisualXYChartPeer<FxN, N, NB, NM>
         implements VisualBarChartPeerMixin<FxN, N, NB, NM> {
 
-    public FxVisualBarChartPeer() {
+    public OpenJFXVisualBarChartPeer() {
         super((NB) new VisualBarChartPeerBase());
     }
 

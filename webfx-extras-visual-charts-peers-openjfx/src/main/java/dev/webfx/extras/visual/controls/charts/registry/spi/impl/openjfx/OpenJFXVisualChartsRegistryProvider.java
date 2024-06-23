@@ -6,26 +6,26 @@ import dev.webfx.extras.visual.controls.charts.registry.spi.VisualChartsRegistry
 
 import static dev.webfx.kit.mapper.peers.javafxgraphics.NodePeerFactoryRegistry.registerNodePeerFactory;
 
-public class JavaFxVisualChartsRegistryProvider implements VisualChartsRegistryProvider {
+public class OpenJFXVisualChartsRegistryProvider implements VisualChartsRegistryProvider {
 
     public void registerLineChart() {
-        registerNodePeerFactory(VisualLineChart.class, FxVisualLineChartPeer::new);
+        registerNodePeerFactory(VisualLineChart.class, OpenJFXVisualLineChartPeer::new);
     }
 
     public void registerAreaChart() {
-        registerNodePeerFactory(VisualAreaChart.class, FxVisualAreaChartPeer::new);
+        registerNodePeerFactory(VisualAreaChart.class, OpenJFXVisualAreaChartPeer::new);
     }
 
     public void registerBarChart() {
-        registerNodePeerFactory(VisualBarChart.class, FxVisualBarChartPeer::new);
+        registerNodePeerFactory(VisualBarChart.class, OpenJFXVisualBarChartPeer::new);
     }
 
     public void registerPieChart() {
-        registerNodePeerFactory(VisualPieChart.class, FxVisualPieChartPeer::new);
+        registerNodePeerFactory(VisualPieChart.class, OpenJFXVisualPieChartPeer::new);
     }
 
     public void registerScatterChart() {
-        registerNodePeerFactory(VisualScatterChart.class, FxVisualScatterChartPeer::new);
+        registerNodePeerFactory(VisualScatterChart.class, OpenJFXVisualScatterChartPeer::new);
     }
 
 }

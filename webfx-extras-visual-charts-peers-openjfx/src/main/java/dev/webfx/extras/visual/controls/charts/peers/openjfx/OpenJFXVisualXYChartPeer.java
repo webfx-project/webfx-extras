@@ -15,16 +15,16 @@ import java.util.function.Function;
 /**
  * @author Bruno Salmon
  */
-public abstract class FxVisualXYChartPeer
+public abstract class OpenJFXVisualXYChartPeer
         <FxN extends XYChart, N extends VisualChart, NB extends VisualChartPeerBase<FxN, N, NB, NM>, NM extends VisualChartPeerMixin<FxN, N, NB, NM>>
-        extends FxVisualChartPeer<FxN, N, NB, NM> {
+        extends OpenJFXVisualChartPeer<FxN, N, NB, NM> {
 
     protected Axis xAxis;
     protected Axis yAxis;
     private List<XYChart.Series> seriesList;
     private Object xValue;
 
-    public FxVisualXYChartPeer(NB base) {
+    public OpenJFXVisualXYChartPeer(NB base) {
         super(base);
     }
 

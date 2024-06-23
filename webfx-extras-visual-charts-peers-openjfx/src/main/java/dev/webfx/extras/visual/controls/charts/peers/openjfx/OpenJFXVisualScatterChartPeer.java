@@ -8,13 +8,13 @@ import dev.webfx.extras.visual.controls.charts.peers.base.VisualScatterChartPeer
 /**
  * @author Bruno Salmon
  */
-public final class FxVisualScatterChartPeer
+public final class OpenJFXVisualScatterChartPeer
         <FxN extends ScatterChart, N extends VisualScatterChart, NB extends VisualScatterChartPeerBase<FxN, N, NB, NM>, NM extends VisualScatterChartPeerMixin<FxN, N, NB, NM>>
 
-        extends FxVisualXYChartPeer<FxN, N, NB, NM>
+        extends OpenJFXVisualXYChartPeer<FxN, N, NB, NM>
         implements VisualScatterChartPeerMixin<FxN, N, NB, NM> {
 
-    public FxVisualScatterChartPeer() {
+    public OpenJFXVisualScatterChartPeer() {
         super((NB) new VisualScatterChartPeerBase());
     }
 

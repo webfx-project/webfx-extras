@@ -42,9 +42,11 @@ public class WebViewPane extends MonoPane {
     private InvalidationListener gluonWidthListener;
     private PendingLoad pendingLoad;
     private boolean webWindowReadyNotified;
+    private boolean loadSuccessNotified;
     private boolean unloading;
     private boolean fitHeight;
     private Scheduled fitHeightJob;
+    private boolean urlLoaded;
 
     public WebViewPane() {
         initWebEngine();
@@ -55,12 +57,9 @@ public class WebViewPane extends MonoPane {
         webView = new WebView();
         webEngine = webView.getEngine();
         webEngine.setOnError(error -> notifyLoadFailure(error.getMessage()));
-        webWindow = null;
-        redirectConsoleApplied = false;
-        isGluonLayoutStabilized = false;
         pendingLoad = null;
-        webWindowReadyNotified = false;
-        unloading = false;
+        urlLoaded = false;
+        resetState();
         /* Not yet supported by WebFX
         engine.getLoadWorker().exceptionProperty().addListener((obs, oldExc, newExc) -> {
             if (newExc != null) {
@@ -79,6 +78,16 @@ public class WebViewPane extends MonoPane {
             webEngineStateListener.unregister();
         webEngineStateListener = FXProperties.runNowAndOnPropertiesChange(this::processWebEngineState,
                 webEngine.getLoadWorker().stateProperty());
+    }
+
+    private void resetState() {
+        logDebug("Resetting state");
+        webWindow = null;
+        redirectConsoleApplied = false;
+        isGluonLayoutStabilized = false;
+        webWindowReadyNotified = false;
+        loadSuccessNotified = false;
+        unloading = false;
     }
 
     public static boolean isBrowser() {
@@ -284,14 +293,16 @@ public class WebViewPane extends MonoPane {
         WebEngine we = seamless ? PARENT_BROWSER_WINDOW_SCRIPT_ENGINE : webEngine;
         Worker.State state = we.getLoadWorker().getState();
         logDebug("state = " + state + " (seamless = " + seamless + ", webView is " + (isWebViewDisplayed() ? "" : "NOT ") + "displayed, window is " + (getWindow() == null ? "NOT " : "") + "set)");
-        if (state == null) // Browser (to remove?)
-            return;
         if (unloading) {
             logDebug("Skipping (unloading)");
             return;
         }
         switch (state) {
+
             case READY: // the user navigates back here (as the browser unloads the iFrame each time it's removed from the DOM)
+                if (loadSuccessNotified) {
+                    resetState();
+                }
                 if (IS_GLUON && !isGluonLayoutStabilized) {
                     // On mobiles, we need to ensure the web view container position is stabilized BEFORE attaching the OS web
                     // view (otherwise the OS web view position may be wrong)
@@ -310,9 +321,12 @@ public class WebViewPane extends MonoPane {
 
                     // Executing next task
                     if (pendingLoad.isUrl()) {
-                        String url = pendingLoad.getUrl();
-                        logDebug("Engine loads url " + url);
-                        we.load(url);
+                        if (!urlLoaded) {
+                            String url = pendingLoad.getUrl();
+                            logDebug("Engine loads url " + url);
+                            we.load(url);
+                            urlLoaded = true;
+                        }
                     } else if (pendingLoad.isHtmlContent()) {
                         String htmlContent = pendingLoad.getHtmlContent();
                         logDebug("Engine loads content " + htmlContent);
@@ -336,6 +350,7 @@ public class WebViewPane extends MonoPane {
                     }
                 }
                 break;
+
             case SUCCEEDED:
                 displayWebViewIfStabilised(); // in case it was unloaded
                 notifyLoadSuccess();
@@ -408,9 +423,12 @@ public class WebViewPane extends MonoPane {
     }
 
     private void notifyLoadSuccess() {
+        if (loadSuccessNotified)
+            return;
         LoadOptions loadOptions = pendingLoad == null ? null : pendingLoad.getLoadOptions();
         Runnable onLoadSuccess = loadOptions == null ? null : loadOptions.getOnLoadSuccess();
         if (onLoadSuccess != null) {
+            loadSuccessNotified = true;
             logDebug("Calling onLoadSuccess");
             onLoadSuccess.run();
         }

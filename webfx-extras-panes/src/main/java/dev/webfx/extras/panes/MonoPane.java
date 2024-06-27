@@ -123,56 +123,56 @@ public class MonoPane extends Pane {
     }
 
     @Override
-    protected double computeMinWidth(double height) {
-        return insetsWidth() + computeContentMinWidth(height);
+    protected double computeMinWidth(double height) { // pane height
+        return insetsWidth() + computeContentMinWidth(height - insetsHeight());
     }
 
-    protected double computeContentMinWidth(double height) {
+    protected double computeContentMinWidth(double height) { // content height
         return content == null ? 0 : content.minWidth(height);
     }
 
     @Override
-    protected double computeMinHeight(double width) {
-        return insetsHeight() + computeContentMinHeight(width);
+    protected double computeMinHeight(double width) { // pane width
+        return insetsHeight() + computeContentMinHeight(width - insetsHeight());
     }
 
-    protected double computeContentMinHeight(double width) {
+    protected double computeContentMinHeight(double width) { // content width
         return content == null ? 0 : content.minHeight(width);
     }
 
     @Override
-    protected double computePrefWidth(double height) {
-        return insetsWidth() + computeContentPrefWidth(height);
+    protected double computePrefWidth(double height) { // pane height
+        return insetsWidth() + computeContentPrefWidth(height - insetsHeight());
     }
 
-    protected double computeContentPrefWidth(double height) {
+    protected double computeContentPrefWidth(double height) { // content height
         return content == null ? 0 : content.prefWidth(height);
     }
 
     @Override
-    protected double computePrefHeight(double width) {
-        return insetsHeight() + computeContentPrefHeight(width);
+    protected double computePrefHeight(double width) { // pane width
+        return insetsHeight() + computeContentPrefHeight(width - insetsWidth());
     }
 
-    protected double computeContentPrefHeight(double width) {
+    protected double computeContentPrefHeight(double width) { // content width
         return content == null ? 0 : content.prefHeight(width);
     }
 
     @Override
-    protected double computeMaxWidth(double height) {
-        return insetsWidth() + computeContentMaxWidth(height);
+    protected double computeMaxWidth(double height) { // pane height
+        return insetsWidth() + computeContentMaxWidth(height - insetsHeight());
     }
 
-    protected double computeContentMaxWidth(double height) {
+    protected double computeContentMaxWidth(double height) { // content height
         return content == null ? 0 : content.maxWidth(height);
     }
 
     @Override
-    protected double computeMaxHeight(double width) {
-        return insetsHeight() + computeContentMaxHeight(width);
+    protected double computeMaxHeight(double width) { // pane width
+        return insetsHeight() + computeContentMaxHeight(width - insetsWidth());
     }
 
-    protected double computeContentMaxHeight(double width) {
+    protected double computeContentMaxHeight(double width) { // content width
         return content == null ? 0 : content.maxHeight(width);
     }
 

@@ -67,7 +67,7 @@ public class MonoPane extends Pane {
     }
 
     public void setContent(Node content) {
-        if (content != this.content)
+        if (content != this.content && !contentProperty.isBound())
             contentProperty.set(content);
     }
 

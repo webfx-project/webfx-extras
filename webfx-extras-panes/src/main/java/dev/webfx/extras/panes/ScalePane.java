@@ -261,6 +261,9 @@ public class ScalePane extends MonoPane {
     protected double computeMinHeight(double width) {
         if (fixedHeight > 0)
             return fixedHeight;
+        // In FIT_WIDTH mode, we always want the whole height to be displayed (ex: GP class image in Modality front-office)
+        if (scaleMode == ScaleMode.FIT_WIDTH)
+            return computePrefHeight(width);
         return super.computeMinHeight(width);
     }
 

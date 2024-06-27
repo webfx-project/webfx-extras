@@ -25,10 +25,13 @@ public final class TransitionPane extends MonoClipPane {
     private boolean animate = true;
 
     public TransitionPane() {
+        this(null);
     }
 
     public TransitionPane(Node content) {
         super(content);
+        // enabling the clip only during the transition
+        clipEnabledProperty().bind(transitingProperty);
     }
 
     public HPos getDirection() {
@@ -59,7 +62,7 @@ public final class TransitionPane extends MonoClipPane {
     protected void onContentChanged(Node newContent) {
         if (internalSync)
             return;
-        if (content == null || newContent == null)
+        if (content == null || newContent == null || !animate)
             super.onContentChanged(newContent);
         else {
             double w = getWidth();

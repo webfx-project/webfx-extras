@@ -6,6 +6,7 @@ import dev.webfx.kit.util.properties.Unregisterable;
 import dev.webfx.platform.console.Console;
 import dev.webfx.platform.resource.Resource;
 import dev.webfx.platform.scheduler.Scheduled;
+import dev.webfx.platform.scheduler.Scheduler;
 import dev.webfx.platform.uischeduler.UiScheduler;
 import dev.webfx.platform.useragent.UserAgent;
 import javafx.application.Platform;
@@ -45,6 +46,7 @@ public class WebViewPane extends MonoPane {
     private boolean loadSuccessNotified;
     private boolean unloading;
     private boolean fitHeight;
+    private double fitHeightExtra;
     private Scheduled fitHeightJob;
     private boolean urlLoaded;
 
@@ -113,6 +115,14 @@ public class WebViewPane extends MonoPane {
         manageFitHeightJob();
     }
 
+    public double getFitHeightExtra() {
+        return fitHeightExtra;
+    }
+
+    public void setFitHeightExtra(double fitHeightExtra) {
+        this.fitHeightExtra = fitHeightExtra;
+    }
+
     public WebView getWebView() {
         return webView;
     }
@@ -144,28 +154,57 @@ public class WebViewPane extends MonoPane {
     }
 
     private void manageFitHeightJob() {
-        if (isWebViewDisplayed()) {
-            if (fitHeight && fitHeightJob == null) {
-                fitHeightJob = UiScheduler.schedulePeriodic(100, () -> {
-                    JSObject window = getWindow();
-                    if (window != null) {
-                        try {
-                            Object height = window.eval("document.documentElement.scrollHeight");
-                            if (height instanceof Number) {
-                                setPrefHeight(((Number) height).doubleValue());
-                            }
-                            Console.log(height);
-                        } catch (JSException e) {
-                            Console.log("Error when evaluating window height: " + e.getMessage());
-                        }
-                    }
-                });
-            }
-        } else {
+        if (!isWebViewDisplayed()) {
             if (fitHeightJob != null) {
                 fitHeightJob.cancel();
                 fitHeightJob = null;
             }
+        } else if (fitHeight && fitHeightJob == null) {
+            new Runnable() {
+                double lastHeight;
+                long lastHeightChangedTime;
+                @Override
+                public void run() {
+                    // Stopping the periodic scheduling when this WebViewPane is not in the scene graph anymore
+                    if (getScene() == null && lastHeightChangedTime != 0) { // but waiting at least a change to prevent stopping it initially
+                        fitHeightJob = null;
+                        return;
+                    }
+                    double newHeight = 0;
+                    if (isSeamless()) {
+                        Node seamlessContainer = getContent();
+                        if (seamlessContainer != null) // Actually expecting SeamlessDiv, so prefHeight() will actually be measure by the browser
+                            newHeight = seamlessContainer.prefHeight(getWidth()) + fitHeightExtra;
+                    } else {
+                        JSObject window = getWindow();
+                        if (window != null) {
+                            try {
+                                // Evaluating the max height over the document and all possible iFrames
+                                Object heightEval = window.eval(
+                                        "var maxHeight = document.documentElement.scrollHeight;\n" +
+                                        "document.querySelectorAll('iframe').forEach(function(iframe) {\n" +
+                                        "    let style = window.getComputedStyle(iframe);\n" +
+                                        "    if (style.getPropertyValue('display') !== 'none' && style.getPropertyValue('visibility') !== 'hidden' && style.getPropertyValue('opacity') !== '0')\n" +
+                                        "       maxHeight = Math.max(maxHeight, iframe.scrollHeight);\n" +
+                                        "});\n" +
+                                        "maxHeight;");
+                                if (heightEval instanceof Number)
+                                    newHeight = ((Number) heightEval).doubleValue() + fitHeightExtra;
+                            } catch (JSException e) {
+                                Console.log("Error when evaluating window height: " + e.getMessage());
+                            }
+                        }
+                    }
+                    long now = System.currentTimeMillis();
+                    if (newHeight > 0 && newHeight != lastHeight) {
+                        setPrefHeight(newHeight);
+                        lastHeight = newHeight;
+                        lastHeightChangedTime = now;
+                    }
+                    boolean heightChanging = now - lastHeightChangedTime < 1000;
+                    fitHeightJob = UiScheduler.scheduleDelay(heightChanging ? 10 : 100, this);
+                }
+            }.run();
         }
     }
 
@@ -201,8 +240,10 @@ public class WebViewPane extends MonoPane {
         initWebEngine(); // TODO investigate why
     }
 
-    private void displayWebViewIfStabilised() {
-        if (IS_GLUON && !isGluonLayoutStabilized)
+    private void displayWebViewIfApplicableAndStabilised() {
+        if (isSeamless()) // Not applicable
+            return;
+        if (IS_GLUON && !isGluonLayoutStabilized) // Not stabilised
             return;
         setContent(webView);
     }
@@ -312,7 +353,7 @@ public class WebViewPane extends MonoPane {
                     return;
                 } else {
                     if (pendingLoad != null)
-                        displayWebViewIfStabilised(); // in case it was not yet done
+                        displayWebViewIfApplicableAndStabilised(); // in case it was not yet done
 
                     notifyWebEngineReady();
 
@@ -343,16 +384,26 @@ public class WebViewPane extends MonoPane {
                             logDebug("(Gluon) Engine loads content " + htmlContent);
                             we.loadContent(htmlContent);
                         } else {
-                            logDebug("Engine executes script " + script);
-                            we.executeScript(script);
-                            notifyLoadSuccess();
+                            if (isSeamless()) {
+                                LoadOptions loadOptions = pendingLoad.getLoadOptions();
+                                String seamlessContainerId = loadOptions == null ? null : loadOptions.getSeamlessContainerId();
+                                setContent(new SeamlessDiv(seamlessContainerId));
+                                executeSeamlessScriptInBrowser(script);
+                                notifyLoadSuccess();
+                            } else if (webWindow != null) {
+                                logDebug("Engine executes script " + script);
+                                we.executeScript(script);
+                                notifyLoadSuccess();
+                            } else {
+                                Scheduler.scheduleDelay(100, this::processWebEngineState);
+                            }
                         }
                     }
                 }
                 break;
 
             case SUCCEEDED:
-                displayWebViewIfStabilised(); // in case it was unloaded
+                displayWebViewIfApplicableAndStabilised(); // in case it was unloaded
                 notifyLoadSuccess();
                 break;
 
@@ -394,7 +445,7 @@ public class WebViewPane extends MonoPane {
     public void onGluonLayoutStabilized() {
         logDebug("Gluon stabilised");
         isGluonLayoutStabilized = true;
-        displayWebViewIfStabilised();
+        displayWebViewIfApplicableAndStabilised();
         processWebEngineState();
     }
 

@@ -8,6 +8,7 @@ import java.util.function.Consumer;
 public class LoadOptions {
 
     private boolean seamlessInBrowser;
+    private String seamlessContainerId;
     private Runnable onWebEngineReady;
     private Runnable onWebWindowReady;
     private Runnable onLoadSuccess;
@@ -19,6 +20,15 @@ public class LoadOptions {
 
     public LoadOptions setSeamlessInBrowser(boolean seamlessInBrowser) {
         this.seamlessInBrowser = seamlessInBrowser;
+        return this;
+    }
+
+    public String getSeamlessContainerId() {
+        return seamlessContainerId;
+    }
+
+    public LoadOptions setSeamlessContainerId(String seamlessContainerId) {
+        this.seamlessContainerId = seamlessContainerId;
         return this;
     }
 

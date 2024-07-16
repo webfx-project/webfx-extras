@@ -26,6 +26,8 @@ public class CanvasPane extends Pane {
         super(canvas);
         this.canvas = canvas;
         this.canvasRefresher = canvasRefresher;
+        setMinHeight(USE_PREF_SIZE);
+        setMaxHeight(USE_PREF_SIZE);
     }
 
     public Canvas getCanvas() {

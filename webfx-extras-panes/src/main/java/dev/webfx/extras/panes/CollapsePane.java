@@ -4,11 +4,9 @@ import dev.webfx.extras.util.animation.Animations;
 import dev.webfx.kit.util.properties.FXProperties;
 import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.SimpleBooleanProperty;
-import javafx.event.EventHandler;
 import javafx.geometry.Pos;
 import javafx.scene.Cursor;
 import javafx.scene.Node;
-import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.*;
 import javafx.scene.paint.Color;
 import javafx.scene.shape.Circle;
@@ -116,29 +114,14 @@ public class CollapsePane extends MonoClipPane {
         , collapsePane.collapsedProperty);
         // Hiding the circle & chevron on mouse exit if requested
         if (hideDecorationOnMouseExit) {
-            stackPane.setOnMouseEntered(e -> {
+            stackPane.setOnMouseEntered(e -> { // Note: works also on touch devices!
                 circle.setVisible(true);
                 chevron.setVisible(true);
             });
             // However, we always show them when the pane is collapsed (otherwise there is no way to expand it again)
-            stackPane.setOnMouseExited(e -> {
+            stackPane.setOnMouseExited(e -> {  // Note: works also on touch devices!
                 circle.setVisible(collapsePane.isCollapsed());
                 chevron.setVisible(collapsePane.isCollapsed());
-            });
-            // We hide them on start, unless the device doesn't have a mouse! (then there would be no way to collapse)
-            // So the following code is to detect the present of a mouse (by detecting MOUSE_MOVED events)
-            stackPane.sceneProperty().addListener((observable, oldValue, scene) -> {
-                if (scene != null) {
-                    scene.addEventFilter(MouseEvent.MOUSE_MOVED, new EventHandler<>() {
-                        @Override
-                        public void handle(MouseEvent event) {
-                            scene.removeEventFilter(MouseEvent.MOUSE_MOVED, this);
-                            // Yes there is a mouse, so we can hide them
-                            circle.setVisible(false);
-                            chevron.setVisible(false);
-                        }
-                    });
-                }
             });
         }
         return stackPane;

@@ -129,12 +129,14 @@ public class CollapsePane extends MonoClipPane {
             // So the following code is to detect the present of a mouse (by detecting MOUSE_MOVED events)
             stackPane.sceneProperty().addListener((observable, oldValue, scene) -> {
                 if (scene != null) {
-                    EventHandler<MouseEvent>[] mouseEventEventHandler = new EventHandler[1];
-                    scene.addEventFilter(MouseEvent.MOUSE_MOVED, mouseEventEventHandler[0] = event -> {
-                        scene.removeEventFilter(MouseEvent.ANY, mouseEventEventHandler[0]);
-                        // Yes there is a mouse, so we can hide them
-                        circle.setVisible(false);
-                        chevron.setVisible(false);
+                    scene.addEventFilter(MouseEvent.MOUSE_MOVED, new EventHandler<>() {
+                        @Override
+                        public void handle(MouseEvent event) {
+                            scene.removeEventFilter(MouseEvent.MOUSE_MOVED, this);
+                            // Yes there is a mouse, so we can hide them
+                            circle.setVisible(false);
+                            chevron.setVisible(false);
+                        }
                     });
                 }
             });

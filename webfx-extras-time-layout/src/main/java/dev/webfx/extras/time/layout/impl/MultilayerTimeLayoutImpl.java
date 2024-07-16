@@ -117,19 +117,19 @@ public class MultilayerTimeLayoutImpl<T> extends ListenableTimeWindowImpl<T> imp
         layers.forEach(CanLayout::layout);
         // Automatically updating this layout height
         if (!heightProperty.isBound())
-            setHeight(getVisibleLayersMaxHeight());
+            setHeight(getVisibleLayersMaxBottom());
         layoutDirtyMarker.markAsClean();
         layoutCountProperty.set(newLayoutCount); // may trigger onAfterLayout runnable(s)
     }
 
-    private double getVisibleLayersMaxHeight() {
-        double maxY = 0;
+    private double getVisibleLayersMaxBottom() {
+        double maxBottom = 0;
         for (TimeLayout<?, T> layer : getLayers()) {
             if (layer.isVisible()) {
-                maxY = Math.max(maxY, /*layer.getTopY() +*/ layer.getHeight());
+                maxBottom = Math.max(maxBottom, layer.getTopY() + layer.getHeight());
             }
         }
-        return maxY;
+        return maxBottom;
     }
 
     @Override

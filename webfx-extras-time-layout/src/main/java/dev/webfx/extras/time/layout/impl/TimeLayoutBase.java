@@ -291,7 +291,7 @@ public abstract class TimeLayoutBase<C, T> extends ListenableTimeWindowImpl<T> i
             double maxY = cb.getMaxY();
             maxMaxY = Math.max(maxMaxY, maxY);
         }
-        return maxMaxY;
+        return maxMaxY - getTopY();
     }
 
     @Override

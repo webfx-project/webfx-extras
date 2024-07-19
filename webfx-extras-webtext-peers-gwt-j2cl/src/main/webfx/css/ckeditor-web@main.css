@@ -1,0 +1,4 @@
+/* Hiding the warning message from CKEditor 4.22.1 */
+.cke_notifications_area {
+    display: none;
+}

@@ -1,6 +1,8 @@
 package dev.webfx.extras.panes;
 
+import javafx.beans.property.DoubleProperty;
 import javafx.beans.property.ObjectProperty;
+import javafx.beans.property.SimpleDoubleProperty;
 import javafx.beans.property.SimpleObjectProperty;
 import javafx.geometry.*;
 import javafx.scene.Node;
@@ -14,7 +16,14 @@ import java.util.List;
 public final class ColumnsPane extends Pane {
 
     private double fixedColumnWidth = -1;
+
     private final ObjectProperty<Pos> alignmentProperty = new SimpleObjectProperty<>(Pos.CENTER) {
+        protected void invalidated() {
+            requestLayout();
+        }
+    };
+
+    private final DoubleProperty hgapProperty = new SimpleDoubleProperty(0) {
         protected void invalidated() {
             requestLayout();
         }
@@ -52,19 +61,32 @@ public final class ColumnsPane extends Pane {
         this.alignmentProperty.set(alignment);
     }
 
+    public double getHgap() {
+        return hgapProperty.get();
+    }
+
+    public DoubleProperty hgapProperty() {
+        return hgapProperty;
+    }
+
+    public void setHgap(double hgap) {
+        this.hgapProperty.set(hgap);
+    }
+
     @Override
     protected void layoutChildren() {
         List<Node> children = getManagedChildren();
         if (children.isEmpty())
             return;
         Insets insets = getInsets();
-        double width = getWidth() - insetsWidth(), height = getHeight() - insetsHeight();
+        double hgap = getHgap();
+        double width = getWidth() - insetsWidth() - hgap * (children.size() - 1), height = getHeight() - insetsHeight();
         double x = insets.getLeft(), y = insets.getTop(), colWidth = getColWidth(width, children.size());
         HPos hpos = getAlignment().getHpos();
         VPos vpos = getAlignment().getVpos();
         for (Node child : children) {
             layoutInArea(child, x, y, colWidth, height, 0, hpos, vpos);
-            x += colWidth;
+            x += colWidth + hgap;
         }
     }
 

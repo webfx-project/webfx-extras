@@ -1,6 +1,6 @@
 // File managed by WebFX (DO NOT EDIT MANUALLY)
 
-module webfx.extras.time.datepickers {
+module webfx.extras.time.pickers {
 
     // Direct dependencies modules
     requires javafx.base;
@@ -11,10 +11,10 @@ module webfx.extras.time.datepickers {
     requires webfx.extras.time.format;
     requires webfx.extras.time.layout;
     requires webfx.extras.time.layout.calendar;
-    requires webfx.platform.util;
     requires webfx.kit.util;
+    requires webfx.platform.util;
 
     // Exported packages
-    exports dev.webfx.extras.time.datepickers;
+    exports dev.webfx.extras.time.pickers;
 
 }

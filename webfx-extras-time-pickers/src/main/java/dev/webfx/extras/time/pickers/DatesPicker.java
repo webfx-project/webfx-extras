@@ -1,4 +1,4 @@
-package dev.webfx.extras.time.datepickers;
+package dev.webfx.extras.time.pickers;
 
 import dev.webfx.extras.theme.text.TextTheme;
 import dev.webfx.extras.time.TimeUtil;

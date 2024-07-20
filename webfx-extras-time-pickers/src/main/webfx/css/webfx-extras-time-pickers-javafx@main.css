@@ -1,0 +1,29 @@
+* {
+    -webfx-time-pickers-blue1-color: #0096D6;
+    -webfx-time-pickers-blue2-color: #afe7ff;
+    -webfx-time-pickers-gray-color: #cccccc;
+
+    -webfx-time-pickers-arrow-color: -webfx-time-pickers-blue1-color;
+    -webfx-time-pickers-month-color: -webfx-time-pickers-blue1-color;
+    -webfx-time-pickers-date-background-color: -webfx-time-pickers-gray-color;
+    -webfx-time-pickers-selected-date-background-color: -webfx-time-pickers-blue2-color;
+}
+
+.webfx-time-pickers-selected {
+    -fx-background-color: -webfx-time-pickers-selected-date-background-color;
+    -fx-background-radius: 10px;
+}
+
+.webfx-time-pickers-secondary {
+    -fx-background-color: -webfx-time-pickers-date-background-color;
+    -fx-background-radius: 10px;
+}
+
+.webfx-time-pickers-arrow {
+    -fx-fill: -webfx-time-pickers-arrow-color;
+}
+
+.webfx-time-pickers-month {
+    -fx-text-fill: -webfx-time-pickers-month-color;
+    -fx-font-size: 14px;
+}

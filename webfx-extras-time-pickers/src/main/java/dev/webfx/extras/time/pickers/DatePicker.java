@@ -152,7 +152,7 @@ public final class DatePicker {
         return displayedYearMonthProperty;
     }
 
-    public VBox getContainer() {
+    public Node getView() {
         if (container == null) {
             container = new VBox();
             container.getStyleClass().add("webfx-datepicker");

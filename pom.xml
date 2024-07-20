@@ -75,9 +75,11 @@
         <module>webfx-extras-switches</module>
         <module>webfx-extras-theme</module>
         <module>webfx-extras-time</module>
+        <module>webfx-extras-time-format</module>
         <module>webfx-extras-time-layout</module>
         <module>webfx-extras-time-layout-calendar</module>
         <module>webfx-extras-time-layout-gantt</module>
+        <module>webfx-extras-time-pickers</module>
         <module>webfx-extras-time-window</module>
         <module>webfx-extras-type</module>
         <module>webfx-extras-util</module>

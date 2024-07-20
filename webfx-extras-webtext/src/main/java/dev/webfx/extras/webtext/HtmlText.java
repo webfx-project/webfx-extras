@@ -17,6 +17,7 @@ import java.util.function.Function;
 public class HtmlText extends Control {
 
     public HtmlText() {
+        setMaxHeight(USE_PREF_SIZE);
     }
 
     public HtmlText(String text) {

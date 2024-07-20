@@ -743,8 +743,10 @@ public class GanttLayoutImpl<C, T extends Temporal> extends TimeLayoutBase<C, T>
             lastEnclosingRow = grandparentRows.get(grandparentRows.size() - 1);
         else if (!parentRows.isEmpty()) // last parent row ok when no grandparent
             lastEnclosingRow = parentRows.get(parentRows.size() - 1);
-        // Returning the bottom of the last enclosing row (or 0 if none)
-        return lastEnclosingRow != null ? lastEnclosingRow.getMaxY() : 0;
+        if (lastEnclosingRow == null)
+            return 0;
+        // The height is bottomY - topY, bottomY being the bottom of the last enclosing row
+        return lastEnclosingRow.getMaxY() - getTopY();
     }
 
     @Override

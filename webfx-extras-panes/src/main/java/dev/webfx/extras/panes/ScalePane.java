@@ -197,6 +197,9 @@ public class ScalePane extends MonoPane {
             return;
         double width = fixedWidth != -1 ? fixedWidth : getWidth();
         double height = fixedHeight != -1 ? fixedHeight : getHeight();
+        Insets insets = getInsets();
+        width -= insets.getLeft() + insets.getRight();
+        height -= insets.getTop() + insets.getBottom();
         computedScales(width, height);
         content.setScaleX(scaleX);
         content.setScaleY(scaleY);
@@ -231,7 +234,7 @@ public class ScalePane extends MonoPane {
         } else {
             areaY = (height - h) / 2;
         }
-        layoutInArea(content, (width - w) / 2, areaY, w, h, 0, Insets.EMPTY, fillWidth, fillHeight, hAlignment, vAlignment);
+        layoutInArea(content, insets.getLeft() + (width - w) / 2, insets.getTop() + areaY, w, h, 0, Insets.EMPTY, fillWidth, fillHeight, hAlignment, vAlignment);
         if (stretchWidth && region != null) {
             region.setPrefWidth(prefWidth);
         }
@@ -258,6 +261,9 @@ public class ScalePane extends MonoPane {
     protected double computeMinHeight(double width) {
         if (fixedHeight > 0)
             return fixedHeight;
+        // In FIT_WIDTH mode, we always want the whole height to be displayed (ex: GP class image in Modality front-office)
+        if (scaleMode == ScaleMode.FIT_WIDTH)
+            return computePrefHeight(width);
         return super.computeMinHeight(width);
     }
 

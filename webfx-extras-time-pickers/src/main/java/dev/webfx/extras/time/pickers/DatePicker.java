@@ -246,7 +246,7 @@ public final class DatePicker {
     private static void bindDayOfWeekLabel(Label label, DayOfWeek dayOfWeek) {
         // We display the first letter of the day of week name
         label.textProperty().bind(FXProperties.compute(TimeFormat.dayOfWeekNameProperty(dayOfWeek), dayName ->
-                dayName.substring(0, 1)));
+                dayName != null && !dayName.isEmpty() ? dayName.substring(0, 1) : ""));
     }
 
     private Node createDateNode(LocalDate date) {

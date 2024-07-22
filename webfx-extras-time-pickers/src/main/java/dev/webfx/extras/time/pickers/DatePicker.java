@@ -38,24 +38,19 @@ import java.util.function.Function;
 public final class DatePicker {
 
     private final DatePickerOptions options;
-    private boolean internalSync;
     private final ObjectProperty<LocalDate> selectedDateProperty = new SimpleObjectProperty<>() {
         @Override
         protected void invalidated() {
-            if (!internalSync) {
-                internalSync = true;
-                LocalDate selectedDate = get();
-                if (options.isMultipleSelectionAllowed()) {
-                    if (selectedDate != null && !selectedDates.contains(selectedDate))
-                        selectedDates.add(selectedDate);
-                } else { // single selection
-                    if (selectedDate != null)
-                        selectedDates.setAll(selectedDate);
-                    else
-                        selectedDates.clear();
-                }
-                selectedDateProperty.set(get());
-                internalSync = false;
+            // selectedDate <-> selectedDates sync management
+            LocalDate selectedDate = get();
+            if (options.isMultipleSelectionAllowed()) { // multiple-selection
+                if (selectedDate != null && !selectedDates.contains(selectedDate))
+                    selectedDates.add(selectedDate);
+            } else { // single selection
+                if (selectedDate != null)
+                    selectedDates.setAll(selectedDate);
+                else
+                    selectedDates.clear();
             }
         }
     };
@@ -89,30 +84,27 @@ public final class DatePicker {
         YearMonth initialDisplayedYearMonth = options.getInitialDisplayedYearMonth();
         setDisplayedYearMonth(initialDisplayedYearMonth == null ? YearMonth.now() : initialDisplayedYearMonth);
         selectedDates.addListener((ListChangeListener<LocalDate>) change -> {
-            if (!internalSync) {
-                internalSync = true;
-                if (selectedDates.size() > 1) {
-                    if (!options.isMultipleSelectionAllowed()) {
-                        while (change.next()) {
-                            List<? extends LocalDate> addedSubList = change.getAddedSubList();
-                            if (!addedSubList.isEmpty()) {
-                                Platform.runLater(() -> selectedDates.setAll(addedSubList.get(0)));
-                                break;
-                            }
+            // We update the date styles to visually reflect selection to the user
+            updateDatesStyles();
+            // selectedDates <-> selectedDate sync management
+            // Note: updating selectedDate might update selectedDates again, which we can't do during a change event,
+            Platform.runLater(() -> { // that's why we postpone this synchronization
+                LocalDate selectedDate = getSelectedDate();
+                if (options.isMultipleSelectionAllowed()) {
+                    Collections.sort(selectedDates);
+                    if (selectedDate == null || !selectedDates.contains(selectedDate))
+                        setSelectedDate(selectedDates.isEmpty() ? null : selectedDates.get(0));
+                } else {
+                    LocalDate lastAddedDate = null;
+                    while (change.next()) {
+                        List<? extends LocalDate> addedSubList = change.getAddedSubList();
+                        if (!addedSubList.isEmpty()) {
+                            lastAddedDate = addedSubList.get(0);
                         }
                     }
+                    setSelectedDate(lastAddedDate != null ? lastAddedDate : selectedDates.isEmpty() ? null : selectedDates.get(0));
                 }
-                LocalDate selectedDate = getSelectedDate();
-                if (selectedDate == null || !selectedDates.contains(selectedDate))
-                    selectedDateProperty.set(selectedDates.isEmpty() ? null : selectedDates.get(0));
-                internalSync = false;
-                Platform.runLater(() -> {
-                    internalSync = true;
-                    Collections.sort(selectedDates);
-                    internalSync = false;
-                });
-            }
-            updateDatesStyles();
+            });
         });
     }
 
@@ -276,13 +268,11 @@ public final class DatePicker {
     }
 
     private void addSelectedDate(LocalDate date) {
-        updateDateStyle(date,true);
         this.selectedDates.add(date);
     }
 
     private void removeSelectedDate(LocalDate date) {
         this.selectedDates.remove(date);
-        updateDateStyle(date,false);
     }
 
     public void setIsDateSelectableFunction(Function<LocalDate, Boolean> isDateSelectableFunction) {
@@ -291,17 +281,6 @@ public final class DatePicker {
 
     public void setGetDateStyleClassFunction(Function<LocalDate, String> function) {
         getDateStyleClassFunction = function;
-    }
-
-    private void updateDateStyle(LocalDate date, boolean isSelected) {
-        Pair<Label, String> LabelCss = dateLabelSelectedStyleClassMap.get(date);
-        Label label = LabelCss.get1();
-        String css = LabelCss.get2();
-        if (isSelected) {
-            label.getStyleClass().add(css);
-        } else {
-            label.getStyleClass().removeAll(css);
-        }
     }
 
     private void updateDatesStyles() {
@@ -314,6 +293,18 @@ public final class DatePicker {
             updateDateStyle(currentDate, selectedDates.contains(currentDate));
         }
     }
+
+    private void updateDateStyle(LocalDate date, boolean isSelected) {
+        Pair<Label, String> LabelCss = dateLabelSelectedStyleClassMap.get(date);
+        Label label = LabelCss.get1();
+        String css = LabelCss.get2();
+        if (!isSelected) {
+            label.getStyleClass().remove(css);
+        } else if (!label.getStyleClass().contains(css)) {
+            label.getStyleClass().add(css);
+        }
+    }
+
 
     private Node createDayOfWeekNode(DayOfWeek dayOfWeek) {
         Label currentDayLabel = new Label();

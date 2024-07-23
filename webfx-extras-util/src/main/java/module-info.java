@@ -3,6 +3,7 @@
 module webfx.extras.util {
 
     // Direct dependencies modules
+    requires javafx.base;
     requires webfx.platform.scheduler;
     requires webfx.platform.uischeduler;
 

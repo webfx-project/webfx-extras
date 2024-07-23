@@ -6,12 +6,12 @@ import dev.webfx.extras.time.format.TimeFormat;
 import dev.webfx.extras.time.layout.calendar.CalendarLayout;
 import dev.webfx.extras.time.layout.node.TimeGridPane;
 import dev.webfx.extras.time.layout.node.TimePane;
+import dev.webfx.extras.util.OptimizedObservableListWrapper;
 import dev.webfx.kit.util.properties.FXProperties;
 import dev.webfx.platform.util.tuples.Pair;
 import javafx.application.Platform;
 import javafx.beans.property.ObjectProperty;
 import javafx.beans.property.SimpleObjectProperty;
-import javafx.collections.FXCollections;
 import javafx.collections.ListChangeListener;
 import javafx.collections.ObservableList;
 import javafx.geometry.HPos;
@@ -54,7 +54,7 @@ public final class DatePicker {
             }
         }
     };
-    private final ObservableList<LocalDate> selectedDates = FXCollections.observableArrayList();
+    private final ObservableList<LocalDate> selectedDates = new OptimizedObservableListWrapper<>();
 
     private final ObjectProperty<YearMonth> displayedYearMonthProperty = new SimpleObjectProperty<>() {
         @Override
@@ -91,7 +91,16 @@ public final class DatePicker {
             Platform.runLater(() -> { // that's why we postpone this synchronization
                 LocalDate selectedDate = getSelectedDate();
                 if (options.isMultipleSelectionAllowed()) {
-                    Collections.sort(selectedDates);
+                    if (options.isSortSelectedDates()) {
+                        // We first work on a copy, because Collection.sort() always triggers a change event, even if
+                        // the list is finally unchanged by the sort, so this would cause an infinite loop
+                        List<LocalDate> copy = new ArrayList<>(selectedDates);
+                        Collections.sort(copy);
+                        if (!selectedDates.equals(copy))
+                            selectedDates.setAll(copy); // OptimizedObservableListWrapper will trigger permutations only
+                        // TODO: see if OptimizedObservableListWrapper can be improved so we can just replace the code
+                        // TODO: above with Collections.sort(selectedDates)
+                    }
                     if (selectedDate == null || !selectedDates.contains(selectedDate))
                         setSelectedDate(selectedDates.isEmpty() ? null : selectedDates.get(0));
                 } else {

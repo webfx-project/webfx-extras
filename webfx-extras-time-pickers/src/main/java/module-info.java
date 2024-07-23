@@ -11,6 +11,7 @@ module webfx.extras.time.pickers {
     requires webfx.extras.time.format;
     requires webfx.extras.time.layout;
     requires webfx.extras.time.layout.calendar;
+    requires webfx.extras.util;
     requires webfx.kit.util;
     requires webfx.platform.util;
 

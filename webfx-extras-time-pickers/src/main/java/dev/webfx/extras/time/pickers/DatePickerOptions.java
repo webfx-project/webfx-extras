@@ -12,6 +12,7 @@ public final class DatePickerOptions {
     private YearMonth initialDisplayedYearMonth;
     private boolean multipleSelectionAllowed = false;
     private boolean pastDatesSelectionAllowed = true;
+    private boolean sortSelectedDates = false;
 
     public boolean isApplyBorderStyle() {
         return applyBorderStyle;
@@ -57,4 +58,14 @@ public final class DatePickerOptions {
         this.pastDatesSelectionAllowed = pastDatesSelectionAllowed;
         return this;
     }
+
+    public boolean isSortSelectedDates() {
+        return sortSelectedDates;
+    }
+
+    public DatePickerOptions setSortSelectedDates(boolean sortSelectedDates) {
+        this.sortSelectedDates = sortSelectedDates;
+        return this;
+    }
+
 }

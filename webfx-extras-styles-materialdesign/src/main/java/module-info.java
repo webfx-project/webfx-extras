@@ -1,6 +1,6 @@
 // File managed by WebFX (DO NOT EDIT MANUALLY)
 
-module webfx.extras.materialdesign {
+module webfx.extras.styles.materialdesign {
 
     // Direct dependencies modules
     requires javafx.base;
@@ -12,7 +12,7 @@ module webfx.extras.materialdesign {
     requires webfx.platform.util;
 
     // Exported packages
-    exports dev.webfx.extras.materialdesign.textfield;
-    exports dev.webfx.extras.materialdesign.util;
+    exports dev.webfx.extras.styles.materialdesign.textfield;
+    exports dev.webfx.extras.styles.materialdesign.util;
 
 }

@@ -1,10 +1,10 @@
-package dev.webfx.extras.materialdesign.util;
+package dev.webfx.extras.styles.materialdesign.util;
 
+import dev.webfx.extras.styles.materialdesign.textfield.MaterialTextField;
+import dev.webfx.extras.styles.materialdesign.textfield.MaterialTextFieldSkin;
 import javafx.scene.control.Control;
 import javafx.scene.control.Skin;
 import javafx.scene.control.TextField;
-import dev.webfx.extras.materialdesign.textfield.MaterialTextField;
-import dev.webfx.extras.materialdesign.textfield.MaterialTextFieldSkin;
 
 /**
  * @author Bruno Salmon

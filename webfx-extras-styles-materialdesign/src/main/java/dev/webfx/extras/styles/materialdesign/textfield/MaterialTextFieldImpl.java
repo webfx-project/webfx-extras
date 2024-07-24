@@ -1,9 +1,9 @@
-package dev.webfx.extras.materialdesign.textfield;
+package dev.webfx.extras.styles.materialdesign.textfield;
 
-import dev.webfx.extras.materialdesign.util.ComputeBaselineOffsetWithInsetsFunction;
-import dev.webfx.extras.materialdesign.util.ComputeHeightWithInsetsFunction;
-import dev.webfx.extras.materialdesign.util.LayoutChildrenFunction;
-import dev.webfx.extras.materialdesign.util.MaterialAnimation;
+import dev.webfx.extras.styles.materialdesign.util.ComputeBaselineOffsetWithInsetsFunction;
+import dev.webfx.extras.styles.materialdesign.util.ComputeHeightWithInsetsFunction;
+import dev.webfx.extras.styles.materialdesign.util.LayoutChildrenFunction;
+import dev.webfx.extras.styles.materialdesign.util.MaterialAnimation;
 import dev.webfx.extras.util.layout.LayoutUtil;
 import dev.webfx.extras.util.scene.SceneUtil;
 import dev.webfx.kit.util.properties.Unregisterable;

@@ -1,4 +1,4 @@
-package dev.webfx.extras.materialdesign.textfield;
+package dev.webfx.extras.styles.materialdesign.textfield;
 
 import javafx.beans.value.ObservableValue;
 import javafx.geometry.HPos;

@@ -1,4 +1,4 @@
-package dev.webfx.extras.materialdesign.util;
+package dev.webfx.extras.styles.materialdesign.util;
 
 import javafx.animation.Interpolator;
 import javafx.animation.KeyFrame;

@@ -71,6 +71,7 @@
         <module>webfx-extras-player-video-web</module>
         <module>webfx-extras-player-video-web-wistia</module>
         <module>webfx-extras-player-video-web-youtube</module>
+        <module>webfx-extras-styles-bootstrap</module>
         <module>webfx-extras-styles-materialdesign</module>
         <module>webfx-extras-switches</module>
         <module>webfx-extras-theme</module>

@@ -5,8 +5,10 @@ import dev.webfx.kit.util.properties.ObservableLists;
 import dev.webfx.platform.util.Arrays;
 import dev.webfx.platform.util.collection.Collections;
 import javafx.application.Platform;
+import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.ObjectProperty;
 import javafx.beans.property.ReadOnlyBooleanProperty;
+import javafx.beans.property.SimpleBooleanProperty;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.geometry.HPos;
@@ -29,11 +31,18 @@ public final class Carrousel {
 
     private final ObservableList<Supplier<Node>> slideSuppliers = FXCollections.observableArrayList();
     private final ObservableList<Circle> dots = ObservableLists.map(slideSuppliers, n -> createDot());
-    private int displayedSlideIndex;
-    private boolean loop = true;
+    private final BooleanProperty loopProperty = new SimpleBooleanProperty(true);
+    private final BooleanProperty showingDotsProperty = new SimpleBooleanProperty(true) {
+        @Override
+        protected void invalidated() {
+            dotsBox.setVisible(get());
+            dotsBox.setManaged(get());
+        }
+    };
     private final TransitionPane transitionPane = new TransitionPane();
     private final HBox dotsBox = new HBox(10);
     private final BorderPane container = new BorderPane(transitionPane);
+    private int displayedSlideIndex;
 
     public Carrousel() {
         transitionPane.setMaxWidth(Double.MAX_VALUE);
@@ -76,11 +85,27 @@ public final class Carrousel {
     }
 
     public boolean isLoop() {
-        return loop;
+        return loopProperty.get();
+    }
+
+    public BooleanProperty loopProperty() {
+        return loopProperty;
     }
 
     public void setLoop(boolean loop) {
-        this.loop = loop;
+        loopProperty.set(loop);
+    }
+
+    public boolean isShowingDots() {
+        return showingDotsProperty.get();
+    }
+
+    public BooleanProperty showingDotsProperty() {
+        return showingDotsProperty;
+    }
+
+    public void setShowingDots(boolean showingDots) {
+        showingDotsProperty.set(showingDots);
     }
 
     public void moveForward() {
@@ -114,7 +139,7 @@ public final class Carrousel {
             return;
         transitionPane.setDirection(index > displayedSlideIndex ? HPos.LEFT : HPos.RIGHT);
         // index correction when it's out of the slides range (i.e. < 0 or >= size)
-        if (loop)
+        if (isLoop())
             index = (index + size) % size;
         else {
 

@@ -1,6 +1,6 @@
 // File managed by WebFX (DO NOT EDIT MANUALLY)
 
-module webfx.extras.carrousel {
+module webfx.extras.carousel {
 
     // Direct dependencies modules
     requires javafx.base;
@@ -10,6 +10,6 @@ module webfx.extras.carrousel {
     requires webfx.platform.util;
 
     // Exported packages
-    exports dev.webfx.extras.carrousel;
+    exports dev.webfx.extras.carousel;
 
 }

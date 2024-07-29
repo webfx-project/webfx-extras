@@ -1,4 +1,4 @@
-package dev.webfx.extras.carrousel;
+package dev.webfx.extras.carousel;
 
 import dev.webfx.extras.panes.TransitionPane;
 import dev.webfx.kit.util.properties.ObservableLists;
@@ -27,7 +27,7 @@ import java.util.function.Supplier;
 /**
  * @author Bruno Salmon
  */
-public final class Carrousel {
+public final class Carousel {
 
     private final ObservableList<Supplier<Node>> slideSuppliers = FXCollections.observableArrayList();
     private final ObservableList<Circle> dots = ObservableLists.map(slideSuppliers, n -> createDot());
@@ -44,7 +44,7 @@ public final class Carrousel {
     private final BorderPane container = new BorderPane(transitionPane);
     private int displayedSlideIndex;
 
-    public Carrousel() {
+    public Carousel() {
         transitionPane.setMaxWidth(Double.MAX_VALUE);
         // Don't know if it's specific to Modality front-office, but we need to set the Alignment to TOP_CENTER because
         // otherwise the GoldenRatioPane are moved down when transiting from or to a node with a bigger height.

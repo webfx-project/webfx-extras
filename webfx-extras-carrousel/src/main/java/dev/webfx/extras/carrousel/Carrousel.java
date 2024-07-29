@@ -46,6 +46,9 @@ public final class Carrousel {
 
     public Carrousel() {
         transitionPane.setMaxWidth(Double.MAX_VALUE);
+        // Don't know if it's specific to Modality front-office, but we need to set the Alignment to TOP_CENTER because
+        // otherwise the GoldenRatioPane are moved down when transiting from or to a node with a bigger height.
+        transitionPane.setAlignment(Pos.TOP_CENTER);
         dotsBox.setPadding(new Insets(10));
         dotsBox.setAlignment(Pos.CENTER);
         dotsBox.getStyleClass().add("dots");
@@ -142,7 +145,6 @@ public final class Carrousel {
         if (isLoop())
             index = (index + size) % size;
         else {
-
             if (index < 0)
                 index = 0;
             else if (index >= size)
@@ -151,6 +153,18 @@ public final class Carrousel {
         if (index != displayedSlideIndex || transitionPane.getContent() == null && !isTransiting()) {
             displayedSlideIndex = index;
             Node content = slideSuppliers.get(index).get();
+            // Don't know if it's specific to Modality front-office, but we need to manage the min & max height to have
+            // the content (a GoldRatioPane in this case) correctly positioned during the transition.
+            if (content instanceof Region) {
+                Region region = (Region) content;
+                // If the application code set a minHeight on the Carrousel (actually its container) such as setting it
+                // to the ScrollPane height in Modality front-office, we propagate this constraint to the content (the
+                // GoldenRatioPane in this case).
+                region.minHeightProperty().bind(container.minHeightProperty());
+                // Also if the leaving node if higher, it could make the GoldenRatioPane higher than needed (moving down
+                // its content during the transition). To avoid this, we set the Max height to the preferred height.
+                region.setMaxHeight(Region.USE_PREF_SIZE);
+            }
             transitionPane.setAnimate(animate);
             transitionPane.setContent(content);
         }

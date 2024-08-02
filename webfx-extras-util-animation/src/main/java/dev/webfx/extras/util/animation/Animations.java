@@ -37,16 +37,18 @@ public final class Animations {
     }
 
     public static <T> Timeline animateProperty(WritableValue<T> target, T finalValue, Duration duration, Interpolator interpolator) {
+        Timeline timeline = null;
         if (!Objects.areEquals(target.getValue(), finalValue)) {
             if (interpolator == null || duration == null || duration.equals(Duration.ZERO))
                 target.setValue(finalValue);
             else {
-                Timeline timeline = new Timeline(new KeyFrame(duration, new KeyValue(target, finalValue, interpolator)));
-                timeline.play();
-                return timeline;
+                timeline = new Timeline(new KeyFrame(duration, new KeyValue(target, finalValue, interpolator)));
             }
         }
-        return null;
+        if (timeline == null)
+            timeline = new Timeline();
+        timeline.play();
+        return timeline;
     }
 
     public static void shake(Node node) {

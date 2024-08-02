@@ -67,20 +67,21 @@ public class MonoPane extends Pane {
     }
 
     public void setContent(Node content) {
-        if (content != this.content && !contentProperty.isBound())
+        if (content != getContent() && !contentProperty.isBound())
             contentProperty.set(content);
     }
 
     protected void onContentChanged(Node newContent) {
+        Node oldContent = content;
+        content = newContent;
         if (!internalSync) {
             internalSync = true;
             if (newContent == null)
                 getChildren().clear();
-            else if (newContent != content) // Skipping if same newContent - important for WebView in browser (resetting iFrame will unload it)
+            else if (newContent != oldContent) // Skipping if same newContent - important for WebView in browser (resetting iFrame will unload it)
                 getChildren().setAll(newContent);
             internalSync = false;
         }
-        content = newContent;
     }
 
     public Pos getAlignment() {

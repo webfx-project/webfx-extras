@@ -166,7 +166,7 @@ public final class Carousel {
                 region.setMaxHeight(Region.USE_PREF_SIZE);
             }
             transitionPane.setAnimate(animate);
-            transitionPane.setContent(content);
+            transitionPane.transitToContent(content);
         }
         updateDotsStyleClass();
     }

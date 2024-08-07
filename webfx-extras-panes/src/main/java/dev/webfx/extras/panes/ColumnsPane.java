@@ -50,6 +50,18 @@ public final class ColumnsPane extends Pane {
         }
     };
 
+    private final IntegerProperty maxColumnCountProperty = new SimpleIntegerProperty(0) {
+        protected void invalidated() {
+            requestLayout();
+        }
+    };
+
+    private final DoubleProperty minRowHeightProperty = new SimpleDoubleProperty(0) {
+        protected void invalidated() {
+            requestLayout();
+        }
+    };
+
     public ColumnsPane() {
     }
 
@@ -134,6 +146,22 @@ public final class ColumnsPane extends Pane {
         fixedColumnCountProperty.set(fixedColumnCount);
     }
 
+    public IntegerProperty maxColumnCountProperty() {
+        return maxColumnCountProperty;
+    }
+
+    public void setMaxColumnCount(int fixedColumnCount) {
+        maxColumnCountProperty.set(fixedColumnCount);
+    }
+
+    public DoubleProperty minRowHeightProperty() {
+        return minRowHeightProperty;
+    }
+
+    public void setMinRowHeight(double minRowHeight) {
+        minRowHeightProperty.set(minRowHeight);
+    }
+
     @Override
     protected void layoutChildren() {
         double width = getWidth(), height = getHeight();
@@ -164,6 +192,23 @@ public final class ColumnsPane extends Pane {
         }
     }
 
+    public double getColWidth() {
+        double width = getWidth();
+        int colCount = computeColumnCount(width);
+        if (colCount == 0)
+            return 0;
+        double hgap = getHgap();
+        double widthNoGap = width - insetsWidth() - hgap * (colCount - 1);
+        return getColWidth(widthNoGap, colCount);
+    }
+
+    private double getColWidth(double totalWidthNoGap, int colCount) {
+        double fixedColumnWidth = getFixedColumnWidth();
+        if (fixedColumnWidth > 0)
+            return fixedColumnWidth;
+        return totalWidthNoGap / colCount;
+    }
+
     private int computeColumnCount(double width) {
         int fixedColumnCount = getFixedColumnCount();
         if (fixedColumnCount > 0)
@@ -173,13 +218,16 @@ public final class ColumnsPane extends Pane {
             return 0;
         int n = children.size();
         double minColumnWidth = getMinColumnWidth();
-        if (minColumnWidth > 0) {
+        while (minColumnWidth > 0 && n > 1) {
             double widthNoGap = width - insetsWidth() - getHgap() * (n - 1);
             double w = getColWidth(widthNoGap, n);
-            if (w < minColumnWidth) { // multi-rows allowed
-                n = (int) ((width - insetsWidth()) / minColumnWidth);
-            }
+            if (w > minColumnWidth)
+                break;
+            n--;
         }
+        int maxColumnProperty = maxColumnCountProperty.get();
+        if (maxColumnProperty > 0 && n > maxColumnProperty)
+            n = maxColumnProperty;
         return n;
     }
 
@@ -188,14 +236,11 @@ public final class ColumnsPane extends Pane {
     }
 
     private double computeRowMinPrefMaxHeight(List<Node> children, int rowFirstChildIndex, int colCount, Function<Node, Double> minPrefMaxHeightFunction) {
-        return children.stream().skip(rowFirstChildIndex).limit(colCount).mapToDouble(minPrefMaxHeightFunction::apply).max().orElse(0);
-    }
-
-    private double getColWidth(double totalWidthNoGap, int colCount) {
-        double fixedColumnWidth = getFixedColumnWidth();
-        if (fixedColumnWidth > 0)
-            return fixedColumnWidth;
-        return totalWidthNoGap / colCount;
+        double h = children.stream().skip(rowFirstChildIndex).limit(colCount).mapToDouble(minPrefMaxHeightFunction::apply).max().orElse(0);
+        double minRowHeight = minRowHeightProperty.get();
+        if (minRowHeight > 0 && h < minRowHeight)
+            h = minRowHeight;
+        return h;
     }
 
     private double insetsWidth() {

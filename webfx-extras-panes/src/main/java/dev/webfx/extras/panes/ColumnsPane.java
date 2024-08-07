@@ -221,7 +221,7 @@ public final class ColumnsPane extends Pane {
         while (minColumnWidth > 0 && n > 1) {
             double widthNoGap = width - insetsWidth() - getHgap() * (n - 1);
             double w = getColWidth(widthNoGap, n);
-            if (w > minColumnWidth)
+            if (w >= minColumnWidth)
                 break;
             n--;
         }

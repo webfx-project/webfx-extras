@@ -168,7 +168,7 @@ public class ScalePane extends MonoPane {
                     ((Scalable) content).prepareScale(0,
                             (contentWidth, contentHeight) -> ScalePane.this.computeScale(width, height, contentWidth, contentHeight));
                 }
-                double w = content.prefWidth(height);
+                double w = Math.max(content.minWidth(height), content.prefWidth(height));
                 double h = content.prefHeight(width);
                 scale = computeScale(width, height, w, h);
                 if (!canShrink && scale < 1 || !canGrow && scale > 1)

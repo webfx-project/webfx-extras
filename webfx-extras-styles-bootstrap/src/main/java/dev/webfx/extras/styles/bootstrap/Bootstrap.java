@@ -1,6 +1,7 @@
 package dev.webfx.extras.styles.bootstrap;
 
 
+import javafx.geometry.Insets;
 import javafx.scene.Node;
 import javafx.scene.control.Labeled;
 import javafx.scene.layout.Region;
@@ -62,6 +63,7 @@ public interface Bootstrap {
         if (button instanceof Region) {
             Region region = (Region) button;
             region.setMinWidth(150);
+            region.setPadding(new Insets(15));
             if (button instanceof Labeled) {
                 ((Labeled) button).setGraphicTextGap(30);
             }

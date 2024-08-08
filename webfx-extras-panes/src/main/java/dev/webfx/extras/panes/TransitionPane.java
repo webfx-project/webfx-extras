@@ -1,6 +1,7 @@
 package dev.webfx.extras.panes;
 
 import dev.webfx.extras.util.animation.Animations;
+import javafx.animation.Animation;
 import javafx.animation.Interpolator;
 import javafx.animation.Timeline;
 import javafx.beans.property.*;
@@ -182,8 +183,7 @@ public final class TransitionPane extends MonoClipPane {
     private void onEnteringNodeRequested(Node newContent) {
         if (timeline != null) {
             timeline.stop();
-            timeline.getOnFinished().handle(null);
-            timeline = null;
+            callTimelineOnFinishedIfNotRunning();
         }
         leavingNode = enteringNode;
         enteringNode = newContent;
@@ -200,6 +200,13 @@ public final class TransitionPane extends MonoClipPane {
                 doCircleClipTransition(newContent);
             else
                 doHorizontalTranslationTransition(newContent);
+        }
+    }
+
+    private void callTimelineOnFinishedIfNotRunning() {
+        if (timeline.getStatus() != Animation.Status.RUNNING) {
+            timeline.getOnFinished().handle(null);
+            timeline = null;
         }
     }
 
@@ -235,6 +242,7 @@ public final class TransitionPane extends MonoClipPane {
             if (leavingRegion != null)
                 leavingRegion.setMaxHeight(leavingNodeMaxHeight);
         });
+        callTimelineOnFinishedIfNotRunning();
     }
 
     private void doCircleClipTransition(Node newContent) {
@@ -279,5 +287,6 @@ public final class TransitionPane extends MonoClipPane {
                 transitingProperty.set(false);
             }
         });
+        callTimelineOnFinishedIfNotRunning();
     }
 }

@@ -13,7 +13,7 @@ import javafx.util.Duration;
  */
 public abstract class WebVideoPlayerBase extends VideoPlayerBase {
 
-    private final WebViewPane webViewPane = new WebViewPane();
+    protected final WebViewPane webViewPane = new WebViewPane();
 
     public WebVideoPlayerBase() {
         this(IntegrationMode.EMBEDDED);

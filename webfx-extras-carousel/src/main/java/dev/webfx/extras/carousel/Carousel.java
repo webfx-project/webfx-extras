@@ -63,6 +63,11 @@ public final class Carousel {
         ObservableLists.runOnListChange(change -> displaySlide(displayedSlideIndex), slideSuppliers);
     }
 
+    public Carousel(Node... slides) {
+        this();
+        setSlides(slides);
+    }
+
     public ObservableList<Supplier<Node>> getSlideSuppliers() {
         return slideSuppliers;
     }
@@ -73,6 +78,8 @@ public final class Carousel {
 
     public void setSlideSuppliers(Supplier<Node>... slideSuppliers) {
         this.slideSuppliers.setAll(slideSuppliers);
+        displayedSlideIndex = -1;
+        displaySlide(0);
     }
 
     public void setSlides(Collection<Node> slides) {

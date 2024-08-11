@@ -386,8 +386,21 @@ public class WebViewPane extends MonoPane {
                         } else {
                             if (isSeamless()) {
                                 LoadOptions loadOptions = pendingLoad.getLoadOptions();
+                                SeamlessDiv seamlessDiv;
+                                Node currentContent = getContent();
+                                if (currentContent instanceof SeamlessDiv) {
+                                    seamlessDiv = (SeamlessDiv) currentContent;
+                                } else {
+                                    seamlessDiv = new SeamlessDiv();
+                                    setContent(seamlessDiv);
+                                }
                                 String seamlessContainerId = loadOptions == null ? null : loadOptions.getSeamlessContainerId();
-                                setContent(new SeamlessDiv(seamlessContainerId));
+                                if (seamlessContainerId != null) {
+                                    seamlessDiv.setId(seamlessContainerId);
+                                }
+                                if (loadOptions != null && loadOptions.getSeamlessStyleClass() != null) {
+                                    seamlessDiv.getStyleClass().setAll(loadOptions.getSeamlessStyleClass());
+                                }
                                 executeSeamlessScriptInBrowser(script);
                                 notifyLoadSuccess();
                             } else if (webWindow != null) {

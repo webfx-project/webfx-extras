@@ -1,5 +1,6 @@
 package dev.webfx.extras.webview.pane;
 
+import java.util.List;
 import java.util.function.Consumer;
 
 /**
@@ -9,6 +10,7 @@ public class LoadOptions {
 
     private boolean seamlessInBrowser;
     private String seamlessContainerId;
+    private List<String> seamlessStyleClass;
     private Runnable onWebEngineReady;
     private Runnable onWebWindowReady;
     private Runnable onLoadSuccess;
@@ -29,6 +31,19 @@ public class LoadOptions {
 
     public LoadOptions setSeamlessContainerId(String seamlessContainerId) {
         this.seamlessContainerId = seamlessContainerId;
+        return this;
+    }
+
+    public List<String> getSeamlessStyleClass() {
+        return seamlessStyleClass;
+    }
+
+    public void setSeamlessStyleClass(List<String> seamlessStyleClass) {
+        this.seamlessStyleClass = seamlessStyleClass;
+    }
+
+    public LoadOptions setSeamlessStyleClass(String... seamlessStyleClass) {
+        setSeamlessStyleClass(List.of(seamlessStyleClass));
         return this;
     }
 

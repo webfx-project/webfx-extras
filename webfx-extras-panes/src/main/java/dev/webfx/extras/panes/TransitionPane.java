@@ -38,6 +38,7 @@ public final class TransitionPane extends MonoClipPane {
 
     private boolean animate = true;
     private boolean circleAnimation = false;
+    private boolean scrollToTop = false;
     private Timeline timeline;
 
     private final Pane dualContainer = new Pane() {
@@ -149,6 +150,14 @@ public final class TransitionPane extends MonoClipPane {
         this.animate = animate;
     }
 
+    public boolean isScrollToTop() {
+        return scrollToTop;
+    }
+
+    public void setScrollToTop(boolean scrollToTop) {
+        this.scrollToTop = scrollToTop;
+    }
+
     public boolean isTransiting() {
         return transitingProperty.get();
     }
@@ -229,7 +238,8 @@ public final class TransitionPane extends MonoClipPane {
             dualContainer.setTranslateX(-w); // new content entering from the left
         }
         transitingProperty.set(true);
-        Animations.scrollToTop(newContent, true);
+        if (scrollToTop)
+            Animations.scrollToTop(newContent, true);
         timeline = Animations.animateProperty(dualContainer.translateXProperty(), 0);
         timeline.setOnFinished(e -> {
             if (enteringNode == newContent) {
@@ -272,7 +282,8 @@ public final class TransitionPane extends MonoClipPane {
             }
         };
         transitingProperty.set(true);
-        Animations.scrollToTop(newContent, false);
+        if (scrollToTop)
+            Animations.scrollToTop(newContent, false);
         radiusProperty.set(0);
         timeline = Animations.animateProperty(radiusProperty, 0.7 * Math.max(width, getHeight()), duration, Interpolator.EASE_IN);
         timeline.setOnFinished(e -> {

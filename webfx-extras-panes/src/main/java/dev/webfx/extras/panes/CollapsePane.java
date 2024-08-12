@@ -22,15 +22,13 @@ import javafx.scene.shape.StrokeLineJoin;
  */
 public class CollapsePane extends MonoClipPane {
 
+    private double heightDuringCollapseAnimation = -1;
+
     public CollapsePane() {
     }
 
     public CollapsePane(Node content) {
         super(content);
-    }
-
-    {
-        setAlignment(Pos.TOP_CENTER);
     }
 
     private final BooleanProperty collapsedProperty = new SimpleBooleanProperty() {
@@ -42,6 +40,13 @@ public class CollapsePane extends MonoClipPane {
                 doExpand();
         }
     };
+
+    @Override
+    protected double getLayoutHeight() {
+        if (heightDuringCollapseAnimation > 0)
+            return heightDuringCollapseAnimation;
+        return super.getLayoutHeight();
+    }
 
     public boolean isCollapsed() {
         return collapsedProperty.get();
@@ -68,15 +73,19 @@ public class CollapsePane extends MonoClipPane {
     }
 
     private void doCollapse() {
+        heightDuringCollapseAnimation = getHeight();
         setMinHeight(USE_PREF_SIZE);
         setMaxHeight(USE_PREF_SIZE);
-        setPrefHeight(getHeight());
+        setPrefHeight(heightDuringCollapseAnimation);
         Animations.animateProperty(prefHeightProperty(), 0);
     }
 
     private void doExpand() {
-        Animations.animateProperty(prefHeightProperty(), computePrefHeight(getWidth()))
-                .setOnFinished(e -> setPrefHeight(USE_COMPUTED_SIZE));
+        Animations.animateProperty(prefHeightProperty(), heightDuringCollapseAnimation)
+                .setOnFinished(e -> {
+                    heightDuringCollapseAnimation = -1;
+                    setPrefHeight(USE_COMPUTED_SIZE);
+                });
     }
 
     public static StackPane decorateCollapsePane(CollapsePane collapsePane, boolean hideDecorationOnMouseExit) {

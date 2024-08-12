@@ -99,7 +99,7 @@ public class MonoPane extends Pane {
     @Override
     protected void layoutChildren() {
         if (content != null) {
-            double width = getWidth(), height = getHeight();
+            double width = getLayoutWidth(), height = getLayoutHeight();
             Insets insets = getInsets();
             layoutInArea(content, insets.getLeft(), insets.getTop()
                     , width - insetsWidth(), height - insetsHeight()
@@ -107,6 +107,13 @@ public class MonoPane extends Pane {
         }
     }
 
+    protected double getLayoutWidth() {
+        return getWidth();
+    }
+
+    protected double getLayoutHeight() {
+        return getHeight();
+    }
 
     @Override
     public Orientation getContentBias() {

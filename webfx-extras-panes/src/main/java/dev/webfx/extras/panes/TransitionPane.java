@@ -119,6 +119,14 @@ public final class TransitionPane extends MonoClipPane {
         }
     };
 
+    public static void setKeepsLeavingNode(Node node, boolean keepsLeavingNode) {
+        node.getProperties().put("webfx-extras-keepsLeavingNode", keepsLeavingNode);
+    }
+
+    private static boolean isKeepsLeavingNode(Node node) {
+        return Boolean.TRUE.equals(node.getProperties().get("webfx-extras-keepsLeavingNode"));
+    }
+
     public TransitionPane() {
         this(null);
     }
@@ -325,7 +333,7 @@ public final class TransitionPane extends MonoClipPane {
             if (oldRegion != null)
                 oldRegion.setMaxHeight(oldRegionMaxHeight);
             if (leavingNode == oldContent && oldContent != null) {
-                if (keepsLeavingNodes)
+                if (keepsLeavingNodes && isKeepsLeavingNode(oldContent))
                     oldContent.setVisible(false);
                 else
                     dualContainer.getChildren().remove(oldContent);

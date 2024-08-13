@@ -1,10 +1,8 @@
 package dev.webfx.extras.util.animation;
 
+import dev.webfx.platform.uischeduler.UiScheduler;
 import dev.webfx.platform.util.Objects;
-import javafx.animation.Interpolator;
-import javafx.animation.KeyFrame;
-import javafx.animation.KeyValue;
-import javafx.animation.Timeline;
+import javafx.animation.*;
 import javafx.beans.property.DoubleProperty;
 import javafx.beans.value.WritableValue;
 import javafx.scene.Node;
@@ -37,17 +35,29 @@ public final class Animations {
     }
 
     public static <T> Timeline animateProperty(WritableValue<T> target, T finalValue, Duration duration, Interpolator interpolator) {
-        Timeline timeline = null;
+        return animateProperty(target, finalValue, duration, interpolator, false);
+    }
+
+    public static <T> Timeline animateProperty(WritableValue<T> target, T finalValue, Duration duration, Interpolator interpolator, boolean onIdle) {
+        Timeline timeline;
         if (!Objects.areEquals(target.getValue(), finalValue)) {
-            if (interpolator == null || duration == null || duration.equals(Duration.ZERO))
+            if (interpolator == null || duration == null || duration.equals(Duration.ZERO)) {
                 target.setValue(finalValue);
-            else {
+                timeline = new Timeline();
+            } else {
                 timeline = new Timeline(new KeyFrame(duration, new KeyValue(target, finalValue, interpolator)));
             }
-        }
-        if (timeline == null)
+        } else
             timeline = new Timeline();
-        timeline.play();
+        if (onIdle) {
+            // TODO: implement UiScheduler.scheduleInNextIdleAnimationFrame()
+            UiScheduler.scheduleInAnimationFrame(() -> {
+                if (timeline.getCurrentTime().toMillis() == 0)
+                    timeline.play();
+            }, 5); // for now, we assume 5 animation frames (80ms) are enough to pass a possible UI rush
+        } else {
+            timeline.play();
+        }
         return timeline;
     }
 

@@ -427,7 +427,7 @@ public final class TransitionPane extends MonoClipPane {
         radiusProperty.set(initialRadius);
         if (scrollToTop)
             Animations.scrollToTop(newContent, false);
-        timeline = Animations.animateProperty(radiusProperty, finalRadius, Duration.seconds(1), Interpolator.EASE_IN, true);
+        timeline = Animations.animateProperty(radiusProperty, finalRadius, Duration.seconds(reverse ? 0.5 : 1), Interpolator.EASE_IN, true);
         finishTimeline(newContent, oldContent, oldRegion, oldRegionMaxHeight);
     }
 

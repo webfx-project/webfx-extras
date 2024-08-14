@@ -12,8 +12,10 @@ import javafx.geometry.HPos;
 import javafx.geometry.Orientation;
 import javafx.geometry.Pos;
 import javafx.scene.Node;
+import javafx.scene.layout.Background;
 import javafx.scene.layout.Pane;
 import javafx.scene.layout.Region;
+import javafx.scene.paint.Color;
 import javafx.scene.shape.Circle;
 import javafx.scene.shape.Rectangle;
 import javafx.scene.shape.Shape;
@@ -316,6 +318,11 @@ public final class TransitionPane extends MonoClipPane {
             oldRegion.setMaxHeight(getHeight());
         } else
             oldRegionMaxHeight = -1;
+        Region frontRegion = reverse ? oldRegion : newRegion;
+        // Workaround for a bug on iPadOS
+        if (frontRegion != null && frontRegion.getBackground() == null) {
+            frontRegion.setBackground(Background.fill(Color.WHITE));
+        }
         Duration duration = Duration.seconds(1);
 
         DoubleProperty radiusProperty = new SimpleDoubleProperty(-1) {

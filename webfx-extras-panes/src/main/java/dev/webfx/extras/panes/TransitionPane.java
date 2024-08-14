@@ -41,9 +41,10 @@ public final class TransitionPane extends MonoClipPane {
 
     private boolean animate = true;
     private boolean animateFirstContent = false;
+    private boolean reverse;
+    private boolean keepsLeavingNodes = false;
     private boolean circleAnimation = false;
     private boolean scrollToTop = false;
-    private boolean keepsLeavingNodes;
     private Timeline timeline;
 
     private final Pane dualContainer = new Pane() {
@@ -170,6 +171,14 @@ public final class TransitionPane extends MonoClipPane {
         this.animateFirstContent = animateFirstContent;
     }
 
+    public boolean isReverse() {
+        return reverse;
+    }
+
+    public void setReverse(boolean reverse) {
+        this.reverse = reverse;
+    }
+
     public boolean isScrollToTop() {
         return scrollToTop;
     }
@@ -271,20 +280,28 @@ public final class TransitionPane extends MonoClipPane {
         // smoothness of the transition animation (the next layout pass may suddenly move down that node)
         Region oldRegion = oldContent instanceof Region ? (Region) oldContent : null; // only for regions
         double oldRegionMaxHeight = -1; // memorising the previous max height (to reestablish it at transition end)
-        if (oldRegion != null) { // necessary only when animated
+        if (oldRegion != null) {
             oldRegionMaxHeight = oldRegion.getMaxHeight();
             oldRegion.setMaxHeight(getHeight());
         }
+        double initialTranslateX;
         // Setting the initial translation (final is always 0)
         if (direction == HPos.LEFT) // transition from right to left
-            dualContainer.setTranslateX(+w); // new content entering from the right
+            initialTranslateX = w; // new content entering from the right
         else { // transition from left to right
-            dualContainer.setTranslateX(-w); // new content entering from the left
+            initialTranslateX = -w; // new content entering from the left
         }
+        double finalTranslateX = 0;
+        if (reverse) {
+            double swap = initialTranslateX;
+            initialTranslateX = finalTranslateX;
+            finalTranslateX = swap;
+        }
+        dualContainer.setTranslateX(initialTranslateX);
         transitingProperty.set(true);
         if (scrollToTop)
             Animations.scrollToTop(newContent, true);
-        timeline = Animations.animateProperty(dualContainer.translateXProperty(), 0);
+        timeline = Animations.animateProperty(dualContainer.translateXProperty(), finalTranslateX);
         finishTimeline(newContent, oldContent, oldRegion, oldRegionMaxHeight);
     }
 
@@ -306,21 +323,36 @@ public final class TransitionPane extends MonoClipPane {
             protected void invalidated() {
                 double radius = get();
                 double height = Math.min(oldRegion == null ? getHeight() : oldRegion.getHeight(), newRegion == null ? getHeight() : newRegion.getHeight());
-                Bounds lb = newContent.getLayoutBounds();
-                newContent.setClip(new Circle(lb.getWidth() / 2, height / 2, radius));
-                if (oldContent != null && width > 0 && height > 0 && radius > 0) {
-                    lb = oldContent.getLayoutBounds();
-                    oldContent.setClip(Shape.subtract(
-                            new Rectangle(width, height),
-                            new Circle(lb.getWidth() / 2, height / 2, radius)));
+                Node frontCircleNode =    reverse ? oldContent : newContent;
+                Node backAnticircleNode = reverse ? newContent : oldContent;
+                if (frontCircleNode != null) {
+                    Bounds lb = frontCircleNode.getLayoutBounds();
+                    frontCircleNode.setClip(new Circle(lb.getWidth() / 2, height / 2, radius));
+                }
+                if (backAnticircleNode != null) {
+                    if (width == 0 || height == 0 || radius == 0) {
+                        backAnticircleNode.setClip(null);
+                    } else {
+                        Bounds lb = backAnticircleNode.getLayoutBounds();
+                        backAnticircleNode.setClip(Shape.subtract(
+                                new Rectangle(width, height),
+                                new Circle(lb.getWidth() / 2, height / 2, radius)));
+                    }
                 }
             }
         };
         transitingProperty.set(true);
-        radiusProperty.set(0);
+        double initialRadius = 0;
+        double finalRadius = (reverse ? 0.5 : 0.7) * Math.max(width, getHeight());
+        if (reverse) {
+            double swap = initialRadius;
+            initialRadius = finalRadius;
+            finalRadius = swap;
+        }
+        radiusProperty.set(initialRadius);
         if (scrollToTop)
             Animations.scrollToTop(newContent, false);
-        timeline = Animations.animateProperty(radiusProperty, 0.7 * Math.max(width, getHeight()), duration, Interpolator.EASE_IN, true);
+        timeline = Animations.animateProperty(radiusProperty, finalRadius, duration, Interpolator.EASE_IN, true);
         finishTimeline(newContent, oldContent, oldRegion, oldRegionMaxHeight);
     }
 
@@ -332,12 +364,15 @@ public final class TransitionPane extends MonoClipPane {
             // Reestablishing the previous max height of the leaving node
             if (oldRegion != null)
                 oldRegion.setMaxHeight(oldRegionMaxHeight);
-            if (leavingNode == oldContent && oldContent != null) {
-                if (keepsLeavingNodes && isKeepsLeavingNode(oldContent))
-                    oldContent.setVisible(false);
-                else
-                    dualContainer.getChildren().remove(oldContent);
-                leavingNode = null;
+            if (oldContent != null) {
+                if (oldContent != enteringNode) {
+                    if (keepsLeavingNodes && isKeepsLeavingNode(oldContent))
+                        oldContent.setVisible(false);
+                    else
+                        dualContainer.getChildren().remove(oldContent);
+                }
+                if (leavingNode == oldContent)
+                    leavingNode = null;
             }
             if (enteringNode == newContent) {
                 transitingProperty.set(false);

@@ -115,4 +115,15 @@ public class WistiaVideoPlayer extends WebVideoPlayerBase {
         setStatus(Status.STOPPED);
     }
 
+    @Override
+    public boolean supportsFullscreen() {
+        return IS_SEAMLESS;
+    }
+
+    @Override
+    public void requestFullscreen() {
+        if (IS_SEAMLESS && getStatus() == Status.PLAYING) {
+            callVideoSeamlessly("video.requestFullscreen()");
+        }
+    }
 }

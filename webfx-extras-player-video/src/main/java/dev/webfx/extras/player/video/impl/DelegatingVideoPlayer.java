@@ -26,4 +26,15 @@ public class DelegatingVideoPlayer extends DelegatingPlayer implements VideoPlay
     public Node getVideoView() {
         return delegate.getVideoView();
     }
+
+    @Override
+    public boolean supportsFullscreen() {
+        return delegate.supportsFullscreen();
+    }
+
+    @Override
+    public void requestFullscreen() {
+        delegate.requestFullscreen();
+    }
+
 }

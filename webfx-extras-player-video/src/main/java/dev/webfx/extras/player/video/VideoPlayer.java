@@ -13,4 +13,10 @@ public interface VideoPlayer extends Player {
 
     Node getVideoView();
 
+    default boolean supportsFullscreen() {
+        return false;
+    }
+
+    default void requestFullscreen() { }
+
 }

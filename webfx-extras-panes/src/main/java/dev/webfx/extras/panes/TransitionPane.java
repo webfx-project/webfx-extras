@@ -12,10 +12,8 @@ import javafx.geometry.HPos;
 import javafx.geometry.Orientation;
 import javafx.geometry.Pos;
 import javafx.scene.Node;
-import javafx.scene.layout.Background;
 import javafx.scene.layout.Pane;
 import javafx.scene.layout.Region;
-import javafx.scene.paint.Color;
 import javafx.scene.shape.Circle;
 import javafx.scene.shape.Rectangle;
 import javafx.scene.shape.Shape;
@@ -379,12 +377,21 @@ public final class TransitionPane extends MonoClipPane {
             oldRegionMaxHeight = oldRegion.getMaxHeight();
             oldRegion.setMaxHeight(getHeight());
         }
-        // Workaround for a bug on iPadOS
-        if (oldRegion != null && oldRegion.getBackground() == null) {
-            oldRegion.setBackground(Background.fill(Color.WHITE));
-        }
-        if (newRegion != null && newRegion.getBackground() == null) {
-            newRegion.setBackground(Background.fill(Color.WHITE));
+        // Workaround for devices that don't support circle inverse clip (includes iPadOS at this time)
+        // => we ensure the front node is on top of back node
+        // Also a second condition for that workaround is that the content has a background set, but we leave that
+        // responsibility to the application code.
+        Node frontNode = reverse ? oldContent : newContent;
+        Node backNode  = reverse ? newContent : oldContent;
+        if (frontNode != null && backNode != null) {
+            ObservableList<Node> children = dualContainer.getChildren();
+            int frontIndex = children.indexOf(frontNode);
+            int backIndex = children.indexOf(backNode);
+            if (frontIndex < backIndex) { // swapping nodes
+                children.set(backIndex, new Rectangle()); // dummy node to prevent duplicates during swap
+                children.set(frontIndex, backNode);
+                children.set(backIndex, frontNode);
+            }
         }
 
         DoubleProperty radiusProperty = new SimpleDoubleProperty(-1) {
@@ -392,16 +399,15 @@ public final class TransitionPane extends MonoClipPane {
             protected void invalidated() {
                 double radius = get();
                 double height = Math.min(oldRegion == null ? getHeight() : oldRegion.getHeight(), newRegion == null ? getHeight() : newRegion.getHeight());
-                Node frontNode = reverse ? oldContent : newContent;
-                Node backNode  = reverse ? newContent : oldContent;
                 if (frontNode != null) {
                     Bounds lb = frontNode.getLayoutBounds();
                     frontNode.setClip(new Circle(lb.getWidth() / 2, height / 2, radius));
                 }
                 if (backNode != null) {
+                    backNode.setClip(null);
                     if (width == 0 || height == 0 || radius == 0) {
                         backNode.setClip(null);
-                    } else {
+                    } else { // circle inverse clip
                         Bounds lb = backNode.getLayoutBounds();
                         backNode.setClip(Shape.subtract(
                                 new Rectangle(width, height),

@@ -13,6 +13,8 @@ public class WistiaVideoPlayer extends WebVideoPlayerBase {
 
     private static final boolean IS_SEAMLESS = WebViewPane.isBrowser();
 
+    private boolean fullscreen;
+
     static {
         if (IS_SEAMLESS) {
             WebViewPane.executeSeamlessScriptInBrowser(
@@ -117,13 +119,31 @@ public class WistiaVideoPlayer extends WebVideoPlayerBase {
 
     @Override
     public boolean supportsFullscreen() {
-        return IS_SEAMLESS;
+        if (IS_SEAMLESS)
+            return true;
+        return super.supportsFullscreen();
     }
 
     @Override
     public void requestFullscreen() {
         if (IS_SEAMLESS && getStatus() == Status.PLAYING) {
             callVideoSeamlessly("video.requestFullscreen()");
+            fullscreen = true;
         }
+    }
+
+    @Override
+    public boolean isFullscreen() {
+        if (fullscreen)
+            return true;
+        return super.isFullscreen();
+    }
+
+    @Override
+    public void cancelFullscreen() {
+        if (IS_SEAMLESS)
+            callVideoSeamlessly("video.cancelFullscreen()");
+        else
+            super.cancelFullscreen();
     }
 }

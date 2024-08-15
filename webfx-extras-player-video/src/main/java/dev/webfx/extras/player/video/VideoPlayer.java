@@ -19,4 +19,10 @@ public interface VideoPlayer extends Player {
 
     default void requestFullscreen() { }
 
+    default boolean isFullscreen() {
+        return false;
+    }
+
+    default void cancelFullscreen() { }
+
 }

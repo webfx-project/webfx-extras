@@ -36,6 +36,7 @@ public class WistiaVideoPlayer extends WebVideoPlayerBase {
            "} else {" +
            "    _wq.push({ id: '" + track + "', playerColor: 'EE7130', onReady: function(video) {\n" +
            "    if (!window.webfx_extras_wistia_videos['" + track + "']) {\n" +
+           "       video.webfxWistiaVideoPlayer = window.webfxWistiaVideoPlayer;\n" +
            "    " + script + "}\n" +
            "    window.webfx_extras_wistia_videos['" + track + "'] = video;\n" +
            "}});" +
@@ -43,6 +44,7 @@ public class WistiaVideoPlayer extends WebVideoPlayerBase {
                         .setSeamlessInBrowser(true)
                         .setSeamlessStyleClass("wistia_embed", "wistia_async_" + track),
                 null);
+        // for some reason, this call must be made after loadFromScript() to work
         webViewPane.setWindowMember("webfxWistiaVideoPlayer", this);
     }
 
@@ -68,7 +70,7 @@ public class WistiaVideoPlayer extends WebVideoPlayerBase {
             } else {
                 String track = getCurrentTrack();
                 // The replaceWith() call purpose is actually to set the color player.
-                callVideoSeamlessly("video.replaceWith('" + track + "', { playerColor: 'EE7130'}); video.play(); video.bind('play', function() { window.webfxWistiaVideoPlayer.onPlay(); }); video.bind('pause', function() { window.webfxWistiaVideoPlayer.onPause(); }); video.bind('end', function() { window.webfxWistiaVideoPlayer.onEnd(); });");
+                callVideoSeamlessly("video.replaceWith('" + track + "', { playerColor: 'EE7130'}); video.play(); video.bind('play', function() { video.webfxWistiaVideoPlayer.onPlay(); }); video.bind('pause', function() { video.webfxWistiaVideoPlayer.onPause(); }); video.bind('end', function() { video.webfxWistiaVideoPlayer.onEnd(); });");
             }
         } else {
             super.play();

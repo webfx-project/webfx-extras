@@ -1,6 +1,7 @@
 package dev.webfx.extras.carousel;
 
 import dev.webfx.extras.panes.TransitionPane;
+import dev.webfx.extras.panes.transitions.TranslateTransition;
 import dev.webfx.kit.util.properties.ObservableLists;
 import dev.webfx.platform.util.Arrays;
 import dev.webfx.platform.util.collection.Collections;
@@ -147,7 +148,7 @@ public final class Carousel {
         int size = slideSuppliers.size();
         if (size == 0)
             return;
-        transitionPane.setDirection(index > displayedSlideIndex ? HPos.LEFT : HPos.RIGHT);
+        transitionPane.setTransition(new TranslateTransition(index > displayedSlideIndex ? HPos.LEFT : HPos.RIGHT));
         // index correction when it's out of the slides range (i.e. < 0 or >= size)
         if (isLoop())
             index = (index + size) % size;

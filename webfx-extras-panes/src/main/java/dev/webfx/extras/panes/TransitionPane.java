@@ -1,23 +1,20 @@
 package dev.webfx.extras.panes;
 
-import dev.webfx.extras.util.animation.Animations;
-import javafx.animation.Interpolator;
+import dev.webfx.extras.panes.transitions.CircleTransition;
+import dev.webfx.extras.panes.transitions.FadeTransition;
+import dev.webfx.extras.panes.transitions.Transition;
+import dev.webfx.extras.panes.transitions.TranslateTransition;
 import javafx.animation.Timeline;
 import javafx.beans.InvalidationListener;
 import javafx.beans.Observable;
 import javafx.beans.property.*;
 import javafx.collections.ObservableList;
-import javafx.geometry.Bounds;
 import javafx.geometry.HPos;
 import javafx.geometry.Orientation;
 import javafx.geometry.Pos;
 import javafx.scene.Node;
 import javafx.scene.layout.Pane;
 import javafx.scene.layout.Region;
-import javafx.scene.shape.Circle;
-import javafx.scene.shape.Rectangle;
-import javafx.scene.shape.Shape;
-import javafx.util.Duration;
 
 import java.util.Objects;
 
@@ -29,7 +26,6 @@ import java.util.Objects;
  */
 public final class TransitionPane extends MonoClipPane {
 
-    private HPos direction = HPos.LEFT;
     private final ObjectProperty<Node> requestedEnteringNodeProperty = new SimpleObjectProperty<>() {
         @Override
         protected void invalidated() {
@@ -37,14 +33,13 @@ public final class TransitionPane extends MonoClipPane {
         }
     };
     private final BooleanProperty transitingProperty = new SimpleBooleanProperty();
+    private Transition transition = new TranslateTransition();
     private Node enteringNode, leavingNode;
 
     private boolean animate = true;
     private boolean animateFirstContent = false;
     private boolean reverse;
     private boolean keepsLeavingNodes = false;
-    private boolean slideAnimation = false;
-    private boolean circleAnimation = false;
     private boolean scrollToTop = false;
     private Timeline timeline;
 
@@ -54,17 +49,21 @@ public final class TransitionPane extends MonoClipPane {
             double width = getWidth(), height = getHeight();
             double enteringHeight = enteringNode == null ? 0 : Math.min(height, enteringNode.prefHeight(width));
             double leavingHeight = leavingNode == null ? 0 : Math.min(height, leavingNode.prefHeight(width));
-            Pos pos = circleAnimation ? Pos.TOP_CENTER : getAlignment();
+            // Temporary hack to make account page correctly laid out with circle & fade transition
+            Pos pos = transition instanceof CircleTransition || transition instanceof FadeTransition ? Pos.TOP_CENTER : getAlignment();
             if (enteringNode != null) {
                 layoutInArea(enteringNode, 0, 0, width, enteringHeight, 0, pos.getHpos(), pos.getVpos());
             }
             if (leavingNode != null) {
-                if (circleAnimation || slideAnimation) {
+                if (transition instanceof TranslateTransition) {
+                    // transition from right to left => leaving node is on the left
+                    if (((TranslateTransition) transition).getDirection() == HPos.LEFT) {
+                        layoutInArea(leavingNode, -width, 0, width, leavingHeight, 0, pos.getHpos(), pos.getVpos());
+                    } else { // transition from left to right => leaving node is on the right
+                        layoutInArea(leavingNode,  width, 0, width, leavingHeight, 0, pos.getHpos(), pos.getVpos());
+                    }
+                } else {
                     layoutInArea(leavingNode, 0, 0, width, leavingHeight, 0, pos.getHpos(), pos.getVpos());
-                } else if (direction == HPos.LEFT) { // transition from right to left => leaving node is on the left
-                    layoutInArea(leavingNode, -width, 0, width, leavingHeight, 0, pos.getHpos(), pos.getVpos());
-                } else { // transition from left to right => leaving node is on the right
-                    layoutInArea(leavingNode,  width, 0, width, leavingHeight, 0, pos.getHpos(), pos.getVpos());
                 }
             }
         }
@@ -140,28 +139,12 @@ public final class TransitionPane extends MonoClipPane {
         transitToContent(initialContent);
     }
 
-    public HPos getDirection() {
-        return direction;
+    public Transition getTransition() {
+        return transition;
     }
 
-    public void setDirection(HPos direction) {
-        this.direction = direction;
-    }
-
-    public boolean isSlideAnimation() {
-        return slideAnimation;
-    }
-
-    public void setSlideAnimation(boolean slideAnimation) {
-        this.slideAnimation = slideAnimation;
-    }
-
-    public boolean isCircleAnimation() {
-        return circleAnimation;
-    }
-
-    public void setCircleAnimation(boolean circleAnimation) {
-        this.circleAnimation = circleAnimation;
+    public void setTransition(Transition transition) {
+        this.transition = transition;
     }
 
     public boolean isAnimate() {
@@ -209,7 +192,7 @@ public final class TransitionPane extends MonoClipPane {
     }
 
     private boolean isTransitingHorizontally() {
-        return !circleAnimation && isTransiting();
+        return isTransiting() && transition instanceof TranslateTransition;
     }
 
     public ReadOnlyBooleanProperty transitingProperty() {
@@ -277,49 +260,7 @@ public final class TransitionPane extends MonoClipPane {
             });
             return;
         }
-        if (circleAnimation)
-            doCircleClipTransition(newContent);
-        else if (slideAnimation)
-            doSlideClipTransition(newContent);
-        else
-            doTranslationTransition(newContent);
-    }
-
-    private void doTranslationTransition(Node newContent) {
         Node oldContent = leavingNode;
-        double width = getWidth();
-        // Preventing the leaving node to increase in height if the entering node is bigger, as this breaks the
-        // smoothness of the transition animation (the next layout pass may suddenly move down that node)
-        Region oldRegion = oldContent instanceof Region ? (Region) oldContent : null; // only for regions
-        double oldRegionMaxHeight = -1; // memorising the previous max height (to reestablish it at transition end)
-        if (oldRegion != null) {
-            oldRegionMaxHeight = oldRegion.getMaxHeight();
-            oldRegion.setMaxHeight(getHeight());
-        }
-        double initialTranslateX;
-        // Setting the initial translation (final is always 0)
-        if (direction == HPos.LEFT) // transition from right to left
-            initialTranslateX = width; // new content entering from the right
-        else { // transition from left to right
-            initialTranslateX = -width; // new content entering from the left
-        }
-        double finalTranslateX = 0;
-        if (reverse) {
-            double swap = initialTranslateX;
-            initialTranslateX = finalTranslateX;
-            finalTranslateX = swap;
-        }
-        dualContainer.setTranslateX(initialTranslateX);
-        transitingProperty.set(true);
-        if (scrollToTop)
-            Animations.scrollToTop(newContent, true);
-        timeline = Animations.animateProperty(dualContainer.translateXProperty(), finalTranslateX);
-        finishTimeline(newContent, oldContent, oldRegion, oldRegionMaxHeight);
-    }
-
-    private void doSlideClipTransition(Node newContent) {
-        Node oldContent = leavingNode;
-        double width = getWidth();
         // Preventing the leaving node to increase in height if the entering node is bigger, as this breaks the
         // smoothness of the transition animation (the next layout pass may suddenly move down that node)
         Region oldRegion = oldContent instanceof Region ? (Region) oldContent : null;
@@ -329,105 +270,8 @@ public final class TransitionPane extends MonoClipPane {
             oldRegionMaxHeight = oldRegion.getMaxHeight();
             oldRegion.setMaxHeight(getHeight());
         }
-
-        DoubleProperty slideXProperty = new SimpleDoubleProperty(-1) {
-            @Override
-            protected void invalidated() {
-                double slideX = Math.max(get(), 1);
-                double height = Math.min(oldRegion == null ? getHeight() : oldRegion.getHeight(), newRegion == null ? getHeight() : newRegion.getHeight());
-                Node frontNode = reverse ? oldContent : newContent;
-                Node backNode  = reverse ? newContent : oldContent;
-                if (frontNode != null) { // should be hidden is height = 0 on start
-                    frontNode.setClip(new Rectangle(slideX, 0, width - slideX, height == 0 ? 1 : height));
-                }
-                if (backNode != null) { // should be visible if height = 0 on start
-                    backNode.setClip(height == 0 ? null : new Rectangle(0, 0, slideX, height));
-                }
-            }
-        };
-
+        timeline = transition.createAndStartTransitionTimeline(oldContent, newContent, oldRegion, newRegion, dualContainer, this::getWidth, this::getHeight, reverse, scrollToTop);
         transitingProperty.set(true);
-        double initialSlideX;
-        // Setting the initial translation (final is always 0)
-        if (direction == HPos.LEFT) // transition from right to left
-            initialSlideX = width; // new content entering from the right
-        else { // transition from left to right
-            initialSlideX = -width; // new content entering from the left
-        }
-        double finalTranslateX = 0;
-        if (reverse) {
-            double swap = initialSlideX;
-            initialSlideX = finalTranslateX;
-            finalTranslateX = swap;
-        }
-        slideXProperty.set(initialSlideX);
-        if (scrollToTop)
-            Animations.scrollToTop(newContent, true);
-        timeline = Animations.animateProperty(slideXProperty, finalTranslateX, Duration.seconds(1), Interpolator.EASE_IN, true);
-        finishTimeline(newContent, oldContent, oldRegion, oldRegionMaxHeight);
-    }
-
-    private void doCircleClipTransition(Node newContent) {
-        Node oldContent = leavingNode;
-        double width = getWidth();
-        Region oldRegion = oldContent instanceof Region ? (Region) oldContent : null;
-        Region newRegion = newContent instanceof Region ? (Region) newContent : null;
-        double oldRegionMaxHeight = -1;
-        if (oldRegion != null) {
-            oldRegionMaxHeight = oldRegion.getMaxHeight();
-            oldRegion.setMaxHeight(getHeight());
-        }
-        // Workaround for devices that don't support circle inverse clip (includes iPadOS at this time)
-        // => we ensure the front node is on top of back node
-        // Also a second condition for that workaround is that the content has a background set, but we leave that
-        // responsibility to the application code.
-        Node frontNode = reverse ? oldContent : newContent;
-        Node backNode  = reverse ? newContent : oldContent;
-        if (frontNode != null && backNode != null) {
-            ObservableList<Node> children = dualContainer.getChildren();
-            int frontIndex = children.indexOf(frontNode);
-            int backIndex = children.indexOf(backNode);
-            if (frontIndex < backIndex) { // swapping nodes
-                children.set(backIndex, new Rectangle()); // dummy node to prevent duplicates during swap
-                children.set(frontIndex, backNode);
-                children.set(backIndex, frontNode);
-            }
-        }
-
-        DoubleProperty radiusProperty = new SimpleDoubleProperty(-1) {
-            @Override
-            protected void invalidated() {
-                double radius = get();
-                double height = Math.min(oldRegion == null ? getHeight() : oldRegion.getHeight(), newRegion == null ? getHeight() : newRegion.getHeight());
-                if (frontNode != null) {
-                    Bounds lb = frontNode.getLayoutBounds();
-                    frontNode.setClip(new Circle(lb.getWidth() / 2, height / 2, radius));
-                }
-                if (backNode != null) {
-                    backNode.setClip(null);
-                    if (width == 0 || height == 0 || radius == 0) {
-                        backNode.setClip(null);
-                    } else { // circle inverse clip
-                        Bounds lb = backNode.getLayoutBounds();
-                        backNode.setClip(Shape.subtract(
-                                new Rectangle(width, height),
-                                new Circle(lb.getWidth() / 2, height / 2, radius)));
-                    }
-                }
-            }
-        };
-        transitingProperty.set(true);
-        double initialRadius = 0;
-        double finalRadius = (reverse ? 0.5 : 0.7) * Math.max(width, getHeight());
-        if (reverse) {
-            double swap = initialRadius;
-            initialRadius = finalRadius;
-            finalRadius = swap;
-        }
-        radiusProperty.set(initialRadius);
-        if (scrollToTop)
-            Animations.scrollToTop(newContent, false);
-        timeline = Animations.animateProperty(radiusProperty, finalRadius, Duration.seconds(reverse ? 0.5 : 1), Interpolator.EASE_IN, true);
         finishTimeline(newContent, oldContent, oldRegion, oldRegionMaxHeight);
     }
 

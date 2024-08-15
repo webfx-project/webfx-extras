@@ -2,7 +2,10 @@ package dev.webfx.extras.util.animation;
 
 import dev.webfx.platform.uischeduler.UiScheduler;
 import dev.webfx.platform.util.Objects;
-import javafx.animation.*;
+import javafx.animation.Interpolator;
+import javafx.animation.KeyFrame;
+import javafx.animation.KeyValue;
+import javafx.animation.Timeline;
 import javafx.beans.property.DoubleProperty;
 import javafx.beans.value.WritableValue;
 import javafx.scene.Node;
@@ -17,6 +20,7 @@ public final class Animations {
 
     // Ease out interpolator closer to the web standard than the one proposed in JavaFX (ie Interpolator.EASE_OUT)
     public final static Interpolator EASE_OUT_INTERPOLATOR = Interpolator.SPLINE(0, .75, .25, 1);
+    public final static Interpolator EASE_BOTH_INTERPOLATOR = Interpolator.SPLINE(0.42, 0, .58, 1);
 
     public static <T> Timeline animateProperty(WritableValue<T> target, T finalValue) {
         return animateProperty(target, finalValue, true);

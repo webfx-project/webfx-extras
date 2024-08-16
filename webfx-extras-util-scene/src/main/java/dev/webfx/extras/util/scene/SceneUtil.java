@@ -201,7 +201,8 @@ public final class SceneUtil {
     }
 
     public static boolean scrollNodeToBeVerticallyVisibleOnScene(Node node) {
-        return scrollNodeToBeVerticallyVisibleOnScene(node, false, true);
+        // Note: onlyIfNotVisible = false was creating unwanted scroll on the login/guest window
+        return scrollNodeToBeVerticallyVisibleOnScene(node, true, true);
     }
 
     public static boolean scrollNodeToBeVerticallyVisibleOnScene(Node node, boolean onlyIfNotVisible, boolean animate) {

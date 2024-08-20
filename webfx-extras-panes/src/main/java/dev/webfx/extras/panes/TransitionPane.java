@@ -139,6 +139,16 @@ public final class TransitionPane extends MonoClipPane {
         transitToContent(initialContent);
     }
 
+    public void setUnmanagedDuringTransition() {
+        // This is a performance optimization that can be activated in some cases for transitions triggering layouts
+        // such as TranslateTransition. It sets the dual container as unmanaged during the transition, which stops the
+        // layout propagation between its transiting children and the rest of the scene (this solved the slow
+        // TranslateTransition on mobiles when the dual container was in a HtmlScrollPanePeer in SIMPLE_CSS mode).
+        // To avoid however if the transiting children have images not yet loaded, because if these images are loaded
+        // before the end of the transition, they won't be positioned correctly during the transition.
+        dualContainer.managedProperty().bind(transitingProperty.not());
+    }
+
     public Transition getTransition() {
         return transition;
     }

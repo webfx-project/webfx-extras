@@ -219,7 +219,7 @@ public final class SceneUtil {
             double currentScrollPaneSceneTop = scrollPane.localToScene(0, 0).getY();
             wishedSceneNodeTop = LayoutUtil.boundedSize(wishedSceneNodeTop, currentScrollPaneSceneTop, currentScrollPaneSceneTop + viewportHeight);
             double currentNodeSceneTop = node.localToScene(0, 0).getY();
-            double currentViewportSceneTop = ControlUtil.computeScrollPaneVoffset(scrollPane);
+            double currentViewportSceneTop = ControlUtil.computeScrollPaneVTopOffset(scrollPane);
             double wishedViewportSceneTop = currentViewportSceneTop +  currentNodeSceneTop - wishedSceneNodeTop;
             double vValue = wishedViewportSceneTop / (contentHeight - viewportHeight);
             vValue = LayoutUtil.boundedSize(vValue, 0, 1);

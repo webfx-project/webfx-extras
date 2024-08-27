@@ -99,23 +99,43 @@ public class ControlUtil {
         }
     }
 
-    public static double computeScrollPaneHoffset(ScrollPane scrollPane) {
+    public static double computeScrollPaneHLeftOffset(ScrollPane scrollPane) {
+        return computeScrollPaneHOffset(scrollPane, false);
+    }
+
+    public static double computeScrollPaneHRightOffset(ScrollPane scrollPane) {
+        return computeScrollPaneHOffset(scrollPane, true);
+    }
+
+    public static double computeScrollPaneHOffset(ScrollPane scrollPane, boolean addViewportWidth) {
         double hmin = scrollPane.getHmin();
         double hmax = scrollPane.getHmax();
         double hvalue = scrollPane.getHvalue();
         double contentWidth = scrollPane.getContent().getLayoutBounds().getWidth();
         double viewportWidth = scrollPane.getViewportBounds().getWidth();
         double hoffset = Math.max(0, contentWidth - viewportWidth) * (hvalue - hmin) / (hmax - hmin);
+        if (addViewportWidth)
+            hoffset += viewportWidth;
         return hoffset;
     }
 
-    public static double computeScrollPaneVoffset(ScrollPane scrollPane) {
+    public static double computeScrollPaneVTopOffset(ScrollPane scrollPane) {
+        return computeScrollPaneVOffset(scrollPane, false);
+    }
+
+    public static double computeScrollPaneVBottomOffset(ScrollPane scrollPane) {
+        return computeScrollPaneVOffset(scrollPane, true);
+    }
+
+    public static double computeScrollPaneVOffset(ScrollPane scrollPane, boolean addViewportHeight) {
         double vmin = scrollPane.getVmin();
         double vmax = scrollPane.getVmax();
         double vvalue = scrollPane.getVvalue();
         double contentHeight = scrollPane.getContent().getLayoutBounds().getHeight();
         double viewportHeight = scrollPane.getViewportBounds().getHeight();
         double voffset = Math.max(0, contentHeight - viewportHeight) * (vvalue - vmin) / (vmax - vmin);
+        if (addViewportHeight)
+            voffset += viewportHeight;
         return voffset;
     }
 

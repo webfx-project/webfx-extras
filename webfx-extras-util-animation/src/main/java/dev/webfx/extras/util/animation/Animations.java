@@ -1,5 +1,6 @@
 package dev.webfx.extras.util.animation;
 
+import dev.webfx.platform.uischeduler.UiScheduler;
 import dev.webfx.platform.util.Objects;
 import javafx.animation.Interpolator;
 import javafx.animation.KeyFrame;
@@ -19,6 +20,7 @@ public final class Animations {
 
     // Ease out interpolator closer to the web standard than the one proposed in JavaFX (ie Interpolator.EASE_OUT)
     public final static Interpolator EASE_OUT_INTERPOLATOR = Interpolator.SPLINE(0, .75, .25, 1);
+    public final static Interpolator EASE_BOTH_INTERPOLATOR = Interpolator.SPLINE(0.42, 0, .58, 1);
 
     public static <T> Timeline animateProperty(WritableValue<T> target, T finalValue) {
         return animateProperty(target, finalValue, true);
@@ -37,16 +39,30 @@ public final class Animations {
     }
 
     public static <T> Timeline animateProperty(WritableValue<T> target, T finalValue, Duration duration, Interpolator interpolator) {
+        return animateProperty(target, finalValue, duration, interpolator, false);
+    }
+
+    public static <T> Timeline animateProperty(WritableValue<T> target, T finalValue, Duration duration, Interpolator interpolator, boolean onIdle) {
+        Timeline timeline;
         if (!Objects.areEquals(target.getValue(), finalValue)) {
-            if (interpolator == null || duration == null || duration.equals(Duration.ZERO))
+            if (interpolator == null || duration == null || duration.equals(Duration.ZERO)) {
                 target.setValue(finalValue);
-            else {
-                Timeline timeline = new Timeline(new KeyFrame(duration, new KeyValue(target, finalValue, interpolator)));
-                timeline.play();
-                return timeline;
+                timeline = new Timeline();
+            } else {
+                timeline = new Timeline(new KeyFrame(duration, new KeyValue(target, finalValue, interpolator)));
             }
+        } else
+            timeline = new Timeline();
+        if (onIdle) {
+            // TODO: implement UiScheduler.scheduleInNextIdleAnimationFrame()
+            UiScheduler.scheduleInAnimationFrame(() -> {
+                if (timeline.getCurrentTime().toMillis() == 0)
+                    timeline.play();
+            }, 5); // for now, we assume 5 animation frames (80ms) are enough to pass a possible UI rush
+        } else {
+            timeline.play();
         }
-        return null;
+        return timeline;
     }
 
     public static void shake(Node node) {

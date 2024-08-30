@@ -2,6 +2,7 @@ package dev.webfx.extras.panes;
 
 import dev.webfx.extras.util.animation.Animations;
 import dev.webfx.kit.util.properties.FXProperties;
+import javafx.animation.Timeline;
 import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.SimpleBooleanProperty;
 import javafx.geometry.Pos;
@@ -14,6 +15,8 @@ import javafx.scene.shape.SVGPath;
 import javafx.scene.shape.StrokeLineCap;
 import javafx.scene.shape.StrokeLineJoin;
 
+import java.util.Objects;
+
 /**
  * A Pane that can be collapsed (and then expanded) programmatically, or through user interaction (see static methods).
  * This is a first version where collapse works only from bottom to top. Other directions will be added later.
@@ -21,17 +24,6 @@ import javafx.scene.shape.StrokeLineJoin;
  * @author Bruno Salmon
  */
 public class CollapsePane extends MonoClipPane {
-
-    public CollapsePane() {
-    }
-
-    public CollapsePane(Node content) {
-        super(content);
-    }
-
-    {
-        setAlignment(Pos.TOP_CENTER);
-    }
 
     private final BooleanProperty collapsedProperty = new SimpleBooleanProperty() {
         @Override
@@ -42,6 +34,30 @@ public class CollapsePane extends MonoClipPane {
                 doExpand();
         }
     };
+    private Timeline timeline;
+    private double heightDuringCollapseAnimation;
+
+    {
+        setMinHeight(USE_PREF_SIZE);
+        setMaxHeight(USE_PREF_SIZE);
+    }
+
+    public CollapsePane() {
+    }
+
+    public CollapsePane(Node content) {
+        super(content);
+    }
+
+    @Override
+    protected double getLayoutHeight() {
+        // During the collapse animation, the layout is performed with the captured height of the content in order to
+        // make the sliding effect (otherwise the layout would try to shrink the content to this CollapsePane height).
+        // Even if the content height exceeds this CollapsePane height, it doesn't matter as it's clipped.
+        if (timeline != null)
+            return heightDuringCollapseAnimation;
+        return super.getLayoutHeight();
+    }
 
     public boolean isCollapsed() {
         return collapsedProperty.get();
@@ -68,15 +84,37 @@ public class CollapsePane extends MonoClipPane {
     }
 
     private void doCollapse() {
-        setMinHeight(USE_PREF_SIZE);
-        setMaxHeight(USE_PREF_SIZE);
-        setPrefHeight(getHeight());
-        Animations.animateProperty(prefHeightProperty(), 0);
+        heightDuringCollapseAnimation = getHeight();
+        setPrefHeight(heightDuringCollapseAnimation);
+        animatePrefHeight( 0);
     }
 
     private void doExpand() {
-        Animations.animateProperty(prefHeightProperty(), computePrefHeight(getWidth()))
-                .setOnFinished(e -> setPrefHeight(USE_COMPUTED_SIZE));
+        heightDuringCollapseAnimation = content.prefHeight(getWidth());
+        if (heightDuringCollapseAnimation > 0) {
+            animatePrefHeight(heightDuringCollapseAnimation);
+        }
+    }
+
+    private void animatePrefHeight(double finalValue) {
+        if (timeline != null) {
+            timeline.jumpTo(timeline.getTotalDuration());
+            timeline.stop();
+            callTimelineOnFinishedIfFinished();
+        }
+        timeline = Animations.animateProperty(prefHeightProperty(), finalValue);
+        timeline.setOnFinished(e -> {
+            if (finalValue > 0)
+                setPrefHeight(USE_COMPUTED_SIZE);
+            timeline = null;
+        });
+        callTimelineOnFinishedIfFinished();
+    }
+
+    private void callTimelineOnFinishedIfFinished() {
+        if (timeline != null && Objects.equals(timeline.getCurrentTime(), timeline.getTotalDuration())) {
+            timeline.getOnFinished().handle(null);
+        }
     }
 
     public static StackPane decorateCollapsePane(CollapsePane collapsePane, boolean hideDecorationOnMouseExit) {

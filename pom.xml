@@ -52,7 +52,7 @@
         <module>webfx-extras-canvas-blob-openjfx</module>
         <module>webfx-extras-canvas-layer</module>
         <module>webfx-extras-canvas-pane</module>
-        <module>webfx-extras-carrousel</module>
+        <module>webfx-extras-carousel</module>
         <module>webfx-extras-cell</module>
         <module>webfx-extras-filepicker</module>
         <module>webfx-extras-filepicker-gwt-j2cl</module>
@@ -62,7 +62,6 @@
         <module>webfx-extras-label</module>
         <module>webfx-extras-layer</module>
         <module>webfx-extras-led</module>
-        <module>webfx-extras-materialdesign</module>
         <module>webfx-extras-panes</module>
         <module>webfx-extras-player</module>
         <module>webfx-extras-player-audio</module>
@@ -72,6 +71,8 @@
         <module>webfx-extras-player-video-web</module>
         <module>webfx-extras-player-video-web-wistia</module>
         <module>webfx-extras-player-video-web-youtube</module>
+        <module>webfx-extras-styles-bootstrap</module>
+        <module>webfx-extras-styles-materialdesign</module>
         <module>webfx-extras-switches</module>
         <module>webfx-extras-theme</module>
         <module>webfx-extras-time</module>

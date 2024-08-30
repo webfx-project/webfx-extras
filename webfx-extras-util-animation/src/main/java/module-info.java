@@ -5,6 +5,7 @@ module webfx.extras.util.animation {
     // Direct dependencies modules
     requires javafx.base;
     requires javafx.graphics;
+    requires webfx.platform.uischeduler;
     requires webfx.platform.util;
 
     // Exported packages

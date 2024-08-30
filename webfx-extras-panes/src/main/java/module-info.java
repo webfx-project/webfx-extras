@@ -11,5 +11,6 @@ module webfx.extras.panes {
 
     // Exported packages
     exports dev.webfx.extras.panes;
+    exports dev.webfx.extras.panes.transitions;
 
 }

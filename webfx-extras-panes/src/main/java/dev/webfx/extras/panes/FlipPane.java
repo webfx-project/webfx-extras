@@ -17,6 +17,7 @@ import javafx.scene.transform.Scale;
 import javafx.scene.transform.Transform;
 import javafx.util.Duration;
 
+import java.util.Objects;
 
 
 /**
@@ -179,25 +180,25 @@ public final class FlipPane extends StackPane {
         double currentValue = globalRotateProperty().get();
         if (currentValue == endValue)
             return;
-        if (flipTimeline != null)
+        if (flipTimeline != null) {
+            flipTimeline.jumpTo(flipTimeline.getTotalDuration());
             flipTimeline.stop();
+            callTimelineOnFinishedIfFinished();
+        }
         updateRotatesAxisAndPivot(true);
         applyRotates(false);
         flipTimeline = Animations.animateProperty(globalRotateProperty(), endValue, flipDuration); // new scale version
-        if (flipTimeline == null)
-            onFlipFinished(onFinished);
-        else {
-            frontPane.setCache(true);
-            backPane.setCache(true);
-            frontPane.setCacheHint(CacheHint.ROTATE);
-            backPane.setCacheHint(CacheHint.ROTATE);
+        frontPane.setCache(true);
+        backPane.setCache(true);
+        frontPane.setCacheHint(CacheHint.ROTATE);
+        backPane.setCacheHint(CacheHint.ROTATE);
 
-            flipTimeline.setOnFinished(event -> {
-                frontPane.setCache(false);
-                backPane.setCache(false);
-                onFlipFinished(onFinished);
-            });
-        }
+        flipTimeline.setOnFinished(event -> {
+            frontPane.setCache(false);
+            backPane.setCache(false);
+            onFlipFinished(onFinished);
+        });
+        callTimelineOnFinishedIfFinished();
     }
 
     private void onFlipFinished(Runnable onFinished) {
@@ -205,6 +206,13 @@ public final class FlipPane extends StackPane {
         applyRotates(true);
         if (onFinished != null)
             onFinished.run();
+    }
+
+    private void callTimelineOnFinishedIfFinished() {
+        if (Objects.equals(flipTimeline.getCurrentTime(), flipTimeline.getTotalDuration())) {
+            flipTimeline.getOnFinished().handle(null);
+            flipTimeline = null;
+        }
     }
 
     public void flipToFront() {

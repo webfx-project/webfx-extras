@@ -15,7 +15,16 @@
         <used-by-source-modules>
             <module transitive="true">webfx-extras-player-video</module>
             <module transitive="true">webfx-kit-javafxbase-emul</module>
+            <undetected-module>javafx-graphics</undetected-module>
         </used-by-source-modules>
     </dependencies>
+
+    <java-callbacks>
+        <callback-class name="dev.webfx.extras.player.video.web.wistia.WistiaVideoPlayer">
+            <callback-method name="onPlay"/>
+            <callback-method name="onPause"/>
+            <callback-method name="onEnd"/>
+        </callback-class>
+    </java-callbacks>
 
 </project>

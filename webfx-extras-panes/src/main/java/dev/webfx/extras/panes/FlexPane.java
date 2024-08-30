@@ -17,14 +17,17 @@ import java.util.stream.Collectors;
  * @author Bruno Salmon
  */
 public final class FlexPane extends Pane {
+
     private static final String GROW_CONSTRAINT = "flexbox-grow";
     private static final String MARGIN_CONSTRAINT = "flexbox-margin";
+
     private final DoubleProperty horizontalSpaceProperty = new SimpleDoubleProperty(0) {
         @Override
         protected void invalidated() {
             requestLayout();
         }
     };
+
     private final DoubleProperty verticalSpaceProperty = new SimpleDoubleProperty(0)  {
         @Override
         protected void invalidated() {
@@ -37,11 +40,13 @@ public final class FlexPane extends Pane {
             requestLayout();
         }
     };
+
     private final BooleanProperty spaceLeftProperty = new SimpleBooleanProperty() {
         protected void invalidated() {
             requestLayout();
         }
     };
+
     private final BooleanProperty spaceRightProperty = new SimpleBooleanProperty() {
         protected void invalidated() {
             requestLayout();
@@ -52,6 +57,7 @@ public final class FlexPane extends Pane {
             requestLayout();
         }
     };
+
     private final BooleanProperty flexLastRowProperty = new SimpleBooleanProperty(true) {
         protected void invalidated() {
             requestLayout();

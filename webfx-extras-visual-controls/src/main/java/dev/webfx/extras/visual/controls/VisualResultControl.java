@@ -1,9 +1,8 @@
 package dev.webfx.extras.visual.controls;
 
-import javafx.beans.property.Property;
-import javafx.beans.property.SimpleObjectProperty;
-import dev.webfx.extras.visual.VisualResult;
 import dev.webfx.extras.visual.HasVisualResultProperty;
+import dev.webfx.extras.visual.VisualResult;
+import javafx.beans.property.*;
 import javafx.scene.control.Control;
 
 /**
@@ -12,14 +11,27 @@ import javafx.scene.control.Control;
 public abstract class VisualResultControl extends Control implements
         HasVisualResultProperty {
 
-    private final Property<VisualResult> visualResultProperty = new SimpleObjectProperty<VisualResult>() {
+    private final ObjectProperty<VisualResult> visualResultProperty = new SimpleObjectProperty<>() {
         @Override
         protected void invalidated() {
+            VisualResult visualResult = get();
+            rowCountProperty.set(visualResult == null ? 0 : visualResult.getRowCount());
             requestParentLayout();
         }
     };
+
     @Override
-    public Property<VisualResult> visualResultProperty() {
+    public ObjectProperty<VisualResult> visualResultProperty() {
         return visualResultProperty;
+    }
+
+    private final IntegerProperty rowCountProperty = new SimpleIntegerProperty();
+
+    public int getRowCount() {
+        return rowCountProperty.get();
+    }
+
+    public ReadOnlyIntegerProperty rowCountProperty() {
+        return rowCountProperty;
     }
 }

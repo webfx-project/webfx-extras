@@ -43,6 +43,7 @@ public final class Animations {
     }
 
     public static <T> Timeline animateProperty(WritableValue<T> target, T finalValue, Duration duration, Interpolator interpolator, boolean onIdle) {
+        //System.out.println("animateProperty() target = " + target + ", finalValue = " + finalValue);
         Timeline timeline;
         if (!Objects.areEquals(target.getValue(), finalValue)) {
             if (interpolator == null || duration == null || duration.equals(Duration.ZERO)) {
@@ -91,23 +92,35 @@ public final class Animations {
     // So modules that depend on javafx-graphics only can use it, it won't do anything if the final application doesn't
     // use javafx-control (=> no ScrollPane), but it will if the final application uses it (and ControlUtil).
 
-    public static void scrollToTop(Node content, boolean animated) {
+    public static Timeline scrollToTop(Node content, boolean animated) {
         if (scrollPaneAncestorFinder != null && scrollPaneValuePropertyGetter != null) {
             Node scrollPane = scrollPaneAncestorFinder.apply(content);
             if (scrollPane != null) {
                 DoubleProperty valueProperty = scrollPaneValuePropertyGetter.apply(scrollPane);
                 if (valueProperty != null) {
-                    if (!animated)
-                        valueProperty.set(0);
-                    else
-                        animateProperty(valueProperty, 0);
+                    double vValue = 0;
+                    Node hotNode = getScrollToTopTargetNode(content);
+                    if (hotNode != null && computeVerticalScrollNodeWishedValueGetter != null)
+                        vValue = computeVerticalScrollNodeWishedValueGetter.apply(hotNode);
+                    //Console.log("👉👉👉👉👉 vValue = " + vValue);
+                    return animateProperty(valueProperty, vValue, animated);
                 }
             }
         }
+        return null;
+    }
+
+    public static void setScrollToTopTargetNode(Node content, Node hotNode) {
+        content.getProperties().put("scrollToTopTargetNode", hotNode);
+    }
+
+    private static Node getScrollToTopTargetNode(Node content) {
+        return (Node) content.getProperties().get("scrollToTopTargetNode");
     }
 
     private static Function<Node, Node> scrollPaneAncestorFinder;
     private static Function<Node, DoubleProperty> scrollPaneValuePropertyGetter;
+    private static Function<Node, Double> computeVerticalScrollNodeWishedValueGetter;
 
     public static void setScrollPaneAncestorFinder(Function<Node, Node> scrollPaneAncestorFinder) {
         Animations.scrollPaneAncestorFinder = scrollPaneAncestorFinder;
@@ -117,4 +130,7 @@ public final class Animations {
         Animations.scrollPaneValuePropertyGetter = scrollPaneValuePropertyGetter;
     }
 
+    public static void setComputeVerticalScrollNodeWishedValueGetter(Function<Node, Double> computeVerticalScrollNodeWishedValueGetter) {
+        Animations.computeVerticalScrollNodeWishedValueGetter = computeVerticalScrollNodeWishedValueGetter;
+    }
 }

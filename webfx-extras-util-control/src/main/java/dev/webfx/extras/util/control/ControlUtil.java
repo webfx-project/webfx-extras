@@ -155,6 +155,39 @@ public class ControlUtil {
         return null;
     }
 
+    public static double computeVerticalScrollNodeWishedValue(Node node) {
+        ScrollPane scrollPane = ControlUtil.findScrollPaneAncestor(node);
+        if (scrollPane != null) {
+            double contentHeight = scrollPane.getContent().getLayoutBounds().getHeight();
+            double viewportHeight = scrollPane.getViewportBounds().getHeight();
+            double nodeHeight = node.getLayoutBounds().getHeight();
+            double sceneHeight = node.getScene().getHeight();
+            VPos wishedPosition = getVerticalScrollNodeWishedPosition(node);
+            double wishedSceneNodeTop = wishedPosition == VPos.TOP ? sceneHeight / 1.618 - nodeHeight / 2
+                : wishedPosition == VPos.BOTTOM ? sceneHeight - nodeHeight
+                : sceneHeight / 2 - nodeHeight / 2;
+            double currentScrollPaneSceneTop = scrollPane.localToScene(0, 0).getY();
+            wishedSceneNodeTop = LayoutUtil.boundedSize(wishedSceneNodeTop, currentScrollPaneSceneTop, currentScrollPaneSceneTop + viewportHeight);
+            double currentNodeSceneTop = node.localToScene(0, 0).getY();
+            double currentViewportSceneTop = computeScrollPaneVTopOffset(scrollPane);
+            double wishedViewportSceneTop = currentViewportSceneTop + currentNodeSceneTop - wishedSceneNodeTop;
+            //Console.log("👉👉👉👉👉 viewportBounds = " + scrollPane.getViewportBounds() + ", contentHeight = " + contentHeight + ", viewportHeight = " + viewportHeight + ", nodeHeight = " + nodeHeight + ", sceneHeight = " + sceneHeight + ", currentScrollPaneSceneTop = " + currentScrollPaneSceneTop + ", currentNodeSceneTop = " + currentNodeSceneTop + ", currentViewportSceneTop = " + currentViewportSceneTop + ", wishedViewportSceneTop = " + wishedViewportSceneTop);
+            double vValue = wishedViewportSceneTop / (contentHeight - viewportHeight);
+            vValue = LayoutUtil.boundedSize(vValue, 0, 1);
+            return vValue;
+        }
+        return 0;
+    }
+
+    public static void setVerticalScrollNodeWishedPosition(Node node, VPos wishedPosition) {
+        node.getProperties().put("verticalScrollNodeWishedPosition", wishedPosition);
+    }
+
+    public static VPos getVerticalScrollNodeWishedPosition(Node node) {
+        Object wishedPosition = node.getProperties().get("verticalScrollNodeWishedPosition");
+        return wishedPosition instanceof VPos ? (VPos) wishedPosition : VPos.CENTER;
+    }
+
     static {
         Animations.setScrollPaneAncestorFinder(ControlUtil::findScrollPaneAncestor);
         Animations.setScrollPaneValuePropertyGetter(node -> {
@@ -162,6 +195,7 @@ public class ControlUtil {
                 return ((ScrollPane) node).vvalueProperty();
             return null;
         });
+        Animations.setComputeVerticalScrollNodeWishedValueGetter(ControlUtil::computeVerticalScrollNodeWishedValue);
     }
 
 }

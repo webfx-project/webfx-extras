@@ -20,7 +20,8 @@ public interface Transition {
             Pane dualContainer,
             Supplier<Double> widthGetter,
             Supplier<Double> heightGetter,
-            boolean reverse,
-            boolean scrollToTop);
+            boolean reverse);
+
+    boolean shouldVerticalScrollBeAnimated();
 
 }

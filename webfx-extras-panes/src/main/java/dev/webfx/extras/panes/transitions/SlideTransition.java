@@ -30,7 +30,7 @@ public class SlideTransition implements Transition {
     }
 
     @Override
-    public Timeline createAndStartTransitionTimeline(Node oldContent, Node newContent, Region oldRegion, Region newRegion, Pane dualContainer, Supplier<Double> widthGetter, Supplier<Double> heightGetter, boolean reverse, boolean scrollToTop) {
+    public Timeline createAndStartTransitionTimeline(Node oldContent, Node newContent, Region oldRegion, Region newRegion, Pane dualContainer, Supplier<Double> widthGetter, Supplier<Double> heightGetter, boolean reverse) {
         double width = widthGetter.get();
         DoubleProperty slideXProperty = new SimpleDoubleProperty(-1) {
             @Override
@@ -62,8 +62,11 @@ public class SlideTransition implements Transition {
             finalTranslateX = swap;
         }
         slideXProperty.set(initialSlideX);
-        if (scrollToTop)
-            Animations.scrollToTop(newContent, true);
         return Animations.animateProperty(slideXProperty, finalTranslateX, Duration.seconds(1), Interpolator.EASE_IN, true);
+    }
+
+    @Override
+    public boolean shouldVerticalScrollBeAnimated() {
+        return true;
     }
 }

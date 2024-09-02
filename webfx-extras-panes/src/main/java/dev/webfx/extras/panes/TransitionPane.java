@@ -4,7 +4,9 @@ import dev.webfx.extras.panes.transitions.CircleTransition;
 import dev.webfx.extras.panes.transitions.FadeTransition;
 import dev.webfx.extras.panes.transitions.Transition;
 import dev.webfx.extras.panes.transitions.TranslateTransition;
+import dev.webfx.extras.util.animation.Animations;
 import javafx.animation.Timeline;
+import javafx.application.Platform;
 import javafx.beans.InvalidationListener;
 import javafx.beans.Observable;
 import javafx.beans.property.*;
@@ -41,7 +43,8 @@ public final class TransitionPane extends MonoClipPane {
     private boolean reverse;
     private boolean keepsLeavingNodes = false;
     private boolean scrollToTop = false;
-    private Timeline timeline;
+    private Timeline transitionTimeline;
+    private Timeline scrollToTopTimeline;
 
     private final Pane dualContainer = new Pane() {
         @Override
@@ -66,6 +69,13 @@ public final class TransitionPane extends MonoClipPane {
                     layoutInArea(leavingNode, 0, 0, width, leavingHeight, 0, pos.getHpos(), pos.getVpos());
                 }
             }
+            if (scrollToTop && scrollToTopTimeline == null && enteringHeight > 0) {
+                // Postponing to ensure the layout bound is set on the possible target node for scrollTop
+                Platform.runLater(() -> {
+                    scrollToTopTimeline = Animations.scrollToTop(enteringNode, transition.shouldVerticalScrollBeAnimated());
+                });
+            }
+
         }
 
         @Override
@@ -229,9 +239,9 @@ public final class TransitionPane extends MonoClipPane {
     }
 
     private void onEnteringNodeRequested(Node newContent) {
-        if (timeline != null) {
-            timeline.jumpTo(timeline.getTotalDuration());
-            timeline.stop();
+        if (transitionTimeline != null) {
+            transitionTimeline.jumpTo(transitionTimeline.getTotalDuration());
+            transitionTimeline.stop();
             callTimelineOnFinishedIfFinished();
         }
         leavingNode = enteringNode;
@@ -280,13 +290,22 @@ public final class TransitionPane extends MonoClipPane {
             oldRegionMaxHeight = oldRegion.getMaxHeight();
             oldRegion.setMaxHeight(getHeight());
         }
-        timeline = transition.createAndStartTransitionTimeline(oldContent, newContent, oldRegion, newRegion, dualContainer, this::getWidth, this::getHeight, reverse, scrollToTop);
+        rescheduleScrollTopTimeline();
+        transitionTimeline = transition.createAndStartTransitionTimeline(oldContent, newContent, oldRegion, newRegion, dualContainer, this::getWidth, this::getHeight, reverse);
         transitingProperty.set(true);
         finishTimeline(newContent, oldContent, oldRegion, oldRegionMaxHeight);
     }
 
+    private void rescheduleScrollTopTimeline() {
+        if (scrollToTop) {
+            if (scrollToTopTimeline != null)
+                scrollToTopTimeline.stop();
+            scrollToTopTimeline = null;
+        }
+    }
+
     private void finishTimeline(Node newContent, Node oldContent, Region oldRegion, double oldRegionMaxHeight) {
-        timeline.setOnFinished(e -> {
+        transitionTimeline.setOnFinished(e -> {
             newContent.setClip(null);
             if (oldContent != null)
                 oldContent.setClip(null);
@@ -297,8 +316,10 @@ public final class TransitionPane extends MonoClipPane {
                 if (oldContent != enteringNode) {
                     if (keepsLeavingNodes && isKeepsLeavingNode(oldContent))
                         oldContent.setVisible(false);
-                    else
+                    else {
                         dualContainer.getChildren().remove(oldContent);
+                        rescheduleScrollTopTimeline();
+                    }
                 }
                 if (leavingNode == oldContent)
                     leavingNode = null;
@@ -311,9 +332,9 @@ public final class TransitionPane extends MonoClipPane {
     }
 
     private void callTimelineOnFinishedIfFinished() {
-        if (Objects.equals(timeline.getCurrentTime(), timeline.getTotalDuration())) {
-            timeline.getOnFinished().handle(null);
-            timeline = null;
+        if (Objects.equals(transitionTimeline.getCurrentTime(), transitionTimeline.getTotalDuration())) {
+            transitionTimeline.getOnFinished().handle(null);
+            transitionTimeline = null;
         }
     }
 }

@@ -30,7 +30,7 @@ public class TranslateTransition implements Transition {
     }
 
     @Override
-    public Timeline createAndStartTransitionTimeline(Node oldContent, Node newContent, Region oldRegion, Region newRegion, Pane dualContainer, Supplier<Double> widthGetter, Supplier<Double> heightGetter, boolean reverse, boolean scrollToTop) {
+    public Timeline createAndStartTransitionTimeline(Node oldContent, Node newContent, Region oldRegion, Region newRegion, Pane dualContainer, Supplier<Double> widthGetter, Supplier<Double> heightGetter, boolean reverse) {
         double width = widthGetter.get();
         double initialTranslateX;
         // Setting the initial translation (final is always 0)
@@ -46,8 +46,11 @@ public class TranslateTransition implements Transition {
             finalTranslateX = swap;
         }
         dualContainer.setTranslateX(initialTranslateX);
-        if (scrollToTop)
-            Animations.scrollToTop(newContent, true);
         return Animations.animateProperty(dualContainer.translateXProperty(), finalTranslateX, Duration.seconds(0.7), Animations.EASE_BOTH_INTERPOLATOR, true);
+    }
+
+    @Override
+    public boolean shouldVerticalScrollBeAnimated() {
+        return true;
     }
 }

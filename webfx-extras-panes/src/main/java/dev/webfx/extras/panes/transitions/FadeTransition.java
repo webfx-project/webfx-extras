@@ -17,7 +17,7 @@ import java.util.function.Supplier;
 public class FadeTransition implements Transition {
 
     @Override
-    public Timeline createAndStartTransitionTimeline(Node oldContent, Node newContent, Region oldRegion, Region newRegion, Pane dualContainer, Supplier<Double> widthGetter, Supplier<Double> heightGetter, boolean reverse, boolean scrollToTop) {
+    public Timeline createAndStartTransitionTimeline(Node oldContent, Node newContent, Region oldRegion, Region newRegion, Pane dualContainer, Supplier<Double> widthGetter, Supplier<Double> heightGetter, boolean reverse) {
         DoubleProperty fadeProperty = new SimpleDoubleProperty(-1) {
             @Override
             protected void invalidated() {
@@ -29,8 +29,11 @@ public class FadeTransition implements Transition {
             }
         };
         fadeProperty.set(0);
-        if (scrollToTop)
-            Animations.scrollToTop(newContent, false);
         return Animations.animateProperty(fadeProperty, 1, Duration.seconds(reverse ? 0.4 : 0.7), Animations.EASE_BOTH_INTERPOLATOR, true);
+    }
+
+    @Override
+    public boolean shouldVerticalScrollBeAnimated() {
+        return false;
     }
 }

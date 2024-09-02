@@ -23,7 +23,7 @@ import java.util.function.Supplier;
 public class CircleTransition implements Transition {
 
     @Override
-    public Timeline createAndStartTransitionTimeline(Node oldContent, Node newContent, Region oldRegion, Region newRegion, Pane dualContainer, Supplier<Double> widthGetter, Supplier<Double> heightGetter, boolean reverse, boolean scrollToTop) {
+    public Timeline createAndStartTransitionTimeline(Node oldContent, Node newContent, Region oldRegion, Region newRegion, Pane dualContainer, Supplier<Double> widthGetter, Supplier<Double> heightGetter, boolean reverse) {
         // Workaround for devices that don't support circle inverse clip (includes iPadOS at this time)
         // => we ensure the front node is on top of back node
         // Also a second condition for that workaround is that the content has a background set, but we leave that
@@ -72,8 +72,11 @@ public class CircleTransition implements Transition {
             finalRadius = swap;
         }
         radiusProperty.set(initialRadius);
-        if (scrollToTop)
-            Animations.scrollToTop(newContent, false);
         return Animations.animateProperty(radiusProperty, finalRadius, Duration.seconds(reverse ? 0.5 : 1), Interpolator.EASE_IN, true);
+    }
+
+    @Override
+    public boolean shouldVerticalScrollBeAnimated() {
+        return false;
     }
 }

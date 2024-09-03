@@ -29,17 +29,26 @@ public abstract class WebVideoPlayerBase extends VideoPlayerBase {
     }
 
     @Override
-    public void play() {
+    public void displayVideo() {
+        display(false);
+    }
+
+    private void display(boolean play) {
         String track = getCurrentTrack();
         if (track == null)
             stop();
         else {
-            String url = trackUrl(track);
-            webViewPane.loadFromUrl(url, new LoadOptions().setOnLoadSuccess(() -> setStatus(Status.PLAYING)), null);
+            String url = trackUrl(track, play);
+            webViewPane.loadFromUrl(url, new LoadOptions().setOnLoadSuccess(() -> setStatus(play ? Status.PLAYING : Status.READY)), null);
         }
     }
 
-    protected abstract String trackUrl(String track);
+    @Override
+    public void play() {
+        display(true);
+    }
+
+    protected abstract String trackUrl(String track, boolean play);
 
     @Override
     public void pause() {

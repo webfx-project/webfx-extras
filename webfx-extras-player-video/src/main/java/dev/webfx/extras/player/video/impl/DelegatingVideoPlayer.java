@@ -28,6 +28,11 @@ public class DelegatingVideoPlayer extends DelegatingPlayer implements VideoPlay
     }
 
     @Override
+    public void displayVideo() {
+        delegate.displayVideo();
+    }
+
+    @Override
     public boolean supportsFullscreen() {
         return delegate.supportsFullscreen();
     }

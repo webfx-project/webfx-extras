@@ -97,8 +97,8 @@ public class WistiaVideoPlayer extends WebVideoPlayerBase {
     }
 
     @Override
-    protected String trackUrl(String track) { // used in non-seamless mode (iFrame)
-        return "https://fast.wistia.net/embed/iframe/" + track + "?autoplay=true&playerColor=EE7130";
+    protected String trackUrl(String track, boolean play) { // used in non-seamless mode (iFrame)
+        return "https://fast.wistia.net/embed/iframe/" + track + "?" + (play ? "autoplay=true&" : "") + "playerColor=EE7130";
     }
 
     // Callback methods called by Wistia in seamless mode

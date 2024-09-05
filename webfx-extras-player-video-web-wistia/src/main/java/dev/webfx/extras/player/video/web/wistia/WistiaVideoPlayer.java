@@ -1,151 +1,95 @@
 package dev.webfx.extras.player.video.web.wistia;
 
 import dev.webfx.extras.player.Status;
-import dev.webfx.extras.player.video.IntegrationMode;
-import dev.webfx.extras.player.video.web.WebVideoPlayerBase;
+import dev.webfx.extras.player.video.web.SeamlessCapableWebVideoPlayer;
 import dev.webfx.extras.webview.pane.LoadOptions;
 import dev.webfx.extras.webview.pane.WebViewPane;
 
 /**
  * @author Bruno Salmon
  */
-public class WistiaVideoPlayer extends WebVideoPlayerBase {
-
-    private static final boolean IS_SEAMLESS = WebViewPane.isBrowser();
-
-    private boolean fullscreen;
+public class WistiaVideoPlayer extends SeamlessCapableWebVideoPlayer {
 
     static {
         if (IS_SEAMLESS) {
             WebViewPane.executeSeamlessScriptInBrowser(
-                    "window._wq = window._wq || [];" +
-                    "window.webfx_extras_wistia_videos = {};" +
-                    "const script = document.createElement('script');\n" +
-                    "script.src = '//fast.wistia.com/assets/external/E-v1.js';\n" +
-                    "document.head.appendChild(script);"
+                "window._wq = window._wq || [];" +
+                "window.webfx_extras_wistia_videos = {};" +
+                "const script = document.createElement('script');\n" +
+                "script.src = '//fast.wistia.com/assets/external/E-v1.js';\n" +
+                "document.head.appendChild(script);"
             );
         }
     }
 
-    private void callVideoSeamlessly(String script) {
-        //Console.log("Calling: " + script);
-        String track = getCurrentTrack();
-        webViewPane.loadFromScript(
-           "const video = window.webfx_extras_wistia_videos['" + track + "'];" +
-           " if (video) {" + script +
-           "} else {" +
-           "    _wq.push({ id: '" + track + "', playerColor: 'EE7130', onReady: function(video) {\n" +
-           "    if (!window.webfx_extras_wistia_videos['" + track + "']) {\n" +
-           "       video.webfxWistiaVideoPlayer = window.webfxWistiaVideoPlayer;\n" +
-           "    " + script + "}\n" +
-           "    window.webfx_extras_wistia_videos['" + track + "'] = video;\n" +
-           "}});" +
-           "}", new LoadOptions()
-                        .setSeamlessInBrowser(true)
-                        .setSeamlessStyleClass("wistia_embed", "wistia_async_" + track),
-                null);
-        // for some reason, this call must be made after loadFromScript() to work
-        webViewPane.setWindowMember("webfxWistiaVideoPlayer", this);
-    }
-
-    public WistiaVideoPlayer() {
-        super(isSeamless() ? IntegrationMode.SEAMLESS : IntegrationMode.EMBEDDED);
-        if (IS_SEAMLESS) {
-            getVideoView().sceneProperty().addListener((observable, oldValue, newValue) -> {
-                if (newValue == null && isPlaying())
-                    setStatus(Status.STOPPED);
-            });
-        }
-    }
-
-    public static boolean isSeamless() {
-        return IS_SEAMLESS;
-    }
-
     @Override
-    public void play() {
-        if (IS_SEAMLESS) {
-            if (getStatus() == Status.PAUSED) {
-                callVideoSeamlessly("video.play()");
-            } else {
-                String track = getCurrentTrack();
-                // The replaceWith() call purpose is actually to set the color player.
-                callVideoSeamlessly("video.replaceWith('" + track + "', { playerColor: 'EE7130'}); video.play(); video.bind('play', function() { video.webfxWistiaVideoPlayer.onPlay(); }); video.bind('pause', function() { video.webfxWistiaVideoPlayer.onPause(); }); video.bind('end', function() { video.webfxWistiaVideoPlayer.onEnd(); });");
-            }
-        } else {
-            super.play();
-        }
-    }
-
-    @Override
-    public void pause() {
-        if (IS_SEAMLESS) {
-            callVideoSeamlessly("video.pause()");
-        } else {
-            super.pause();
-        }
-    }
-
-    @Override
-    public void stop() {
-        if (IS_SEAMLESS) {
-            callVideoSeamlessly("video.pause()");
-            setStatus(Status.STOPPED);
-        } else {
-            super.stop();
-        }
-    }
-
-    @Override
-    protected String trackUrl(String track, boolean play) { // used in non-seamless mode (iFrame)
+    protected String trackUrl(String track, boolean play) { // called in non-seamless mode only (iFrame)
         return "https://fast.wistia.net/embed/iframe/" + track + "?" + (play ? "autoplay=true&" : "") + "playerColor=EE7130";
     }
 
-    // Callback methods called by Wistia in seamless mode
-
-    public void onPlay() {
-        //Console.log("onPlay()");
-        setStatus(Status.PLAYING);
+    private void seamless_call(String script) {
+        //Console.log("Calling: " + script);
+        String track = getCurrentTrack();
+        webViewPane.loadFromScript(
+            "const playerId = '" + playerId + "';\n" +
+            "const track = '" + track + "';\n" +
+            "const video = window.webfx_extras_wistia_videos[track];\n" +
+            "if (video) {\n" + script +
+            "} else {" +
+            "    _wq.push({ id: track, playerColor: 'EE7130', onReady: function(video) {\n" +
+            "    if (!window.webfx_extras_wistia_videos['" + track + "']) {\n" +
+            "        const javaPlayer = window[playerId];\n" +
+            "        video.bind('play',  function() { javaPlayer.onPlay();  });\n" +
+            "        video.bind('pause', function() { javaPlayer.onPause(); });\n" +
+            "        video.bind('end',   function() { javaPlayer.onEnd();   });\n" +
+            "        " + script + "}\n" +
+            "    window.webfx_extras_wistia_videos[track] = video;\n" +
+            "}});" +
+            "}", new LoadOptions()
+                .setSeamlessInBrowser(true)
+                .setSeamlessStyleClass("wistia_embed", "wistia_async_" + track)
+                .setOnWebWindowReady(() -> {
+                    webViewPane.setWindowMember(playerId, this);
+                })
+            ,
+            null);
     }
 
-    public void onPause() {
-        //Console.log("onPause()");
-        if (getStatus() != Status.STOPPED)
-            setStatus(Status.PAUSED);
+    @Override
+    protected void seamless_displayVideo() {
+        seamless_call("");
     }
 
-    public void onEnd() {
-        //Console.log("onEnd()");
+    @Override
+    protected void seamless_play() {
+        if (getStatus() == Status.PAUSED) {
+            seamless_call("video.play()");
+        } else {
+            String track = getCurrentTrack();
+            // The replaceWith() call purpose is actually to set the color player.
+            seamless_call("video.replaceWith('" + track + "', { playerColor: 'EE7130'}); video.play();");
+        }
+    }
+
+    @Override
+    protected void seamless_pause() {
+        seamless_call("video.pause()");
+    }
+
+    @Override
+    protected void seamless_stop() {
+        seamless_call("video.pause()");
         setStatus(Status.STOPPED);
     }
 
     @Override
-    public boolean supportsFullscreen() {
-        if (IS_SEAMLESS)
-            return true;
-        return super.supportsFullscreen();
+    protected void seamless_requestFullscreen() {
+        seamless_call("video.requestFullscreen()");
     }
 
     @Override
-    public void requestFullscreen() {
-        if (IS_SEAMLESS && getStatus() == Status.PLAYING) {
-            callVideoSeamlessly("video.requestFullscreen()");
-            fullscreen = true;
-        }
+    protected void seamless_cancelFullscreen() {
+        seamless_call("video.cancelFullscreen()");
     }
 
-    @Override
-    public boolean isFullscreen() {
-        if (fullscreen)
-            return true;
-        return super.isFullscreen();
-    }
-
-    @Override
-    public void cancelFullscreen() {
-        if (IS_SEAMLESS)
-            callVideoSeamlessly("video.cancelFullscreen()");
-        else
-            super.cancelFullscreen();
-    }
 }

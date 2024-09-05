@@ -9,6 +9,10 @@ import dev.webfx.extras.player.video.VideoPlayer;
  */
 public abstract class VideoPlayerBase extends PlayerBase implements VideoPlayer {
 
+    private static int SEQ;
+
+    protected final String playerId = "player_" + ++SEQ;
+
     private final IntegrationMode integrationMode;
 
     public VideoPlayerBase(IntegrationMode integrationMode) {

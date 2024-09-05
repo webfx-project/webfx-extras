@@ -19,12 +19,4 @@
         </used-by-source-modules>
     </dependencies>
 
-    <java-callbacks>
-        <callback-class name="dev.webfx.extras.player.video.web.wistia.WistiaVideoPlayer">
-            <callback-method name="onPlay"/>
-            <callback-method name="onPause"/>
-            <callback-method name="onEnd"/>
-        </callback-class>
-    </java-callbacks>
-
 </project>

@@ -7,6 +7,7 @@ module webfx.extras.player.video.web.youtube {
     requires transitive javafx.graphics;
     requires transitive webfx.extras.player.video;
     requires webfx.extras.player.video.web;
+    requires webfx.extras.webview.pane;
 
     // Exported packages
     exports dev.webfx.extras.player.video.web.youtube;

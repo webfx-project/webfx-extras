@@ -26,7 +26,7 @@ import java.util.function.Consumer;
  */
 public class WebViewPane extends MonoPane {
 
-    private static final boolean DEBUG = true;
+    private static final boolean DEBUG = false;
 
     private static final boolean IS_GLUON = UserAgent.isNative();
     private static final boolean IS_BROWSER = UserAgent.isBrowser();
@@ -401,8 +401,15 @@ public class WebViewPane extends MonoPane {
                                 if (loadOptions != null && loadOptions.getSeamlessStyleClass() != null) {
                                     seamlessDiv.getStyleClass().setAll(loadOptions.getSeamlessStyleClass());
                                 }
-                                executeSeamlessScriptInBrowser(script);
-                                notifyLoadSuccess();
+                                // Postponing the script execution. The reason for this is that if we just created a
+                                // seamlessDiv, it's only in the JavaFX scene graph at this stage, it will be mapped
+                                // by webfx a bit later (in the next animation frame), but the script probably needs
+                                // access it straightaway (ex: seamless video player), so we postpone its execution
+                                // to ensure webfx inserted it in the DOM.
+                                UiScheduler.scheduleDeferred(() -> {
+                                    executeSeamlessScriptInBrowser(script);
+                                    notifyLoadSuccess();
+                                });
                             } else if (webWindow != null) {
                                 logDebug("Engine executes script " + script);
                                 we.executeScript(script);

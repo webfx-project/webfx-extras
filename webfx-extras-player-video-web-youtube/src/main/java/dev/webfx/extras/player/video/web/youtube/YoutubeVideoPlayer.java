@@ -3,6 +3,7 @@ package dev.webfx.extras.player.video.web.youtube;
 import dev.webfx.extras.player.video.web.SeamlessCapableWebVideoPlayer;
 import dev.webfx.extras.webview.pane.LoadOptions;
 import dev.webfx.extras.webview.pane.WebViewPane;
+import javafx.util.Duration;
 
 /**
  * @author Bruno Salmon
@@ -96,6 +97,20 @@ Here are some of the most commonly used parameters to remove or hide overlays:
     @Override
     protected void seamless_displayVideo() {
         seamless_call("");
+    }
+
+    @Override
+    public void resetToInitialState() {
+        if (IS_SEAMLESS) {
+            seamless_call("player.cueVideoById('" + getCurrentTrack() + "')");
+        } else
+            super.resetToInitialState();
+    }
+
+    @Override
+    public void seek(Duration seekTime) {
+        if (IS_SEAMLESS)
+            seamless_call("player.seekTo(" + seekTime.toSeconds() + ", true)");
     }
 
     @Override

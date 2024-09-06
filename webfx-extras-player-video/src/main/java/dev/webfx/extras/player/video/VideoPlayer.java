@@ -2,6 +2,7 @@ package dev.webfx.extras.player.video;
 
 import dev.webfx.extras.player.Player;
 import javafx.scene.Node;
+import javafx.util.Duration;
 
 
 /**
@@ -14,6 +15,10 @@ public interface VideoPlayer extends Player {
     Node getVideoView();
 
     void displayVideo();
+
+    default void resetToInitialState() {
+        seek(Duration.ZERO);
+    }
 
     default boolean supportsFullscreen() {
         return false;

@@ -4,6 +4,7 @@ import dev.webfx.extras.player.Status;
 import dev.webfx.extras.player.video.web.SeamlessCapableWebVideoPlayer;
 import dev.webfx.extras.webview.pane.LoadOptions;
 import dev.webfx.extras.webview.pane.WebViewPane;
+import javafx.util.Duration;
 
 /**
  * @author Bruno Salmon
@@ -17,7 +18,13 @@ public class WistiaVideoPlayer extends SeamlessCapableWebVideoPlayer {
                 "window.webfx_extras_wistia_videos = {};" +
                 "const script = document.createElement('script');\n" +
                 "script.src = '//fast.wistia.com/assets/external/E-v1.js';\n" +
-                "document.head.appendChild(script);"
+                "document.head.appendChild(script);\n" +
+                "window.bindWistiaVideo = function(video, playerId) {\n" +
+                "    const javaPlayer = window[playerId];\n" +
+                "    video.bind('play',  function() { javaPlayer.onPlay();  });\n" +
+                "    video.bind('pause', function() { javaPlayer.onPause(); });\n" +
+                "    video.bind('end',   function() { javaPlayer.onEnd();   });\n" +
+                "};"
             );
         }
     }
@@ -33,17 +40,14 @@ public class WistiaVideoPlayer extends SeamlessCapableWebVideoPlayer {
         webViewPane.loadFromScript(
             "const playerId = '" + playerId + "';\n" +
             "const track = '" + track + "';\n" +
-            "const video = window.webfx_extras_wistia_videos[track];\n" +
+            "const video = window.webfx_extras_wistia_videos[playerId];\n" +
             "if (video) {\n" + script +
             "} else {" +
             "    _wq.push({ id: track, playerColor: 'EE7130', onReady: function(video) {\n" +
-            "    if (!window.webfx_extras_wistia_videos['" + track + "']) {\n" +
-            "        const javaPlayer = window[playerId];\n" +
-            "        video.bind('play',  function() { javaPlayer.onPlay();  });\n" +
-            "        video.bind('pause', function() { javaPlayer.onPause(); });\n" +
-            "        video.bind('end',   function() { javaPlayer.onEnd();   });\n" +
+            "    if (!window.webfx_extras_wistia_videos[playerId]) {\n" +
+            "        window.bindWistiaVideo(video, playerId);\n" +
             "        " + script + "}\n" +
-            "    window.webfx_extras_wistia_videos[track] = video;\n" +
+            "    window.webfx_extras_wistia_videos[playerId] = video;\n" +
             "}});" +
             "}", new LoadOptions()
                 .setSeamlessInBrowser(true)
@@ -58,6 +62,14 @@ public class WistiaVideoPlayer extends SeamlessCapableWebVideoPlayer {
     @Override
     protected void seamless_displayVideo() {
         seamless_call("");
+    }
+
+    @Override
+    public void resetToInitialState() {
+        if (IS_SEAMLESS)
+            seamless_call("video.replaceWith('" + getCurrentTrack() + "', { playerColor: 'EE7130'}); window.bindWistiaVideo(video, playerId);");
+        else
+            super.resetToInitialState();
     }
 
     @Override
@@ -80,6 +92,12 @@ public class WistiaVideoPlayer extends SeamlessCapableWebVideoPlayer {
     protected void seamless_stop() {
         seamless_call("video.pause()");
         setStatus(Status.STOPPED);
+    }
+
+    @Override
+    public void seek(Duration seekTime) {
+        if (IS_SEAMLESS)
+            seamless_call("video.time(" + seekTime.toSeconds() + ")");
     }
 
     @Override

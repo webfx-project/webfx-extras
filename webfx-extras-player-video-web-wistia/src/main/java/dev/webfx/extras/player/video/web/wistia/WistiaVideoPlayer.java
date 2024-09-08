@@ -19,8 +19,7 @@ public class WistiaVideoPlayer extends SeamlessCapableWebVideoPlayer {
                 "const script = document.createElement('script');\n" +
                 "script.src = '//fast.wistia.com/assets/external/E-v1.js';\n" +
                 "document.head.appendChild(script);\n" +
-                "window.bindWistiaVideo = function(video, playerId) {\n" +
-                "    const javaPlayer = window[playerId];\n" +
+                "window.bindWistiaVideo = function(video, javaPlayer) {\n" +
                 "    video.bind('play',  function() { javaPlayer.onPlay();  });\n" +
                 "    video.bind('pause', function() { javaPlayer.onPause(); });\n" +
                 "    video.bind('end',   function() { javaPlayer.onEnd();   });\n" +
@@ -42,13 +41,16 @@ public class WistiaVideoPlayer extends SeamlessCapableWebVideoPlayer {
             "const track = '" + track + "';\n" +
             "const video = window.webfx_extras_wistia_videos[playerId];\n" +
             "if (video) {\n" + script +
-            "} else {" +
+            "} else {\n" +
             "    _wq.push({ id: track, playerColor: 'EE7130', onReady: function(video) {\n" +
-            "    if (!window.webfx_extras_wistia_videos[playerId]) {\n" +
-            "        window.bindWistiaVideo(video, playerId);\n" +
-            "        " + script + "}\n" +
-            "    window.webfx_extras_wistia_videos[playerId] = video;\n" +
-            "}});" +
+            "        if (!window.webfx_extras_wistia_videos[playerId]) {\n" +
+            "            window.webfx_extras_wistia_videos[playerId] = video;\n" +
+            "            " + script +
+            "        }\n" +
+            "        const javaPlayer = window[playerId];\n" +
+            "        window.bindWistiaVideo(video, javaPlayer);\n" +
+            "        javaPlayer.onReady();\n" +
+            "    }});\n" +
             "}", new LoadOptions()
                 .setSeamlessInBrowser(true)
                 .setSeamlessStyleClass("wistia_embed", "wistia_async_" + track)

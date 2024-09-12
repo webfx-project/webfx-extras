@@ -154,6 +154,10 @@ public final class ColumnsPane extends Pane {
         maxColumnCountProperty.set(fixedColumnCount);
     }
 
+    public int getMaxColumnCount() {
+        return maxColumnCountProperty.get();
+    }
+
     public DoubleProperty minRowHeightProperty() {
         return minRowHeightProperty;
     }
@@ -232,7 +236,7 @@ public final class ColumnsPane extends Pane {
     }
 
     private boolean isMultipleRowsEnabled() {
-        return getFixedColumnCount() > 0 || getMinColumnWidth() > 0;
+        return getFixedColumnCount() > 0 ||  getMaxColumnCount() > 0 ||getMinColumnWidth() > 0;
     }
 
     private double computeRowMinPrefMaxHeight(List<Node> children, int rowFirstChildIndex, int colCount, Function<Node, Double> minPrefMaxHeightFunction) {

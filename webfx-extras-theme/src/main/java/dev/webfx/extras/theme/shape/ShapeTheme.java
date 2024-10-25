@@ -74,14 +74,15 @@ public class ShapeTheme implements Theme {
         boolean primary = shapeFacetCategory == ShapeFacetCategory.PRIMARY_SHAPE_FACET;
         boolean secondary = shapeFacetCategory == ShapeFacetCategory.SECONDARY_SHAPE_FACET;
 
-        Color textColor = getShapeColor(primary, secondary, facet.isInverted(), facet.isDisabled());
+        Color shapeColor = getShapeColor(primary, secondary, facet.isInverted(), facet.isDisabled());
 
         Color invertedColor = getShapeColor(primary, secondary, !facet.isInverted(), facet.isDisabled());
+        Color disabledColor = getShapeColor(primary, secondary, facet.isInverted(), !facet.isDisabled());
         Color oppositeLightColor = getShapeColor(primary, secondary, facet.isInverted(), facet.isDisabled(), !FXLuminanceMode.isLightMode());
-        setGraphicFill(graphicNode, textColor, invertedColor, oppositeLightColor);
+        setGraphicFill(graphicNode, shapeColor, invertedColor, disabledColor, oppositeLightColor);
     }
 
-    private static void setGraphicFill(Node graphicNode, Color graphicColor, Color invertedColor, Color oppositeLightColor) {
+    private static void setGraphicFill(Node graphicNode, Color graphicColor, Color invertedColor, Color disabledColor, Color oppositeLightColor) {
         if (graphicNode instanceof Shape) {
             Shape graphic = (Shape) graphicNode;
             if (!(graphic instanceof SVGPath))
@@ -90,13 +91,13 @@ public class ShapeTheme implements Theme {
                 SVGPath svgPath = (SVGPath) graphic;
                 Paint graphicFill = svgPath.getFill();
                 Paint graphicStroke = svgPath.getStroke();
-                if (Color.BLACK.equals(graphicFill) || invertedColor.equals(graphicFill) || oppositeLightColor.equals(graphicFill) || graphicFill == null && graphicStroke == null)
+                if (Color.BLACK.equals(graphicFill) || invertedColor.equals(graphicFill) || disabledColor.equals(graphicFill) || oppositeLightColor.equals(graphicFill) || graphicFill == null && graphicStroke == null)
                     graphic.setFill(graphicColor);
-                if (Color.BLACK.equals(graphicStroke) || invertedColor.equals(graphicStroke) || oppositeLightColor.equals(graphicStroke))
+                if (Color.BLACK.equals(graphicStroke) || invertedColor.equals(graphicStroke) || disabledColor.equals(graphicStroke) || oppositeLightColor.equals(graphicStroke))
                     graphic.setStroke(graphicColor);
             }
         } else if (graphicNode instanceof Parent) {
-            ((Parent) graphicNode).getChildrenUnmodifiable().forEach(n -> setGraphicFill(n, graphicColor, invertedColor, oppositeLightColor));
+            ((Parent) graphicNode).getChildrenUnmodifiable().forEach(n -> setGraphicFill(n, graphicColor, invertedColor, disabledColor, oppositeLightColor));
         }
     }
 

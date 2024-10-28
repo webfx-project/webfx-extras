@@ -141,7 +141,7 @@ public class MonoPane extends Pane {
 
     @Override
     protected double computeMinHeight(double width) { // pane width
-        return insetsHeight() + computeContentMinHeight(width - insetsHeight());
+        return insetsHeight() + computeContentMinHeight(width - insetsWidth());
     }
 
     protected double computeContentMinHeight(double width) { // content width

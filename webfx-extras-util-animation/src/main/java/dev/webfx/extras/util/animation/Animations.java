@@ -8,6 +8,8 @@ import javafx.animation.KeyValue;
 import javafx.animation.Timeline;
 import javafx.beans.property.DoubleProperty;
 import javafx.beans.value.WritableValue;
+import javafx.event.ActionEvent;
+import javafx.event.EventHandler;
 import javafx.scene.Node;
 import javafx.util.Duration;
 
@@ -65,6 +67,19 @@ public final class Animations {
         }
         return timeline;
     }
+
+    public static boolean isTimelineFinished(Timeline timeline) {
+        return java.util.Objects.equals(timeline.getCurrentTime(), timeline.getTotalDuration());
+    }
+
+    public static void callTimelineOnFinishedIfFinished(Timeline timeline) {
+        if (timeline != null && isTimelineFinished(timeline)) {
+            EventHandler<ActionEvent> onFinished = timeline.getOnFinished();
+            if (onFinished != null)
+                onFinished.handle(null);
+        }
+    }
+
 
     public static void shake(Node node) {
         DoubleProperty x = node.layoutXProperty(); // translateX would be better but not yet emulated so using layoutX instead

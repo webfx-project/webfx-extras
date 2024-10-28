@@ -18,8 +18,6 @@ import javafx.scene.Node;
 import javafx.scene.layout.Pane;
 import javafx.scene.layout.Region;
 
-import java.util.Objects;
-
 /**
  * This Pane creates an animation when changing its content, so the old node looks like leaving, and the new node looks
  * like entering. For now, only horizontal translation animation is supported (from left to right or right to left).
@@ -242,7 +240,7 @@ public final class TransitionPane extends MonoClipPane {
         if (transitionTimeline != null) {
             transitionTimeline.jumpTo(transitionTimeline.getTotalDuration());
             transitionTimeline.stop();
-            callTimelineOnFinishedIfFinished();
+            Animations.callTimelineOnFinishedIfFinished(transitionTimeline);
         }
         leavingNode = enteringNode;
         enteringNode = newContent;
@@ -328,13 +326,7 @@ public final class TransitionPane extends MonoClipPane {
                 transitingProperty.set(false);
             }
         });
-        callTimelineOnFinishedIfFinished();
+        Animations.callTimelineOnFinishedIfFinished(transitionTimeline);
     }
 
-    private void callTimelineOnFinishedIfFinished() {
-        if (Objects.equals(transitionTimeline.getCurrentTime(), transitionTimeline.getTotalDuration())) {
-            transitionTimeline.getOnFinished().handle(null);
-            transitionTimeline = null;
-        }
-    }
 }

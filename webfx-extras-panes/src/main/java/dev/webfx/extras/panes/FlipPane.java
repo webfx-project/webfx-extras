@@ -17,8 +17,6 @@ import javafx.scene.transform.Scale;
 import javafx.scene.transform.Transform;
 import javafx.util.Duration;
 
-import java.util.Objects;
-
 
 /**
  * @author Bruno Salmon
@@ -183,7 +181,7 @@ public final class FlipPane extends StackPane {
         if (flipTimeline != null) {
             flipTimeline.jumpTo(flipTimeline.getTotalDuration());
             flipTimeline.stop();
-            callTimelineOnFinishedIfFinished();
+            Animations.callTimelineOnFinishedIfFinished(flipTimeline);
         }
         updateRotatesAxisAndPivot(true);
         applyRotates(false);
@@ -198,7 +196,7 @@ public final class FlipPane extends StackPane {
             backPane.setCache(false);
             onFlipFinished(onFinished);
         });
-        callTimelineOnFinishedIfFinished();
+        Animations.callTimelineOnFinishedIfFinished(flipTimeline);
     }
 
     private void onFlipFinished(Runnable onFinished) {
@@ -206,13 +204,6 @@ public final class FlipPane extends StackPane {
         applyRotates(true);
         if (onFinished != null)
             onFinished.run();
-    }
-
-    private void callTimelineOnFinishedIfFinished() {
-        if (Objects.equals(flipTimeline.getCurrentTime(), flipTimeline.getTotalDuration())) {
-            flipTimeline.getOnFinished().handle(null);
-            flipTimeline = null;
-        }
     }
 
     public void flipToFront() {

@@ -1,6 +1,7 @@
 package dev.webfx.extras.panes;
 
 import dev.webfx.extras.util.animation.Animations;
+import dev.webfx.extras.util.layout.LayoutUtil;
 import dev.webfx.kit.util.properties.FXProperties;
 import javafx.animation.Timeline;
 import javafx.beans.property.BooleanProperty;
@@ -10,12 +11,11 @@ import javafx.scene.Cursor;
 import javafx.scene.Node;
 import javafx.scene.layout.*;
 import javafx.scene.paint.Color;
+import javafx.scene.paint.Paint;
 import javafx.scene.shape.Circle;
 import javafx.scene.shape.SVGPath;
 import javafx.scene.shape.StrokeLineCap;
 import javafx.scene.shape.StrokeLineJoin;
-
-import java.util.Objects;
 
 /**
  * A Pane that can be collapsed (and then expanded) programmatically, or through user interaction (see static methods).
@@ -36,11 +36,6 @@ public class CollapsePane extends MonoClipPane {
     };
     private Timeline timeline;
     private double heightDuringCollapseAnimation;
-
-    {
-        setMinHeight(USE_PREF_SIZE);
-        setMaxHeight(USE_PREF_SIZE);
-    }
 
     public CollapsePane() {
     }
@@ -86,82 +81,113 @@ public class CollapsePane extends MonoClipPane {
     private void doCollapse() {
         heightDuringCollapseAnimation = getHeight();
         setPrefHeight(heightDuringCollapseAnimation);
-        animatePrefHeight( 0);
+        animateHeight( 0);
     }
 
     private void doExpand() {
-        heightDuringCollapseAnimation = content.prefHeight(getWidth());
+        setHeightComputationMode(USE_COMPUTED_SIZE);
+        double minHeight  = minHeight(getWidth());
+        double prefHeight = prefHeight(getWidth());
+        double maxHeight  = maxHeight(getWidth());
+        heightDuringCollapseAnimation = LayoutUtil.boundedSize(minHeight, prefHeight, maxHeight);
         if (heightDuringCollapseAnimation > 0) {
-            animatePrefHeight(heightDuringCollapseAnimation);
+            animateHeight(heightDuringCollapseAnimation);
         }
     }
 
-    private void animatePrefHeight(double finalValue) {
+    private void setHeightComputationMode(double mode) {
+        setMinHeight(mode);
+        if (mode == USE_COMPUTED_SIZE)
+            setPrefHeight(mode);
+        setMaxHeight(mode);
+    }
+
+    private void animateHeight(double finalValue) {
+        setHeightComputationMode(USE_PREF_SIZE);
         if (timeline != null) {
             timeline.jumpTo(timeline.getTotalDuration());
             timeline.stop();
-            callTimelineOnFinishedIfFinished();
+            Animations.callTimelineOnFinishedIfFinished(timeline);
         }
         timeline = Animations.animateProperty(prefHeightProperty(), finalValue);
         timeline.setOnFinished(e -> {
-            if (finalValue > 0)
-                setPrefHeight(USE_COMPUTED_SIZE);
+            if (finalValue > 0) {
+                setHeightComputationMode(USE_COMPUTED_SIZE);
+            }
             timeline = null;
         });
-        callTimelineOnFinishedIfFinished();
+        Animations.callTimelineOnFinishedIfFinished(timeline);
     }
 
-    private void callTimelineOnFinishedIfFinished() {
-        if (timeline != null && Objects.equals(timeline.getCurrentTime(), timeline.getTotalDuration())) {
-            timeline.getOnFinished().handle(null);
-        }
-    }
-
-    public static StackPane decorateCollapsePane(CollapsePane collapsePane, boolean hideDecorationOnMouseExit) {
-        int radius = 16;
-        Circle circle = new Circle(radius, Color.WHITE);
-        circle.setStroke(Color.LIGHTGRAY);
+    public static Node createPlainChevron(Paint stroke) {
         SVGPath chevron = new SVGPath();
         chevron.setContent("M 0,8 8,0 16,8");
+        chevron.setFill(Color.TRANSPARENT);
+        chevron.setStroke(stroke);
         chevron.setStrokeWidth(2);
         chevron.setStrokeLineCap(StrokeLineCap.ROUND);
         chevron.setStrokeLineJoin(StrokeLineJoin.ROUND);
-        chevron.setStroke(Color.LIGHTGRAY);
-        chevron.setFill(Color.TRANSPARENT);
-        StackPane stackPane = new StackPane(collapsePane, circle, chevron);
+        return chevron;
+    }
+
+    public static Node createCircledChevron() {
+        int radius = 16;
+        Circle circle = new Circle(radius, Color.WHITE);
+        circle.setStroke(Color.LIGHTGRAY);
+        Node plainChevronNode = createPlainChevron(Color.LIGHTGRAY);
+        plainChevronNode.setMouseTransparent(true);
+        return new StackPane(circle, plainChevronNode);
+    }
+
+    public static <N extends Node> N armChevron(N chevron, CollapsePane collapsePane) {
+        return armChevron(chevron, collapsePane, null);
+    }
+
+    public static <N extends Node> N armChevron(N chevron, CollapsePane collapsePane, Node hideChevronOnMouseExitNode) {
+        return armChevron(chevron, collapsePane.collapsedProperty(), hideChevronOnMouseExitNode);
+    }
+
+    public static <N extends Node> N armChevron(N chevron, BooleanProperty collapsedProperty) {
+        return armChevron(chevron, collapsedProperty, null);
+    }
+
+    public static <N extends Node> N armChevron(N chevron, BooleanProperty collapsedProperty, Node hideChevronOnMouseExitNode) {
+        // User interaction management: collapse/expand on circle click
+        chevron.setOnMouseClicked(e -> collapsedProperty.set(!collapsedProperty.get()));
+        chevron.setCursor(Cursor.HAND); // Note that in OpenJFX, only the part inside the StackPane is showing the hand cursor
+        // Rotation animation of the chevron while collapsing or expanding
+        FXProperties.runOnPropertiesChange(() ->
+                Animations.animateProperty(chevron.rotateProperty(), collapsedProperty.get() ? 180 : 0)
+            , collapsedProperty);
+        // Hiding the circle & chevron on mouse exit if requested
+        if (hideChevronOnMouseExitNode != null) {
+            hideChevronOnMouseExitNode.setOnMouseEntered(e -> { // Note: works also on touch devices!
+                chevron.setVisible(true);
+            });
+            // However, we always show them when the pane is collapsed (otherwise there is no way to expand it again)
+            hideChevronOnMouseExitNode.setOnMouseExited(e -> {  // Note: works also on touch devices!
+                chevron.setVisible(collapsedProperty.get());
+            });
+        }
+        return chevron;
+    }
+
+    public static StackPane decorateCollapsePane(CollapsePane collapsePane, boolean hideDecorationOnMouseExit) {
+        Node chevronNode = createCircledChevron();
+        StackPane stackPane = new StackPane(collapsePane, chevronNode);
         // Drawing a 1px borderline at the bottom.
         stackPane.setBorder(new Border(new BorderStroke(Color.LIGHTGRAY, BorderStrokeStyle.SOLID, null, new BorderWidths(0, 0, 1, 0))));
         StackPane.setAlignment(collapsePane, Pos.TOP_CENTER);
         // Because the circle and chevron will be half outside of the stackPane, we ask stackPane to not manage them
         // (otherwise stackPane will grow in height to include them inside).
-        circle.setManaged(false);
-        chevron.setManaged(false);
+        chevronNode.setManaged(false);
         // We now manage their position ourselves to be in the middle of the bottom line
         FXProperties.runOnPropertiesChange(() -> {
-            circle.relocate( stackPane.getWidth() / 2 - radius, stackPane.getHeight() - radius);
-            chevron.relocate(stackPane.getWidth() / 2 - chevron.getLayoutBounds().getWidth() / 2, stackPane.getHeight() - chevron.getLayoutBounds().getHeight() / 2);
+            chevronNode.relocate(stackPane.getWidth() / 2 - chevronNode.getLayoutBounds().getWidth() / 2, stackPane.getHeight() - chevronNode.getLayoutBounds().getHeight() / 2);
             // Note: works perfectly in the browser, but the chevron is shifted 1px to left in OpenJFX (don't know why)
         }, stackPane.widthProperty(), stackPane.heightProperty());
         // User interaction management: collapse/expand on circle click
-        circle.setOnMouseClicked(e -> collapsePane.toggleCollapse());
-        circle.setCursor(Cursor.HAND);
-        chevron.setMouseTransparent(true);
-        // Rotation animation of the chevron while collapsing or expanding
-        FXProperties.runOnPropertiesChange(() ->
-            Animations.animateProperty(chevron.rotateProperty(), collapsePane.isCollapsed() ? 180 : 0)
-        , collapsePane.collapsedProperty);
-        // Hiding the circle & chevron on mouse exit if requested
-        if (hideDecorationOnMouseExit) {
-            stackPane.setOnMouseEntered(e -> { // Note: works also on touch devices!
-                circle.setVisible(true);
-                chevron.setVisible(true);
-            });
-            // However, we always show them when the pane is collapsed (otherwise there is no way to expand it again)
-            stackPane.setOnMouseExited(e -> {  // Note: works also on touch devices!
-                circle.setVisible(collapsePane.isCollapsed());
-                chevron.setVisible(collapsePane.isCollapsed());
-            });
-        }
+        armChevron(chevronNode, collapsePane, hideDecorationOnMouseExit ? stackPane : null);
         return stackPane;
     }
 

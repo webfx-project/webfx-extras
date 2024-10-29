@@ -65,8 +65,28 @@ public final class ColumnsPane extends Pane {
     public ColumnsPane() {
     }
 
+    public ColumnsPane(double hgap) {
+        setHgap(hgap);
+    }
+
+    public ColumnsPane(double hgap, double vgap) {
+        this(hgap);
+        setVgap(vgap);
+    }
+
     public ColumnsPane(Node... children) {
         super(children);
+    }
+
+    public ColumnsPane(double hgap, Node... children) {
+        super(children);
+        setHgap(hgap);
+    }
+
+    public ColumnsPane(double hgap, double vgap, Node... children) {
+        super(children);
+        setHgap(hgap);
+        setVgap(vgap);
     }
 
     @Override

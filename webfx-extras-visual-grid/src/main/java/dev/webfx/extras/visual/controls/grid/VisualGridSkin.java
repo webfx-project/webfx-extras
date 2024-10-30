@@ -447,12 +447,13 @@ public final class VisualGridSkin extends SelectableVisualResultControlSkinBase<
             if (style != null) {
                 fixedWidth = style.getPrefWidth();
                 String textAlign = style.getTextAlign();
-                if (textAlign != null)
+                if (textAlign != null) {
                     switch (textAlign) {
                         case "left":   hAlignment = HPos.LEFT;   break;
                         case "center": hAlignment = HPos.CENTER; break;
                         case "right":  hAlignment = HPos.RIGHT;  break;
                     }
+                }
             }
             if (fixedWidth == null)
                 setCumulator(visualColumn.getCumulator());

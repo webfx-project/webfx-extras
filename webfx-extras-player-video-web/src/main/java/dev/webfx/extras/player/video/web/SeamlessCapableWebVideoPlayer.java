@@ -2,14 +2,13 @@ package dev.webfx.extras.player.video.web;
 
 import dev.webfx.extras.player.Status;
 import dev.webfx.extras.player.video.IntegrationMode;
-import dev.webfx.extras.webview.pane.WebViewPane;
 
 /**
  * @author Bruno Salmon
  */
 public abstract class SeamlessCapableWebVideoPlayer extends WebVideoPlayerBase {
 
-    protected static final boolean IS_SEAMLESS = WebViewPane.isBrowser();
+    protected static final boolean IS_SEAMLESS = IS_BROWSER;
 
     private boolean fullscreen;
 

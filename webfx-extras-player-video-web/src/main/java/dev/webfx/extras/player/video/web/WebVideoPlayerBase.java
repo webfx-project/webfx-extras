@@ -5,6 +5,8 @@ import dev.webfx.extras.player.video.IntegrationMode;
 import dev.webfx.extras.player.video.impl.VideoPlayerBase;
 import dev.webfx.extras.webview.pane.LoadOptions;
 import dev.webfx.extras.webview.pane.WebViewPane;
+import dev.webfx.kit.util.properties.FXProperties;
+import dev.webfx.platform.console.Console;
 import javafx.scene.Node;
 import javafx.util.Duration;
 
@@ -12,6 +14,8 @@ import javafx.util.Duration;
  * @author Bruno Salmon
  */
 public abstract class WebVideoPlayerBase extends VideoPlayerBase {
+
+    protected static final boolean IS_BROWSER = WebViewPane.isBrowser();
 
     protected final WebViewPane webViewPane = new WebViewPane();
 
@@ -21,6 +25,24 @@ public abstract class WebVideoPlayerBase extends VideoPlayerBase {
 
     public WebVideoPlayerBase(IntegrationMode integrationMode) {
         super(integrationMode);
+        if (hasIFrame()) {
+            FXProperties.runOnPropertiesChange(() -> {
+                if (webViewPane.getScene() != null) { //
+                    Status status = getStatus();
+                    switch (status) {
+                        case READY:
+                        case PLAYING:
+                        case PAUSED:
+                            Console.log("⚠️ Reloading video iFrame after reinsertion into DOM with status = " + status);
+                            display(status);
+                    }
+                }
+            }, webViewPane.sceneProperty());
+        }
+    }
+
+    protected boolean hasIFrame() {
+        return IS_BROWSER;
     }
 
     @Override
@@ -30,33 +52,36 @@ public abstract class WebVideoPlayerBase extends VideoPlayerBase {
 
     @Override
     public void displayVideo() {
-        display(false);
+        display(Status.READY);
     }
 
-    private void display(boolean play) {
+    private void display(Status onLoadSuccessStatus) {
         String track = getCurrentTrack();
         if (track == null)
             stop();
         else {
-            String url = trackUrl(track, play);
-            webViewPane.loadFromUrl(url, new LoadOptions().setOnLoadSuccess(() -> setStatus(play ? Status.PLAYING : Status.READY)), null);
+            String url = trackUrl(track, onLoadSuccessStatus == Status.PLAYING);
+            webViewPane.loadFromUrl(url, new LoadOptions().setOnLoadSuccess(() ->
+                setStatus(onLoadSuccessStatus))
+                , null);
         }
     }
 
     @Override
     public void play() {
-        display(true);
+        display(Status.PLAYING);
     }
 
     protected abstract String trackUrl(String track, boolean play);
 
     @Override
     public void pause() {
-        stop(); // TODO: can we do better than stopping?
+        display(Status.PAUSED); // reloading video - Not great, but what better can we do?
     }
 
     @Override
     public void stop() {
+        //Console.log("WebVideoPlayerBase.stop() is called");
         webViewPane.unload();
         setStatus(Status.STOPPED);
     }

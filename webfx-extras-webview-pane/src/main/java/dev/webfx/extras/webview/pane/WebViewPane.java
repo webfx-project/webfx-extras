@@ -19,6 +19,7 @@ import javafx.scene.web.WebView;
 import netscape.javascript.JSException;
 import netscape.javascript.JSObject;
 
+import java.util.Objects;
 import java.util.function.Consumer;
 
 /**
@@ -48,10 +49,17 @@ public class WebViewPane extends MonoPane {
     private boolean fitHeight;
     private double fitHeightExtra;
     private Scheduled fitHeightJob;
-    private boolean urlLoaded;
+    private String loadedUrl;
 
-    public WebViewPane() {
-        initWebEngine();
+    public WebViewPane() { // We accept the constructor to be called in non UI thread (ex: from activity constructors)
+        // We call initWebEngine(), but we ensure it's done in the UI thread, because initWebEngine() instantiates the
+        // WebView, and this fails with OpenJFX if not done in the UI thread (Not on FX application thread).
+        UiScheduler.runInUiThread(this::initWebEngine);
+/* Sometimes useful to trace scene changes in the browser to know when the iFrame is inserted in or removed from the DOM.
+        FXProperties.runOnPropertiesChange(() -> {
+            logDebug("scene => " + getScene());
+        }, sceneProperty());
+*/
     }
 
     private void initWebEngine() {
@@ -60,10 +68,10 @@ public class WebViewPane extends MonoPane {
         webEngine = webView.getEngine();
         webEngine.setOnError(error -> notifyLoadFailure(error.getMessage()));
         pendingLoad = null;
-        urlLoaded = false;
+        loadedUrl = null;
         resetState();
         /* Not yet supported by WebFX
-        engine.getLoadWorker().exceptionProperty().addListener((obs, oldExc, newExc) -> {
+        webEngine.getLoadWorker().exceptionProperty().addListener((obs, oldExc, newExc) -> {
             if (newExc != null) {
                 Console.log("WebView exception:", newExc);
             }
@@ -228,7 +236,8 @@ public class WebViewPane extends MonoPane {
         unloading = false;
         if (isGluonLayoutStabilized != null)
             this.isGluonLayoutStabilized = isGluonLayoutStabilized;
-        processWebEngineState();
+        loadedUrl = null; // to force reload even if url is identical
+        processWebEngineState(); // will do a reload even if web engine state is RUNNING (see method code).
     }
 
     public void unload() {
@@ -339,6 +348,11 @@ public class WebViewPane extends MonoPane {
             return;
         }
         switch (state) {
+            case RUNNING: // In general, there is nothing to do when state is RUNNING, except if this call happens after
+            // a call to setPendingLoad() which is an explicit request from the application code to reload the web view.
+                boolean reloadRequested = pendingLoad != null && loadedUrl == null; // indicates the case explained above.
+                if (!reloadRequested)
+                    break; // Nothing to do if no reload has been requested.
 
             case READY: // the user navigates back here (as the browser unloads the iFrame each time it's removed from the DOM)
                 if (loadSuccessNotified) {
@@ -362,11 +376,11 @@ public class WebViewPane extends MonoPane {
 
                     // Executing next task
                     if (pendingLoad.isUrl()) {
-                        if (!urlLoaded) {
-                            String url = pendingLoad.getUrl();
+                        String url = pendingLoad.getUrl();
+                        if (!Objects.equals(url, loadedUrl)) {
+                            loadedUrl = url;
                             logDebug("Engine loads url " + url);
                             we.load(url);
-                            urlLoaded = true;
                         }
                     } else if (pendingLoad.isHtmlContent()) {
                         String htmlContent = pendingLoad.getHtmlContent();
@@ -434,7 +448,6 @@ public class WebViewPane extends MonoPane {
             case CANCELLED:
                 notifyLoadFailure("CANCELLED");
                 break;
-
         }
     }
 
@@ -516,9 +529,9 @@ public class WebViewPane extends MonoPane {
         //pendingLoad = null;
     }
 
-    private static void logDebug(String message) {
+    private void logDebug(String message) {
         if (DEBUG) {
-            Console.log(">>>>>>>>>>>>>> " + message);
+            Console.log("[WebViewPane] " + message + " | " + this);
         }
     }
 

@@ -1,11 +1,11 @@
 package dev.webfx.extras.switches;
 
+import dev.webfx.kit.util.properties.FXProperties;
 import javafx.animation.Interpolator;
 import javafx.animation.KeyFrame;
 import javafx.animation.KeyValue;
 import javafx.animation.Timeline;
 import javafx.beans.property.BooleanProperty;
-import javafx.beans.property.SimpleBooleanProperty;
 import javafx.beans.value.WritableValue;
 import javafx.scene.layout.Pane;
 import javafx.scene.shape.Circle;
@@ -19,12 +19,7 @@ public class Switch extends Pane {
     private final static double RADIUS = 10, WIDTH = 45;
     private final Circle switchKnob;
 
-    private final BooleanProperty selectedProperty = new SimpleBooleanProperty() {
-        @Override
-        protected void invalidated() {
-            updateSwitchUi(true);
-        }
-    };
+    private final BooleanProperty selectedProperty = FXProperties.newBooleanProperty(() -> updateSwitchUi(true));
 
     public Switch() {
         super(new Circle(RADIUS - 3));

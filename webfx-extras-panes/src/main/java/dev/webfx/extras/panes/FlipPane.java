@@ -23,19 +23,9 @@ import javafx.util.Duration;
  */
 public final class FlipPane extends StackPane {
 
-    private final ObjectProperty<Node> frontProperty = new SimpleObjectProperty<>() {
-        @Override
-        protected void invalidated() {
-            onNodesChanged();
-        }
-    };
+    private final ObjectProperty<Node> frontProperty = FXProperties.newObjectProperty(this::onNodesChanged);
 
-    private final ObjectProperty<Node> backProperty = new SimpleObjectProperty<>() {
-        @Override
-        protected void invalidated() {
-            onNodesChanged();
-        }
-    };
+    private final ObjectProperty<Node> backProperty = FXProperties.newObjectProperty(this::onNodesChanged);;
 
     private final MonoPane frontPane = new MonoPane();
     private final MonoPane backPane = new MonoPane();

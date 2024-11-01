@@ -5,6 +5,7 @@ module webfx.extras.time.window {
     // Direct dependencies modules
     requires javafx.base;
     requires javafx.graphics;
+    requires webfx.kit.util;
     requires webfx.platform.util.time;
 
     // Exported packages

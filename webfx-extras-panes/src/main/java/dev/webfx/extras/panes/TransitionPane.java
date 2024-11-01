@@ -5,6 +5,7 @@ import dev.webfx.extras.panes.transitions.FadeTransition;
 import dev.webfx.extras.panes.transitions.Transition;
 import dev.webfx.extras.panes.transitions.TranslateTransition;
 import dev.webfx.extras.util.animation.Animations;
+import dev.webfx.kit.util.properties.FXProperties;
 import javafx.animation.Timeline;
 import javafx.application.Platform;
 import javafx.beans.InvalidationListener;
@@ -26,12 +27,7 @@ import javafx.scene.layout.Region;
  */
 public final class TransitionPane extends MonoClipPane {
 
-    private final ObjectProperty<Node> requestedEnteringNodeProperty = new SimpleObjectProperty<>() {
-        @Override
-        protected void invalidated() {
-            onEnteringNodeRequested(get());
-        }
-    };
+    private final ObjectProperty<Node> requestedEnteringNodeProperty = FXProperties.newObjectProperty(this::onEnteringNodeRequested);
     private final BooleanProperty transitingProperty = new SimpleBooleanProperty();
     private Transition transition = new TranslateTransition();
     private Node enteringNode, leavingNode;

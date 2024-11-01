@@ -5,7 +5,6 @@ import dev.webfx.extras.util.layout.LayoutUtil;
 import dev.webfx.kit.util.properties.FXProperties;
 import javafx.animation.Timeline;
 import javafx.beans.property.BooleanProperty;
-import javafx.beans.property.SimpleBooleanProperty;
 import javafx.geometry.Pos;
 import javafx.scene.Cursor;
 import javafx.scene.Node;
@@ -25,15 +24,12 @@ import javafx.scene.shape.StrokeLineJoin;
  */
 public class CollapsePane extends MonoClipPane {
 
-    private final BooleanProperty collapsedProperty = new SimpleBooleanProperty() {
-        @Override
-        protected void invalidated() {
-            if (get())
-                doCollapse();
-            else
-                doExpand();
-        }
-    };
+    private final BooleanProperty collapsedProperty = FXProperties.newBooleanProperty(collapsed -> {
+        if (collapsed)
+            doCollapse();
+        else
+            doExpand();
+    });
     private Timeline timeline;
     private double heightDuringCollapseAnimation;
 
@@ -81,7 +77,7 @@ public class CollapsePane extends MonoClipPane {
     private void doCollapse() {
         heightDuringCollapseAnimation = getHeight();
         setPrefHeight(heightDuringCollapseAnimation);
-        animateHeight( 0);
+        animateHeight(0);
     }
 
     private void doExpand() {

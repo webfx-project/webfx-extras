@@ -2,6 +2,7 @@ package dev.webfx.extras.carousel;
 
 import dev.webfx.extras.panes.TransitionPane;
 import dev.webfx.extras.panes.transitions.TranslateTransition;
+import dev.webfx.kit.util.properties.FXProperties;
 import dev.webfx.kit.util.properties.ObservableLists;
 import dev.webfx.platform.util.Arrays;
 import dev.webfx.platform.util.collection.Collections;
@@ -33,15 +34,12 @@ public final class Carousel {
     private final ObservableList<Supplier<Node>> slideSuppliers = FXCollections.observableArrayList();
     private final ObservableList<Circle> dots = ObservableLists.map(slideSuppliers, n -> createDot());
     private final BooleanProperty loopProperty = new SimpleBooleanProperty(true);
-    private final BooleanProperty showingDotsProperty = new SimpleBooleanProperty(true) {
-        @Override
-        protected void invalidated() {
-            dotsBox.setVisible(get());
-            dotsBox.setManaged(get());
-        }
-    };
-    private final TransitionPane transitionPane = new TransitionPane();
     private final HBox dotsBox = new HBox(10);
+    private final BooleanProperty showingDotsProperty = FXProperties.newBooleanProperty(true, showingDots -> {
+        dotsBox.setVisible(showingDots);
+        dotsBox.setManaged(showingDots);
+    });
+    private final TransitionPane transitionPane = new TransitionPane();
     private final BorderPane container = new BorderPane(transitionPane);
     private int displayedSlideIndex;
 

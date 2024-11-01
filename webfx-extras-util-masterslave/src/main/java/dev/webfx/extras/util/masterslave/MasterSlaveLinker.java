@@ -1,8 +1,8 @@
 package dev.webfx.extras.util.masterslave;
 
+import dev.webfx.kit.util.properties.FXProperties;
 import javafx.application.Platform;
 import javafx.beans.property.ObjectProperty;
-import javafx.beans.property.SimpleObjectProperty;
 
 import java.util.Objects;
 
@@ -14,30 +14,27 @@ public class MasterSlaveLinker<T> {
     private boolean internalMasterChange;
     private boolean isSlaveSwitchApprovalDialogShowing;
 
-    private final ObjectProperty<T> masterProperty = new SimpleObjectProperty<>() {
-        @Override
-        protected void invalidated() {
-            // System.out.println("master = " + get());
+    private final ObjectProperty<T> masterProperty;
+    private final SlaveEditor<T> slaveEditor;
+
+    public MasterSlaveLinker(SlaveEditor<T> slaveEditor) {
+        this.slaveEditor = slaveEditor;
+        masterProperty = FXProperties.newObjectProperty(master -> {
+            // System.out.println("master = " + master);
             // Preventing reentrant calls from internal changes
             if (internalMasterChange)
                 return;
             // If the master and slave are already the same, we don't do anything
-            if (Objects.equals(getMaster(), getSlave()))
+            if (Objects.equals(master, getSlave()))
                 return;
             // Otherwise we check the approval for the slave switch (unless a dialog is already showing)
             if (!isSlaveSwitchApprovalDialogShowing) {
                 checkSlaveSwitchApproval(false, () -> {
                     // If it has been approved, we apply the switch (slave = master) and ask the slave editor to edit it
-                    slaveEditor.setSlave(getMaster());
+                    slaveEditor.setSlave(master);
                 });
             }
-        }
-    };
-
-    private final SlaveEditor<T> slaveEditor;
-
-    public MasterSlaveLinker(SlaveEditor<T> slaveEditor) {
-        this.slaveEditor = slaveEditor;
+        });
     }
 
     public T getMaster() {

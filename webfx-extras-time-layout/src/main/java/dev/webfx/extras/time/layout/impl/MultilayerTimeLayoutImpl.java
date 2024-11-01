@@ -8,6 +8,7 @@ import dev.webfx.extras.time.projector.TimeProjector;
 import dev.webfx.extras.time.window.TimeWindowTransaction;
 import dev.webfx.extras.time.window.impl.ListenableTimeWindowImpl;
 import dev.webfx.extras.util.DirtyMarker;
+import dev.webfx.kit.util.properties.FXProperties;
 import javafx.beans.property.*;
 import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableIntegerValue;
@@ -20,18 +21,8 @@ import javafx.collections.ObservableList;
  */
 public class MultilayerTimeLayoutImpl<T> extends ListenableTimeWindowImpl<T> implements MultilayerTimeLayout<T> {
 
-    private final DoubleProperty widthProperty = new SimpleDoubleProperty() {
-        @Override
-        protected void invalidated() {
-            markLayoutAsDirty();
-        }
-    };
-    private final DoubleProperty heightProperty = new SimpleDoubleProperty() {
-        @Override
-        protected void invalidated() {
-            //markLayoutAsDirty();
-        }
-    };
+    private final DoubleProperty widthProperty = FXProperties.newDoubleProperty(this::markLayoutAsDirty);
+    private final DoubleProperty heightProperty = new SimpleDoubleProperty();
     private TimeProjector<T> timeProjector;
     private final IntegerProperty layoutCountProperty = new SimpleIntegerProperty();
     private final ObservableList<TimeLayout<?, T>> layers = FXCollections.observableArrayList();

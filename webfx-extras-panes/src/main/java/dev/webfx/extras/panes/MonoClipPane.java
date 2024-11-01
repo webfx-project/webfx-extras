@@ -1,7 +1,7 @@
 package dev.webfx.extras.panes;
 
+import dev.webfx.kit.util.properties.FXProperties;
 import javafx.beans.property.BooleanProperty;
-import javafx.beans.property.SimpleBooleanProperty;
 import javafx.scene.Node;
 import javafx.scene.shape.Rectangle;
 
@@ -11,12 +11,8 @@ import javafx.scene.shape.Rectangle;
 public class MonoClipPane extends MonoPane {
 
     private final Rectangle clip = new Rectangle();
-    private final BooleanProperty clipEnabledProperty = new SimpleBooleanProperty() {
-        @Override
-        protected void invalidated() {
-            setClip(get() ? clip : null);
-        }
-    };
+    private final BooleanProperty clipEnabledProperty = FXProperties.newBooleanProperty(
+        clipEnabled -> setClip(clipEnabled ? clip : null));
 
     public MonoClipPane() {
         this(null);

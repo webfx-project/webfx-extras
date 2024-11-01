@@ -1,6 +1,9 @@
 package dev.webfx.extras.panes;
 
-import javafx.beans.property.*;
+import dev.webfx.kit.util.properties.FXProperties;
+import javafx.beans.property.DoubleProperty;
+import javafx.beans.property.IntegerProperty;
+import javafx.beans.property.ObjectProperty;
 import javafx.geometry.*;
 import javafx.scene.Node;
 import javafx.scene.layout.Pane;
@@ -14,53 +17,33 @@ import java.util.function.Function;
  */
 public final class ColumnsPane extends Pane {
 
-    private final ObjectProperty<Pos> alignmentProperty = new SimpleObjectProperty<>(Pos.CENTER) {
-        protected void invalidated() {
-            requestLayout();
-        }
-    };
+    private final ObjectProperty<Pos> alignmentProperty = newLayoutObjectProperty(Pos.CENTER);
 
-    private final DoubleProperty hgapProperty = new SimpleDoubleProperty(0) {
-        protected void invalidated() {
-            requestLayout();
-        }
-    };
+    private final DoubleProperty hgapProperty = newLayoutDoubleProperty();
 
-    private final DoubleProperty vgapProperty = new SimpleDoubleProperty(0) {
-        protected void invalidated() {
-            requestLayout();
-        }
-    };
+    private final DoubleProperty vgapProperty = newLayoutDoubleProperty();
 
-    private final DoubleProperty fixedColumnWidthProperty = new SimpleDoubleProperty(0) {
-        protected void invalidated() {
-            requestLayout();
-        }
-    };
+    private final DoubleProperty fixedColumnWidthProperty = newLayoutDoubleProperty();
 
-    private final DoubleProperty minColumnWidthProperty = new SimpleDoubleProperty(0) {
-        protected void invalidated() {
-            requestLayout();
-        }
-    };
+    private final DoubleProperty minColumnWidthProperty = newLayoutDoubleProperty();
 
-    private final IntegerProperty fixedColumnCountProperty = new SimpleIntegerProperty(0) {
-        protected void invalidated() {
-            requestLayout();
-        }
-    };
+    private final IntegerProperty fixedColumnCountProperty = newLayoutIntegerProperty();
 
-    private final IntegerProperty maxColumnCountProperty = new SimpleIntegerProperty(0) {
-        protected void invalidated() {
-            requestLayout();
-        }
-    };
+    private final IntegerProperty maxColumnCountProperty = newLayoutIntegerProperty();
 
-    private final DoubleProperty minRowHeightProperty = new SimpleDoubleProperty(0) {
-        protected void invalidated() {
-            requestLayout();
-        }
-    };
+    private final DoubleProperty minRowHeightProperty = newLayoutDoubleProperty();
+
+    private <T> ObjectProperty<T> newLayoutObjectProperty(T initialValue) {
+        return FXProperties.newObjectProperty(initialValue, this::requestLayout);
+    }
+
+    private DoubleProperty newLayoutDoubleProperty() {
+        return FXProperties.newDoubleProperty(this::requestLayout);
+    }
+
+    private IntegerProperty newLayoutIntegerProperty() {
+        return FXProperties.newIntegerProperty(this::requestLayout);
+    }
 
     public ColumnsPane() {
     }

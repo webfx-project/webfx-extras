@@ -11,7 +11,6 @@ import dev.webfx.kit.util.properties.FXProperties;
 import dev.webfx.platform.util.tuples.Pair;
 import javafx.application.Platform;
 import javafx.beans.property.ObjectProperty;
-import javafx.beans.property.SimpleObjectProperty;
 import javafx.collections.ListChangeListener;
 import javafx.collections.ObservableList;
 import javafx.geometry.HPos;
@@ -38,30 +37,10 @@ import java.util.function.Function;
 public final class DatePicker {
 
     private final DatePickerOptions options;
-    private final ObjectProperty<LocalDate> selectedDateProperty = new SimpleObjectProperty<>() {
-        @Override
-        protected void invalidated() {
-            // selectedDate <-> selectedDates sync management
-            LocalDate selectedDate = get();
-            if (options.isMultipleSelectionAllowed()) { // multiple-selection
-                if (selectedDate != null && !selectedDates.contains(selectedDate))
-                    selectedDates.add(selectedDate);
-            } else { // single selection
-                if (selectedDate != null)
-                    selectedDates.setAll(selectedDate);
-                else
-                    selectedDates.clear();
-            }
-        }
-    };
+    private final ObjectProperty<LocalDate> selectedDateProperty;
     private final ObservableList<LocalDate> selectedDates = new OptimizedObservableListWrapper<>();
 
-    private final ObjectProperty<YearMonth> displayedYearMonthProperty = new SimpleObjectProperty<>() {
-        @Override
-        protected void invalidated() {
-            onMonthChanged(get());
-        }
-    };
+    private final ObjectProperty<YearMonth> displayedYearMonthProperty = FXProperties.newObjectProperty(this::onMonthChanged);
 
     private VBox container;
     private CalendarLayout<YearMonth, YearMonth> yearMonthCalendarLayout;
@@ -83,6 +62,18 @@ public final class DatePicker {
         this.options = options;
         YearMonth initialDisplayedYearMonth = options.getInitialDisplayedYearMonth();
         setDisplayedYearMonth(initialDisplayedYearMonth == null ? YearMonth.now() : initialDisplayedYearMonth);
+        // selectedDate <-> selectedDates sync management
+        selectedDateProperty = FXProperties.newObjectProperty(selectedDate -> {
+            if (options.isMultipleSelectionAllowed()) { // multiple-selection
+                if (selectedDate != null && !selectedDates.contains(selectedDate))
+                    selectedDates.add(selectedDate);
+            } else { // single selection
+                if (selectedDate != null)
+                    selectedDates.setAll(selectedDate);
+                else
+                    selectedDates.clear();
+            }
+        });
         selectedDates.addListener((ListChangeListener<LocalDate>) change -> {
             // We update the date styles to visually reflect selection to the user
             updateDatesStyles();

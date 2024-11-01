@@ -9,6 +9,7 @@ module webfx.extras.theme {
     requires webfx.extras.util.background;
     requires webfx.extras.util.border;
     requires webfx.extras.util.color;
+    requires webfx.kit.util;
     requires webfx.platform.scheduler;
     requires webfx.platform.uischeduler;
 

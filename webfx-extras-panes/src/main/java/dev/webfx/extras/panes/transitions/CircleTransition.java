@@ -1,10 +1,10 @@
 package dev.webfx.extras.panes.transitions;
 
 import dev.webfx.extras.util.animation.Animations;
+import dev.webfx.kit.util.properties.FXProperties;
 import javafx.animation.Interpolator;
 import javafx.animation.Timeline;
 import javafx.beans.property.DoubleProperty;
-import javafx.beans.property.SimpleDoubleProperty;
 import javafx.collections.ObservableList;
 import javafx.geometry.Bounds;
 import javafx.scene.Node;
@@ -29,7 +29,7 @@ public class CircleTransition implements Transition {
         // Also a second condition for that workaround is that the content has a background set, but we leave that
         // responsibility to the application code.
         Node frontNode = reverse ? oldContent : newContent;
-        Node backNode  = reverse ? newContent : oldContent;
+        Node backNode = reverse ? newContent : oldContent;
         if (frontNode != null && backNode != null) {
             ObservableList<Node> children = dualContainer.getChildren();
             int frontIndex = children.indexOf(frontNode);
@@ -41,29 +41,25 @@ public class CircleTransition implements Transition {
             }
         }
 
-        DoubleProperty radiusProperty = new SimpleDoubleProperty(-1) {
-            @Override
-            protected void invalidated() {
-                double radius = get();
-                double width = widthGetter.get();
-                double height = Math.min(oldRegion == null ? heightGetter.get() : oldRegion.getHeight(), newRegion == null ? heightGetter.get() : newRegion.getHeight());
-                if (frontNode != null) {
-                    Bounds lb = frontNode.getLayoutBounds();
-                    frontNode.setClip(new Circle(lb.getWidth() / 2, height / 2, radius));
-                }
-                if (backNode != null) {
+        DoubleProperty radiusProperty = FXProperties.newDoubleProperty(-1, radius -> {
+            double width = widthGetter.get();
+            double height = Math.min(oldRegion == null ? heightGetter.get() : oldRegion.getHeight(), newRegion == null ? heightGetter.get() : newRegion.getHeight());
+            if (frontNode != null) {
+                Bounds lb = frontNode.getLayoutBounds();
+                frontNode.setClip(new Circle(lb.getWidth() / 2, height / 2, radius));
+            }
+            if (backNode != null) {
+                backNode.setClip(null);
+                if (width == 0 || height == 0 || radius == 0) {
                     backNode.setClip(null);
-                    if (width == 0 || height == 0 || radius == 0) {
-                        backNode.setClip(null);
-                    } else { // circle inverse clip
-                        Bounds lb = backNode.getLayoutBounds();
-                        backNode.setClip(Shape.subtract(
-                                new Rectangle(width, height),
-                                new Circle(lb.getWidth() / 2, height / 2, radius)));
-                    }
+                } else { // circle inverse clip
+                    Bounds lb = backNode.getLayoutBounds();
+                    backNode.setClip(Shape.subtract(
+                        new Rectangle(width, height),
+                        new Circle(lb.getWidth() / 2, height / 2, radius)));
                 }
             }
-        };
+        });
         double initialRadius = 0;
         double finalRadius = (reverse ? 0.5 : 0.7) * Math.max(widthGetter.get(), heightGetter.get());
         if (reverse) {

@@ -80,6 +80,18 @@ public final class Animations {
         }
     }
 
+    public static void setOrCallOnTimelineFinished(Timeline timeline, EventHandler<ActionEvent> onFinished) {
+        timeline.setOnFinished(onFinished);
+        callTimelineOnFinishedIfFinished(timeline);
+    }
+
+    public static void forceTimelineToFinish(Timeline timeline) {
+        if (timeline != null && !isTimelineFinished(timeline)) {
+            timeline.jumpTo(timeline.getTotalDuration());
+            timeline.stop();
+            callTimelineOnFinishedIfFinished(timeline);
+        }
+    }
 
     public static void shake(Node node) {
         DoubleProperty x = node.layoutXProperty(); // translateX would be better but not yet emulated so using layoutX instead

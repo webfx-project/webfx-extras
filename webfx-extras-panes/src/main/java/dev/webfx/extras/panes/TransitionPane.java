@@ -237,11 +237,7 @@ public final class TransitionPane extends MonoClipPane {
     }
 
     private void onEnteringNodeRequested(Node newContent) {
-        if (transitionTimeline != null) {
-            transitionTimeline.jumpTo(transitionTimeline.getTotalDuration());
-            transitionTimeline.stop();
-            Animations.callTimelineOnFinishedIfFinished(transitionTimeline);
-        }
+        Animations.forceTimelineToFinish(transitionTimeline);
         leavingNode = enteringNode;
         enteringNode = newContent;
         ObservableList<Node> dualChildren = dualContainer.getChildren();
@@ -303,7 +299,7 @@ public final class TransitionPane extends MonoClipPane {
     }
 
     private void finishTimeline(Node newContent, Node oldContent, Region oldRegion, double oldRegionMaxHeight) {
-        transitionTimeline.setOnFinished(e -> {
+        Animations.setOrCallOnTimelineFinished(transitionTimeline, e -> {
             newContent.setClip(null);
             if (oldContent != null)
                 oldContent.setClip(null);
@@ -326,7 +322,6 @@ public final class TransitionPane extends MonoClipPane {
                 transitingProperty.set(false);
             }
         });
-        Animations.callTimelineOnFinishedIfFinished(transitionTimeline);
     }
 
 }

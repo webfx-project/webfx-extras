@@ -178,11 +178,7 @@ public final class FlipPane extends StackPane {
         double currentValue = globalRotateProperty().get();
         if (currentValue == endValue)
             return;
-        if (flipTimeline != null) {
-            flipTimeline.jumpTo(flipTimeline.getTotalDuration());
-            flipTimeline.stop();
-            Animations.callTimelineOnFinishedIfFinished(flipTimeline);
-        }
+        Animations.forceTimelineToFinish(flipTimeline);
         updateRotatesAxisAndPivot(true);
         applyRotates(false);
         flipTimeline = Animations.animateProperty(globalRotateProperty(), endValue, flipDuration); // new scale version
@@ -191,12 +187,11 @@ public final class FlipPane extends StackPane {
         frontPane.setCacheHint(CacheHint.ROTATE);
         backPane.setCacheHint(CacheHint.ROTATE);
 
-        flipTimeline.setOnFinished(event -> {
+        Animations.setOrCallOnTimelineFinished(flipTimeline, event -> {
             frontPane.setCache(false);
             backPane.setCache(false);
             onFlipFinished(onFinished);
         });
-        Animations.callTimelineOnFinishedIfFinished(flipTimeline);
     }
 
     private void onFlipFinished(Runnable onFinished) {

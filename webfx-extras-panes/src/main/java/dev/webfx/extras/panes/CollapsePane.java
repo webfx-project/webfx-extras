@@ -104,19 +104,14 @@ public class CollapsePane extends MonoClipPane {
 
     private void animateHeight(double finalValue) {
         setHeightComputationMode(USE_PREF_SIZE);
-        if (timeline != null) {
-            timeline.jumpTo(timeline.getTotalDuration());
-            timeline.stop();
-            Animations.callTimelineOnFinishedIfFinished(timeline);
-        }
+        Animations.forceTimelineToFinish(timeline);
         timeline = Animations.animateProperty(prefHeightProperty(), finalValue);
-        timeline.setOnFinished(e -> {
+        Animations.setOrCallOnTimelineFinished(timeline, e -> {
             if (finalValue > 0) {
                 setHeightComputationMode(USE_COMPUTED_SIZE);
             }
             timeline = null;
         });
-        Animations.callTimelineOnFinishedIfFinished(timeline);
     }
 
     public static Node createPlainChevron(Paint stroke) {
@@ -128,6 +123,10 @@ public class CollapsePane extends MonoClipPane {
         chevron.setStrokeLineCap(StrokeLineCap.ROUND);
         chevron.setStrokeLineJoin(StrokeLineJoin.ROUND);
         return chevron;
+    }
+
+    public static Node createBlackChevron() {
+        return createPlainChevron(Color.BLACK);
     }
 
     public static Node createCircledChevron() {

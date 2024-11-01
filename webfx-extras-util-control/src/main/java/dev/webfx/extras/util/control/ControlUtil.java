@@ -10,6 +10,7 @@ import javafx.geometry.Bounds;
 import javafx.geometry.VPos;
 import javafx.scene.Node;
 import javafx.scene.Parent;
+import javafx.scene.control.ProgressIndicator;
 import javafx.scene.control.ScrollPane;
 import javafx.scene.control.SplitPane;
 import javafx.scene.layout.Region;
@@ -186,6 +187,16 @@ public class ControlUtil {
     public static VPos getVerticalScrollNodeWishedPosition(Node node) {
         Object wishedPosition = node.getProperties().get("verticalScrollNodeWishedPosition");
         return wishedPosition instanceof VPos ? (VPos) wishedPosition : VPos.CENTER;
+    }
+
+    public static ProgressIndicator createProgressIndicator(double size) {
+        ProgressIndicator pi = new ProgressIndicator();
+        // Note: calling setMaxSize() is enough with OpenJFX but not with WebFX (in the browser) TODO investigate why
+        // Anyway, we set all min/pref/max to the passed size
+        pi.setMinSize(size, size);
+        pi.setPrefSize(size, size);
+        pi.setMaxSize(size, size);
+        return pi;
     }
 
     static {

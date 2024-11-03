@@ -14,7 +14,7 @@
     <dependencies>
         <used-by-source-modules>
             <module transitive="true">webfx-extras-player-video</module>
-            <module transitive="true">webfx-kit-javafxbase-emul</module>
+            <module transitive="true">webfx-kit-javafxbase-emul</module> <!-- TODO fix double javafx.base imports in module-info.java if javafx-base is specified here -->
             <undetected-module>javafx-graphics</undetected-module>
         </used-by-source-modules>
     </dependencies>

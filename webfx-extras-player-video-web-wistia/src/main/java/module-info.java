@@ -9,6 +9,7 @@ module webfx.extras.player.video.web.wistia {
     requires transitive webfx.extras.player.video;
     requires webfx.extras.player.video.web;
     requires webfx.extras.webview.pane;
+    requires webfx.platform.util;
 
     // Exported packages
     exports dev.webfx.extras.player.video.web.wistia;

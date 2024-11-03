@@ -1,7 +1,7 @@
 package dev.webfx.extras.player.video.impl;
 
+import dev.webfx.extras.player.IntegrationMode;
 import dev.webfx.extras.player.impl.PlayerBase;
-import dev.webfx.extras.player.video.IntegrationMode;
 import dev.webfx.extras.player.video.VideoPlayer;
 
 /**

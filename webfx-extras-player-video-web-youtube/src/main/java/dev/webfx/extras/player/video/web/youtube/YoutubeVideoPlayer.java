@@ -1,5 +1,9 @@
 package dev.webfx.extras.player.video.web.youtube;
 
+import dev.webfx.extras.player.Media;
+import dev.webfx.extras.player.MediaMetadata;
+import dev.webfx.extras.player.StartOptions;
+import dev.webfx.extras.player.StartOptionsBuilder;
 import dev.webfx.extras.player.video.web.SeamlessCapableWebVideoPlayer;
 import dev.webfx.extras.webview.pane.LoadOptions;
 import dev.webfx.extras.webview.pane.WebViewPane;
@@ -27,7 +31,20 @@ public class YoutubeVideoPlayer extends SeamlessCapableWebVideoPlayer {
         }
     }
 
-    /*
+    @Override
+    public Media acceptMedia(String mediaSource, MediaMetadata mediaMetadata) {
+        return acceptMedia(mediaSource, mediaMetadata,
+            "https://youtube.com/watch?v=",
+            "https://youtube.com/embed/",
+            "youtube:"
+        );
+    }
+
+    @Override
+    protected void queryParamToStartOption(String name, String value, StartOptionsBuilder sob) {
+    }
+
+        /*
 Here are some of the most commonly used parameters to remove or hide overlays:
 - controls=0: Hides the player controls (like play, pause, volume, etc.). However, this does not completely remove all overlays, as some branding elements may still appear.
 - modestbranding=1: Minimizes YouTube branding by hiding the YouTube logo in the control bar. Note that this parameter only reduces the branding and does not completely remove it.
@@ -39,13 +56,18 @@ Here are some of the most commonly used parameters to remove or hide overlays:
 */
 
     @Override
-    protected String trackUrl(String track, boolean play) { // called in non-seamless mode only (iFrame)
-        return "https://www.youtube.com/embed/" + track + "?rel=0&modestbranding=1&showinfo=0&iv_load_policy=3&autohide=1";
+    protected String generateMediaEmbedRawUrl() { // called in non-seamless mode only (iFrame)
+        return "https://youtube.com/embed/" + getMedia().getId();
+    }
+
+    @Override
+    protected void appendUrlParameters(StartOptions so, StringBuilder sb) {
+        sb.append("rel=0&modestbranding=1&showinfo=0&iv_load_policy=3&autohide=1");
     }
 
     private void seamless_call(String script) {
         //Console.log("Calling: " + script);
-        String track = getCurrentTrack();
+        String mediaId = getMediaId();
         webViewPane.loadFromScript(
             "const playerId = '" + playerId + "';\n" +
             "var player = window.webfx_extras_youtube_players[playerId];\n" +
@@ -53,14 +75,14 @@ Here are some of the most commonly used parameters to remove or hide overlays:
             "} else {\n" +
             "    var createPlayer = function() {\n" +
             "        const javaPlayer = window[playerId];\n" +
-            "        console.log('Creating YouTube player for javaPlayer = ' + javaPlayer );\n" +
+            //"        console.log('Creating YouTube player for javaPlayer = ' + javaPlayer );\n" +
             "        const container = document.getElementById(playerId);\n" +
             "        const child = document.createElement('div');\n" +
             "        container.appendChild(child);\n" +
             "        player = new YT.Player(child, {\n" +
             "            width: '100%',\n" +
             "            height: '100%',\n" +
-            "            videoId: '" + track + "',\n" +
+            "            videoId: '" + mediaId + "',\n" +
             "            playerVars: {\n" +
             "                'rel': 0\n" +
             "            },\n" +
@@ -102,7 +124,7 @@ Here are some of the most commonly used parameters to remove or hide overlays:
     @Override
     public void resetToInitialState() {
         if (IS_SEAMLESS) {
-            seamless_call("player.cueVideoById('" + getCurrentTrack() + "')");
+            seamless_call("player.cueVideoById('" + getMediaId() + "')");
         } else
             super.resetToInitialState();
     }

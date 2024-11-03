@@ -108,7 +108,7 @@ public class MonoPane extends Pane {
 
     @Override
     public Orientation getContentBias() {
-        return content == null ? super.getContentBias() : content.getContentBias();
+        return content == null ? null : content.getContentBias();
     }
 
     protected double insetsWidth() {

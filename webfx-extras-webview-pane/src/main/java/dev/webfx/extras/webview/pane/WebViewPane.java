@@ -16,7 +16,6 @@ import javafx.event.Event;
 import javafx.scene.Node;
 import javafx.scene.web.WebEngine;
 import javafx.scene.web.WebView;
-import netscape.javascript.JSException;
 import netscape.javascript.JSObject;
 
 import java.util.Objects;
@@ -198,7 +197,7 @@ public class WebViewPane extends MonoPane {
                                         "maxHeight;");
                                 if (heightEval instanceof Number)
                                     newHeight = ((Number) heightEval).doubleValue() + fitHeightExtra;
-                            } catch (JSException e) {
+                            } catch (Exception e) {
                                 Console.log("Error when evaluating window height: " + e.getMessage());
                             }
                         }
@@ -296,7 +295,7 @@ public class WebViewPane extends MonoPane {
             try {
                 window.setMember(name, value);
                 return true;
-            } catch (JSException e) {
+            } catch (Exception e) {
                 logDebug("Setting window." + name + " failed: " + e.getMessage());
                 return false;
             }
@@ -312,7 +311,7 @@ public class WebViewPane extends MonoPane {
             logDebug("Calling window." + name);
             try {
                 return window.call(name, args);
-            } catch (JSException e) {
+            } catch (Exception e) {
                 logDebug("Calling window." + name + " failed: " + e.getMessage());
             }
         } else {
@@ -332,10 +331,18 @@ public class WebViewPane extends MonoPane {
 
     private void applyRedirectConsoleIfApplicable() {
         if (redirectConsole && !redirectConsoleApplied && !isSeamless() && getWindow() != null) {
-            webWindow.setMember("redirectConsoleRequested", true);
-            webEngine.executeScript("applyRedirectConsoleNowIfApplicable()");
-            redirectConsoleApplied = true;
+            try {
+                webWindow.setMember("redirectConsoleRequested", true);
+                webEngine.executeScript("applyRedirectConsoleNowIfApplicable()");
+                redirectConsoleApplied = true;
+            } catch (Exception e) {
+                Console.log("Exception when trying to redirect console: " + e.getMessage());
+            }
         }
+    }
+
+    public boolean isLoading() {
+        return pendingLoad != null && !loadSuccessNotified;
     }
 
     private void processWebEngineState() {
@@ -347,14 +354,15 @@ public class WebViewPane extends MonoPane {
             logDebug("Skipping (unloading)");
             return;
         }
-        switch (state) {
-            case RUNNING: // In general, there is nothing to do when state is RUNNING, except if this call happens after
-            // a call to setPendingLoad() which is an explicit request from the application code to reload the web view.
-                boolean reloadRequested = pendingLoad != null && loadedUrl == null; // indicates the case explained above.
-                if (!reloadRequested)
-                    break; // Nothing to do if no reload has been requested.
+        // In general, there is nothing to do when state is RUNNING, except if this call happens after
+        // a call to setPendingLoad() which is an explicit request from the application code to reload the web view.
+        boolean reloadRequested = pendingLoad != null && loadedUrl == null; // indicates the case explained above.
+        if (reloadRequested)
+            state = Worker.State.READY;
 
+        switch (state) {
             case READY: // the user navigates back here (as the browser unloads the iFrame each time it's removed from the DOM)
+            case SCHEDULED:
                 if (loadSuccessNotified) {
                     resetState();
                 }
@@ -421,13 +429,23 @@ public class WebViewPane extends MonoPane {
                                 // access it straightaway (ex: seamless video player), so we postpone its execution
                                 // to ensure webfx inserted it in the DOM.
                                 UiScheduler.scheduleDeferred(() -> {
-                                    executeSeamlessScriptInBrowser(script);
-                                    notifyLoadSuccess();
+                                    try {
+                                        executeSeamlessScriptInBrowser(script);
+                                        notifyLoadSuccess();
+                                    } catch (Exception e) {
+                                        Console.log("Exception when trying to execute seamless script: " + e.getMessage());
+                                        notifyLoadFailure(e.getMessage());
+                                    }
                                 });
                             } else if (webWindow != null) {
                                 logDebug("Engine executes script " + script);
-                                we.executeScript(script);
-                                notifyLoadSuccess();
+                                try {
+                                    we.executeScript(script);
+                                    notifyLoadSuccess();
+                                } catch (Exception e) {
+                                    Console.log("Exception when trying to execute script: " + e.getMessage());
+                                    notifyLoadFailure(e.getMessage());
+                                }
                             } else {
                                 Scheduler.scheduleDelay(100, this::processWebEngineState);
                             }
@@ -493,10 +511,14 @@ public class WebViewPane extends MonoPane {
 
     private void notifyWebWindowReady() {
         webWindowReadyNotified = true; // Important to prevent infinite loop
-        setWindowMember("javaWebViewPane", this);
-        String webPaneScript = Resource.getText(Resource.toUrl("WebViewPane.js", getClass()));
-        webEngine.executeScript(webPaneScript);
-        applyRedirectConsoleIfApplicable();
+        try {
+            setWindowMember("javaWebViewPane", this);
+            String webViewPaneScript = Resource.getText(Resource.toUrl("WebViewPane.js", getClass()));
+            webEngine.executeScript(webViewPaneScript);
+            applyRedirectConsoleIfApplicable();
+        } catch (Exception e) {
+            Console.log("Exception when trying to execute WebViewPane script: " + e.getMessage());
+        }
 
         LoadOptions loadOptions = pendingLoad == null ? null : pendingLoad.getLoadOptions();
         Runnable onWebWindowReady = loadOptions == null ? null : loadOptions.getOnWebWindowReady();

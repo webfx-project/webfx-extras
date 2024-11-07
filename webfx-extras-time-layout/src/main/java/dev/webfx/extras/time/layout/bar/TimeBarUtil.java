@@ -48,7 +48,9 @@ public class TimeBarUtil {
     public static <E, B, T, TB extends TimeBar<B, T>> void bindTimeBarsFromEntities(ObservableList<E> entities, Function<E, T> entityTimeReader, Function<E, B> entityToBlockConverter, TimeBarFactory<B, T, TB> timeBarFactory, ObservableList<TB> timeBarObservableList, ObservableValue<Boolean> blocksGroupingProperty) {
         ObservableLists.runNowAndOnListChange(c -> timeBarObservableList.setAll(createTimeBarsFromEntities(entities, entityTimeReader, entityToBlockConverter, timeBarFactory, blocksGroupingProperty == null || blocksGroupingProperty.getValue())), entities);
         if (blocksGroupingProperty != null)
-            FXProperties.runOnPropertiesChange(() -> timeBarObservableList.setAll(createTimeBarsFromEntities(entities, entityTimeReader, entityToBlockConverter, timeBarFactory, blocksGroupingProperty.getValue())), blocksGroupingProperty);
+            FXProperties.runOnPropertyChange(blocksGrouping ->
+                timeBarObservableList.setAll(createTimeBarsFromEntities(entities, entityTimeReader, entityToBlockConverter, timeBarFactory, blocksGrouping)),
+                blocksGroupingProperty);
     }
 
     private static <E, B, T, TB extends TimeBar<B, T>> List<TB> createTimeBarsFromEntities(List<E> entities, Function<E, T> entityTimeReader, Function<E, B> entityToBlockConverter, TimeBarFactory<B, T, TB> timeBarFactory, boolean groupBlocks) {

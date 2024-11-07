@@ -3,7 +3,6 @@
 module webfx.extras.webtext.peers.openjfx {
 
     // Direct dependencies modules
-    requires javafx.base;
     requires javafx.graphics;
     requires javafx.web;
     requires jdk.jsobject;
@@ -13,7 +12,7 @@ module webfx.extras.webtext.peers.openjfx {
     requires webfx.extras.webtext.util;
     requires webfx.kit.javafxgraphics.openjfx;
     requires webfx.kit.javafxgraphics.peers;
-    requires webfx.platform.util;
+    requires webfx.kit.util;
 
     // Exported packages
     exports dev.webfx.extras.webtext.peers.openjfx;

@@ -29,8 +29,8 @@ public class VirtualCanvasPane extends CanvasPane {
     }
 
     public void activateVirtualCanvasMode(ObservableObjectValue<Bounds> viewportBoundsProperty, ObservableDoubleValue vvalueProperty) {
-        FXProperties.runNowAndOnPropertiesChange(() -> setViewPortHeight(viewportBoundsProperty.get().getHeight()), viewportBoundsProperty);
-        FXProperties.runNowAndOnPropertiesChange(() -> setVValue(vvalueProperty.get()), vvalueProperty);
+        FXProperties.runNowAndOnPropertyChange(bounds -> setViewPortHeight(bounds.getHeight()), viewportBoundsProperty);
+        FXProperties.runNowAndOnDoublePropertyChange(this::setVValue, vvalueProperty);
     }
 
     private void setViewPortHeight(double viewportHeight) {

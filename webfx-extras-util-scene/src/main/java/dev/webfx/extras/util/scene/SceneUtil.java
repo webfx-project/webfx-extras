@@ -165,12 +165,12 @@ public final class SceneUtil {
     }
 
     public static void installSceneFocusOwnerAutoScroll(Scene scene) {
-        scene.focusOwnerProperty().addListener((observable, oldValue, newFocusOwner) -> {
+        FXProperties.runOnPropertyChange(newFocusOwner -> {
             if (newFocusOwner instanceof TextInputControl) {
                 scrollNodeToBeVerticallyVisibleOnScene(newFocusOwner, true, true);
                 getSceneInfo(scene).touchTextInputFocusTime();
             }
-        });
+        }, scene.focusOwnerProperty());
     }
 
     public static void installPrimarySceneFocusOwnerAutoScroll() {
@@ -182,8 +182,8 @@ public final class SceneUtil {
     }
 
     public static Unregisterable onVirtualKeyboardShowing(Scene scene, Runnable runnable) {
-        return FXProperties.runOnPropertiesChange(p -> {
-            if (Booleans.isTrue(p.getValue()))
+        return FXProperties.runOnPropertiesChange(showing -> {
+            if (Booleans.isTrue(showing))
                 runnable.run();
         }, getSceneInfo(scene).virtualKeyboardShowingProperty);
     }
@@ -233,7 +233,7 @@ public final class SceneUtil {
         private Scheduled noVirtualKeyboardDetectionScheduled;
 
         SceneInfo(Scene scene) {
-            scene.heightProperty().addListener((observable, oldValue, newHeight) -> {
+            FXProperties.runOnDoublePropertyChange(newHeight -> {
                 boolean showing = lastTextInputFocusTime > 0 && System.currentTimeMillis() < lastTextInputFocusTime + MAX_DELAY_MILLIS_BETWEEN_FOCUS_AND_VIRTUAL_KEYBOARD;
                 if (showing) {
                     cancelLastNoVirtualKeyboardDetection();
@@ -246,7 +246,7 @@ public final class SceneUtil {
                     if (focusOwner instanceof TextInputControl)
                         scrollNodeToBeVerticallyVisibleOnScene(focusOwner, true, true);
                 }, 2, AnimationFramePass.SCENE_PULSE_LAYOUT_PASS);
-            });
+            }, scene.heightProperty());
         }
 
         void touchTextInputFocusTime() {

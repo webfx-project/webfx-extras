@@ -3,6 +3,7 @@ package dev.webfx.extras.player.video.web;
 import dev.webfx.extras.player.FeatureSupport;
 import dev.webfx.extras.player.IntegrationMode;
 import dev.webfx.extras.player.Status;
+import dev.webfx.kit.util.properties.FXProperties;
 
 /**
  * @author Bruno Salmon
@@ -14,10 +15,10 @@ public abstract class SeamlessCapableWebVideoPlayer extends WebVideoPlayerBase {
     public SeamlessCapableWebVideoPlayer() {
         super(isSeamless() ? IntegrationMode.SEAMLESS : IntegrationMode.EMBEDDED);
         if (IS_SEAMLESS) {
-            getMediaView().sceneProperty().addListener((observable, oldValue, newValue) -> {
-                if (newValue == null)
+            FXProperties.runOnPropertyChange(scene -> {
+                if (scene == null)
                     onVideoViewDetached();
-            });
+            }, getMediaView().sceneProperty());
         }
     }
 

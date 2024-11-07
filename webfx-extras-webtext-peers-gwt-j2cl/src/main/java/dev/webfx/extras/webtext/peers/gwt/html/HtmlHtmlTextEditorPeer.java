@@ -47,8 +47,8 @@ public final class HtmlHtmlTextEditorPeer
     public void bind(N node, SceneRequester sceneRequester) {
         super.bind(node, sceneRequester);
 
-        FXProperties.runOnPropertiesChange(() -> {
-            if (node.getScene() == null) {
+        FXProperties.runOnPropertyChange(scene -> {
+            if (scene == null) {
                 if (ckEditor != null) {
                     ckEditor.destroy();
                     ckEditor = null;

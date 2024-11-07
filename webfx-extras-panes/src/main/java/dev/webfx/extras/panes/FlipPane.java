@@ -75,7 +75,7 @@ public final class FlipPane extends StackPane {
         getChildren().setAll(backPane, frontPane);
         setFlipDirection(flipDirection);
         FXProperties.runOnPropertiesChange(() -> updateRotatesAxisAndPivot(false), frontPane.widthProperty(), frontPane.heightProperty(), backPane.widthProperty(), backPane.heightProperty());
-        FXProperties.runOnPropertiesChange(this::updateVisibilities, globalRotateProperty());
+        FXProperties.runOnPropertyChange(this::updateVisibilities, globalRotateProperty());
     }
 
     private DoubleProperty globalRotateProperty() {

@@ -31,7 +31,7 @@ public final class FullscreenButton {
     }
 
     static {
-        FXProperties.runNowAndOnPropertyChange(Players.getGlobalPlayerGroup().playingPlayerProperty(), (observable, oldPlayer, newPlayer) -> {
+        FXProperties.runNowAndOnPropertyChange((observable, oldPlayer, newPlayer) -> {
             hideFullscreenButton();
             // If the old player is a video player in fullscreen, we exit that fullscreen
             if (oldPlayer != null && oldPlayer.isFullscreen()) {
@@ -46,13 +46,13 @@ public final class FullscreenButton {
                 }
                 Node mediaView = newPlayer.getMediaView();
                 if (mediaView != null) {
-                    PLAYING_VIDEO_SCENE_CHECKER = FXProperties.runOnPropertiesChange(() -> {
-                        if (mediaView.getScene() == null)
+                    PLAYING_VIDEO_SCENE_CHECKER = FXProperties.runOnPropertyChange(scene -> {
+                        if (scene == null)
                             hideFullscreenButton();
                     }, mediaView.sceneProperty());
                 }
             }
-        });
+        }, Players.getGlobalPlayerGroup().playingPlayerProperty());
     }
 
     private static void showFullscreenButton() {

@@ -6,7 +6,6 @@ import dev.webfx.extras.util.layout.LayoutUtil;
 import dev.webfx.kit.launcher.WebFxKitLauncher;
 import dev.webfx.kit.util.properties.FXProperties;
 import javafx.collections.ObservableList;
-import javafx.geometry.Bounds;
 import javafx.geometry.VPos;
 import javafx.scene.Node;
 import javafx.scene.Parent;
@@ -58,8 +57,7 @@ public class ControlUtil {
             scalePane.setScaleEnabled(!scalePane.isScaleEnabled());
         });*/
         ScrollPane scrollPane = createVerticalScrollPane(scalePane);
-        FXProperties.runOnPropertiesChange(p -> {
-            Bounds viewportBounds = scrollPane.getViewportBounds();
+        FXProperties.runOnPropertyChange(viewportBounds -> {
             double width = viewportBounds.getWidth();
             double height = viewportBounds.getHeight();
             scalePane.setFixedSize(width, height);

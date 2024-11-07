@@ -16,7 +16,7 @@ public final class TimeCanvasUtil {
 
     public static CanvasPane createTimeCanvasPane(CanLayout layout, CanvasDrawer drawer) {
         CanvasPane canvasPane = new CanvasPane(drawer, createTimeCanvasRefresher(layout, drawer));
-        FXProperties.runOnPropertiesChange(() -> canvasPane.setRequestedCanvasHeight(layout.getHeight()), layout.heightProperty());
+        FXProperties.runOnDoublePropertyChange(canvasPane::setRequestedCanvasHeight, layout.heightProperty());
         return canvasPane;
     }
 
@@ -34,7 +34,7 @@ public final class TimeCanvasUtil {
     public static VirtualCanvasPane createTimeVirtualCanvasPane(CanLayout layout, CanvasDrawer drawer, ObservableObjectValue<javafx.geometry.Bounds> viewportBoundsProperty, ObservableDoubleValue vvalueProperty) {
         VirtualCanvasPane virtualCanvasPane = new VirtualCanvasPane(drawer, createTimeCanvasRefresher(layout, drawer));
         virtualCanvasPane.activateVirtualCanvasMode(viewportBoundsProperty, vvalueProperty);
-        FXProperties.runOnPropertiesChange(() -> virtualCanvasPane.setRequestedCanvasHeight(layout.getHeight()), layout.heightProperty());
+        FXProperties.runOnDoublePropertyChange(virtualCanvasPane::setRequestedCanvasHeight, layout.heightProperty());
         return virtualCanvasPane;
     }
 

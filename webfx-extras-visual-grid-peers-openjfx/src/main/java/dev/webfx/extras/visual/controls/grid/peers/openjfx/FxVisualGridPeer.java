@@ -317,7 +317,7 @@ public final class FxVisualGridPeer
                 }
             }, this::getRowStyleClasses, this::getRowBackground);
             row.getProperties().put("nodeStyleUpdater", rowStyleUpdater); // keeping strong reference to avoid garbage collection
-            row.itemProperty().addListener((observable, oldRowIndex, newRowIndex) -> rowStyleUpdater.update());
+            FXProperties.runOnPropertyChange(newRowIndex -> rowStyleUpdater.update(), row.itemProperty());
             return row;
         };
     }

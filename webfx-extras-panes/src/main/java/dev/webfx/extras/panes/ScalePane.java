@@ -150,7 +150,9 @@ public class ScalePane extends MonoPane {
 
     @Override
     public Orientation getContentBias() {
-        return Orientation.HORIZONTAL; // Necessary to have correct prefHeight computation when scaling images in FIT_WIDTH mode
+        // Necessary to return Orientation.VERTICAL in FIT_HEIGHT mode to have correct prefWidth computation (ex: Modality web menu)
+        // Necessary to return Orientation.HORIZONTAL in FIT_WIDTH mode to have correct prefHeight computation
+        return scaleMode == ScaleMode.FIT_HEIGHT ? Orientation.VERTICAL : Orientation.HORIZONTAL;
         // TODO: investigate if we should return different content bias in some other cases
         // Note: putting a child with HORIZONTAL content bias in a GridPane (ex: Modality Kitchen activity) creates an infinite layout loop in OpenJFX 18, 19 & 20, but this is fixed in OpenJFX 21.
     }

@@ -190,8 +190,10 @@ public class ControlUtil {
     public static ProgressIndicator createProgressIndicator(double size) {
         ProgressIndicator pi = new ProgressIndicator();
         // Note: calling setMaxSize() is enough with OpenJFX but not with WebFX (in the browser) TODO investigate why
-        // Anyway, we set all min/pref/max to the passed size
-        pi.setMinSize(size, size);
+        // But calling setPrefSize() in addition works with WebFX.
+        // Another strange issue: calling setMinSize() causes pi to be in the left top corner (observed on a button)
+        // until the window is resized (then pi is correctly positioned during the layout pass).
+        //pi.setMinSize(size, size); // Commented for the above reason. TODO investigate why
         pi.setPrefSize(size, size);
         pi.setMaxSize(size, size);
         return pi;

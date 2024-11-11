@@ -8,9 +8,10 @@ import dev.webfx.extras.util.animation.Animations;
 import dev.webfx.kit.util.properties.FXProperties;
 import javafx.animation.Timeline;
 import javafx.application.Platform;
-import javafx.beans.InvalidationListener;
-import javafx.beans.Observable;
-import javafx.beans.property.*;
+import javafx.beans.property.BooleanProperty;
+import javafx.beans.property.ObjectProperty;
+import javafx.beans.property.ReadOnlyBooleanProperty;
+import javafx.beans.property.SimpleBooleanProperty;
 import javafx.collections.ObservableList;
 import javafx.geometry.HPos;
 import javafx.geometry.Orientation;
@@ -261,13 +262,10 @@ public final class TransitionPane extends MonoClipPane {
     private void doAnimate(Node newContent) {
         if (getWidth() == 0) { // may happen on first time this transition pane is displayed
             // In that case, we postpone the animation when the transition pane is resized (presumably on next layout pass)
-            widthProperty().addListener(new InvalidationListener() {
-                @Override
-                public void invalidated(Observable observable) {
-                    widthProperty().removeListener(this);
-                    doAnimate(newContent);
-                }
-            });
+            FXProperties.runOrUnregisterOnPropertyChange((thisListener, oldValue, newValue) -> {
+                thisListener.unregister();
+                doAnimate(newContent);
+            }, widthProperty());
             return;
         }
         Node oldContent = leavingNode;

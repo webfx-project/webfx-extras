@@ -14,6 +14,7 @@ import javafx.scene.control.ScrollPane;
 import javafx.scene.control.SplitPane;
 import javafx.scene.layout.Region;
 
+import java.util.function.Consumer;
 import java.util.function.Predicate;
 
 /**
@@ -33,13 +34,13 @@ public class ControlUtil {
         scrollPane.setContent(LayoutUtil.setMinMaxWidthToPref(content));
         double verticalScrollbarExtraWidth = WebFxKitLauncher.getVerticalScrollbarExtraWidth();
         content.prefWidthProperty().bind(
-              FXProperties.compute(scrollPane.widthProperty(), width -> {
-                  double contentWidth = width.doubleValue() - verticalScrollbarExtraWidth;
-                  double maxWidth = content.getMaxWidth();
-                  if (maxWidth > 0 && contentWidth > maxWidth)
-                      contentWidth = maxWidth;
-                  return contentWidth;
-              })
+            FXProperties.compute(scrollPane.widthProperty(), width -> {
+                double contentWidth = width.doubleValue() - verticalScrollbarExtraWidth;
+                double maxWidth = content.getMaxWidth();
+                if (maxWidth > 0 && contentWidth > maxWidth)
+                    contentWidth = maxWidth;
+                return contentWidth;
+            })
         );
         scrollPane.setHbarPolicy(ScrollPane.ScrollBarPolicy.NEVER);
         registerParentScrollPaneProperty(scrollPane);
@@ -96,6 +97,15 @@ public class ControlUtil {
             if (node instanceof ScrollPane)
                 return (ScrollPane) node;
         }
+    }
+
+    public static void onScrollPaneAncestorSet(Node node, Consumer<ScrollPane> scrollPaneConsumer) {
+        FXProperties.onPropertySet(node.sceneProperty(), scene -> {
+            ScrollPane scrollPane = ControlUtil.findScrollPaneAncestor(node);
+            if (scrollPane != null) {
+                scrollPaneConsumer.accept(scrollPane);
+            }
+        });
     }
 
     public static double computeScrollPaneHLeftOffset(ScrollPane scrollPane) {

@@ -37,9 +37,9 @@ public abstract class WebVideoPlayerBase extends VideoPlayerBase {
         boolean notificationSupport = getNavigationSupport().notification();
         Status[] noSceneStatus = { null };
         if (hasIFrame || !notificationSupport) {
-            FXProperties.runOnPropertiesChange(() -> {
+            FXProperties.runOnPropertyChange(scene -> {
                 Status status = getStatus();
-                if (webViewPane.getScene() == null) { // Removed from the scene graph or DOM!
+                if (scene == null) { // Removed from the scene graph or DOM!
                     noSceneStatus[0] = status; // memorising the status to eventually reapply it when it's reinserted
                     // Browsers automatically stops videos in iFrame, but we didn't get a notification for it.
                     // And for the other platforms, we also simulate the same behaviour, in order to notify the

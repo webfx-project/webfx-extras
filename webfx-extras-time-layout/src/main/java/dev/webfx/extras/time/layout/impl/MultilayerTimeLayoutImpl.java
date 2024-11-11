@@ -10,7 +10,6 @@ import dev.webfx.extras.time.window.impl.ListenableTimeWindowImpl;
 import dev.webfx.extras.util.DirtyMarker;
 import dev.webfx.kit.util.properties.FXProperties;
 import javafx.beans.property.*;
-import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableIntegerValue;
 import javafx.collections.FXCollections;
 import javafx.collections.ListChangeListener;
@@ -75,7 +74,7 @@ public class MultilayerTimeLayoutImpl<T> extends ListenableTimeWindowImpl<T> imp
         }
         layer.timeWindowEndProperty().bind(timeWindowEndProperty);
         layer.widthProperty().bind(widthProperty);
-        layer.selectedChildProperty().addListener((ChangeListener<Object>) (observable, oldValue, newValue) -> onLayerChildSelected(newValue, layer));
+        FXProperties.runOnPropertyChange(child -> onLayerChildSelected(child, layer), layer.selectedChildProperty());
         layer.getChildren().addListener((ListChangeListener<Object>) c -> markLayoutAsDirty());
         if (!layer.getChildren().isEmpty())
             markLayoutAsDirty();

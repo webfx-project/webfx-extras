@@ -33,7 +33,7 @@ public final class GanttCanvasUtil {
         ParentsCanvasDrawer parentsCanvasDrawer = new ParentsCanvasDrawer(ganttLayout, canvas, parentDrawer);
         VirtualCanvasPane parentVirtualCanvasPane = new VirtualCanvasPane(canvas, parentsCanvasDrawer::refreshCanvas);
         parentVirtualCanvasPane.activateVirtualCanvasMode(viewportBoundsProperty, vvalueProperty);
-        FXProperties.runOnPropertiesChange(() -> parentVirtualCanvasPane.setRequestedCanvasHeight(ganttLayout.getHeight()), ganttLayout.heightProperty());
+        FXProperties.runOnDoublePropertyChange(parentVirtualCanvasPane::setRequestedCanvasHeight, ganttLayout.heightProperty());
         return parentVirtualCanvasPane;
     }
 

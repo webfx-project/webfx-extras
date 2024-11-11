@@ -117,8 +117,8 @@ public class JavaFXMediaAudioPlayer extends PlayerBase {
                     INSTANTIATED_PLAYERS.put(source, mediaPlayer = new MediaPlayer(actualJavaFxMedia));
                 }
                 mediaPlayer.setOnEndOfMedia(onEndOfPlaying);
-                mediaPlayerBinding = FXProperties.runNowAndOnPropertiesChange(() ->
-                        setStatus(convertMediaStatus(mediaPlayer.getStatus()))
+                mediaPlayerBinding = FXProperties.runNowAndOnPropertyChange(status ->
+                        setStatus(convertMediaStatus(status))
                     , mediaPlayer.statusProperty());
                 javaFxMedia.currentTimePropertyImpl().bind(mediaPlayer.currentTimeProperty());
                 bindMutedPropertyTo(mediaPlayer.muteProperty());

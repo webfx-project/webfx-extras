@@ -148,11 +148,11 @@ public class CollapsePane extends MonoClipPane {
 
     public static <N extends Node> N armChevron(N chevron, BooleanProperty collapsedProperty, Node hideChevronOnMouseExitNode) {
         // User interaction management: collapse/expand on circle click
-        chevron.setOnMouseClicked(e -> collapsedProperty.set(!collapsedProperty.get()));
+        chevron.setOnMouseClicked(e -> FXProperties.toggleProperty(collapsedProperty));
         chevron.setCursor(Cursor.HAND); // Note that in OpenJFX, only the part inside the StackPane is showing the hand cursor
         // Rotation animation of the chevron while collapsing or expanding
-        FXProperties.runOnPropertiesChange(() ->
-                Animations.animateProperty(chevron.rotateProperty(), collapsedProperty.get() ? 180 : 0)
+        FXProperties.runOnPropertyChange(collapsed ->
+                Animations.animateProperty(chevron.rotateProperty(), collapsed ? 180 : 0)
             , collapsedProperty);
         // Hiding the circle & chevron on mouse exit if requested
         if (hideChevronOnMouseExitNode != null) {

@@ -18,6 +18,8 @@ import static javafx.scene.layout.Region.USE_PREF_SIZE;
  */
 public final class LayoutUtil {
 
+    private static final Background GOLD_LAYOUT_BACKGROUND = BackgroundFactory.newBackground(Color.gray(0.3, 0.5));
+
     private LayoutUtil() {}
 
     public static GridPane createGoldLayout(Region child) {
@@ -25,7 +27,7 @@ public final class LayoutUtil {
     }
 
     public static GridPane createGoldLayout(Region child, double percentageWidth, double percentageHeight) {
-        return createGoldLayout(child, percentageWidth, percentageHeight, BackgroundFactory.newBackground(Color.gray(0.3, 0.5)));
+        return createGoldLayout(child, percentageWidth, percentageHeight, GOLD_LAYOUT_BACKGROUND);
     }
 
     public static GridPane createGoldLayout(Region child, double percentageWidth, double percentageHeight, Background background) {

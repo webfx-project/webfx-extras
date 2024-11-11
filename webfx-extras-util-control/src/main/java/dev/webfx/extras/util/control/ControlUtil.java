@@ -6,7 +6,6 @@ import dev.webfx.extras.util.layout.LayoutUtil;
 import dev.webfx.kit.launcher.WebFxKitLauncher;
 import dev.webfx.kit.util.properties.FXProperties;
 import javafx.collections.ObservableList;
-import javafx.geometry.Bounds;
 import javafx.geometry.VPos;
 import javafx.scene.Node;
 import javafx.scene.Parent;
@@ -15,6 +14,7 @@ import javafx.scene.control.ScrollPane;
 import javafx.scene.control.SplitPane;
 import javafx.scene.layout.Region;
 
+import java.util.function.Consumer;
 import java.util.function.Predicate;
 
 /**
@@ -34,13 +34,13 @@ public class ControlUtil {
         scrollPane.setContent(LayoutUtil.setMinMaxWidthToPref(content));
         double verticalScrollbarExtraWidth = WebFxKitLauncher.getVerticalScrollbarExtraWidth();
         content.prefWidthProperty().bind(
-              FXProperties.compute(scrollPane.widthProperty(), width -> {
-                  double contentWidth = width.doubleValue() - verticalScrollbarExtraWidth;
-                  double maxWidth = content.getMaxWidth();
-                  if (maxWidth > 0 && contentWidth > maxWidth)
-                      contentWidth = maxWidth;
-                  return contentWidth;
-              })
+            FXProperties.compute(scrollPane.widthProperty(), width -> {
+                double contentWidth = width.doubleValue() - verticalScrollbarExtraWidth;
+                double maxWidth = content.getMaxWidth();
+                if (maxWidth > 0 && contentWidth > maxWidth)
+                    contentWidth = maxWidth;
+                return contentWidth;
+            })
         );
         scrollPane.setHbarPolicy(ScrollPane.ScrollBarPolicy.NEVER);
         registerParentScrollPaneProperty(scrollPane);
@@ -58,8 +58,7 @@ public class ControlUtil {
             scalePane.setScaleEnabled(!scalePane.isScaleEnabled());
         });*/
         ScrollPane scrollPane = createVerticalScrollPane(scalePane);
-        FXProperties.runOnPropertiesChange(p -> {
-            Bounds viewportBounds = scrollPane.getViewportBounds();
+        FXProperties.runOnPropertyChange(viewportBounds -> {
             double width = viewportBounds.getWidth();
             double height = viewportBounds.getHeight();
             scalePane.setFixedSize(width, height);
@@ -98,6 +97,15 @@ public class ControlUtil {
             if (node instanceof ScrollPane)
                 return (ScrollPane) node;
         }
+    }
+
+    public static void onScrollPaneAncestorSet(Node node, Consumer<ScrollPane> scrollPaneConsumer) {
+        FXProperties.onPropertySet(node.sceneProperty(), scene -> {
+            ScrollPane scrollPane = ControlUtil.findScrollPaneAncestor(node);
+            if (scrollPane != null) {
+                scrollPaneConsumer.accept(scrollPane);
+            }
+        });
     }
 
     public static double computeScrollPaneHLeftOffset(ScrollPane scrollPane) {
@@ -192,8 +200,10 @@ public class ControlUtil {
     public static ProgressIndicator createProgressIndicator(double size) {
         ProgressIndicator pi = new ProgressIndicator();
         // Note: calling setMaxSize() is enough with OpenJFX but not with WebFX (in the browser) TODO investigate why
-        // Anyway, we set all min/pref/max to the passed size
-        pi.setMinSize(size, size);
+        // But calling setPrefSize() in addition works with WebFX.
+        // Another strange issue: calling setMinSize() causes pi to be in the left top corner (observed on a button)
+        // until the window is resized (then pi is correctly positioned during the layout pass).
+        //pi.setMinSize(size, size); // Commented for the above reason. TODO investigate why
         pi.setPrefSize(size, size);
         pi.setMaxSize(size, size);
         return pi;

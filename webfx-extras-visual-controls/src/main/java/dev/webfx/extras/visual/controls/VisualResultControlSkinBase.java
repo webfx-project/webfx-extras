@@ -31,7 +31,7 @@ public abstract class VisualResultControlSkinBase<C extends VisualResultControl,
     private int rowBackgroundColumnIndex;
 
     protected void start() {
-        FXProperties.runNowAndOnPropertiesChange(() -> updateResult(getSkinnable().getVisualResult()), getSkinnable().visualResultProperty());
+        FXProperties.runNowAndOnPropertyChange(this::updateResult, getSkinnable().visualResultProperty());
     }
 
     protected void updateResult(VisualResult rs) {

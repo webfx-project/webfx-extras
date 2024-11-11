@@ -1,22 +1,22 @@
 package dev.webfx.extras.webtext.peers.openjfx;
 
+import dev.webfx.extras.webtext.HtmlTextEditor;
 import dev.webfx.extras.webtext.peers.base.HtmlTextEditorPeerBase;
-import javafx.beans.value.ObservableValue;
+import dev.webfx.extras.webtext.peers.base.HtmlTextEditorPeerMixin;
+import dev.webfx.kit.util.properties.FXProperties;
+import dev.webfx.platform.util.Objects;
 import javafx.concurrent.Worker;
 import javafx.scene.web.WebEngine;
 import javafx.scene.web.WebView;
-import dev.webfx.extras.webtext.HtmlTextEditor;
-import dev.webfx.extras.webtext.peers.base.HtmlTextEditorPeerMixin;
-import dev.webfx.platform.util.Objects;
 import netscape.javascript.JSObject;
 
 /**
  * @author Bruno Salmon
  */
 public final class FxHtmlTextEditorPeer
-        <FxN extends WebView, N extends HtmlTextEditor, NB extends HtmlTextEditorPeerBase<N, NB, NM>, NM extends HtmlTextEditorPeerMixin<N, NB, NM>>
-        extends FxHtmlTextWebViewPeer<FxN, N, NB, NM>
-        implements HtmlTextEditorPeerMixin<N, NB, NM> {
+    <FxN extends WebView, N extends HtmlTextEditor, NB extends HtmlTextEditorPeerBase<N, NB, NM>, NM extends HtmlTextEditorPeerMixin<N, NB, NM>>
+    extends FxHtmlTextWebViewPeer<FxN, N, NB, NM>
+    implements HtmlTextEditorPeerMixin<N, NB, NM> {
 
     private static final String CK_EDITOR_URL_TEMPLATE = "https://cdn.ckeditor.com/4.22.1/${mode}/ckeditor.js";
     private JSObject ckEditor;
@@ -34,18 +34,17 @@ public final class FxHtmlTextEditorPeer
         WebEngine webEngine = webView.getEngine();
         String ckEditorUrl = CK_EDITOR_URL_TEMPLATE.replace("${mode}", mode.name().toLowerCase());
         webEngine.loadContent("<html><head><script src='" + ckEditorUrl + "'></script></head><body><div id='ckEditorDiv'></div></body></html>");
-        webEngine.getLoadWorker().stateProperty().addListener(
-                (ObservableValue<? extends Worker.State> observable, Worker.State oldValue, Worker.State newValue) -> {
-                    if (newValue == Worker.State.SUCCEEDED && ckEditor == null) {
-                        N node = getNode();
-                        JSObject window = (JSObject) executeScript("window");
-                        if (window != null) {
-                            window.setMember("javaThis", this);
-                            ckEditor = (JSObject) executeScript("CKEDITOR.replace('ckEditorDiv', {resize_enabled: false, on: {'instanceReady': function(e) {e.editor.execCommand('maximize'); e.editor.on('change', function() {javaThis.onEditorDataChanged();});}}});");
-                            updateText(node.getText());
-                        }
-                    }
-                } );
+        FXProperties.runOnPropertyChange(webEngineState -> {
+            if (webEngineState == Worker.State.SUCCEEDED && ckEditor == null) {
+                N node = getNode();
+                JSObject window = (JSObject) executeScript("window");
+                if (window != null) {
+                    window.setMember("javaThis", this);
+                    ckEditor = (JSObject) executeScript("CKEDITOR.replace('ckEditorDiv', {resize_enabled: false, on: {'instanceReady': function(e) {e.editor.execCommand('maximize'); e.editor.on('change', function() {javaThis.onEditorDataChanged();});}}});");
+                    updateText(node.getText());
+                }
+            }
+        }, webEngine.getLoadWorker().stateProperty());
     }
 
     /*

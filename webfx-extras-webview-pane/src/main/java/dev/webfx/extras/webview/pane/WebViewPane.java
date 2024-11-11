@@ -55,8 +55,8 @@ public class WebViewPane extends MonoPane {
         // WebView, and this fails with OpenJFX if not done in the UI thread (Not on FX application thread).
         UiScheduler.runInUiThread(this::initWebEngine);
 /* Sometimes useful to trace scene changes in the browser to know when the iFrame is inserted in or removed from the DOM.
-        FXProperties.runOnPropertiesChange(() -> {
-            logDebug("scene => " + getScene());
+        FXProperties.runOnPropertyChange(scene -> {
+            logDebug("scene => " + scene);
         }, sceneProperty());
 */
     }
@@ -85,7 +85,7 @@ public class WebViewPane extends MonoPane {
         }
         if (webEngineStateListener != null)
             webEngineStateListener.unregister();
-        webEngineStateListener = FXProperties.runNowAndOnPropertiesChange(this::processWebEngineState,
+        webEngineStateListener = FXProperties.runNowAndOnPropertyChange(this::processWebEngineState,
                 webEngine.getLoadWorker().stateProperty());
     }
 

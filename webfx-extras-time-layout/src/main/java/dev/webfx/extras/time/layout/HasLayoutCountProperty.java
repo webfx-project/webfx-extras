@@ -1,5 +1,6 @@
 package dev.webfx.extras.time.layout;
 
+import dev.webfx.kit.util.properties.FXProperties;
 import javafx.beans.value.ObservableIntegerValue;
 
 public interface HasLayoutCountProperty {
@@ -14,17 +15,17 @@ public interface HasLayoutCountProperty {
     }
 
     default void addOnBeforeLayout(Runnable runnable) {
-        layoutCountProperty().addListener((observable, oldValue, newValue) -> {
+        FXProperties.runOnPropertyChange(() -> {
             if (isLayouting())
                 runnable.run();
-        });
+        }, layoutCountProperty());
     }
 
     default void addOnAfterLayout(Runnable runnable) {
-        layoutCountProperty().addListener((observable, oldValue, newValue) -> {
+        FXProperties.runOnPropertyChange(() -> {
             if (!isLayouting())
                 runnable.run();
-        });
+        }, layoutCountProperty());
     }
 
 }

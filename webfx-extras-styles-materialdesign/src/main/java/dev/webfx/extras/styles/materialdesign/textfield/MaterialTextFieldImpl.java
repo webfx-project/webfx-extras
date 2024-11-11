@@ -115,14 +115,14 @@ public final class MaterialTextFieldImpl implements MaterialTextField {
         return invalidLineFillProperty;
     }
 
-    private final static Color DEFAULT_FOCUS_LABEL_COLOR = Color.web("#4273fc");
+    private final static Color DEFAULT_FOCUS_LABEL_COLOR = Color.web("#0596FF");//Temporary put the same as bootstrap while waiting to change the harcoded value to css
     private final Property<Paint> focusLabelFillProperty = new SimpleObjectProperty<>(DEFAULT_FOCUS_LABEL_COLOR);
     @Override
     public Property<Paint> focusLabelFillProperty() {
         return focusLabelFillProperty;
     }
 
-    private final static Color DEFAULT_FOCUS_LINE_COLOR = Color.web("#2962ff");
+    private final static Color DEFAULT_FOCUS_LINE_COLOR = Color.web("#0596FF");//Temporary put the same as bootstrap while waiting to change the harcoded value to css
     private final Property<Paint> focusLineFillProperty = new SimpleObjectProperty<>(DEFAULT_FOCUS_LINE_COLOR);
     @Override
     public Property<Paint> focusLineFillProperty() {

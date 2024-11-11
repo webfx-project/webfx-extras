@@ -57,7 +57,7 @@ public class WistiaVideoPlayer extends SeamlessCapableWebVideoPlayer {
 
     @Override
     protected void appendUrlParameters(StartOptions so, StringBuilder sb) {
-        if (so.autoplay())
+        if (Booleans.isTrue(so.autoplay()))
             sb.append("&autoplay=true");
         if (so.playerColor() != null)
             sb.append("&playerColor=").append(toWebColor(so.playerColor()));

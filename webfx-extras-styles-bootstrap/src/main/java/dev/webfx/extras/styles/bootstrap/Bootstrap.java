@@ -50,7 +50,7 @@ public interface Bootstrap {
 
     String STRONG = "strong";
 
-    private static <N extends Node> N style(N node, String style) {
+    static <N extends Node> N style(N node, String style) {
         node.getStyleClass().add(style);
         return node;
     }
@@ -62,7 +62,7 @@ public interface Bootstrap {
     static <N extends Node> N largeButton(N button) {
         if (button instanceof Region) {
             Region region = (Region) button;
-            region.setMinWidth(150);
+            region.setMinWidth(240);
             region.setPadding(new Insets(15));
             if (button instanceof Labeled) {
                 ((Labeled) button).setGraphicTextGap(30);
@@ -127,7 +127,7 @@ public interface Bootstrap {
         return style(node, H6);
     }
 
-    static <N extends Node> N textPrimary(N node) {
+     static <N extends Node> N textPrimary(N node) {
         return style(node, TEXT_PRIMARY);
     }
 

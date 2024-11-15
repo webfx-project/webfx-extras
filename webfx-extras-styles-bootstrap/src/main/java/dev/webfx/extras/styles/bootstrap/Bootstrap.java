@@ -155,4 +155,11 @@ public interface Bootstrap {
         return style(node, SMALL);
     }
 
+    static <N extends Node> N h1Primary(N node) {
+        return style(style(node,Bootstrap.TEXT_PRIMARY),H1);
+    }
+    static <N extends Node> N h2Primary(N node) {
+        return style(style(node,TEXT_PRIMARY),H2);
+    }
+
 }

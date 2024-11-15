@@ -70,7 +70,7 @@
     border-radius: 4px;
 }
 
-.btn:hover {
+.btn:hover:not(.disabled) {
     color: var(--bootstrap-grey7);
     --fx-svg-path-fill: var(--bootstrap-grey7);
 }
@@ -88,7 +88,7 @@
     border-color: var(--bootstrap-grey3);
 }
 
-.btn-default:hover {
+.btn-default:hover:not(.disabled) {
     color: var(--bootstrap-grey7);
     --fx-svg-path-fill: var(--bootstrap-grey7);
 }
@@ -114,16 +114,16 @@
     border-color: var(--bootstrap-blue6);
 }
 
-.btn-primary:hover {
+.btn-primary:hover:not(.disabled) {
     color: var(--bootstrap-white);
     --fx-svg-path-fill: var(--bootstrap-white);
 }
 
-.btn-primary:hover > fx-background {
+.btn-primary:hover:not(.disabled) > fx-background {
     background-color: var(--bootstrap-blue8);
 }
 
-.btn-primary:hover > fx-border {
+.btn-primary:hover:not(.disabled) > fx-border {
     border-color: var(--bootstrap-blue9);
 }
 
@@ -140,16 +140,16 @@
     border-color: var(--bootstrap-grey5);
 }
 
-.btn-secondary:hover {
+.btn-secondary:hover:not(.disabled){
     color: var(--bootstrap-white);
     --fx-svg-path-fill: var(--bootstrap-white);
 }
 
-.btn-secondary:hover > fx-background {
+.btn-secondary:hover:not(.disabled)> fx-background {
     background-color: var(--bootstrap-grey5);
 }
 
-.btn-secondary:hover > fx-border {
+.btn-secondary:hover:not(.disabled)> fx-border {
     border-color: var(--bootstrap-grey6);
 }
 
@@ -166,16 +166,16 @@
     border-color: var(--bootstrap-green2);
 }
 
-.btn-success:hover {
+.btn-success:hover:not(.disabled){
     color: var(--bootstrap-white);
     --fx-svg-path-fill: var(--bootstrap-white);
 }
 
-.btn-success:hover > fx-background {
+.btn-success:hover:not(.disabled)> fx-background {
     background-color: var(--bootstrap-green3);
 }
 
-.btn-success:hover > fx-border {
+.btn-success:hover:not(.disabled)> fx-border {
     border-color: var(--bootstrap-green4);
 }
 
@@ -193,16 +193,16 @@
     border-color: var(--bootstrap-blue2);
 }
 
-.btn-info:hover {
+.btn-info:hover:not(.disabled){
     color: var(--bootstrap-white);
     --fx-svg-path-fill: var(--bootstrap-white);
 }
 
-.btn-info:hover > fx-background {
+.btn-info:hover:not(.disabled)> fx-background {
     background-color: var(--bootstrap-blue3);
 }
 
-.btn-info:hover > fx-border {
+.btn-info:hover:not(.disabled)> fx-border {
     border-color: var(--bootstrap-blue4);
 }
 
@@ -219,16 +219,16 @@
     border-color: var(--bootstrap-orange2);
 }
 
-.btn-warning:hover {
+.btn-warning:hover:not(.disabled){
     color: var(--bootstrap-white);
     --fx-svg-path-fill: var(--bootstrap-white);
 }
 
-.btn-warning:hover > fx-background {
+.btn-warning:hover:not(.disabled)> fx-background {
     background-color: var(--bootstrap-orange3);
 }
 
-.btn-warning:hover > fx-border {
+.btn-warning:hover:not(.disabled)> fx-border {
     border-color: var(--bootstrap-orange4);
 }
 
@@ -245,16 +245,16 @@
     border-color: var(--bootstrap-red2);
 }
 
-.btn-danger:hover {
+.btn-danger:hover:not(.disabled){
     color: var(--bootstrap-white);
     --fx-svg-path-fill: var(--bootstrap-white);
 }
 
-.btn-danger:hover > fx-background {
+.btn-danger:hover:not(.disabled)> fx-background {
     background-color: var(--bootstrap-red3);
 }
 
-.btn-danger:hover > fx-border {
+.btn-danger:hover:not(.disabled)> fx-border {
     border-color: var(--bootstrap-red4);
 }
 

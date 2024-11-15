@@ -166,7 +166,8 @@ public final class Carousel {
                 // If the application code set a minHeight on the Carrousel (actually its container) such as setting it
                 // to the ScrollPane height in Modality front-office, we propagate this constraint to the content (the
                 // GoldenRatioPane in this case).
-                region.minHeightProperty().bind(container.minHeightProperty());
+                // Commented as it's not necessary anymore (actually causes exception). TODO: remove once confirmed
+                // region.minHeightProperty().bind(container.minHeightProperty());
                 // Also if the leaving node if higher, it could make the GoldenRatioPane higher than needed (moving down
                 // its content during the transition). To avoid this, we set the Max height to the preferred height.
                 region.setMaxHeight(Region.USE_PREF_SIZE);

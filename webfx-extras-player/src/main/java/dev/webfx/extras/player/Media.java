@@ -1,5 +1,6 @@
 package dev.webfx.extras.player;
 
+import dev.webfx.extras.media.metadata.MediaMetadata;
 import javafx.beans.property.ReadOnlyObjectProperty;
 import javafx.util.Duration;
 

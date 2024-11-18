@@ -1,6 +1,4 @@
-package dev.webfx.extras.player.metadata;
-
-import dev.webfx.extras.player.MediaMetadata;
+package dev.webfx.extras.media.metadata;
 
 /**
  * @author Bruno Salmon

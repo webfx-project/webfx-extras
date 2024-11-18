@@ -1,5 +1,6 @@
 package dev.webfx.extras.player.video.web.wistia;
 
+import dev.webfx.extras.media.metadata.MediaMetadata;
 import dev.webfx.extras.player.*;
 import dev.webfx.extras.player.video.web.SeamlessCapableWebVideoPlayer;
 import dev.webfx.extras.webview.pane.LoadOptions;

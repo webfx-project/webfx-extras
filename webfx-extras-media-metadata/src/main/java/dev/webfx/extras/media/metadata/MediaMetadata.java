@@ -1,4 +1,4 @@
-package dev.webfx.extras.player;
+package dev.webfx.extras.media.metadata;
 
 
 /**

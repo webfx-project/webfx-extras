@@ -6,6 +6,7 @@ module webfx.extras.player.audio.javafxmedia {
     requires javafx.base;
     requires javafx.graphics;
     requires javafx.media;
+    requires webfx.extras.media.metadata;
     requires webfx.extras.player;
     requires webfx.kit.util;
 

@@ -6,6 +6,7 @@ module webfx.extras.player.video.web {
     requires javafx.base;
     requires javafx.graphics;
     requires javafx.web;
+    requires webfx.extras.media.metadata;
     requires webfx.extras.player;
     requires webfx.extras.player.video;
     requires webfx.extras.webview.pane;

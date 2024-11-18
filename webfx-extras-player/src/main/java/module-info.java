@@ -5,6 +5,7 @@ module webfx.extras.player {
     // Direct dependencies modules
     requires javafx.base;
     requires javafx.graphics;
+    requires webfx.extras.media.metadata;
     requires webfx.kit.util;
     requires webfx.platform.console;
     requires webfx.platform.uischeduler;
@@ -14,6 +15,5 @@ module webfx.extras.player {
     exports dev.webfx.extras.player;
     exports dev.webfx.extras.player.impl;
     exports dev.webfx.extras.player.multi;
-    exports dev.webfx.extras.player.metadata;
 
 }

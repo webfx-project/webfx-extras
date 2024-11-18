@@ -1,7 +1,7 @@
 package dev.webfx.extras.player.video.web.youtube;
 
 import dev.webfx.extras.player.Media;
-import dev.webfx.extras.player.MediaMetadata;
+import dev.webfx.extras.media.metadata.MediaMetadata;
 import dev.webfx.extras.player.StartOptions;
 import dev.webfx.extras.player.StartOptionsBuilder;
 import dev.webfx.extras.player.video.web.SeamlessCapableWebVideoPlayer;

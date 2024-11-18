@@ -2,7 +2,7 @@ package dev.webfx.extras.player.multi;
 
 import dev.webfx.extras.player.*;
 import dev.webfx.extras.player.impl.PlayerBase;
-import dev.webfx.extras.player.MediaMetadata;
+import dev.webfx.extras.media.metadata.MediaMetadata;
 import dev.webfx.platform.util.Arrays;
 import javafx.scene.Node;
 import javafx.scene.layout.StackPane;

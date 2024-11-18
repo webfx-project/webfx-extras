@@ -5,6 +5,7 @@ module webfx.extras.player.video.web.castr {
     // Direct dependencies modules
     requires javafx.base;
     requires javafx.graphics;
+    requires webfx.extras.media.metadata;
     requires webfx.extras.player;
     requires webfx.extras.player.video.web;
 

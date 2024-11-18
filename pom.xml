@@ -62,6 +62,7 @@
         <module>webfx-extras-label</module>
         <module>webfx-extras-layer</module>
         <module>webfx-extras-led</module>
+        <module>webfx-extras-media-metadata</module>
         <module>webfx-extras-panes</module>
         <module>webfx-extras-player</module>
         <module>webfx-extras-player-audio</module>

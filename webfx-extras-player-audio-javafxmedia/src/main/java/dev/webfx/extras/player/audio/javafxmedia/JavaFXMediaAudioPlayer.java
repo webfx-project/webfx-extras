@@ -1,7 +1,7 @@
 package dev.webfx.extras.player.audio.javafxmedia;
 
 import dev.webfx.extras.player.FeatureSupport;
-import dev.webfx.extras.player.MediaMetadata;
+import dev.webfx.extras.media.metadata.MediaMetadata;
 import dev.webfx.extras.player.Status;
 import dev.webfx.extras.player.impl.PlayerBase;
 import dev.webfx.kit.util.properties.FXProperties;

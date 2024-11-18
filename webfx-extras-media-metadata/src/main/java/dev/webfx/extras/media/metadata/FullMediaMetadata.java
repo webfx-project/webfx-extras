@@ -1,10 +1,10 @@
-package dev.webfx.extras.player.metadata;
+package dev.webfx.extras.media.metadata;
 
 /**
  * @author Bruno Salmon
  */
 public interface FullMediaMetadata extends
     HasTitle,
-    HasDuration,
+    HasDurationMillis,
     HasHasAudio
 { }

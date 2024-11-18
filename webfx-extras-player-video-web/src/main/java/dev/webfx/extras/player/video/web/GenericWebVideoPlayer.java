@@ -1,5 +1,6 @@
 package dev.webfx.extras.player.video.web;
 
+import dev.webfx.extras.media.metadata.MediaMetadata;
 import dev.webfx.extras.player.*;
 
 /**

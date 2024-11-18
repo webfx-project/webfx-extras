@@ -1,6 +1,4 @@
-package dev.webfx.extras.player.metadata;
-
-import javafx.util.Duration;
+package dev.webfx.extras.media.metadata;
 
 /**
  * @author Bruno Salmon
@@ -8,12 +6,12 @@ import javafx.util.Duration;
 public class FullMediaMetadataImpl implements FullMediaMetadata {
 
     private final String title;
-    private final Duration duration;
+    private final Long durationMillis;
     private final Boolean hasAudio;
 
-    public FullMediaMetadataImpl(String title, Duration duration, Boolean hasAudio) {
+    public FullMediaMetadataImpl(String title, Long durationMillis, Boolean hasAudio) {
         this.title = title;
-        this.duration = duration;
+        this.durationMillis = durationMillis;
         this.hasAudio = hasAudio;
     }
 
@@ -23,8 +21,8 @@ public class FullMediaMetadataImpl implements FullMediaMetadata {
     }
 
     @Override
-    public Duration getDuration() {
-        return duration;
+    public Long getDurationMillis() {
+        return durationMillis;
     }
 
     @Override

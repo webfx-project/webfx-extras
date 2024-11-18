@@ -1,6 +1,6 @@
 package dev.webfx.extras.player.audio.javafxmedia;
 
-import dev.webfx.extras.player.MediaMetadata;
+import dev.webfx.extras.media.metadata.MediaMetadata;
 import dev.webfx.extras.player.Player;
 import dev.webfx.extras.player.impl.MediaBase;
 import javafx.beans.property.ObjectProperty;

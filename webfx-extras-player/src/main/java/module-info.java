@@ -14,5 +14,6 @@ module webfx.extras.player {
     exports dev.webfx.extras.player;
     exports dev.webfx.extras.player.impl;
     exports dev.webfx.extras.player.multi;
+    exports dev.webfx.extras.player.metadata;
 
 }

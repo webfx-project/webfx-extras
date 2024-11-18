@@ -1,7 +1,7 @@
 package dev.webfx.extras.player;
 
+import dev.webfx.extras.player.metadata.MetadataUtil;
 import dev.webfx.kit.util.properties.FXProperties;
-import dev.webfx.platform.util.Booleans;
 import javafx.beans.property.ObjectProperty;
 import javafx.beans.property.ReadOnlyBooleanProperty;
 import javafx.beans.property.ReadOnlyObjectProperty;
@@ -63,9 +63,9 @@ public interface Player {
         Media media = getMedia();
         if (media == null)
             return false;
-        MediaMetadata metadata = media.getMetadata();
-        if (metadata != null)
-            return Booleans.isNotFalse(metadata.hasAudio());
+        Boolean hasAudio = MetadataUtil.hasAudio(media);
+        if (hasAudio != null)
+            return hasAudio;
         return true; // if no info is provided, we assume the media has audio by default
     }
 

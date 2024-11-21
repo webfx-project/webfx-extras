@@ -3,6 +3,7 @@ package dev.webfx.extras.player.video.web.castr;
 import dev.webfx.extras.media.metadata.MediaMetadata;
 import dev.webfx.extras.player.*;
 import dev.webfx.extras.player.video.web.WebVideoPlayerBase;
+import dev.webfx.platform.util.Booleans;
 
 import java.time.LocalDateTime;
 import java.time.ZoneOffset;
@@ -68,7 +69,7 @@ ex: ?range=1722671889-3724&abr=false&namedHls=true
 
     @Override
     protected void appendUrlParameters(StartOptions so, StringBuilder sb) {
-        if (so.autoplay())
+        if (Booleans.isTrue(so.autoplay()))
             sb.append("&autoplay=on");
         if (so.startDateTime() != null && so.endDateTime() != null) {
             sb.append("&range=").append(so.startDateTime().toEpochSecond(ZoneOffset.UTC)).append('-').append(java.time.Duration.between(so.startDateTime(), so.endDateTime()).getSeconds())

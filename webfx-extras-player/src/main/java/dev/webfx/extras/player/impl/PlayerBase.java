@@ -113,6 +113,11 @@ public abstract class PlayerBase implements Player {
         this.onEndOfPlaying = onEndOfPlaying;
     }
 
+    protected void callOnEndOfPlayingIfSet() {
+        if (onEndOfPlaying != null)
+            onEndOfPlaying.run();
+    }
+
     public void setInMultiPlayer(boolean inMultiPlayer) {
         isInMultiPlayer = inMultiPlayer;
     }

@@ -13,6 +13,7 @@ public final class StartOptionsImpl implements StartOptions {
 
     private final Boolean autoplay;
     private final Boolean muted;
+    private final Boolean loop;
     private final Boolean fullscreen;
     private final Duration startTime;
     private final Duration endTime;
@@ -21,9 +22,10 @@ public final class StartOptionsImpl implements StartOptions {
     private final Double aspectRatio;
     private final Color playerColor;
 
-    public StartOptionsImpl(Boolean autoplay, Boolean muted, Boolean fullscreen, Duration startTime, Duration endTime, LocalDateTime startDateTime, LocalDateTime endDateTime, Double aspectRatio, Color playerColor) {
+    public StartOptionsImpl(Boolean autoplay, Boolean muted, Boolean loop, Boolean fullscreen, Duration startTime, Duration endTime, LocalDateTime startDateTime, LocalDateTime endDateTime, Double aspectRatio, Color playerColor) {
         this.autoplay = autoplay;
         this.muted = muted;
+        this.loop = loop;
         this.fullscreen = fullscreen;
         this.startTime = startTime;
         this.endTime = endTime;
@@ -41,6 +43,11 @@ public final class StartOptionsImpl implements StartOptions {
     @Override
     public Boolean muted() {
         return muted;
+    }
+
+    @Override
+    public Boolean loop() {
+        return loop;
     }
 
     @Override

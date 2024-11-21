@@ -1,12 +1,13 @@
 package dev.webfx.extras.player.video.web.youtube;
 
-import dev.webfx.extras.player.Media;
 import dev.webfx.extras.media.metadata.MediaMetadata;
+import dev.webfx.extras.player.Media;
 import dev.webfx.extras.player.StartOptions;
 import dev.webfx.extras.player.StartOptionsBuilder;
 import dev.webfx.extras.player.video.web.SeamlessCapableWebVideoPlayer;
 import dev.webfx.extras.webview.pane.LoadOptions;
 import dev.webfx.extras.webview.pane.WebViewPane;
+import dev.webfx.platform.util.Booleans;
 import javafx.util.Duration;
 
 /**
@@ -63,10 +64,17 @@ Here are some of the most commonly used parameters to remove or hide overlays:
     @Override
     protected void appendUrlParameters(StartOptions so, StringBuilder sb) {
         sb.append("rel=0&modestbranding=1&showinfo=0&iv_load_policy=3&autohide=1");
+        if (Booleans.isTrue(so.muted()))
+            sb.append("&muted=1");
+        if (Booleans.isTrue(so.autoplay()))
+            sb.append("&autoplay=1");
+        if (Booleans.isTrue(so.loop()))
+            sb.append("&loop=1");
     }
 
     private void seamless_call(String script) {
         //Console.log("Calling: " + script);
+        StartOptions so = playingStartingOption;
         String mediaId = getMediaId();
         webViewPane.loadFromScript(
             "const playerId = '" + playerId + "';\n" +
@@ -84,7 +92,8 @@ Here are some of the most commonly used parameters to remove or hide overlays:
             "            height: '100%',\n" +
             "            videoId: '" + mediaId + "',\n" +
             "            playerVars: {\n" +
-            "                'rel': 0\n" +
+            "                rel: 0, modestbranding: 1, showinfo: 0, iv_load_policy: 3, autohide: 1\n" +
+            "                " + (Booleans.isTrue(so.muted()) ? ", muted: 1" : "") + (Booleans.isTrue(so.autoplay()) ? ", autoplay: 1" : "") + (Booleans.isTrue(so.loop()) ? ", loop: 1" : "") + "\n" +
             "            },\n" +
             "            events: {\n" +
             "                'onReady': function() {\n" +

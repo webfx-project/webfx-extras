@@ -14,6 +14,8 @@ public interface StartOptions {
 
     Boolean muted();
 
+    Boolean loop();
+
     Boolean fullscreen();
 
     Duration startTime();

@@ -14,6 +14,7 @@ public class StartOptionsBuilder {
 
     private Boolean autoplay;
     private Boolean muted;
+    private Boolean loop;
     private Boolean fullscreen;
     private Duration startTime;
     private Duration endTime;
@@ -38,6 +39,15 @@ public class StartOptionsBuilder {
 
     public Boolean getMuted() {
         return muted;
+    }
+
+    public StartOptionsBuilder setLoop(Boolean loop) {
+        this.loop = loop;
+        return this;
+    }
+
+    public Boolean getLoop() {
+        return loop;
     }
 
     public StartOptionsBuilder setFullscreen(Boolean fullscreen) {
@@ -112,6 +122,7 @@ public class StartOptionsBuilder {
             return this;
         autoplay = Objects.coalesce(so.autoplay(), autoplay);
         muted = Objects.coalesce(so.muted(), muted);
+        loop = Objects.coalesce(so.loop(), loop);
         fullscreen = Objects.coalesce(so.fullscreen(), fullscreen);
         startTime = Objects.coalesce(so.startTime(), startTime);
         endTime = Objects.coalesce(so.endTime(), endTime);
@@ -123,6 +134,6 @@ public class StartOptionsBuilder {
     }
 
     public StartOptions build() {
-        return new StartOptionsImpl(autoplay, muted, fullscreen, startTime, endTime, startDateTime, endDateTime, aspectRatio, playerColor);
+        return new StartOptionsImpl(autoplay, muted, loop, fullscreen, startTime, endTime, startDateTime, endDateTime, aspectRatio, playerColor);
     }
 }

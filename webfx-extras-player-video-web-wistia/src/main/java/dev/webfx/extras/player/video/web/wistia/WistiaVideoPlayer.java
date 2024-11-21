@@ -96,15 +96,20 @@ public class WistiaVideoPlayer extends SeamlessCapableWebVideoPlayer {
 
     @Override
     protected void seamless_displayVideo() {
-        seamless_call("");
+        if (Booleans.isTrue(playingStartingOption.autoplay())) {
+            seamless_play();
+        } else {
+            seamless_call("");
+        }
     }
 
     @Override
     public void resetToInitialState() {
         if (IS_SEAMLESS) {
             seamless_call("video.replaceWith('" + getMediaId() + "', { $playerColor$ }); window.bindWistiaVideo(video, playerId);");
-        } else
+        } else {
             super.resetToInitialState();
+        }
     }
 
     @Override

@@ -5,6 +5,7 @@ import dev.webfx.extras.util.layout.LayoutUtil;
 import dev.webfx.kit.util.properties.FXProperties;
 import javafx.animation.Timeline;
 import javafx.beans.property.BooleanProperty;
+import javafx.beans.property.SimpleBooleanProperty;
 import javafx.geometry.Pos;
 import javafx.scene.Cursor;
 import javafx.scene.Node;
@@ -30,6 +31,9 @@ public class CollapsePane extends MonoClipPane {
         else
             doExpand();
     });
+
+    private final BooleanProperty animateProperty = new SimpleBooleanProperty(true);
+
     private Timeline timeline;
     private double heightDuringCollapseAnimation;
 
@@ -74,6 +78,18 @@ public class CollapsePane extends MonoClipPane {
         setCollapsed(!isCollapsed());
     }
 
+    public boolean isAnimate() {
+        return animateProperty.get();
+    }
+
+    public BooleanProperty animateProperty() {
+        return animateProperty;
+    }
+
+    public void setAnimate(boolean animate) {
+        animateProperty.set(animate);
+    }
+
     private void doCollapse() {
         heightDuringCollapseAnimation = getHeight();
         setPrefHeight(heightDuringCollapseAnimation);
@@ -101,7 +117,7 @@ public class CollapsePane extends MonoClipPane {
     private void animateHeight(double finalValue) {
         setHeightComputationMode(USE_PREF_SIZE);
         Animations.forceTimelineToFinish(timeline);
-        timeline = Animations.animateProperty(prefHeightProperty(), finalValue);
+        timeline = Animations.animateProperty(prefHeightProperty(), finalValue, isAnimate());
         Animations.setOrCallOnTimelineFinished(timeline, e -> {
             if (finalValue > 0) {
                 setHeightComputationMode(USE_COMPUTED_SIZE);

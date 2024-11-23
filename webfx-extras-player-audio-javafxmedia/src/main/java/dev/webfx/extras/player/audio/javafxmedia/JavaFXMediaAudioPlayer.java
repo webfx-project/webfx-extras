@@ -26,6 +26,7 @@ public class JavaFXMediaAudioPlayer extends PlayerBase {
 
     private MediaPlayer mediaPlayer;
     private Unregisterable mediaPlayerBinding; // will allow to unbind a recycled view from its previous associated media player.
+    private AudioMediaView audioMediaView;
 
     @Override
     public dev.webfx.extras.player.Media acceptMedia(String mediaSource, MediaMetadata mediaMetadata) {
@@ -34,7 +35,13 @@ public class JavaFXMediaAudioPlayer extends PlayerBase {
 
     @Override
     public Node getMediaView() {
-        return null;
+        if(audioMediaView==null)
+            audioMediaView = new AudioMediaView(this);
+        return audioMediaView.getContainer();
+    }
+
+    public AudioMediaView getAudioMediaView() {
+        return audioMediaView;
     }
 
     @Override
@@ -80,6 +87,10 @@ public class JavaFXMediaAudioPlayer extends PlayerBase {
         return FeatureSupport.FULL_SUPPORT;
     }
 
+    public MediaPlayer getMediaPlayer() {
+        return mediaPlayer;
+    }
+
     @Override
     public void mute() {
         checkCreateMediaPlayer();
@@ -96,13 +107,16 @@ public class JavaFXMediaAudioPlayer extends PlayerBase {
 
     @Override
     protected void onMediaChange() {
+        MediaPlayer mPlayer = mediaPlayer;
         if (mediaPlayer != null) {
-            mediaPlayer.dispose();
             mediaPlayer = null;
-            if (mediaPlayerBinding != null)
+            if (mediaPlayerBinding != null) {
                 mediaPlayerBinding.unregister();
+            }
         }
         super.onMediaChange(); // will bind player currentTimeProperty to this media currentTimeProperty
+        if (mPlayer != null)
+            mPlayer.dispose();
     }
 
     private void checkCreateMediaPlayer() {
@@ -112,7 +126,7 @@ public class JavaFXMediaAudioPlayer extends PlayerBase {
                 JavaFXMedia javaFxMedia = (JavaFXMedia) media;
                 Media actualJavaFxMedia = javaFxMedia.getFxMedia();
                 String source = actualJavaFxMedia.getSource();
-                mediaPlayer = INSTANTIATED_PLAYERS.get(source);
+                //mediaPlayer = INSTANTIATED_PLAYERS.get(source);
                 if (mediaPlayer == null) {
                     INSTANTIATED_PLAYERS.put(source, mediaPlayer = new MediaPlayer(actualJavaFxMedia));
                 }

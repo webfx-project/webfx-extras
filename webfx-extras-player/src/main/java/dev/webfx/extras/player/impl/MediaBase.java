@@ -19,6 +19,7 @@ public class MediaBase implements Media {
     private final StartOptions startOptions;
     private final MediaMetadata metaData;
     private final Player player;
+    private Object userData;
 
     protected final ObjectProperty<Duration> durationProperty = new SimpleObjectProperty<>();
     protected final ObjectProperty<Duration> currentTimeProperty = new SimpleObjectProperty<>();
@@ -64,5 +65,15 @@ public class MediaBase implements Media {
     @Override
     public Player getPlayer() {
         return player;
+    }
+
+    @Override
+    public Object getUserData() {
+        return userData;
+    }
+
+    @Override
+    public void setUserData(Object userData) {
+        this.userData = userData;
     }
 }

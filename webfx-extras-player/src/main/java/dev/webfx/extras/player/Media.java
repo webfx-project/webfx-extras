@@ -31,4 +31,8 @@ public interface Media {
         return currentTimeProperty().getValue();
     }
 
+    Object getUserData();
+
+    void setUserData(Object userData);
+
 }

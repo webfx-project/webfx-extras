@@ -35,7 +35,8 @@ public class WistiaVideoPlayer extends SeamlessCapableWebVideoPlayer {
     public Media acceptMedia(String mediaSource, MediaMetadata mediaMetadata) {
         return acceptMedia(mediaSource, mediaMetadata,
             "https://fast.wistia.net/embed/iframe/",
-            "wistia:"
+            "wistia:",
+            "https://*.wistia.com/medias/"
         );
     }
 

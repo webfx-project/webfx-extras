@@ -8,6 +8,9 @@ import javafx.beans.value.ObservableValue;
 import javafx.scene.paint.Color;
 import javafx.util.Duration;
 
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+
 /**
  * @author Bruno Salmon
  */
@@ -164,10 +167,20 @@ public abstract class PlayerBase implements Player {
 
     protected String matchPrefix(String source, String... possiblePrefixes) {
         for (String prefix : possiblePrefixes) {
-            if (source.startsWith(prefix))
-                return source.substring(prefix.length());
+            // Convert '*' to '.*' for regex, and '^' to anchor it to the beginning
+            String regex = "^" + prefix.replace("*", ".*");
+
+            // Compile the regex pattern
+            Pattern pattern = Pattern.compile(regex);
+            Matcher matcher = pattern.matcher(source);
+
+            // Check if the source starts with the prefix (match must start at index 0)
+            if (matcher.find() && matcher.start() == 0) {
+                // If it matches, return the substring after the matched prefix
+                return source.substring(matcher.end());
+            }
         }
-        return null;
+        return null; // No match found
     }
 
 }

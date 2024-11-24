@@ -13,8 +13,8 @@ module webfx.extras.player.audio.javafxmedia {
     requires webfx.extras.styles.bootstrap;
     requires webfx.kit.util;
     requires webfx.platform.util;
-    requires webfx.stack.i18n.controls;
     requires webfx.stack.i18n;
+    requires webfx.stack.i18n.controls;
 
     // Exported packages
     exports dev.webfx.extras.player.audio.javafxmedia;

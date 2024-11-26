@@ -50,10 +50,7 @@ public class WebViewPane extends MonoPane {
     private Scheduled fitHeightJob;
     private String loadedUrl;
 
-    public WebViewPane() { // We accept the constructor to be called in non UI thread (ex: from activity constructors)
-        // We call initWebEngine(), but we ensure it's done in the UI thread, because initWebEngine() instantiates the
-        // WebView, and this fails with OpenJFX if not done in the UI thread (Not on FX application thread).
-        UiScheduler.runInUiThread(this::initWebEngine);
+    public WebViewPane() {
 /* Sometimes useful to trace scene changes in the browser to know when the iFrame is inserted in or removed from the DOM.
         FXProperties.runOnPropertyChange(scene -> {
             logDebug("scene => " + scene);
@@ -66,8 +63,6 @@ public class WebViewPane extends MonoPane {
         webView = new WebView();
         webEngine = webView.getEngine();
         webEngine.setOnError(error -> notifyLoadFailure(error.getMessage()));
-        pendingLoad = null;
-        loadedUrl = null;
         resetState();
         /* Not yet supported by WebFX
         webEngine.getLoadWorker().exceptionProperty().addListener((obs, oldExc, newExc) -> {
@@ -131,10 +126,14 @@ public class WebViewPane extends MonoPane {
     }
 
     public WebView getWebView() {
+        if (webView == null)
+            initWebEngine();
         return webView;
     }
 
     public WebEngine getWebEngine() {
+        if (webEngine == null)
+            initWebEngine();
         return webEngine;
     }
 
@@ -242,10 +241,14 @@ public class WebViewPane extends MonoPane {
     public void unload() {
         logDebug("Unloading webEngine & webView");
         unloading = true;
+        pendingLoad = null;
+        loadedUrl = null;
         setContent(null);
-        webView.getEngine().load(null);
-        // Recreating the web engine for possible next load, because Wistia player doesn't start if we reuse the same
-        initWebEngine(); // TODO investigate why
+        if (webView != null) {
+            webView.getEngine().load(null);
+            // Recreating the web engine for possible next load, because Wistia player doesn't start if we reuse the same
+            webView = null; // TODO investigate why
+        }
     }
 
     private void displayWebViewIfApplicableAndStabilised() {
@@ -347,7 +350,7 @@ public class WebViewPane extends MonoPane {
 
     private void processWebEngineState() {
         boolean seamless = isSeamless();
-        WebEngine we = seamless ? PARENT_BROWSER_WINDOW_SCRIPT_ENGINE : webEngine;
+        WebEngine we = seamless ? PARENT_BROWSER_WINDOW_SCRIPT_ENGINE : getWebEngine();
         Worker.State state = we.getLoadWorker().getState();
         logDebug("state = " + state + " (seamless = " + seamless + ", webView is " + (isWebViewDisplayed() ? "" : "NOT ") + "displayed, window is " + (getWindow() == null ? "NOT " : "") + "set)");
         if (unloading) {

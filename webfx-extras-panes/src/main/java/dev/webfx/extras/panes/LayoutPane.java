@@ -1,6 +1,7 @@
 package dev.webfx.extras.panes;
 
 import javafx.geometry.HPos;
+import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.geometry.VPos;
 import javafx.scene.Node;
@@ -21,7 +22,25 @@ public abstract class LayoutPane extends Pane {
 
     @Override
     protected void layoutChildren() {
-        layoutChildren(getWidth(), getHeight());
+        layoutChildren(getLayoutWidth(), getLayoutHeight());
+    }
+
+    protected double getLayoutWidth() {
+        return getWidth();
+    }
+
+    protected double getLayoutHeight() {
+        return getHeight();
+    }
+
+    protected double insetsWidth() {
+        Insets insets = getInsets();
+        return insets.getLeft() + insets.getRight();
+    }
+
+    protected double insetsHeight() {
+        Insets insets = getInsets();
+        return insets.getTop() + insets.getBottom();
     }
 
     protected void layoutChildren(double width, double height) {

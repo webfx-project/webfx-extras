@@ -9,7 +9,6 @@ import javafx.geometry.Insets;
 import javafx.geometry.Orientation;
 import javafx.geometry.Pos;
 import javafx.scene.Node;
-import javafx.scene.layout.Pane;
 
 /**
  * MonoPane is a JavaFX Pane designed to work with a single child called content. It acts as a wrapper of that content
@@ -17,7 +16,7 @@ import javafx.scene.layout.Pane;
  *
  * @author Bruno Salmon
  */
-public class MonoPane extends Pane {
+public class MonoPane extends LayoutPane {
 
     protected Node content;
     protected boolean internalSync;
@@ -88,37 +87,18 @@ public class MonoPane extends Pane {
     }
 
     @Override
-    protected void layoutChildren() {
+    protected void layoutChildren(double width, double height) {
         if (content != null) {
-            double width = getLayoutWidth(), height = getLayoutHeight();
             Insets insets = getInsets();
             layoutInArea(content, insets.getLeft(), insets.getTop()
                     , width - insetsWidth(), height - insetsHeight()
-                    , 0, getAlignment().getHpos(), getAlignment().getVpos());
+                    , getAlignment().getHpos(), getAlignment().getVpos());
         }
-    }
-
-    protected double getLayoutWidth() {
-        return getWidth();
-    }
-
-    protected double getLayoutHeight() {
-        return getHeight();
     }
 
     @Override
     public Orientation getContentBias() {
         return content == null ? null : content.getContentBias();
-    }
-
-    protected double insetsWidth() {
-        Insets insets = getInsets();
-        return insets.getLeft() + insets.getRight();
-    }
-
-    protected double insetsHeight() {
-        Insets insets = getInsets();
-        return insets.getTop() + insets.getBottom();
     }
 
     @Override

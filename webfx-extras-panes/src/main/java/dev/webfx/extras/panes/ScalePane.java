@@ -194,11 +194,11 @@ public class ScalePane extends MonoPane {
     }
 
     @Override
-    protected void layoutChildren() {
+    protected void layoutChildren(double width, double height) {
         if (content == null)
             return;
-        double width = fixedWidth != -1 ? fixedWidth : getWidth();
-        double height = fixedHeight != -1 ? fixedHeight : getHeight();
+        width = fixedWidth != -1 ? fixedWidth : width;
+        height = fixedHeight != -1 ? fixedHeight : height;
         Insets insets = getInsets();
         width -= insets.getLeft() + insets.getRight();
         height -= insets.getTop() + insets.getBottom();

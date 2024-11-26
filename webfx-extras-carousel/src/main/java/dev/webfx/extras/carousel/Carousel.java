@@ -1,5 +1,6 @@
 package dev.webfx.extras.carousel;
 
+import dev.webfx.extras.panes.PatchedBorderPane;
 import dev.webfx.extras.panes.TransitionPane;
 import dev.webfx.extras.panes.transitions.TranslateTransition;
 import dev.webfx.kit.util.properties.FXProperties;
@@ -40,7 +41,7 @@ public final class Carousel {
         dotsBox.setManaged(showingDots);
     });
     private final TransitionPane transitionPane = new TransitionPane();
-    private final BorderPane container = new BorderPane(transitionPane);
+    private final BorderPane container = new PatchedBorderPane(transitionPane);
     private int displayedSlideIndex;
 
     public Carousel() {

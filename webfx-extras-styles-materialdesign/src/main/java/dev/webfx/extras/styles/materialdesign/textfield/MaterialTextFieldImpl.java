@@ -96,6 +96,13 @@ public final class MaterialTextFieldImpl implements MaterialTextField {
         return denseSpacingProperty;
     }
 
+    private final BooleanProperty animateLabelProperty = new SimpleBooleanProperty(true);
+
+    @Override
+    public BooleanProperty animateLabelProperty() {
+        return animateLabelProperty;
+    }
+
     private final ObservableList<Node> skinChildren;
     private Region content;
     private TextInputControl textInputControl;
@@ -183,6 +190,7 @@ public final class MaterialTextFieldImpl implements MaterialTextField {
                 labelTextProperty(),
                 placeholderTextProperty(),
                 errorMessageProperty(),
+                animateLabelProperty(),
                 // also focus owner property used in SceneUtil.isFocusInside() (not necessary for text input control)
                 textInputControl == null ? scene.focusOwnerProperty() : null,
                 textInputControl == null ? null : textInputControl.heightProperty()
@@ -212,7 +220,7 @@ public final class MaterialTextFieldImpl implements MaterialTextField {
         boolean disabled = isDisabled(); // TODO: isDisabled() || isEditable() (requires new editable property)
         boolean empty = isInputEmpty();
         boolean invalid = Strings.isNotEmpty(getErrorMessage());
-        boolean floating = !empty || focused && textInputControl != null;
+        boolean floating = !empty || focused && textInputControl != null || !isAnimateLabel();
         double labelScaleFactor = floating ? FLOATING_LABEL_SCALE_FACTOR : 1;
         boolean animate = labelScale.getX() != labelScaleFactor;
         Collections.addIfNotContainsOrRemove(styleClass, focused, "material-focused");
@@ -229,7 +237,7 @@ public final class MaterialTextFieldImpl implements MaterialTextField {
             labelString = !floating ? label : placeholder;
         if (label != null) {
             labelString = label;
-            materialAnimation.addEaseOut(labelText.opacityProperty(), focused || Objects.equals(labelString, placeholder) ? 1 : 0);
+            materialAnimation.addEaseOut(labelText.opacityProperty(), !isAnimateLabel() || focused || Objects.equals(labelString, placeholder) ? 1 : 0);
         }
         labelText.setText(labelString);
         labelText.setTextOrigin(floating ? VPos.TOP : VPos.CENTER);
@@ -241,11 +249,19 @@ public final class MaterialTextFieldImpl implements MaterialTextField {
                     materialAnimation.addEaseOut(focusedLineScale.xProperty(), 0d);
         }
         //bottomText.setText(bottomString);
+        double labelLayoutX = floating ? floatingLabelLayoutX : restingLabelLayoutX;
+        double labelLayoutY = floating ? floatingLabelLayoutY : restingLabelLayoutY;
+        if (isAnimateLabel()) {
+            materialAnimation
+                .addEaseOut(labelText.layoutXProperty(), labelLayoutX)
+                .addEaseOut(labelText.layoutYProperty(), labelLayoutY);
+        } else {
+            labelText.setLayoutX(labelLayoutX);
+            labelText.setLayoutX(labelLayoutY);
+        }
         materialAnimation
             .addEaseOut(labelScale.xProperty(), labelScaleFactor)
             .addEaseOut(labelScale.yProperty(), labelScaleFactor)
-            .addEaseOut(labelText.layoutXProperty(), floating ? floatingLabelLayoutX : restingLabelLayoutX)
-            .addEaseOut(labelText.layoutYProperty(), floating ? floatingLabelLayoutY : restingLabelLayoutY)
             .play(animate && !recomputeLabelPositionOnNextLayoutPass);
     }
 

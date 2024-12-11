@@ -96,4 +96,14 @@ public interface MaterialTextField {
         denseSpacingProperty().set(denseSpacing);
     }
 
+    BooleanProperty animateLabelProperty();
+
+    default boolean isAnimateLabel() {
+        return animateLabelProperty().getValue();
+    }
+
+    default void setAnimateLabel(boolean animate) {
+        animateLabelProperty().set(animate);
+    }
+
 }

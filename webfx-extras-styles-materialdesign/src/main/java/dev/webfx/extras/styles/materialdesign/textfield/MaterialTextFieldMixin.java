@@ -1,8 +1,9 @@
 package dev.webfx.extras.styles.materialdesign.textfield;
 
-import javafx.beans.property.*;
+import javafx.beans.property.BooleanProperty;
+import javafx.beans.property.ReadOnlyBooleanProperty;
+import javafx.beans.property.StringProperty;
 import javafx.beans.value.ObservableValue;
-import javafx.scene.paint.Paint;
 
 /**
  * @author Bruno Salmon
@@ -113,101 +114,4 @@ public interface MaterialTextFieldMixin extends MaterialTextField {
         getMaterialTextField().setDenseSpacing(denseSpacing);
     }
 
-    default Property<Paint> disabledFillProperty() {
-        return getMaterialTextField().disabledFillProperty();
-    }
-
-    @Override
-    default Paint getDisabledFill() {
-        return getMaterialTextField().getDisabledFill();
-    }
-
-    @Override
-    default void setDisabledFill(Paint disabledFill) {
-        getMaterialTextField().setDisabledFill(disabledFill);
-    }
-
-    default Property<Paint> inputTextFillProperty() {
-        return getMaterialTextField().inputTextFillProperty();
-    }
-
-    @Override
-    default Paint getInputTextFill() {
-        return getMaterialTextField().getInputTextFill();
-    }
-
-    @Override
-    default void setInputTextFill(Paint inputTextFill) {
-        getMaterialTextField().setInputTextFill(inputTextFill);
-    }
-
-    default Property<Paint> invalidTextFillProperty() {
-        return getMaterialTextField().invalidTextFillProperty();
-    }
-
-    @Override
-    default Paint getInvalidTextFill() {
-        return getMaterialTextField().getInvalidTextFill();
-    }
-
-    @Override
-    default void setInvalidTextFill(Paint invalidTextFill) {
-        getMaterialTextField().setInputTextFill(invalidTextFill);
-    }
-
-    default Property<Paint> invalidLineFillProperty() {
-        return getMaterialTextField().invalidLineFillProperty();
-    }
-
-    @Override
-    default Paint getInvalidLineFill() {
-        return getMaterialTextField().getInvalidLineFill();
-    }
-
-    @Override
-    default void setInvalidLineFill(Paint invalidLineFill) {
-        getMaterialTextField().setInvalidLineFill(invalidLineFill);
-    }
-
-    default Property<Paint> focusLabelFillProperty() {
-        return getMaterialTextField().focusLabelFillProperty();
-    }
-
-    @Override
-    default Paint getFocusLabelFill() {
-        return getMaterialTextField().getFocusLabelFill();
-    }
-
-    @Override
-    default void setFocusLabelFill(Paint focusLabelFill) {
-        getMaterialTextField().setFocusLabelFill(focusLabelFill);
-    }
-
-    default Property<Paint> focusLineFillProperty() {
-        return getMaterialTextField().focusLineFillProperty();
-    }
-
-    @Override
-    default Paint getFocusLineFill() {
-        return getMaterialTextField().getFocusLineFill();
-    }
-
-    @Override
-    default void setFocusLineFill(Paint focusLineFill) {
-        getMaterialTextField().setFocusLineFill(focusLineFill);
-    }
-
-    default Property<Paint> idleTextFillProperty() {
-        return getMaterialTextField().idleTextFillProperty();
-    }
-
-    @Override
-    default Paint getIdleTextFill() {
-        return getMaterialTextField().getIdleTextFill();
-    }
-
-    @Override
-    default void setIdleTextFill(Paint idleTextFill) {
-        getMaterialTextField().setIdleTextFill(idleTextFill);
-    }
 }

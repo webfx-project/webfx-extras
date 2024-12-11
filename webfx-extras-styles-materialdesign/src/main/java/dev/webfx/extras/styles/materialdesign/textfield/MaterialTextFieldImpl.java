@@ -9,6 +9,7 @@ import dev.webfx.extras.util.scene.SceneUtil;
 import dev.webfx.kit.util.properties.FXProperties;
 import dev.webfx.kit.util.properties.Unregisterable;
 import dev.webfx.platform.util.Strings;
+import dev.webfx.platform.util.collection.Collections;
 import javafx.beans.property.*;
 import javafx.beans.value.ObservableValue;
 import javafx.collections.ObservableList;
@@ -16,9 +17,7 @@ import javafx.geometry.Insets;
 import javafx.geometry.VPos;
 import javafx.scene.Node;
 import javafx.scene.control.TextInputControl;
-import javafx.scene.layout.*;
-import javafx.scene.paint.Color;
-import javafx.scene.paint.Paint;
+import javafx.scene.layout.Region;
 import javafx.scene.text.Text;
 import javafx.scene.transform.Scale;
 
@@ -97,65 +96,10 @@ public final class MaterialTextFieldImpl implements MaterialTextField {
         return denseSpacingProperty;
     }
 
-    private final static Color DEFAULT_DISABLED_COLOR = Color.web("#8a8a8a");
-    private final Property<Paint> disabledFillProperty = new SimpleObjectProperty<>(DEFAULT_DISABLED_COLOR);
-
-    @Override
-    public Property<Paint> disabledFillProperty() {
-        return disabledFillProperty;
-    }
-
-    private final static Color DEFAULT_INPUT_TEXT_COLOR = Color.web("#1e1e1e");
-    private final Property<Paint> inputTextFillProperty = new SimpleObjectProperty<>(DEFAULT_INPUT_TEXT_COLOR);
-
-    @Override
-    public Property<Paint> inputTextFillProperty() {
-        return inputTextFillProperty;
-    }
-
-    private final static Color DEFAULT_INVALID_TEXT_COLOR = Color.web("#fc3259");
-    private final Property<Paint> invalidTextFillProperty = new SimpleObjectProperty<>(DEFAULT_INVALID_TEXT_COLOR);
-
-    @Override
-    public Property<Paint> invalidTextFillProperty() {
-        return invalidTextFillProperty;
-    }
-
-    private final static Color DEFAULT_INVALID_LINE_COLOR = Color.web("#ff1744");
-    private final Property<Paint> invalidLineFillProperty = new SimpleObjectProperty<>(DEFAULT_INVALID_LINE_COLOR);
-
-    @Override
-    public Property<Paint> invalidLineFillProperty() {
-        return invalidLineFillProperty;
-    }
-
-    private final static Color DEFAULT_FOCUS_LABEL_COLOR = Color.web("#0596FF");//Temporary put the same as bootstrap while waiting to change the harcoded value to css
-    private final Property<Paint> focusLabelFillProperty = new SimpleObjectProperty<>(DEFAULT_FOCUS_LABEL_COLOR);
-
-    @Override
-    public Property<Paint> focusLabelFillProperty() {
-        return focusLabelFillProperty;
-    }
-
-    private final static Color DEFAULT_FOCUS_LINE_COLOR = Color.web("#0596FF");//Temporary put the same as bootstrap while waiting to change the harcoded value to css
-    private final Property<Paint> focusLineFillProperty = new SimpleObjectProperty<>(DEFAULT_FOCUS_LINE_COLOR);
-
-    @Override
-    public Property<Paint> focusLineFillProperty() {
-        return focusLineFillProperty;
-    }
-
-    private final static Color DEFAULT_IDLE_TEXT_COLOR = Color.web("#6d6d6d");
-    private final Property<Paint> idleTextFillProperty = new SimpleObjectProperty<>(DEFAULT_IDLE_TEXT_COLOR);
-
-    @Override
-    public Property<Paint> idleTextFillProperty() {
-        return idleTextFillProperty;
-    }
-
     private final ObservableList<Node> skinChildren;
     private Region content;
     private TextInputControl textInputControl;
+    private ObservableList<String> styleClass;
     private boolean recomputeLabelPositionOnNextLayoutPass;
 
     private final Text labelText = new Text("W"); // not empty for first layout pass
@@ -168,11 +112,11 @@ public final class MaterialTextFieldImpl implements MaterialTextField {
     private double restingLabelLayoutX;
     private double restingLabelLayoutY;
 
-    private StackPane line;
-    private StackPane focusedLine;
+    private Region line;
+    private Region focusedLine;
     private Scale focusedLineScale;
 
-    private final Text bottomText = new Text();
+    //private final Text bottomText = new Text();
 
     private final MaterialAnimation materialAnimation = new MaterialAnimation();
     private Unregisterable animationTriggers;
@@ -182,6 +126,7 @@ public final class MaterialTextFieldImpl implements MaterialTextField {
         labelText.setManaged(false);
         labelText.setMouseTransparent(true);
         labelText.getTransforms().add(labelScale);
+        labelText.getStyleClass().add("material-label");
     }
 
     public void setContent(Region content, ObservableValue<String> inputProperty) {
@@ -203,17 +148,20 @@ public final class MaterialTextFieldImpl implements MaterialTextField {
             labelText.fontProperty().bind(textInputControl.fontProperty());
             skinChildren.addAll(line = newLine(1), focusedLine = newLine(2));
             focusedLine.getTransforms().add(focusedLineScale = new Scale());
+            line.getStyleClass().add("material-line");
+            focusedLine.getStyleClass().add("material-focused-line");
+            styleClass = textInputControl.getStyleClass();
         } else {
             placeholderTextProperty = new SimpleStringProperty();
             focusedProperty = new SimpleBooleanProperty(false);
+            styleClass = content.getStyleClass();
         }
         skinChildren.add(labelText);
-        //content.setBackground(BackgroundUtil.newBackground(Color.YELLOW));
         setUpMaterialAnimation();
     }
 
-    private static StackPane newLine(double height) {
-        StackPane line = new StackPane();
+    private static Region newLine(double height) {
+        Region line = new Region();
         line.setManaged(false);
         line.setPrefHeight(height);
         return line;
@@ -232,13 +180,6 @@ public final class MaterialTextFieldImpl implements MaterialTextField {
                 disabledProperty(),
                 focusedProperty(),
                 inputProperty(),
-                disabledFillProperty(),
-                inputTextFillProperty(),
-                invalidTextFillProperty(),
-                invalidLineFillProperty(),
-                focusLabelFillProperty(),
-                focusLineFillProperty(),
-                idleTextFillProperty(),
                 labelTextProperty(),
                 placeholderTextProperty(),
                 errorMessageProperty(),
@@ -274,17 +215,9 @@ public final class MaterialTextFieldImpl implements MaterialTextField {
         boolean floating = !empty || focused && textInputControl != null;
         double labelScaleFactor = floating ? FLOATING_LABEL_SCALE_FACTOR : 1;
         boolean animate = labelScale.getX() != labelScaleFactor;
-        Paint labelFill = focused ? getFocusLabelFill() : getIdleTextFill(),
-            lineFill = getIdleTextFill(),
-            focusedLineFill = getFocusLineFill(),
-            bottomTextFill = labelFill;
-        String bottomString = getHelperText();
-        if (invalid) {
-            labelFill = bottomTextFill = getInvalidTextFill();
-            lineFill = focusedLineFill = getInvalidLineFill();
-            bottomString = getErrorMessage();
-        } else if (disabled)
-            labelFill = lineFill = bottomTextFill = getDisabledFill();
+        Collections.addIfNotContainsOrRemove(styleClass, focused, "material-focused");
+        Collections.addIfNotContainsOrRemove(styleClass, invalid, "material-invalid");
+        Collections.addIfNotContainsOrRemove(styleClass, disabled, "material-disabled");
         if (focused && focusedLineScale != null && focusedLineScale.getX() < 1) {
             materialAnimation.addEaseOut(focusedLineScale.xProperty(), 1d);
             animate = true;
@@ -300,19 +233,14 @@ public final class MaterialTextFieldImpl implements MaterialTextField {
         }
         labelText.setText(labelString);
         labelText.setTextOrigin(floating ? VPos.TOP : VPos.CENTER);
-        labelText.setFill(labelFill);
         if (line != null) {
-            line.setBorder(disabled ? new Border(new BorderStroke(lineFill, BorderStrokeStyle.DOTTED, null, BorderStroke.THIN)) : null);
-            line.setBackground(Background.fill(disabled ? Color.TRANSPARENT : lineFill));
-            focusedLine.setBackground(Background.fill(focusedLineFill));
             if (disabled || !focused)
                 if (focusedLineScale.getX() >= 1)
                     focusedLineScale.setX(0d);
                 else
                     materialAnimation.addEaseOut(focusedLineScale.xProperty(), 0d);
         }
-        bottomText.setFill(bottomTextFill);
-        bottomText.setText(bottomString);
+        //bottomText.setText(bottomString);
         materialAnimation
             .addEaseOut(labelScale.xProperty(), labelScaleFactor)
             .addEaseOut(labelScale.yProperty(), labelScaleFactor)

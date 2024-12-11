@@ -28,7 +28,7 @@
 .material-line { /* is actually a JavaFX Region */
      /* Using a border (not background) because there is a dotted style for the disabled state */
      -fx-border-color: -webfx-material-line-fill;
-     -fx-border-style: solid; /* -webfx-material-line-border-style; not working with OpenJFX)
+     -fx-border-style: solid; /* -webfx-material-line-border-style; not working with OpenJFX) */
      -fx-border-width: 1px;
 }
 

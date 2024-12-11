@@ -9,7 +9,6 @@ module webfx.extras.styles.materialdesign {
     requires webfx.extras.util.layout;
     requires webfx.extras.util.scene;
     requires webfx.kit.util;
-    requires webfx.platform.console;
     requires webfx.platform.util;
 
     // Exported packages

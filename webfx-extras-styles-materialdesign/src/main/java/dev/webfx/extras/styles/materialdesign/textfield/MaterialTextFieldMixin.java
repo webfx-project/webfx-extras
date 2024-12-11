@@ -114,4 +114,16 @@ public interface MaterialTextFieldMixin extends MaterialTextField {
         getMaterialTextField().setDenseSpacing(denseSpacing);
     }
 
+    default BooleanProperty animateLabelProperty() {
+        return getMaterialTextField().animateLabelProperty();
+    }
+
+    default boolean isAnimateLabel() {
+        return getMaterialTextField().isAnimateLabel();
+    }
+
+    default void setAnimateLabel(boolean animate) {
+        getMaterialTextField().setAnimateLabel(animate);
+    }
+
 }

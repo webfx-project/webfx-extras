@@ -152,7 +152,7 @@ public final class MaterialTextFieldImpl implements MaterialTextField {
         if (textInputControl != null) {
             placeholderTextProperty = textInputControl.promptTextProperty();
             focusedProperty = textInputControl.focusedProperty();
-            labelText.fontProperty().bind(textInputControl.fontProperty());
+            //labelText.fontProperty().bind(textInputControl.fontProperty());
             skinChildren.addAll(line = newLine(1), focusedLine = newLine(2));
             focusedLine.getTransforms().add(focusedLineScale = new Scale());
             line.getStyleClass().add("material-line");

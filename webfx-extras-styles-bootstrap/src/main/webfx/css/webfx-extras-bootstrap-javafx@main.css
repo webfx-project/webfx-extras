@@ -102,6 +102,10 @@
     -fx-border-color: -bootstrap-blue9;
 }
 
+.text-secondary {
+    -fx-text-fill: -bootstrap-grey6;
+}
+
 .btn-secondary {
     -fx-text-fill: -bootstrap-white;
     -fx-fill: -bootstrap-white;

@@ -35,6 +35,7 @@ public class CollapsePane extends MonoClipPane {
     private final BooleanProperty animateProperty = new SimpleBooleanProperty(true);
 
     private Timeline timeline;
+    private double expandedHeight;
     private double heightDuringCollapseAnimation;
 
     public CollapsePane() {
@@ -95,32 +96,36 @@ public class CollapsePane extends MonoClipPane {
     }
 
     private void doCollapse() {
-        heightDuringCollapseAnimation = getHeight();
-        setPrefHeight(heightDuringCollapseAnimation);
+        if (timeline == null)
+            expandedHeight = getHeight();
+        heightDuringCollapseAnimation = expandedHeight;
+        setPrefHeight(expandedHeight);
         animateHeight(0);
     }
 
     private void doExpand() {
         setHeightComputationMode(USE_COMPUTED_SIZE);
-        double minHeight  = minHeight(getWidth());
+        double minHeight = minHeight(getWidth());
         double prefHeight = prefHeight(getWidth());
-        double maxHeight  = maxHeight(getWidth());
-        heightDuringCollapseAnimation = LayoutUtil.boundedSize(minHeight, prefHeight, maxHeight);
-        if (heightDuringCollapseAnimation > 0) {
-            animateHeight(heightDuringCollapseAnimation);
+        double maxHeight = maxHeight(getWidth());
+        expandedHeight = LayoutUtil.boundedSize(minHeight, prefHeight, maxHeight);
+        heightDuringCollapseAnimation = expandedHeight;
+        if (expandedHeight > 0) {
+            animateHeight(expandedHeight);
         }
     }
 
-    private void setHeightComputationMode(double mode) {
-        setMinHeight(mode);
-        if (mode == USE_COMPUTED_SIZE)
-            setPrefHeight(mode);
-        setMaxHeight(mode);
+    private void setHeightComputationMode(double heightComputationMode) {
+        setMinHeight(heightComputationMode);
+        if (heightComputationMode == USE_COMPUTED_SIZE)
+            setPrefHeight(USE_COMPUTED_SIZE);
+        setMaxHeight(heightComputationMode);
     }
 
     private void animateHeight(double finalValue) {
+        if (timeline != null)
+            timeline.stop();
         setHeightComputationMode(USE_PREF_SIZE);
-        Animations.forceTimelineToFinish(timeline);
         timeline = Animations.animateProperty(prefHeightProperty(), finalValue, isAnimate());
         Animations.setOrCallOnTimelineFinished(timeline, e -> {
             if (finalValue > 0) {
@@ -129,6 +134,8 @@ public class CollapsePane extends MonoClipPane {
             timeline = null;
         });
     }
+
+    //============================================== Static API ========================================================
 
     public static Node createPlainChevron(Paint stroke) {
         SVGPath chevron = new SVGPath();

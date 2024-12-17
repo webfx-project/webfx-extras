@@ -74,6 +74,10 @@ public class CollapsePane extends MonoClipPane {
         setCollapsed(false);
     }
 
+    public boolean isExpanded() {
+        return !isCollapsed();
+    }
+
     public void toggleCollapse() {
         setCollapsed(!isCollapsed());
     }

@@ -94,11 +94,9 @@ public final class Animations {
     }
 
     public static void shake(Node node) {
-        DoubleProperty x = node.layoutXProperty(); // translateX would be better but not yet emulated so using layoutX instead
+        DoubleProperty x = node.translateXProperty();
         double xIni = x.getValue(), xMin = xIni - 10, xMax = xIni + 10;
         new Timeline(
-                // Turning node to unmanaged (absolute positioning) to be sure layoutX will be considered
-                new KeyFrame(Duration.millis(0),    new KeyValue(node.managedProperty(), false)),
                 new KeyFrame(Duration.millis(100),  new KeyValue(x, xMin)),
                 new KeyFrame(Duration.millis(200),  new KeyValue(x, xMax)),
                 new KeyFrame(Duration.millis(300),  new KeyValue(x, xMin)),
@@ -108,9 +106,7 @@ public final class Animations {
                 new KeyFrame(Duration.millis(700),  new KeyValue(x, xMin)),
                 new KeyFrame(Duration.millis(800),  new KeyValue(x, xMax)),
                 new KeyFrame(Duration.millis(900),  new KeyValue(x, xMin)),
-                new KeyFrame(Duration.millis(1000), new KeyValue(x, xIni)),
-                // Restoring the managed value
-                new KeyFrame(Duration.millis(1000), new KeyValue(node.managedProperty(), node.isManaged()))
+                new KeyFrame(Duration.millis(1000), new KeyValue(x, xIni))
         ).play();
     }
 

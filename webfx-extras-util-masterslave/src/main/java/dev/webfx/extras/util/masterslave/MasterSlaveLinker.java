@@ -49,7 +49,7 @@ public class MasterSlaveLinker<T> {
         masterProperty.set(master);
     }
 
-    private T getSlave() {
+    public T getSlave() {
         return slaveEditor.getSlave();
     }
 

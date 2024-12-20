@@ -9,6 +9,8 @@
     <dependencies>
         <used-by-source-modules>
             <module transitive="true">webfx-extras-player</module>
+            <undetected-module>javafx-base</undetected-module>
+            <undetected-module>javafx-graphics</undetected-module>
         </used-by-source-modules>
     </dependencies>
 

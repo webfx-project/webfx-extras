@@ -1,15 +1,14 @@
 package dev.webfx.extras.panes;
 
+import dev.webfx.kit.util.properties.FXProperties;
 import dev.webfx.platform.util.collection.Collections;
 import javafx.beans.InvalidationListener;
 import javafx.beans.Observable;
 import javafx.beans.property.ObjectProperty;
-import javafx.beans.property.SimpleObjectProperty;
 import javafx.geometry.Insets;
 import javafx.geometry.Orientation;
 import javafx.geometry.Pos;
 import javafx.scene.Node;
-import javafx.scene.layout.Pane;
 
 /**
  * MonoPane is a JavaFX Pane designed to work with a single child called content. It acts as a wrapper of that content
@@ -17,23 +16,14 @@ import javafx.scene.layout.Pane;
  *
  * @author Bruno Salmon
  */
-public class MonoPane extends Pane {
+public class MonoPane extends LayoutPane {
 
     protected Node content;
     protected boolean internalSync;
 
-    private final ObjectProperty<Node> contentProperty = new SimpleObjectProperty<>() {
-        @Override
-        protected void invalidated() {
-            onContentChanged(get());
-        }
-    };
+    private final ObjectProperty<Node> contentProperty = FXProperties.newObjectProperty(this::onContentChanged);
 
-    private final ObjectProperty<Pos> alignmentProperty = new SimpleObjectProperty<>(Pos.CENTER) {
-        protected void invalidated() {
-            requestLayout();
-        }
-    };
+    private final ObjectProperty<Pos> alignmentProperty = FXProperties.newObjectProperty(Pos.CENTER, this::requestLayout);
 
     {
         // Automatically setting the content field from the unique child when children is changed by the application code
@@ -97,37 +87,18 @@ public class MonoPane extends Pane {
     }
 
     @Override
-    protected void layoutChildren() {
+    protected void layoutChildren(double width, double height) {
         if (content != null) {
-            double width = getLayoutWidth(), height = getLayoutHeight();
             Insets insets = getInsets();
             layoutInArea(content, insets.getLeft(), insets.getTop()
                     , width - insetsWidth(), height - insetsHeight()
-                    , 0, getAlignment().getHpos(), getAlignment().getVpos());
+                    , getAlignment().getHpos(), getAlignment().getVpos());
         }
-    }
-
-    protected double getLayoutWidth() {
-        return getWidth();
-    }
-
-    protected double getLayoutHeight() {
-        return getHeight();
     }
 
     @Override
     public Orientation getContentBias() {
-        return content == null ? super.getContentBias() : content.getContentBias();
-    }
-
-    protected double insetsWidth() {
-        Insets insets = getInsets();
-        return insets.getLeft() + insets.getRight();
-    }
-
-    protected double insetsHeight() {
-        Insets insets = getInsets();
-        return insets.getTop() + insets.getBottom();
+        return content == null ? null : content.getContentBias();
     }
 
     @Override
@@ -141,7 +112,7 @@ public class MonoPane extends Pane {
 
     @Override
     protected double computeMinHeight(double width) { // pane width
-        return insetsHeight() + computeContentMinHeight(width - insetsHeight());
+        return insetsHeight() + computeContentMinHeight(width - insetsWidth());
     }
 
     protected double computeContentMinHeight(double width) { // content width

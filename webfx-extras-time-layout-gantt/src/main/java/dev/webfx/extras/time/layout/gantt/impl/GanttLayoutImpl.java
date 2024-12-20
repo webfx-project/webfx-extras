@@ -8,8 +8,8 @@ import dev.webfx.extras.time.layout.impl.ChildBounds;
 import dev.webfx.extras.time.layout.impl.TimeLayoutBase;
 import dev.webfx.extras.time.layout.impl.TimeLayoutUtil;
 import dev.webfx.extras.time.projector.LinearTimeWindowProjector;
+import dev.webfx.kit.util.properties.FXProperties;
 import javafx.beans.property.BooleanProperty;
-import javafx.beans.property.SimpleBooleanProperty;
 import javafx.collections.FXCollections;
 import javafx.collections.ListChangeListener;
 import javafx.collections.ObservableList;
@@ -43,15 +43,12 @@ public class GanttLayoutImpl<C, T extends Temporal> extends TimeLayoutBase<C, T>
     private double parentHeaderWidth;
     private double parentHeaderHeight = 20;
     private boolean tetrisPacking;
-    private final BooleanProperty parentsProvidedProperty = new SimpleBooleanProperty() {
-        @Override
-        protected void invalidated() {
-            if (get())
-                invalidateProvidedTree();
-            else
-                invalidateChildrenTree();
-        }
-    };
+    private final BooleanProperty parentsProvidedProperty = FXProperties.newBooleanProperty(parentsProvided -> {
+        if (parentsProvided)
+            invalidateProvidedTree();
+        else
+            invalidateChildrenTree();
+    });
     private final ObservableList<Object> parents = FXCollections.observableArrayList();
 
     // Output fields
@@ -376,7 +373,7 @@ public class GanttLayoutImpl<C, T extends Temporal> extends TimeLayoutBase<C, T>
             return;
         startTreeSync(false);
         // Now we begin the loop by iterating over all children (positions)
-        childrenBounds.stream().map(lb -> (GanttChildBounds<C,T>) lb).forEach(this::syncChildBranches);
+        childrenBounds.stream().map(lb -> (GanttChildBounds<C, T>) lb).forEach(this::syncChildBranches);
         endTreeSync();
     }
 
@@ -429,7 +426,7 @@ public class GanttLayoutImpl<C, T extends Temporal> extends TimeLayoutBase<C, T>
         // Reading parent & grandparent of that child
         Object parent = childParentReader == null ? null : childParentReader.apply(cb.getObject());
         Object grandparent = childGrandparentReader != null ? childGrandparentReader.apply(cb.getObject()) :
-                parent != null && parentGrandparentReader != null ? parentGrandparentReader.apply(parent) : null;
+            parent != null && parentGrandparentReader != null ? parentGrandparentReader.apply(parent) : null;
         // Getting or creating the grandparent row if grandparent exists
         if (!isParentsProvided())
             syncGrandparentBranch(grandparent);
@@ -562,8 +559,8 @@ public class GanttLayoutImpl<C, T extends Temporal> extends TimeLayoutBase<C, T>
             double childHeight = getChildFixedHeight();
             double vSpacing = getVSpacing();
             height = vSpacing // top spacing
-                    + (childHeight + vSpacing) * pr.getRowsCount(); // total of children in that parent row
-         } else
+                     + (childHeight + vSpacing) * pr.getRowsCount(); // total of children in that parent row
+        } else
             height = 0; // TODO: what to do in this case?
         if (isParentHeaderOnTopOrBottom())
             height += parentHeaderHeight;
@@ -781,24 +778,24 @@ public class GanttLayoutImpl<C, T extends Temporal> extends TimeLayoutBase<C, T>
 
     private void processVisibleChildrenInGrandparentRows(List<GrandparentRow> grandparentRows, javafx.geometry.Bounds visibleArea, double layoutOriginX, double layoutOriginY, BiConsumer<C, Bounds> childProcessor) {
         TimeLayoutUtil.processVisibleObjectBounds(
-                grandparentRows,
-                true, visibleArea, layoutOriginX, layoutOriginY,
-                (grandparentRow, b) -> processVisibleChildrenInParentRows(grandparentRow.getParentRows(), visibleArea, layoutOriginX, layoutOriginY, childProcessor)
+            grandparentRows,
+            true, visibleArea, layoutOriginX, layoutOriginY,
+            (grandparentRow, b) -> processVisibleChildrenInParentRows(grandparentRow.getParentRows(), visibleArea, layoutOriginX, layoutOriginY, childProcessor)
         );
     }
 
     private void processVisibleChildrenInParentRows(List<ParentRow<C>> parentRows, javafx.geometry.Bounds visibleArea, double layoutOriginX, double layoutOriginY, BiConsumer<C, Bounds> childProcessor) {
         TimeLayoutUtil.processVisibleObjectBounds(
-                parentRows,
-                true, visibleArea, layoutOriginX, layoutOriginY,
-                (parentRow, b) -> processVisibleChildrenInParentRow(parentRow, visibleArea, layoutOriginX, layoutOriginY, childProcessor));
+            parentRows,
+            true, visibleArea, layoutOriginX, layoutOriginY,
+            (parentRow, b) -> processVisibleChildrenInParentRow(parentRow, visibleArea, layoutOriginX, layoutOriginY, childProcessor));
     }
 
     private void processVisibleChildrenInParentRow(ParentRow<C> parentRow, javafx.geometry.Bounds visibleArea, double layoutOriginX, double layoutOriginY, BiConsumer<C, Bounds> childProcessor) {
         TimeLayoutUtil.processVisibleObjectBounds(
-                parentRow.getChildrenBounds(),
-                false, visibleArea, layoutOriginX, layoutOriginY,
-                childProcessor);
+            parentRow.getChildrenBounds(),
+            false, visibleArea, layoutOriginX, layoutOriginY,
+            childProcessor);
     }
 
 }

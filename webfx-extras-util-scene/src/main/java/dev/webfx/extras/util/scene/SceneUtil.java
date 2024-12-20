@@ -2,7 +2,6 @@ package dev.webfx.extras.util.scene;
 
 import dev.webfx.extras.util.animation.Animations;
 import dev.webfx.extras.util.control.ControlUtil;
-import dev.webfx.extras.util.layout.LayoutUtil;
 import dev.webfx.kit.launcher.WebFxKitLauncher;
 import dev.webfx.kit.util.properties.FXProperties;
 import dev.webfx.kit.util.properties.Unregisterable;
@@ -21,10 +20,8 @@ import javafx.beans.property.SimpleObjectProperty;
 import javafx.beans.value.ObservableValue;
 import javafx.collections.ObservableMap;
 import javafx.geometry.Bounds;
-import javafx.geometry.VPos;
 import javafx.scene.Node;
 import javafx.scene.Scene;
-//TODO: Move methods introducing dependency to javafx-controls elsewhere
 import javafx.scene.control.ScrollPane;
 import javafx.scene.control.TextInputControl;
 import javafx.scene.input.KeyCode;
@@ -168,12 +165,12 @@ public final class SceneUtil {
     }
 
     public static void installSceneFocusOwnerAutoScroll(Scene scene) {
-        scene.focusOwnerProperty().addListener((observable, oldValue, newFocusOwner) -> {
+        FXProperties.runOnPropertyChange(newFocusOwner -> {
             if (newFocusOwner instanceof TextInputControl) {
                 scrollNodeToBeVerticallyVisibleOnScene(newFocusOwner, true, true);
                 getSceneInfo(scene).touchTextInputFocusTime();
             }
-        });
+        }, scene.focusOwnerProperty());
     }
 
     public static void installPrimarySceneFocusOwnerAutoScroll() {
@@ -185,8 +182,8 @@ public final class SceneUtil {
     }
 
     public static Unregisterable onVirtualKeyboardShowing(Scene scene, Runnable runnable) {
-        return FXProperties.runOnPropertiesChange(p -> {
-            if (Booleans.isTrue(p.getValue()))
+        return FXProperties.runOnPropertiesChange(showing -> {
+            if (Booleans.isTrue(showing))
                 runnable.run();
         }, getSceneInfo(scene).virtualKeyboardShowingProperty);
     }
@@ -208,21 +205,7 @@ public final class SceneUtil {
     public static boolean scrollNodeToBeVerticallyVisibleOnScene(Node node, boolean onlyIfNotVisible, boolean animate) {
         ScrollPane scrollPane = ControlUtil.findScrollPaneAncestor(node);
         if (scrollPane != null && (!onlyIfNotVisible || !isNodeVerticallyVisibleOnScene(node))) {
-            double contentHeight = scrollPane.getContent().getLayoutBounds().getHeight();
-            double viewportHeight = scrollPane.getViewportBounds().getHeight();
-            double nodeHeight = node.getLayoutBounds().getHeight();
-            double sceneHeight = node.getScene().getHeight();
-            VPos wishedPosition = getVerticalScrollNodeWishedPosition(node);
-            double wishedSceneNodeTop = wishedPosition == VPos.TOP ? 0
-                    : wishedPosition == VPos.BOTTOM ? sceneHeight - nodeHeight
-                    : sceneHeight / 2 - nodeHeight / 2;
-            double currentScrollPaneSceneTop = scrollPane.localToScene(0, 0).getY();
-            wishedSceneNodeTop = LayoutUtil.boundedSize(wishedSceneNodeTop, currentScrollPaneSceneTop, currentScrollPaneSceneTop + viewportHeight);
-            double currentNodeSceneTop = node.localToScene(0, 0).getY();
-            double currentViewportSceneTop = ControlUtil.computeScrollPaneVTopOffset(scrollPane);
-            double wishedViewportSceneTop = currentViewportSceneTop +  currentNodeSceneTop - wishedSceneNodeTop;
-            double vValue = wishedViewportSceneTop / (contentHeight - viewportHeight);
-            vValue = LayoutUtil.boundedSize(vValue, 0, 1);
+            double vValue = ControlUtil.computeVerticalScrollNodeWishedValue(node);
             Object timeline = scrollPane.getProperties().get("timeline");
             if (timeline instanceof Timeline)
                 ((Timeline) timeline).stop();
@@ -230,15 +213,6 @@ public final class SceneUtil {
             return true;
         }
         return false;
-    }
-
-    public static void setVerticalScrollNodeWishedPosition(Node node, VPos wishedPosition) {
-        node.getProperties().put("verticalScrollNodeWishedPosition", wishedPosition);
-    }
-
-    public static VPos getVerticalScrollNodeWishedPosition(Node node) {
-        Object wishedPosition = node.getProperties().get("verticalScrollNodeWishedPosition");
-        return wishedPosition instanceof VPos ? (VPos) wishedPosition : VPos.CENTER;
     }
 
 
@@ -259,7 +233,7 @@ public final class SceneUtil {
         private Scheduled noVirtualKeyboardDetectionScheduled;
 
         SceneInfo(Scene scene) {
-            scene.heightProperty().addListener((observable, oldValue, newHeight) -> {
+            FXProperties.runOnDoublePropertyChange(newHeight -> {
                 boolean showing = lastTextInputFocusTime > 0 && System.currentTimeMillis() < lastTextInputFocusTime + MAX_DELAY_MILLIS_BETWEEN_FOCUS_AND_VIRTUAL_KEYBOARD;
                 if (showing) {
                     cancelLastNoVirtualKeyboardDetection();
@@ -272,7 +246,7 @@ public final class SceneUtil {
                     if (focusOwner instanceof TextInputControl)
                         scrollNodeToBeVerticallyVisibleOnScene(focusOwner, true, true);
                 }, 2, AnimationFramePass.SCENE_PULSE_LAYOUT_PASS);
-            });
+            }, scene.heightProperty());
         }
 
         void touchTextInputFocusTime() {

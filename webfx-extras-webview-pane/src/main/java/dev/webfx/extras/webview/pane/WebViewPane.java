@@ -16,9 +16,9 @@ import javafx.event.Event;
 import javafx.scene.Node;
 import javafx.scene.web.WebEngine;
 import javafx.scene.web.WebView;
-import netscape.javascript.JSException;
 import netscape.javascript.JSObject;
 
+import java.util.Objects;
 import java.util.function.Consumer;
 
 /**
@@ -26,7 +26,7 @@ import java.util.function.Consumer;
  */
 public class WebViewPane extends MonoPane {
 
-    private static final boolean DEBUG = true;
+    private static final boolean DEBUG = false;
 
     private static final boolean IS_GLUON = UserAgent.isNative();
     private static final boolean IS_BROWSER = UserAgent.isBrowser();
@@ -48,10 +48,14 @@ public class WebViewPane extends MonoPane {
     private boolean fitHeight;
     private double fitHeightExtra;
     private Scheduled fitHeightJob;
-    private boolean urlLoaded;
+    private String loadedUrl;
 
     public WebViewPane() {
-        initWebEngine();
+/* Sometimes useful to trace scene changes in the browser to know when the iFrame is inserted in or removed from the DOM.
+        FXProperties.runOnPropertyChange(scene -> {
+            logDebug("scene => " + scene);
+        }, sceneProperty());
+*/
     }
 
     private void initWebEngine() {
@@ -59,11 +63,9 @@ public class WebViewPane extends MonoPane {
         webView = new WebView();
         webEngine = webView.getEngine();
         webEngine.setOnError(error -> notifyLoadFailure(error.getMessage()));
-        pendingLoad = null;
-        urlLoaded = false;
         resetState();
         /* Not yet supported by WebFX
-        engine.getLoadWorker().exceptionProperty().addListener((obs, oldExc, newExc) -> {
+        webEngine.getLoadWorker().exceptionProperty().addListener((obs, oldExc, newExc) -> {
             if (newExc != null) {
                 Console.log("WebView exception:", newExc);
             }
@@ -78,7 +80,7 @@ public class WebViewPane extends MonoPane {
         }
         if (webEngineStateListener != null)
             webEngineStateListener.unregister();
-        webEngineStateListener = FXProperties.runNowAndOnPropertiesChange(this::processWebEngineState,
+        webEngineStateListener = FXProperties.runNowAndOnPropertyChange(this::processWebEngineState,
                 webEngine.getLoadWorker().stateProperty());
     }
 
@@ -124,10 +126,14 @@ public class WebViewPane extends MonoPane {
     }
 
     public WebView getWebView() {
+        if (webView == null)
+            initWebEngine();
         return webView;
     }
 
     public WebEngine getWebEngine() {
+        if (webEngine == null)
+            initWebEngine();
         return webEngine;
     }
 
@@ -190,7 +196,7 @@ public class WebViewPane extends MonoPane {
                                         "maxHeight;");
                                 if (heightEval instanceof Number)
                                     newHeight = ((Number) heightEval).doubleValue() + fitHeightExtra;
-                            } catch (JSException e) {
+                            } catch (Exception e) {
                                 Console.log("Error when evaluating window height: " + e.getMessage());
                             }
                         }
@@ -228,16 +234,21 @@ public class WebViewPane extends MonoPane {
         unloading = false;
         if (isGluonLayoutStabilized != null)
             this.isGluonLayoutStabilized = isGluonLayoutStabilized;
-        processWebEngineState();
+        loadedUrl = null; // to force reload even if url is identical
+        processWebEngineState(); // will do a reload even if web engine state is RUNNING (see method code).
     }
 
     public void unload() {
         logDebug("Unloading webEngine & webView");
         unloading = true;
+        pendingLoad = null;
+        loadedUrl = null;
         setContent(null);
-        webView.getEngine().load(null);
-        // Recreating the web engine for possible next load, because Wistia player doesn't start if we reuse the same
-        initWebEngine(); // TODO investigate why
+        if (webView != null) {
+            webView.getEngine().load(null);
+            // Recreating the web engine for possible next load, because Wistia player doesn't start if we reuse the same
+            webView = null; // TODO investigate why
+        }
     }
 
     private void displayWebViewIfApplicableAndStabilised() {
@@ -287,7 +298,7 @@ public class WebViewPane extends MonoPane {
             try {
                 window.setMember(name, value);
                 return true;
-            } catch (JSException e) {
+            } catch (Exception e) {
                 logDebug("Setting window." + name + " failed: " + e.getMessage());
                 return false;
             }
@@ -303,7 +314,7 @@ public class WebViewPane extends MonoPane {
             logDebug("Calling window." + name);
             try {
                 return window.call(name, args);
-            } catch (JSException e) {
+            } catch (Exception e) {
                 logDebug("Calling window." + name + " failed: " + e.getMessage());
             }
         } else {
@@ -323,24 +334,38 @@ public class WebViewPane extends MonoPane {
 
     private void applyRedirectConsoleIfApplicable() {
         if (redirectConsole && !redirectConsoleApplied && !isSeamless() && getWindow() != null) {
-            webWindow.setMember("redirectConsoleRequested", true);
-            webEngine.executeScript("applyRedirectConsoleNowIfApplicable()");
-            redirectConsoleApplied = true;
+            try {
+                webWindow.setMember("redirectConsoleRequested", true);
+                webEngine.executeScript("applyRedirectConsoleNowIfApplicable()");
+                redirectConsoleApplied = true;
+            } catch (Exception e) {
+                Console.log("Exception when trying to redirect console: " + e.getMessage());
+            }
         }
+    }
+
+    public boolean isLoading() {
+        return pendingLoad != null && !loadSuccessNotified;
     }
 
     private void processWebEngineState() {
         boolean seamless = isSeamless();
-        WebEngine we = seamless ? PARENT_BROWSER_WINDOW_SCRIPT_ENGINE : webEngine;
+        WebEngine we = seamless ? PARENT_BROWSER_WINDOW_SCRIPT_ENGINE : getWebEngine();
         Worker.State state = we.getLoadWorker().getState();
         logDebug("state = " + state + " (seamless = " + seamless + ", webView is " + (isWebViewDisplayed() ? "" : "NOT ") + "displayed, window is " + (getWindow() == null ? "NOT " : "") + "set)");
         if (unloading) {
             logDebug("Skipping (unloading)");
             return;
         }
-        switch (state) {
+        // In general, there is nothing to do when state is RUNNING, except if this call happens after
+        // a call to setPendingLoad() which is an explicit request from the application code to reload the web view.
+        boolean reloadRequested = pendingLoad != null && loadedUrl == null; // indicates the case explained above.
+        if (reloadRequested)
+            state = Worker.State.READY;
 
+        switch (state) {
             case READY: // the user navigates back here (as the browser unloads the iFrame each time it's removed from the DOM)
+            case SCHEDULED:
                 if (loadSuccessNotified) {
                     resetState();
                 }
@@ -362,11 +387,11 @@ public class WebViewPane extends MonoPane {
 
                     // Executing next task
                     if (pendingLoad.isUrl()) {
-                        if (!urlLoaded) {
-                            String url = pendingLoad.getUrl();
+                        String url = pendingLoad.getUrl();
+                        if (!Objects.equals(url, loadedUrl)) {
+                            loadedUrl = url;
                             logDebug("Engine loads url " + url);
                             we.load(url);
-                            urlLoaded = true;
                         }
                     } else if (pendingLoad.isHtmlContent()) {
                         String htmlContent = pendingLoad.getHtmlContent();
@@ -401,12 +426,29 @@ public class WebViewPane extends MonoPane {
                                 if (loadOptions != null && loadOptions.getSeamlessStyleClass() != null) {
                                     seamlessDiv.getStyleClass().setAll(loadOptions.getSeamlessStyleClass());
                                 }
-                                executeSeamlessScriptInBrowser(script);
-                                notifyLoadSuccess();
+                                // Postponing the script execution. The reason for this is that if we just created a
+                                // seamlessDiv, it's only in the JavaFX scene graph at this stage, it will be mapped
+                                // by webfx a bit later (in the next animation frame), but the script probably needs
+                                // access it straightaway (ex: seamless video player), so we postpone its execution
+                                // to ensure webfx inserted it in the DOM.
+                                UiScheduler.scheduleDeferred(() -> {
+                                    try {
+                                        executeSeamlessScriptInBrowser(script);
+                                        notifyLoadSuccess();
+                                    } catch (Exception e) {
+                                        Console.log("Exception when trying to execute seamless script: " + e.getMessage());
+                                        notifyLoadFailure(e.getMessage());
+                                    }
+                                });
                             } else if (webWindow != null) {
                                 logDebug("Engine executes script " + script);
-                                we.executeScript(script);
-                                notifyLoadSuccess();
+                                try {
+                                    we.executeScript(script);
+                                    notifyLoadSuccess();
+                                } catch (Exception e) {
+                                    Console.log("Exception when trying to execute script: " + e.getMessage());
+                                    notifyLoadFailure(e.getMessage());
+                                }
                             } else {
                                 Scheduler.scheduleDelay(100, this::processWebEngineState);
                             }
@@ -427,7 +469,6 @@ public class WebViewPane extends MonoPane {
             case CANCELLED:
                 notifyLoadFailure("CANCELLED");
                 break;
-
         }
     }
 
@@ -473,10 +514,14 @@ public class WebViewPane extends MonoPane {
 
     private void notifyWebWindowReady() {
         webWindowReadyNotified = true; // Important to prevent infinite loop
-        setWindowMember("javaWebViewPane", this);
-        String webPaneScript = Resource.getText(Resource.toUrl("WebViewPane.js", getClass()));
-        webEngine.executeScript(webPaneScript);
-        applyRedirectConsoleIfApplicable();
+        try {
+            setWindowMember("javaWebViewPane", this);
+            String webViewPaneScript = Resource.getText(Resource.toUrl("WebViewPane.js", getClass()));
+            webEngine.executeScript(webViewPaneScript);
+            applyRedirectConsoleIfApplicable();
+        } catch (Exception e) {
+            Console.log("Exception when trying to execute WebViewPane script: " + e.getMessage());
+        }
 
         LoadOptions loadOptions = pendingLoad == null ? null : pendingLoad.getLoadOptions();
         Runnable onWebWindowReady = loadOptions == null ? null : loadOptions.getOnWebWindowReady();
@@ -509,9 +554,9 @@ public class WebViewPane extends MonoPane {
         //pendingLoad = null;
     }
 
-    private static void logDebug(String message) {
+    private void logDebug(String message) {
         if (DEBUG) {
-            Console.log(">>>>>>>>>>>>>> " + message);
+            Console.log("[WebViewPane] " + message + " | " + this);
         }
     }
 

@@ -1,5 +1,6 @@
 package dev.webfx.extras.canvas;
 
+import dev.webfx.kit.util.properties.FXProperties;
 import javafx.beans.value.ObservableIntegerValue;
 
 public interface HasDrawCountProperty {
@@ -15,17 +16,17 @@ public interface HasDrawCountProperty {
     }
 
     default void addOnBeforeDraw(Runnable runnable) {
-        drawCountProperty().addListener((observable, oldValue, newValue) -> {
+        FXProperties.runOnPropertyChange(() -> {
             if (isDrawing())
                 runnable.run();
-        });
+        }, drawCountProperty());
     }
 
     default void addOnAfterDraw(Runnable runnable) {
-        drawCountProperty().addListener((observable, oldValue, newValue) -> {
+        FXProperties.runOnPropertyChange(() -> {
             if (!isDrawing())
                 runnable.run();
-        });
+        }, drawCountProperty());
     }
 
 }

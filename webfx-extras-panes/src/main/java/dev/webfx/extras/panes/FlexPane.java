@@ -1,5 +1,6 @@
 package dev.webfx.extras.panes;
 
+import dev.webfx.kit.util.properties.FXProperties;
 import javafx.beans.InvalidationListener;
 import javafx.beans.property.*;
 import javafx.geometry.Insets;
@@ -21,63 +22,42 @@ public final class FlexPane extends Pane {
     private static final String GROW_CONSTRAINT = "flexbox-grow";
     private static final String MARGIN_CONSTRAINT = "flexbox-margin";
 
-    private final DoubleProperty horizontalSpaceProperty = new SimpleDoubleProperty(0) {
-        @Override
-        protected void invalidated() {
-            requestLayout();
-        }
-    };
+    private final DoubleProperty horizontalSpaceProperty = newLayoutDoubleProperty();
 
-    private final DoubleProperty verticalSpaceProperty = new SimpleDoubleProperty(0)  {
-        @Override
-        protected void invalidated() {
-            requestLayout();
-        }
-    };
+    private final DoubleProperty verticalSpaceProperty = newLayoutDoubleProperty();
 
-    private final BooleanProperty spaceTopProperty = new SimpleBooleanProperty() {
-        protected void invalidated() {
-            requestLayout();
-        }
-    };
+    private final BooleanProperty spaceTopProperty = createLayoutBooleanProperty();
 
-    private final BooleanProperty spaceLeftProperty = new SimpleBooleanProperty() {
-        protected void invalidated() {
-            requestLayout();
-        }
-    };
+    private final BooleanProperty spaceLeftProperty = createLayoutBooleanProperty();
 
-    private final BooleanProperty spaceRightProperty = new SimpleBooleanProperty() {
-        protected void invalidated() {
-            requestLayout();
-        }
-    };
-    private final BooleanProperty spaceBottomProperty = new SimpleBooleanProperty() {
-        protected void invalidated() {
-            requestLayout();
-        }
-    };
+    private final BooleanProperty spaceRightProperty = createLayoutBooleanProperty();
 
-    private final BooleanProperty flexLastRowProperty = new SimpleBooleanProperty(true) {
-        protected void invalidated() {
-            requestLayout();
-        }
-    };
+    private final BooleanProperty spaceBottomProperty = createLayoutBooleanProperty();
 
-    private final ObjectProperty<Pos> alignmentProperty = new SimpleObjectProperty<>(Pos.TOP_LEFT) {
-        protected void invalidated() {
-            requestLayout();
-        }
-    };
+    private final BooleanProperty flexLastRowProperty = createLayoutBooleanProperty(true);
 
-    private final BooleanProperty distributeRemainingRowSpaceProperty = new SimpleBooleanProperty(false) {
-        protected void invalidated() {
-            requestLayout();
-        }
-    };
+    private final ObjectProperty<Pos> alignmentProperty = newLayoutObjectProperty(Pos.TOP_LEFT);
+
+    private final BooleanProperty distributeRemainingRowSpaceProperty = createLayoutBooleanProperty();
 
     private double computedMinHeight;
     private boolean performingLayout;
+
+    private BooleanProperty createLayoutBooleanProperty() {
+        return createLayoutBooleanProperty(false);
+    }
+
+    private BooleanProperty createLayoutBooleanProperty(boolean initialValue) {
+        return FXProperties.newBooleanProperty(initialValue, this::requestLayout);
+    }
+
+    private DoubleProperty newLayoutDoubleProperty() {
+        return FXProperties.newDoubleProperty(this::requestLayout);
+    }
+
+    private <T> ObjectProperty<T> newLayoutObjectProperty(T initialValue) {
+        return FXProperties.newObjectProperty(initialValue, this::requestLayout);
+    }
 
     public FlexPane(Node... children) {
         getChildren().setAll(children);
@@ -429,4 +409,5 @@ public final class FlexPane extends Pane {
             return items;
         }
     }
+
 }

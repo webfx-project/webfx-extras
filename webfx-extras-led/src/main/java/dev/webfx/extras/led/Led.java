@@ -1,7 +1,7 @@
 package dev.webfx.extras.led;
 
+import dev.webfx.kit.util.properties.FXProperties;
 import javafx.beans.property.BooleanProperty;
-import javafx.beans.property.SimpleBooleanProperty;
 import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
 import javafx.geometry.HPos;
@@ -38,12 +38,7 @@ public final class Led extends Region {
 
     private boolean showBorder = true, showReflectionWhenNotHighlighted = true;
     private Paint pressedFill, releasedFill;
-    private final BooleanProperty highlightedProperty = new SimpleBooleanProperty() {
-        @Override
-        protected void invalidated() {
-            updateHighlight();
-        }
-    };
+    private final BooleanProperty highlightedProperty = FXProperties.newBooleanProperty(this::updateHighlight);
     private final InnerShadow innerShadow = new InnerShadow(BlurType.TWO_PASS_BOX, Color.rgb(0, 0, 0, 0.65), 0, 0, 0, 0);
 
     Led(Color ledColor, Boolean plus) {

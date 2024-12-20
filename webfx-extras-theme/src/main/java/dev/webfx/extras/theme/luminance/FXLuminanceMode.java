@@ -1,20 +1,15 @@
 package dev.webfx.extras.theme.luminance;
 
 import dev.webfx.extras.theme.ThemeRegistry;
+import dev.webfx.kit.util.properties.FXProperties;
 import javafx.beans.property.ObjectProperty;
-import javafx.beans.property.SimpleObjectProperty;
 
 /**
  * @author Bruno Salmon
  */
 public final class FXLuminanceMode {
 
-    private final static ObjectProperty<LuminanceMode> luminanceModeProperty = new SimpleObjectProperty<>(LuminanceMode.LIGHT_MODE) {
-        @Override
-        protected void invalidated() {
-            ThemeRegistry.fireModeChanged();
-        }
-    };
+    private final static ObjectProperty<LuminanceMode> luminanceModeProperty = FXProperties.newObjectProperty(LuminanceMode.LIGHT_MODE, ThemeRegistry::fireModeChanged);
 
     public static ObjectProperty<LuminanceMode> luminanceModeProperty() {
         return luminanceModeProperty;

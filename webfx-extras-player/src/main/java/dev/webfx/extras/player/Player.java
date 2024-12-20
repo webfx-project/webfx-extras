@@ -1,9 +1,12 @@
 package dev.webfx.extras.player;
 
-import dev.webfx.platform.util.collection.Collections;
-import javafx.beans.property.IntegerProperty;
+import dev.webfx.extras.media.metadata.MediaMetadata;
+import dev.webfx.extras.media.metadata.MetadataUtil;
+import dev.webfx.kit.util.properties.FXProperties;
+import javafx.beans.property.ObjectProperty;
+import javafx.beans.property.ReadOnlyBooleanProperty;
 import javafx.beans.property.ReadOnlyObjectProperty;
-import javafx.collections.ObservableList;
+import javafx.scene.Node;
 import javafx.util.Duration;
 
 /**
@@ -11,36 +14,73 @@ import javafx.util.Duration;
  */
 public interface Player {
 
-    ObservableList<String> getPlaylist();
-
-
-    /**
-     * Specifies the media file to be played at the specified index in the
-     * initial playlist. The current media file will be stopped and the media
-     * file that is located at the provided index will start playing.
-     *
-     * @param index The index from the playlist that will start playing
-     */
-    default void setCurrentIndex(int index) {
-        currentIndexProperty().set(index);
+    default Media acceptMedia(String mediaSource) {
+        return acceptMedia(mediaSource, null);
     }
 
-    /**
-     * Integer property that indicates the current index on the playlist,
-     * starting from 0.
-     *
-     * @return an {@link IntegerProperty} indicating the current index on the playlist.
-     */
-    IntegerProperty currentIndexProperty();
+    Media acceptMedia(String mediaSource, MediaMetadata mediaMetadata);
 
-    default int getCurrentIndex() {
-        return currentIndexProperty().get();
+    ObjectProperty<PlayerGroup> playerGroupProperty();
+
+    default PlayerGroup getPlayerGroup() {
+        return playerGroupProperty().get();
     }
 
-    default String getCurrentTrack() {
-        int currentIndex = getCurrentIndex();
-        return Collections.get(getPlaylist(), currentIndex);
+    default void setPlayerGroup(PlayerGroup playerGroup) {
+        playerGroupProperty().set(playerGroup);
     }
+
+    ObjectProperty<StartOptions> startOptionsProperty();
+
+    default StartOptions getStartOptions() {
+        return startOptionsProperty().get();
+    }
+
+    default void setStartOptions(StartOptions startOptions) {
+        startOptionsProperty().set(startOptions);
+    }
+
+    ObjectProperty<Media> mediaProperty();
+
+    default Media getMedia() {
+        return mediaProperty().get();
+    }
+
+    default void setMedia(Media media) {
+        setMedia(media, getStartOptions());
+    }
+
+    default void setMedia(Media media, StartOptions startOptions) {
+        if (startOptions == null && media != null)
+            startOptions = media.getSourceStartOptions();
+        FXProperties.setIfNotBound(startOptionsProperty(), startOptions);
+        //setStartOptions(startOptions);
+        mediaProperty().set(media);
+    }
+
+    Node getMediaView();
+
+    default boolean hasMediaAudio() {
+        Media media = getMedia();
+        if (media == null)
+            return false;
+        Boolean hasAudio = MetadataUtil.hasAudio(media.getMetadata());
+        if (hasAudio != null)
+            return hasAudio;
+        return true; // if no info is provided, we assume the media has audio by default
+    }
+
+    default boolean isMediaVideo() {
+        return false;
+    }
+
+    default void displayVideo() { }
+
+    default IntegrationMode getIntegrationMode() {
+        return IntegrationMode.SEAMLESS;
+    }
+
+    FeatureSupport getNavigationSupport();
 
     void play();
 
@@ -49,6 +89,10 @@ public interface Player {
     void stop();
 
     void seek(Duration seekTime);
+
+    default void resetToInitialState() {
+        seek(Duration.ZERO);
+    }
 
     default Duration getCurrentTime() {
         return currentTimeProperty().getValue();
@@ -66,7 +110,33 @@ public interface Player {
         return getStatus() == Status.PLAYING;
     }
 
-    boolean supportsEventHandlers();
+    default boolean isPlayingAudio() {
+        return isPlaying() && !isMuted() && hasMediaAudio();
+    }
+
+    FeatureSupport getMuteSupport();
+
+    default void mute() { }
+
+    default void unmute() { }
+
+    ReadOnlyBooleanProperty mutedProperty();
+
+    default boolean isMuted() {
+        return mutedProperty().get();
+    }
+
+    FeatureSupport getFullscreenSupport();
+
+    ReadOnlyBooleanProperty fullscreenProperty();
+
+    default boolean isFullscreen() {
+        return fullscreenProperty().get();
+    }
+
+    default void requestFullscreen() { }
+
+    default void cancelFullscreen() { }
 
     void setOnEndOfPlaying(Runnable onEndOfPlaying);
 

@@ -40,7 +40,7 @@ public abstract class BaseFilePicker extends FilePicker {
             }
         };
         view.getStyleClass().add("file-picker");
-        FXProperties.runNowAndOnPropertiesChange(this::onGraphicChanged, graphicProperty());
+        FXProperties.runNowAndOnPropertyChange(this::onGraphicChanged, graphicProperty());
     }
 
     private void onGraphicChanged() {

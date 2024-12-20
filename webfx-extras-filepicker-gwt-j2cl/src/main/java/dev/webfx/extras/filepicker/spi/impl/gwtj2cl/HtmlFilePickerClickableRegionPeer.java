@@ -7,7 +7,6 @@ import dev.webfx.kit.mapper.peers.javafxgraphics.base.RegionPeerMixin;
 import dev.webfx.kit.mapper.peers.javafxgraphics.gwtj2cl.html.HtmlRegionPeer;
 import dev.webfx.kit.mapper.peers.javafxgraphics.gwtj2cl.util.HtmlUtil;
 import dev.webfx.kit.util.properties.FXProperties;
-import dev.webfx.platform.console.Console;
 import elemental2.dom.FileList;
 import elemental2.dom.HTMLInputElement;
 import elemental2.dom.HTMLLabelElement;
@@ -49,6 +48,6 @@ public class HtmlFilePickerClickableRegionPeer
     public void bind(N node, SceneRequester sceneRequester) {
         super.bind(node, sceneRequester);
         // Binding fileInput.multiple with fileChooser.multipleProperty()
-        FXProperties.runNowAndOnPropertiesChange(p -> fileInput.multiple = (boolean) p.getValue(), node.getFileChooser().multipleProperty());
+        FXProperties.runNowAndOnPropertyChange(multiple -> fileInput.multiple = multiple, node.getFileChooser().multipleProperty());
     }
 }

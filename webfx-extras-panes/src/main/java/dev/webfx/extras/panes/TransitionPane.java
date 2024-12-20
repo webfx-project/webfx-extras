@@ -4,10 +4,14 @@ import dev.webfx.extras.panes.transitions.CircleTransition;
 import dev.webfx.extras.panes.transitions.FadeTransition;
 import dev.webfx.extras.panes.transitions.Transition;
 import dev.webfx.extras.panes.transitions.TranslateTransition;
+import dev.webfx.extras.util.animation.Animations;
+import dev.webfx.kit.util.properties.FXProperties;
 import javafx.animation.Timeline;
-import javafx.beans.InvalidationListener;
-import javafx.beans.Observable;
-import javafx.beans.property.*;
+import javafx.application.Platform;
+import javafx.beans.property.BooleanProperty;
+import javafx.beans.property.ObjectProperty;
+import javafx.beans.property.ReadOnlyBooleanProperty;
+import javafx.beans.property.SimpleBooleanProperty;
 import javafx.collections.ObservableList;
 import javafx.geometry.HPos;
 import javafx.geometry.Orientation;
@@ -15,8 +19,6 @@ import javafx.geometry.Pos;
 import javafx.scene.Node;
 import javafx.scene.layout.Pane;
 import javafx.scene.layout.Region;
-
-import java.util.Objects;
 
 /**
  * This Pane creates an animation when changing its content, so the old node looks like leaving, and the new node looks
@@ -26,12 +28,7 @@ import java.util.Objects;
  */
 public final class TransitionPane extends MonoClipPane {
 
-    private final ObjectProperty<Node> requestedEnteringNodeProperty = new SimpleObjectProperty<>() {
-        @Override
-        protected void invalidated() {
-            onEnteringNodeRequested(get());
-        }
-    };
+    private final ObjectProperty<Node> requestedEnteringNodeProperty = FXProperties.newObjectProperty(this::onEnteringNodeRequested);
     private final BooleanProperty transitingProperty = new SimpleBooleanProperty();
     private Transition transition = new TranslateTransition();
     private Node enteringNode, leavingNode;
@@ -41,7 +38,8 @@ public final class TransitionPane extends MonoClipPane {
     private boolean reverse;
     private boolean keepsLeavingNodes = false;
     private boolean scrollToTop = false;
-    private Timeline timeline;
+    private Timeline transitionTimeline;
+    private Timeline scrollToTopTimeline;
 
     private final Pane dualContainer = new Pane() {
         @Override
@@ -66,6 +64,13 @@ public final class TransitionPane extends MonoClipPane {
                     layoutInArea(leavingNode, 0, 0, width, leavingHeight, 0, pos.getHpos(), pos.getVpos());
                 }
             }
+            if (scrollToTop && scrollToTopTimeline == null && enteringHeight > 0) {
+                // Postponing to ensure the layout bound is set on the possible target node for scrollTop
+                Platform.runLater(() -> {
+                    scrollToTopTimeline = Animations.scrollToTop(enteringNode, transition.shouldVerticalScrollBeAnimated());
+                });
+            }
+
         }
 
         @Override
@@ -229,11 +234,7 @@ public final class TransitionPane extends MonoClipPane {
     }
 
     private void onEnteringNodeRequested(Node newContent) {
-        if (timeline != null) {
-            timeline.jumpTo(timeline.getTotalDuration());
-            timeline.stop();
-            callTimelineOnFinishedIfFinished();
-        }
+        Animations.forceTimelineToFinish(transitionTimeline);
         leavingNode = enteringNode;
         enteringNode = newContent;
         ObservableList<Node> dualChildren = dualContainer.getChildren();
@@ -261,13 +262,10 @@ public final class TransitionPane extends MonoClipPane {
     private void doAnimate(Node newContent) {
         if (getWidth() == 0) { // may happen on first time this transition pane is displayed
             // In that case, we postpone the animation when the transition pane is resized (presumably on next layout pass)
-            widthProperty().addListener(new InvalidationListener() {
-                @Override
-                public void invalidated(Observable observable) {
-                    widthProperty().removeListener(this);
-                    doAnimate(newContent);
-                }
-            });
+            FXProperties.runOrUnregisterOnPropertyChange((thisListener, oldValue, newValue) -> {
+                thisListener.unregister();
+                doAnimate(newContent);
+            }, widthProperty());
             return;
         }
         Node oldContent = leavingNode;
@@ -280,13 +278,22 @@ public final class TransitionPane extends MonoClipPane {
             oldRegionMaxHeight = oldRegion.getMaxHeight();
             oldRegion.setMaxHeight(getHeight());
         }
-        timeline = transition.createAndStartTransitionTimeline(oldContent, newContent, oldRegion, newRegion, dualContainer, this::getWidth, this::getHeight, reverse, scrollToTop);
+        rescheduleScrollTopTimeline();
+        transitionTimeline = transition.createAndStartTransitionTimeline(oldContent, newContent, oldRegion, newRegion, dualContainer, this::getWidth, this::getHeight, reverse);
         transitingProperty.set(true);
         finishTimeline(newContent, oldContent, oldRegion, oldRegionMaxHeight);
     }
 
+    private void rescheduleScrollTopTimeline() {
+        if (scrollToTop) {
+            if (scrollToTopTimeline != null)
+                scrollToTopTimeline.stop();
+            scrollToTopTimeline = null;
+        }
+    }
+
     private void finishTimeline(Node newContent, Node oldContent, Region oldRegion, double oldRegionMaxHeight) {
-        timeline.setOnFinished(e -> {
+        Animations.setOrCallOnTimelineFinished(transitionTimeline, e -> {
             newContent.setClip(null);
             if (oldContent != null)
                 oldContent.setClip(null);
@@ -297,8 +304,10 @@ public final class TransitionPane extends MonoClipPane {
                 if (oldContent != enteringNode) {
                     if (keepsLeavingNodes && isKeepsLeavingNode(oldContent))
                         oldContent.setVisible(false);
-                    else
+                    else {
                         dualContainer.getChildren().remove(oldContent);
+                        rescheduleScrollTopTimeline();
+                    }
                 }
                 if (leavingNode == oldContent)
                     leavingNode = null;
@@ -307,13 +316,6 @@ public final class TransitionPane extends MonoClipPane {
                 transitingProperty.set(false);
             }
         });
-        callTimelineOnFinishedIfFinished();
     }
 
-    private void callTimelineOnFinishedIfFinished() {
-        if (Objects.equals(timeline.getCurrentTime(), timeline.getTotalDuration())) {
-            timeline.getOnFinished().handle(null);
-            timeline = null;
-        }
-    }
 }

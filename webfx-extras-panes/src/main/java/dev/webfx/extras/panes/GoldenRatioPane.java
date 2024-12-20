@@ -24,11 +24,12 @@ public class GoldenRatioPane extends MonoPane {
     }
 
     @Override
-    protected void layoutChildren() {
+    protected void layoutChildren(double width, double height) {
         Node child = getContent();
         if (child == null)
             return;
-        double width = getWidth() - insetsWidth(), height = getHeight() - insetsWidth();
+        width -= insetsWidth();
+        height -= insetsHeight();
         double w = width, h = child.prefHeight(w);
         double x = getInsets().getLeft() + Math.max(0, width / 2 - w / 2);
         double y = getInsets().getTop();
@@ -36,7 +37,7 @@ public class GoldenRatioPane extends MonoPane {
         if (extraHeight > 0) {
             y += extraHeight / (1 + GOLDEN_RATIO);
         }
-        layoutInArea(child, x, y, w, h, 0, HPos.CENTER, VPos.CENTER);
+        layoutInArea(child, x, y, w, h, HPos.CENTER, VPos.CENTER);
     }
 
 }

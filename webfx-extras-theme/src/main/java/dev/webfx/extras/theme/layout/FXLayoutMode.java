@@ -1,20 +1,15 @@
 package dev.webfx.extras.theme.layout;
 
 import dev.webfx.extras.theme.ThemeRegistry;
+import dev.webfx.kit.util.properties.FXProperties;
 import javafx.beans.property.ObjectProperty;
-import javafx.beans.property.SimpleObjectProperty;
 
 /**
  * @author Bruno Salmon
  */
 public final class FXLayoutMode {
 
-    private final static ObjectProperty<LayoutMode> layoutModeProperty = new SimpleObjectProperty<>(LayoutMode.STANDARD_LAYOUT) {
-        @Override
-        protected void invalidated() {
-            ThemeRegistry.fireModeChanged();
-        }
-    };
+    private final static ObjectProperty<LayoutMode> layoutModeProperty = FXProperties.newObjectProperty(LayoutMode.STANDARD_LAYOUT, ThemeRegistry::fireModeChanged);
 
     public static ObjectProperty<LayoutMode> layoutModeProperty() {
         return layoutModeProperty;

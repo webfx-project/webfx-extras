@@ -8,6 +8,8 @@ import javafx.animation.KeyValue;
 import javafx.animation.Timeline;
 import javafx.beans.property.DoubleProperty;
 import javafx.beans.value.WritableValue;
+import javafx.event.ActionEvent;
+import javafx.event.EventHandler;
 import javafx.scene.Node;
 import javafx.util.Duration;
 
@@ -43,6 +45,7 @@ public final class Animations {
     }
 
     public static <T> Timeline animateProperty(WritableValue<T> target, T finalValue, Duration duration, Interpolator interpolator, boolean onIdle) {
+        //System.out.println("animateProperty() target = " + target + ", finalValue = " + finalValue);
         Timeline timeline;
         if (!Objects.areEquals(target.getValue(), finalValue)) {
             if (interpolator == null || duration == null || duration.equals(Duration.ZERO)) {
@@ -65,12 +68,35 @@ public final class Animations {
         return timeline;
     }
 
+    public static boolean isTimelineFinished(Timeline timeline) {
+        return java.util.Objects.equals(timeline.getCurrentTime(), timeline.getTotalDuration());
+    }
+
+    public static void callTimelineOnFinishedIfFinished(Timeline timeline) {
+        if (timeline != null && isTimelineFinished(timeline)) {
+            EventHandler<ActionEvent> onFinished = timeline.getOnFinished();
+            if (onFinished != null)
+                onFinished.handle(null);
+        }
+    }
+
+    public static void setOrCallOnTimelineFinished(Timeline timeline, EventHandler<ActionEvent> onFinished) {
+        timeline.setOnFinished(onFinished);
+        callTimelineOnFinishedIfFinished(timeline);
+    }
+
+    public static void forceTimelineToFinish(Timeline timeline) {
+        if (timeline != null && !isTimelineFinished(timeline)) {
+            timeline.jumpTo(timeline.getTotalDuration());
+            timeline.stop();
+            callTimelineOnFinishedIfFinished(timeline);
+        }
+    }
+
     public static void shake(Node node) {
-        DoubleProperty x = node.layoutXProperty(); // translateX would be better but not yet emulated so using layoutX instead
+        DoubleProperty x = node.translateXProperty();
         double xIni = x.getValue(), xMin = xIni - 10, xMax = xIni + 10;
         new Timeline(
-                // Turning node to unmanaged (absolute positioning) to be sure layoutX will be considered
-                new KeyFrame(Duration.millis(0),    new KeyValue(node.managedProperty(), false)),
                 new KeyFrame(Duration.millis(100),  new KeyValue(x, xMin)),
                 new KeyFrame(Duration.millis(200),  new KeyValue(x, xMax)),
                 new KeyFrame(Duration.millis(300),  new KeyValue(x, xMin)),
@@ -80,9 +106,7 @@ public final class Animations {
                 new KeyFrame(Duration.millis(700),  new KeyValue(x, xMin)),
                 new KeyFrame(Duration.millis(800),  new KeyValue(x, xMax)),
                 new KeyFrame(Duration.millis(900),  new KeyValue(x, xMin)),
-                new KeyFrame(Duration.millis(1000), new KeyValue(x, xIni)),
-                // Restoring the managed value
-                new KeyFrame(Duration.millis(1000), new KeyValue(node.managedProperty(), node.isManaged()))
+                new KeyFrame(Duration.millis(1000), new KeyValue(x, xIni))
         ).play();
     }
 
@@ -91,23 +115,35 @@ public final class Animations {
     // So modules that depend on javafx-graphics only can use it, it won't do anything if the final application doesn't
     // use javafx-control (=> no ScrollPane), but it will if the final application uses it (and ControlUtil).
 
-    public static void scrollToTop(Node content, boolean animated) {
+    public static Timeline scrollToTop(Node content, boolean animated) {
         if (scrollPaneAncestorFinder != null && scrollPaneValuePropertyGetter != null) {
             Node scrollPane = scrollPaneAncestorFinder.apply(content);
             if (scrollPane != null) {
                 DoubleProperty valueProperty = scrollPaneValuePropertyGetter.apply(scrollPane);
                 if (valueProperty != null) {
-                    if (!animated)
-                        valueProperty.set(0);
-                    else
-                        animateProperty(valueProperty, 0);
+                    double vValue = 0;
+                    Node hotNode = getScrollToTopTargetNode(content);
+                    if (hotNode != null && computeVerticalScrollNodeWishedValueGetter != null)
+                        vValue = computeVerticalScrollNodeWishedValueGetter.apply(hotNode);
+                    //Console.log("👉👉👉👉👉 vValue = " + vValue);
+                    return animateProperty(valueProperty, vValue, animated);
                 }
             }
         }
+        return null;
+    }
+
+    public static void setScrollToTopTargetNode(Node content, Node hotNode) {
+        content.getProperties().put("scrollToTopTargetNode", hotNode);
+    }
+
+    private static Node getScrollToTopTargetNode(Node content) {
+        return (Node) content.getProperties().get("scrollToTopTargetNode");
     }
 
     private static Function<Node, Node> scrollPaneAncestorFinder;
     private static Function<Node, DoubleProperty> scrollPaneValuePropertyGetter;
+    private static Function<Node, Double> computeVerticalScrollNodeWishedValueGetter;
 
     public static void setScrollPaneAncestorFinder(Function<Node, Node> scrollPaneAncestorFinder) {
         Animations.scrollPaneAncestorFinder = scrollPaneAncestorFinder;
@@ -117,4 +153,7 @@ public final class Animations {
         Animations.scrollPaneValuePropertyGetter = scrollPaneValuePropertyGetter;
     }
 
+    public static void setComputeVerticalScrollNodeWishedValueGetter(Function<Node, Double> computeVerticalScrollNodeWishedValueGetter) {
+        Animations.computeVerticalScrollNodeWishedValueGetter = computeVerticalScrollNodeWishedValueGetter;
+    }
 }

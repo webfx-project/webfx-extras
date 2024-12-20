@@ -1,20 +1,15 @@
 package dev.webfx.extras.theme.palette;
 
 import dev.webfx.extras.theme.ThemeRegistry;
+import dev.webfx.kit.util.properties.FXProperties;
 import javafx.beans.property.ObjectProperty;
-import javafx.beans.property.SimpleObjectProperty;
 
 /**
  * @author Bruno Salmon
  */
 public class FXPaletteMode {
 
-    private final static ObjectProperty<PaletteMode> paletteModeProperty = new SimpleObjectProperty<>(PaletteMode.ESSENTIAL_PALETTE) {
-        @Override
-        protected void invalidated() {
-            ThemeRegistry.fireModeChanged();
-        }
-    };
+    private final static ObjectProperty<PaletteMode> paletteModeProperty = FXProperties.newObjectProperty(PaletteMode.ESSENTIAL_PALETTE, ThemeRegistry::fireModeChanged);
 
     public ObjectProperty<PaletteMode> paletteModeProperty() {
         return paletteModeProperty;

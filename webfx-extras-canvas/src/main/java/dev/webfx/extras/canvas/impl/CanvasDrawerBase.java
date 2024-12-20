@@ -2,6 +2,7 @@ package dev.webfx.extras.canvas.impl;
 
 import dev.webfx.extras.canvas.CanvasDrawer;
 import dev.webfx.extras.util.DirtyMarker;
+import dev.webfx.kit.util.properties.FXProperties;
 import javafx.beans.property.*;
 import javafx.beans.value.ObservableIntegerValue;
 import javafx.geometry.Bounds;
@@ -16,30 +17,10 @@ public abstract class CanvasDrawerBase implements CanvasDrawer {
 
     protected final Canvas canvas;
     protected final GraphicsContext gc;
-    private final DoubleProperty layoutOriginXProperty = new SimpleDoubleProperty() {
-        @Override
-        protected void invalidated() {
-            markDrawAreaAsDirty();
-        }
-    };
-    private final DoubleProperty layoutOriginYProperty = new SimpleDoubleProperty() {
-        @Override
-        protected void invalidated() {
-            markDrawAreaAsDirty();
-        }
-    };
-    private final ObjectProperty<Bounds> drawAreaBoundsProperty = new SimpleObjectProperty<>() {
-        @Override
-        protected void invalidated() {
-            markDrawAreaAsDirty();
-        }
-    };
-    private final ObjectProperty<Paint> drawAreaBackgroundFillProperty = new SimpleObjectProperty<>() {
-        @Override
-        protected void invalidated() {
-            markDrawAreaAsDirty();
-        }
-    };
+    private final DoubleProperty layoutOriginXProperty = FXProperties.newDoubleProperty(this::markDrawAreaAsDirty);
+    private final DoubleProperty layoutOriginYProperty = FXProperties.newDoubleProperty(this::markDrawAreaAsDirty);
+    private final ObjectProperty<Bounds> drawAreaBoundsProperty = FXProperties.newObjectProperty(this::markDrawAreaAsDirty);
+    private final ObjectProperty<Paint> drawAreaBackgroundFillProperty = FXProperties.newObjectProperty(this::markDrawAreaAsDirty);
     private final IntegerProperty drawCountProperty = new SimpleIntegerProperty();
     private final DirtyMarker drawAreaDirtyMarker = new DirtyMarker(this::drawArea);
 

@@ -54,7 +54,7 @@ public final class VisualGridSkin extends SelectableVisualResultControlSkinBase<
                     if (bodyScrollPane == null) {
                         bodyScrollPane = new ScrollPane();
                         bodyScrollPane.setHbarPolicy(ScrollPane.ScrollBarPolicy.NEVER);
-                        bodyScrollPane.hvalueProperty().addListener((observable, oldValue, newValue) -> {
+                        FXProperties.runOnPropertyChange(() -> {
                                 // Same code as LayoutUtil.computeScrollPaneHoffset() - but not accessible from here
                                 double hmin = bodyScrollPane.getHmin();
                                 double hmax = bodyScrollPane.getHmax();
@@ -64,7 +64,7 @@ public final class VisualGridSkin extends SelectableVisualResultControlSkinBase<
                                 headOffset = Math.max(0, contentWidth - viewportWidth) * (hvalue - hmin) / (hmax - hmin);
                                 gridHead.relocate(-headOffset, 0);
                             }
-                        );
+                        , bodyScrollPane.hvalueProperty());
                     }
                     bodyScrollPane.setContent(gridBody);
                     body = bodyScrollPane;
@@ -81,10 +81,10 @@ public final class VisualGridSkin extends SelectableVisualResultControlSkinBase<
     private static void clipChildren(Region region) {
         Rectangle outputClip = new Rectangle();
         region.setClip(outputClip);
-        region.layoutBoundsProperty().addListener((ov, oldValue, newValue) -> {
-            outputClip.setWidth(newValue.getWidth());
-            outputClip.setHeight(newValue.getHeight());
-        });
+        FXProperties.runOnPropertyChange(layoutBounds -> {
+            outputClip.setWidth(layoutBounds.getWidth());
+            outputClip.setHeight(layoutBounds.getHeight());
+        }, region.layoutBoundsProperty());
     }
 
     @Override
@@ -447,12 +447,13 @@ public final class VisualGridSkin extends SelectableVisualResultControlSkinBase<
             if (style != null) {
                 fixedWidth = style.getPrefWidth();
                 String textAlign = style.getTextAlign();
-                if (textAlign != null)
+                if (textAlign != null) {
                     switch (textAlign) {
                         case "left":   hAlignment = HPos.LEFT;   break;
                         case "center": hAlignment = HPos.CENTER; break;
                         case "right":  hAlignment = HPos.RIGHT;  break;
                     }
+                }
             }
             if (fixedWidth == null)
                 setCumulator(visualColumn.getCumulator());

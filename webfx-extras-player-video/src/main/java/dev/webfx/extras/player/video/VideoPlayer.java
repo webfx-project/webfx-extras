@@ -1,7 +1,6 @@
 package dev.webfx.extras.player.video;
 
 import dev.webfx.extras.player.Player;
-import javafx.scene.Node;
 
 
 /**
@@ -9,20 +8,8 @@ import javafx.scene.Node;
  */
 public interface VideoPlayer extends Player {
 
-    IntegrationMode getIntegrationMode();
-
-    Node getVideoView();
-
-    default boolean supportsFullscreen() {
-        return false;
+    @Override
+    default boolean isMediaVideo() {
+        return true;
     }
-
-    default void requestFullscreen() { }
-
-    default boolean isFullscreen() {
-        return false;
-    }
-
-    default void cancelFullscreen() { }
-
 }

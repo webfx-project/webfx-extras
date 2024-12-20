@@ -1,5 +1,6 @@
 package dev.webfx.extras.visual.controls;
 
+import dev.webfx.kit.util.properties.FXProperties;
 import javafx.scene.Node;
 import dev.webfx.extras.visual.VisualResult;
 import dev.webfx.extras.visual.VisualSelection;
@@ -18,7 +19,8 @@ public abstract class SelectableVisualResultControlSkinBase<C extends Selectable
     protected void start() {
         super.start();
         updateVisualSelection(getSkinnable().getVisualSelection(), null);
-        getSkinnable().visualSelectionProperty().addListener((observable, oldValue, newValue) -> updateVisualSelection(newValue, oldValue));
+        FXProperties.runOnPropertyChange((o, oldValue, newValue) -> updateVisualSelection(newValue, oldValue)
+            , getSkinnable().visualSelectionProperty());
     }
 
     private void updateVisualSelection(VisualSelection selection, VisualSelection oldSelection) {

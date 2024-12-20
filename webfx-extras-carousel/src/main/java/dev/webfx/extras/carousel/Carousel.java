@@ -1,7 +1,9 @@
 package dev.webfx.extras.carousel;
 
+import dev.webfx.extras.panes.PatchedBorderPane;
 import dev.webfx.extras.panes.TransitionPane;
 import dev.webfx.extras.panes.transitions.TranslateTransition;
+import dev.webfx.kit.util.properties.FXProperties;
 import dev.webfx.kit.util.properties.ObservableLists;
 import dev.webfx.platform.util.Arrays;
 import dev.webfx.platform.util.collection.Collections;
@@ -33,16 +35,13 @@ public final class Carousel {
     private final ObservableList<Supplier<Node>> slideSuppliers = FXCollections.observableArrayList();
     private final ObservableList<Circle> dots = ObservableLists.map(slideSuppliers, n -> createDot());
     private final BooleanProperty loopProperty = new SimpleBooleanProperty(true);
-    private final BooleanProperty showingDotsProperty = new SimpleBooleanProperty(true) {
-        @Override
-        protected void invalidated() {
-            dotsBox.setVisible(get());
-            dotsBox.setManaged(get());
-        }
-    };
-    private final TransitionPane transitionPane = new TransitionPane();
     private final HBox dotsBox = new HBox(10);
-    private final BorderPane container = new BorderPane(transitionPane);
+    private final BooleanProperty showingDotsProperty = FXProperties.newBooleanProperty(true, showingDots -> {
+        dotsBox.setVisible(showingDots);
+        dotsBox.setManaged(showingDots);
+    });
+    private final TransitionPane transitionPane = new TransitionPane();
+    private final BorderPane container = new PatchedBorderPane(transitionPane);
     private int displayedSlideIndex;
 
     public Carousel() {
@@ -168,7 +167,8 @@ public final class Carousel {
                 // If the application code set a minHeight on the Carrousel (actually its container) such as setting it
                 // to the ScrollPane height in Modality front-office, we propagate this constraint to the content (the
                 // GoldenRatioPane in this case).
-                region.minHeightProperty().bind(container.minHeightProperty());
+                // Commented as it's not necessary anymore (actually causes exception). TODO: remove once confirmed
+                // region.minHeightProperty().bind(container.minHeightProperty());
                 // Also if the leaving node if higher, it could make the GoldenRatioPane higher than needed (moving down
                 // its content during the transition). To avoid this, we set the Max height to the preferred height.
                 region.setMaxHeight(Region.USE_PREF_SIZE);

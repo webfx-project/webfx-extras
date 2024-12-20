@@ -6,14 +6,15 @@ import dev.webfx.extras.util.layout.LayoutUtil;
 import dev.webfx.kit.launcher.WebFxKitLauncher;
 import dev.webfx.kit.util.properties.FXProperties;
 import javafx.collections.ObservableList;
-import javafx.geometry.Bounds;
 import javafx.geometry.VPos;
 import javafx.scene.Node;
 import javafx.scene.Parent;
+import javafx.scene.control.ProgressIndicator;
 import javafx.scene.control.ScrollPane;
 import javafx.scene.control.SplitPane;
 import javafx.scene.layout.Region;
 
+import java.util.function.Consumer;
 import java.util.function.Predicate;
 
 /**
@@ -33,13 +34,13 @@ public class ControlUtil {
         scrollPane.setContent(LayoutUtil.setMinMaxWidthToPref(content));
         double verticalScrollbarExtraWidth = WebFxKitLauncher.getVerticalScrollbarExtraWidth();
         content.prefWidthProperty().bind(
-              FXProperties.compute(scrollPane.widthProperty(), width -> {
-                  double contentWidth = width.doubleValue() - verticalScrollbarExtraWidth;
-                  double maxWidth = content.getMaxWidth();
-                  if (maxWidth > 0 && contentWidth > maxWidth)
-                      contentWidth = maxWidth;
-                  return contentWidth;
-              })
+            FXProperties.compute(scrollPane.widthProperty(), width -> {
+                double contentWidth = width.doubleValue() - verticalScrollbarExtraWidth;
+                double maxWidth = content.getMaxWidth();
+                if (maxWidth > 0 && contentWidth > maxWidth)
+                    contentWidth = maxWidth;
+                return contentWidth;
+            })
         );
         scrollPane.setHbarPolicy(ScrollPane.ScrollBarPolicy.NEVER);
         registerParentScrollPaneProperty(scrollPane);
@@ -57,8 +58,7 @@ public class ControlUtil {
             scalePane.setScaleEnabled(!scalePane.isScaleEnabled());
         });*/
         ScrollPane scrollPane = createVerticalScrollPane(scalePane);
-        FXProperties.runOnPropertiesChange(p -> {
-            Bounds viewportBounds = scrollPane.getViewportBounds();
+        FXProperties.runOnPropertyChange(viewportBounds -> {
             double width = viewportBounds.getWidth();
             double height = viewportBounds.getHeight();
             scalePane.setFixedSize(width, height);
@@ -97,6 +97,15 @@ public class ControlUtil {
             if (node instanceof ScrollPane)
                 return (ScrollPane) node;
         }
+    }
+
+    public static void onScrollPaneAncestorSet(Node node, Consumer<ScrollPane> scrollPaneConsumer) {
+        FXProperties.onPropertySet(node.sceneProperty(), scene -> {
+            ScrollPane scrollPane = ControlUtil.findScrollPaneAncestor(node);
+            if (scrollPane != null) {
+                scrollPaneConsumer.accept(scrollPane);
+            }
+        });
     }
 
     public static double computeScrollPaneHLeftOffset(ScrollPane scrollPane) {
@@ -155,6 +164,51 @@ public class ControlUtil {
         return null;
     }
 
+    public static double computeVerticalScrollNodeWishedValue(Node node) {
+        ScrollPane scrollPane = ControlUtil.findScrollPaneAncestor(node);
+        if (scrollPane != null) {
+            double contentHeight = scrollPane.getContent().getLayoutBounds().getHeight();
+            double viewportHeight = scrollPane.getViewportBounds().getHeight();
+            double nodeHeight = node.getLayoutBounds().getHeight();
+            double sceneHeight = node.getScene().getHeight();
+            VPos wishedPosition = getVerticalScrollNodeWishedPosition(node);
+            double wishedSceneNodeTop = wishedPosition == VPos.TOP ? sceneHeight / 1.618 - nodeHeight / 2
+                : wishedPosition == VPos.BOTTOM ? sceneHeight - nodeHeight
+                : sceneHeight / 2 - nodeHeight / 2;
+            double currentScrollPaneSceneTop = scrollPane.localToScene(0, 0).getY();
+            wishedSceneNodeTop = LayoutUtil.boundedSize(wishedSceneNodeTop, currentScrollPaneSceneTop, currentScrollPaneSceneTop + viewportHeight);
+            double currentNodeSceneTop = node.localToScene(0, 0).getY();
+            double currentViewportSceneTop = computeScrollPaneVTopOffset(scrollPane);
+            double wishedViewportSceneTop = currentViewportSceneTop + currentNodeSceneTop - wishedSceneNodeTop;
+            //Console.log("👉👉👉👉👉 viewportBounds = " + scrollPane.getViewportBounds() + ", contentHeight = " + contentHeight + ", viewportHeight = " + viewportHeight + ", nodeHeight = " + nodeHeight + ", sceneHeight = " + sceneHeight + ", currentScrollPaneSceneTop = " + currentScrollPaneSceneTop + ", currentNodeSceneTop = " + currentNodeSceneTop + ", currentViewportSceneTop = " + currentViewportSceneTop + ", wishedViewportSceneTop = " + wishedViewportSceneTop);
+            double vValue = wishedViewportSceneTop / (contentHeight - viewportHeight);
+            vValue = LayoutUtil.boundedSize(vValue, 0, 1);
+            return vValue;
+        }
+        return 0;
+    }
+
+    public static void setVerticalScrollNodeWishedPosition(Node node, VPos wishedPosition) {
+        node.getProperties().put("verticalScrollNodeWishedPosition", wishedPosition);
+    }
+
+    public static VPos getVerticalScrollNodeWishedPosition(Node node) {
+        Object wishedPosition = node.getProperties().get("verticalScrollNodeWishedPosition");
+        return wishedPosition instanceof VPos ? (VPos) wishedPosition : VPos.CENTER;
+    }
+
+    public static ProgressIndicator createProgressIndicator(double size) {
+        ProgressIndicator pi = new ProgressIndicator();
+        // Note: calling setMaxSize() is enough with OpenJFX but not with WebFX (in the browser) TODO investigate why
+        // But calling setPrefSize() in addition works with WebFX.
+        // Another strange issue: calling setMinSize() causes pi to be in the left top corner (observed on a button)
+        // until the window is resized (then pi is correctly positioned during the layout pass).
+        //pi.setMinSize(size, size); // Commented for the above reason. TODO investigate why
+        pi.setPrefSize(size, size);
+        pi.setMaxSize(size, size);
+        return pi;
+    }
+
     static {
         Animations.setScrollPaneAncestorFinder(ControlUtil::findScrollPaneAncestor);
         Animations.setScrollPaneValuePropertyGetter(node -> {
@@ -162,6 +216,7 @@ public class ControlUtil {
                 return ((ScrollPane) node).vvalueProperty();
             return null;
         });
+        Animations.setComputeVerticalScrollNodeWishedValueGetter(ControlUtil::computeVerticalScrollNodeWishedValue);
     }
 
 }

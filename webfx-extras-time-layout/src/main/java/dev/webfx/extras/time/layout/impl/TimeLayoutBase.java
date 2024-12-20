@@ -5,6 +5,7 @@ import dev.webfx.extras.time.layout.TimeLayout;
 import dev.webfx.extras.time.projector.TimeProjector;
 import dev.webfx.extras.time.window.impl.ListenableTimeWindowImpl;
 import dev.webfx.extras.util.DirtyMarker;
+import dev.webfx.kit.util.properties.FXProperties;
 import javafx.beans.property.*;
 import javafx.beans.value.ObservableIntegerValue;
 import javafx.collections.FXCollections;
@@ -22,27 +23,17 @@ import java.util.stream.Stream;
  */
 public abstract class TimeLayoutBase<C, T> extends ListenableTimeWindowImpl<T> implements TimeLayout<C, T> {
 
-    private final DoubleProperty widthProperty = new SimpleDoubleProperty(-1) {
-        @Override
-        protected void invalidated() {
-             invalidateHorizontalLayout();
-        }
-    };
-    private final DoubleProperty heightProperty = new SimpleDoubleProperty(-1) {
-        @Override
-        protected void invalidated() {
-            if (fillHeight)
-                invalidateVerticalLayout();
-        }
-    };
+    private boolean fillHeight;
+    private final DoubleProperty widthProperty = FXProperties.newDoubleProperty(-1, this::invalidateHorizontalLayout);
+    private final DoubleProperty heightProperty = FXProperties.newDoubleProperty(-1, () -> {
+        if (fillHeight)
+            invalidateVerticalLayout();
+    });
 
-    private final BooleanProperty visibleProperty = new SimpleBooleanProperty(true) {
-        @Override
-        protected void invalidated() {
-            if (isVisible())
-                markLayoutAsDirty();
-        }
-    };
+    private final BooleanProperty visibleProperty = FXProperties.newBooleanProperty(true, visible -> {
+        if (visible)
+            markLayoutAsDirty();
+    });
     private final IntegerProperty layoutCountProperty = new SimpleIntegerProperty();
 
     protected final ObservableList<C> children = FXCollections.observableArrayList();
@@ -53,7 +44,6 @@ public abstract class TimeLayoutBase<C, T> extends ListenableTimeWindowImpl<T> i
     protected List<ChildBounds<C, T>> childrenBounds; // initially null until first children are set (to make difference between children not yet received and children received but empty)
     protected int rowsCount;
     private double childFixedHeight = -1;
-    private boolean fillHeight;
     private double topY;
     private double hSpacing = 0;
     private double vSpacing = 0;
@@ -71,8 +61,8 @@ public abstract class TimeLayoutBase<C, T> extends ListenableTimeWindowImpl<T> i
     protected void onChildrenChanged(ListChangeListener.Change<? extends C> c) {
         // TODO: improve this and try to recycle existing layout bounds
         childrenBounds = Stream.generate(this::createChildLayoutBounds)
-                .limit(children.size())
-                .collect(Collectors.toList());
+            .limit(children.size())
+            .collect(Collectors.toList());
         for (int i = 0; i < children.size(); i++) {
             ChildBounds<C, T> cb = childrenBounds.get(i);
             cb.setObject(children.get(i));

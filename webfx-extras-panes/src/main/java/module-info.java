@@ -6,6 +6,7 @@ module webfx.extras.panes {
     requires javafx.base;
     requires javafx.graphics;
     requires webfx.extras.util.animation;
+    requires webfx.extras.util.layout;
     requires webfx.kit.util;
     requires webfx.platform.util;
 

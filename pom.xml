@@ -62,13 +62,17 @@
         <module>webfx-extras-label</module>
         <module>webfx-extras-layer</module>
         <module>webfx-extras-led</module>
+        <module>webfx-extras-media-metadata</module>
         <module>webfx-extras-panes</module>
         <module>webfx-extras-player</module>
         <module>webfx-extras-player-audio</module>
-        <module>webfx-extras-player-audio-media</module>
+        <module>webfx-extras-player-audio-javafxmedia</module>
+        <module>webfx-extras-player-multi-all</module>
+        <module>webfx-extras-player-multi-plugins</module>
         <module>webfx-extras-player-video</module>
-        <module>webfx-extras-player-video-media</module>
+        <module>webfx-extras-player-video-javafxmedia</module>
         <module>webfx-extras-player-video-web</module>
+        <module>webfx-extras-player-video-web-castr</module>
         <module>webfx-extras-player-video-web-wistia</module>
         <module>webfx-extras-player-video-web-youtube</module>
         <module>webfx-extras-styles-bootstrap</module>

@@ -87,6 +87,14 @@
     -fx-border-color: -bootstrap-blue6;
 }
 
+.btn-primary .svg-path {
+    -fx-fill: inherit;  /* Inherit the fill color from the parent (btn-primary) */
+}
+
+.btn-primary .progress-indicator {
+    -fx-accent: -bootstrap-white;
+}
+
 .btn-primary:hover {
     -fx-text-fill: -bootstrap-white;
     -fx-fill: -bootstrap-white;
@@ -94,11 +102,22 @@
     -fx-border-color: -bootstrap-blue9;
 }
 
+.text-secondary {
+    -fx-text-fill: -bootstrap-grey6;
+}
+
 .btn-secondary {
     -fx-text-fill: -bootstrap-white;
     -fx-fill: -bootstrap-white;
     -fx-background-color: -bootstrap-grey4;
     -fx-border-color: -bootstrap-grey5;
+}
+.btn-secondary .svg-path {
+    -fx-fill: inherit;  /* Inherit the fill color from the parent (btn-primary) */
+}
+
+.btn-secondary .progress-indicator {
+    -fx-accent: -bootstrap-white;
 }
 
 .btn-secondary:hover {
@@ -115,6 +134,14 @@
     -fx-border-color: -bootstrap-green2;
 }
 
+.btn-success .svg-path {
+    -fx-fill: inherit;  /* Inherit the fill color from the parent (btn-primary) */
+}
+
+.btn-success .progress-indicator {
+    -fx-accent: -bootstrap-white;
+}
+
 .btn-success:hover {
     -fx-text-fill: -bootstrap-white;
     -fx-fill: -bootstrap-white;
@@ -127,6 +154,14 @@
     -fx-fill: -bootstrap-white;
     -fx-background-color: -bootstrap-blue1;
     -fx-border-color: -bootstrap-blue2;
+}
+
+.btn-info .progress-indicator {
+    -fx-accent: -bootstrap-white;
+}
+
+.btn-info .svg-path {
+    -fx-fill: inherit;  /* Inherit the fill color from the parent (btn-primary) */
 }
 
 .btn-info:hover {
@@ -143,6 +178,15 @@
     -fx-border-color: -bootstrap-orange2;
 }
 
+.btn-warning .svg-path {
+    -fx-fill: inherit;  /* Inherit the fill color from the parent (btn-primary) */
+}
+
+.btn-warning .progress-indicator {
+    -fx-accent: -bootstrap-white;
+}
+
+
 .btn-warning:hover {
     -fx-text-fill: -bootstrap-white;
     -fx-fill: -bootstrap-white;
@@ -156,6 +200,14 @@
     -fx-fill: -bootstrap-white;
     -fx-background-color: -bootstrap-red1;
     -fx-border-color: -bootstrap-red2;
+}
+
+.btn-danger .svg-path {
+    -fx-fill: inherit;  /* Inherit the fill color from the parent (btn-primary) */
+}
+
+.btn-danger .progress-indicator {
+    -fx-accent: -bootstrap-white;
 }
 
 .btn-danger:hover {

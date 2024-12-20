@@ -17,7 +17,6 @@ import dev.webfx.kit.mapper.peers.javafxgraphics.gwtj2cl.util.HtmlUtil;
 import dev.webfx.kit.util.properties.FXProperties;
 import dev.webfx.platform.uischeduler.UiScheduler;
 import dev.webfx.platform.util.Strings;
-import dev.webfx.platform.util.tuples.Unit;
 import elemental2.dom.*;
 import javafx.scene.Node;
 import javafx.scene.Parent;
@@ -63,8 +62,8 @@ public final class HtmlVisualGridPeer
     public void bind(N node, SceneRequester sceneRequester) {
         super.bind(node, sceneRequester);
         // Restoring scroll position when visiting back the page
-        FXProperties.runOnPropertiesChange(() -> {
-            if (node.getScene() != null) // Going back to the page
+        FXProperties.runOnPropertyChange(scene -> {
+            if (scene != null) // Going back to the page
                 // We postpone the scroll position restore, because it must happen after the element is inserted back
                 // into the DOM, which should happen just after this scene change in the scene graph
                 UiScheduler.scheduleDeferred(() -> getElement().scrollTop = scrollTop);

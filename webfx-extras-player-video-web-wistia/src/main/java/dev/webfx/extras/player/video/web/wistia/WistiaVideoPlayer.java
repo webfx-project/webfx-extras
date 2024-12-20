@@ -1,151 +1,163 @@
 package dev.webfx.extras.player.video.web.wistia;
 
-import dev.webfx.extras.player.Status;
-import dev.webfx.extras.player.video.IntegrationMode;
-import dev.webfx.extras.player.video.web.WebVideoPlayerBase;
+import dev.webfx.extras.media.metadata.MediaMetadata;
+import dev.webfx.extras.player.*;
+import dev.webfx.extras.player.video.web.SeamlessCapableWebVideoPlayer;
 import dev.webfx.extras.webview.pane.LoadOptions;
 import dev.webfx.extras.webview.pane.WebViewPane;
+import dev.webfx.platform.util.Booleans;
+import javafx.scene.paint.Color;
+import javafx.util.Duration;
 
 /**
  * @author Bruno Salmon
  */
-public class WistiaVideoPlayer extends WebVideoPlayerBase {
-
-    private static final boolean IS_SEAMLESS = WebViewPane.isBrowser();
-
-    private boolean fullscreen;
+public class WistiaVideoPlayer extends SeamlessCapableWebVideoPlayer {
 
     static {
         if (IS_SEAMLESS) {
             WebViewPane.executeSeamlessScriptInBrowser(
-                    "window._wq = window._wq || [];" +
-                    "window.webfx_extras_wistia_videos = {};" +
-                    "const script = document.createElement('script');\n" +
-                    "script.src = '//fast.wistia.com/assets/external/E-v1.js';\n" +
-                    "document.head.appendChild(script);"
+                "window._wq = window._wq || [];" +
+                "window.webfx_extras_wistia_videos = {};" +
+                "const script = document.createElement('script');\n" +
+                "script.src = '//fast.wistia.com/assets/external/E-v1.js';\n" +
+                "document.head.appendChild(script);\n" +
+                "window.bindWistiaVideo = function(video, javaPlayer) {\n" +
+                "    video.bind('play',  function() { javaPlayer.onPlay();  });\n" +
+                "    video.bind('pause', function() { javaPlayer.onPause(); });\n" +
+                "    video.bind('end',   function() { javaPlayer.onEnd();   });\n" +
+                "};"
             );
         }
     }
 
-    private void callVideoSeamlessly(String script) {
+    @Override
+    public Media acceptMedia(String mediaSource, MediaMetadata mediaMetadata) {
+        return acceptMedia(mediaSource, mediaMetadata,
+            "https://fast.wistia.net/embed/iframe/",
+            "wistia:",
+            "https://*.wistia.com/medias/"
+        );
+    }
+
+    /*
+    See https://docs.wistia.com/docs/embed-options-and-plugins#options for the list of parameters
+     */
+
+    @Override
+    protected void queryParamToStartOption(String name, String value, StartOptionsBuilder sob) {
+        switch (name) {
+            case "autoplay": sob.setAutoplay(Booleans.isFalse(value)); break;
+            case "playerColor": sob.setPlayerColor(Color.web(value)); break;
+        }
+    }
+
+    @Override
+    protected String generateMediaEmbedRawUrl() { // called in non-seamless mode only (iFrame)
+        return "https://fast.wistia.net/embed/iframe/" + getMedia().getId();
+    }
+
+    @Override
+    protected void appendUrlParameters(StartOptions so, StringBuilder sb) {
+        if (Booleans.isTrue(so.autoplay()))
+            sb.append("&autoplay=true");
+        if (so.playerColor() != null)
+            sb.append("&playerColor=").append(toWebColor(so.playerColor()));
+    }
+
+    private void seamless_call(String script) {
+        if (script.contains("$playerColor$")) {
+            String playerColor = toWebColor(playingStartingOption.playerColor());
+            script = script.replace("$playerColor$", playerColor == null ? "" : "playerColor: '" + playerColor + "'");
+        }
         //Console.log("Calling: " + script);
-        String track = getCurrentTrack();
+        String mediaId = getMediaId();
         webViewPane.loadFromScript(
-           "const video = window.webfx_extras_wistia_videos['" + track + "'];" +
-           " if (video) {" + script +
-           "} else {" +
-           "    _wq.push({ id: '" + track + "', playerColor: 'EE7130', onReady: function(video) {\n" +
-           "    if (!window.webfx_extras_wistia_videos['" + track + "']) {\n" +
-           "       video.webfxWistiaVideoPlayer = window.webfxWistiaVideoPlayer;\n" +
-           "    " + script + "}\n" +
-           "    window.webfx_extras_wistia_videos['" + track + "'] = video;\n" +
-           "}});" +
-           "}", new LoadOptions()
-                        .setSeamlessInBrowser(true)
-                        .setSeamlessStyleClass("wistia_embed", "wistia_async_" + track),
-                null);
-        // for some reason, this call must be made after loadFromScript() to work
-        webViewPane.setWindowMember("webfxWistiaVideoPlayer", this);
-    }
-
-    public WistiaVideoPlayer() {
-        super(isSeamless() ? IntegrationMode.SEAMLESS : IntegrationMode.EMBEDDED);
-        if (IS_SEAMLESS) {
-            getVideoView().sceneProperty().addListener((observable, oldValue, newValue) -> {
-                if (newValue == null && isPlaying())
-                    setStatus(Status.STOPPED);
-            });
-        }
-    }
-
-    public static boolean isSeamless() {
-        return IS_SEAMLESS;
+            "const playerId = '" + playerId + "';\n" +
+            "const mediaId = '" + mediaId + "';\n" +
+            "const video = window.webfx_extras_wistia_videos[playerId];\n" +
+            "if (video) {\n" + script +
+            "} else {\n" +
+            "    _wq.push({ id: mediaId, onReady: function(video) {\n" +
+            "        if (!window.webfx_extras_wistia_videos[playerId]) {\n" +
+            "            window.webfx_extras_wistia_videos[playerId] = video;\n" +
+            "            " + script +
+            "        }\n" +
+            "        const javaPlayer = window[playerId];\n" +
+            "        window.bindWistiaVideo(video, javaPlayer);\n" +
+            "        javaPlayer.onReady();\n" +
+            "    }});\n" +
+            "}", new LoadOptions()
+                .setSeamlessInBrowser(true)
+                .setSeamlessStyleClass("wistia_embed", "wistia_async_" + mediaId)
+                .setOnWebWindowReady(() -> webViewPane.setWindowMember(playerId, this))
+            ,
+            null);
     }
 
     @Override
-    public void play() {
-        if (IS_SEAMLESS) {
-            if (getStatus() == Status.PAUSED) {
-                callVideoSeamlessly("video.play()");
-            } else {
-                String track = getCurrentTrack();
-                // The replaceWith() call purpose is actually to set the color player.
-                callVideoSeamlessly("video.replaceWith('" + track + "', { playerColor: 'EE7130'}); video.play(); video.bind('play', function() { video.webfxWistiaVideoPlayer.onPlay(); }); video.bind('pause', function() { video.webfxWistiaVideoPlayer.onPause(); }); video.bind('end', function() { video.webfxWistiaVideoPlayer.onEnd(); });");
-            }
+    protected void seamless_displayVideo() {
+        if (Booleans.isTrue(playingStartingOption.autoplay())) {
+            seamless_play();
         } else {
-            super.play();
+            seamless_call("");
         }
     }
 
     @Override
-    public void pause() {
+    public void resetToInitialState() {
         if (IS_SEAMLESS) {
-            callVideoSeamlessly("video.pause()");
+            seamless_call("video.replaceWith('" + getMediaId() + "', { $playerColor$ }); window.bindWistiaVideo(video, playerId);");
         } else {
-            super.pause();
+            super.resetToInitialState();
         }
     }
 
     @Override
-    public void stop() {
-        if (IS_SEAMLESS) {
-            callVideoSeamlessly("video.pause()");
-            setStatus(Status.STOPPED);
+    protected void seamless_play() {
+        if (getStatus() == Status.PAUSED) {
+            seamless_call("video.play()");
         } else {
-            super.stop();
+            String mediaId = getMediaId();
+            // The replaceWith() call purpose is actually to set the color player.
+            seamless_call("video.replaceWith('" + mediaId + "', { $playerColor$ }); video.play();");
         }
     }
 
     @Override
-    protected String trackUrl(String track) { // used in non-seamless mode (iFrame)
-        return "https://fast.wistia.net/embed/iframe/" + track + "?autoplay=true&playerColor=EE7130";
+    protected void seamless_pause() {
+        seamless_call("video.pause()");
     }
 
-    // Callback methods called by Wistia in seamless mode
-
-    public void onPlay() {
-        //Console.log("onPlay()");
-        setStatus(Status.PLAYING);
-    }
-
-    public void onPause() {
-        //Console.log("onPause()");
-        if (getStatus() != Status.STOPPED)
-            setStatus(Status.PAUSED);
-    }
-
-    public void onEnd() {
-        //Console.log("onEnd()");
+    @Override
+    protected void seamless_stop() {
+        seamless_call("video.pause()");
         setStatus(Status.STOPPED);
     }
 
     @Override
-    public boolean supportsFullscreen() {
+    public void seek(Duration seekTime) {
         if (IS_SEAMLESS)
-            return true;
-        return super.supportsFullscreen();
+            seamless_call("video.time(" + seekTime.toSeconds() + ")");
     }
 
     @Override
-    public void requestFullscreen() {
-        if (IS_SEAMLESS && getStatus() == Status.PLAYING) {
-            callVideoSeamlessly("video.requestFullscreen()");
-            fullscreen = true;
-        }
+    protected void seamless_requestFullscreen() {
+        seamless_call("video.requestFullscreen()");
     }
 
     @Override
-    public boolean isFullscreen() {
-        if (fullscreen)
-            return true;
-        return super.isFullscreen();
+    protected void seamless_cancelFullscreen() {
+        seamless_call("video.cancelFullscreen()");
     }
 
-    @Override
-    public void cancelFullscreen() {
-        if (IS_SEAMLESS)
-            callVideoSeamlessly("video.cancelFullscreen()");
-        else
-            super.cancelFullscreen();
+    private static String toWebColor(Color c) {
+        return c == null ? null : toHex2(c.getRed()) + toHex2(c.getGreen()) + toHex2(c.getBlue());
     }
+
+    private static String toHex2(double colorComponent) {
+        String s = Integer.toHexString((int) (colorComponent * 255)).toUpperCase();
+        return s.length() == 1 ? "0" + s : s;
+    }
+
 }

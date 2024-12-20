@@ -17,27 +17,15 @@ import javafx.scene.transform.Scale;
 import javafx.scene.transform.Transform;
 import javafx.util.Duration;
 
-import java.util.Objects;
-
 
 /**
  * @author Bruno Salmon
  */
 public final class FlipPane extends StackPane {
 
-    private final ObjectProperty<Node> frontProperty = new SimpleObjectProperty<>() {
-        @Override
-        protected void invalidated() {
-            onNodesChanged();
-        }
-    };
+    private final ObjectProperty<Node> frontProperty = FXProperties.newObjectProperty(this::onNodesChanged);
 
-    private final ObjectProperty<Node> backProperty = new SimpleObjectProperty<>() {
-        @Override
-        protected void invalidated() {
-            onNodesChanged();
-        }
-    };
+    private final ObjectProperty<Node> backProperty = FXProperties.newObjectProperty(this::onNodesChanged);;
 
     private final MonoPane frontPane = new MonoPane();
     private final MonoPane backPane = new MonoPane();
@@ -87,7 +75,7 @@ public final class FlipPane extends StackPane {
         getChildren().setAll(backPane, frontPane);
         setFlipDirection(flipDirection);
         FXProperties.runOnPropertiesChange(() -> updateRotatesAxisAndPivot(false), frontPane.widthProperty(), frontPane.heightProperty(), backPane.widthProperty(), backPane.heightProperty());
-        FXProperties.runOnPropertiesChange(this::updateVisibilities, globalRotateProperty());
+        FXProperties.runOnPropertyChange(this::updateVisibilities, globalRotateProperty());
     }
 
     private DoubleProperty globalRotateProperty() {
@@ -180,11 +168,7 @@ public final class FlipPane extends StackPane {
         double currentValue = globalRotateProperty().get();
         if (currentValue == endValue)
             return;
-        if (flipTimeline != null) {
-            flipTimeline.jumpTo(flipTimeline.getTotalDuration());
-            flipTimeline.stop();
-            callTimelineOnFinishedIfFinished();
-        }
+        Animations.forceTimelineToFinish(flipTimeline);
         updateRotatesAxisAndPivot(true);
         applyRotates(false);
         flipTimeline = Animations.animateProperty(globalRotateProperty(), endValue, flipDuration); // new scale version
@@ -193,12 +177,11 @@ public final class FlipPane extends StackPane {
         frontPane.setCacheHint(CacheHint.ROTATE);
         backPane.setCacheHint(CacheHint.ROTATE);
 
-        flipTimeline.setOnFinished(event -> {
+        Animations.setOrCallOnTimelineFinished(flipTimeline, event -> {
             frontPane.setCache(false);
             backPane.setCache(false);
             onFlipFinished(onFinished);
         });
-        callTimelineOnFinishedIfFinished();
     }
 
     private void onFlipFinished(Runnable onFinished) {
@@ -206,13 +189,6 @@ public final class FlipPane extends StackPane {
         applyRotates(true);
         if (onFinished != null)
             onFinished.run();
-    }
-
-    private void callTimelineOnFinishedIfFinished() {
-        if (Objects.equals(flipTimeline.getCurrentTime(), flipTimeline.getTotalDuration())) {
-            flipTimeline.getOnFinished().handle(null);
-            flipTimeline = null;
-        }
     }
 
     public void flipToFront() {

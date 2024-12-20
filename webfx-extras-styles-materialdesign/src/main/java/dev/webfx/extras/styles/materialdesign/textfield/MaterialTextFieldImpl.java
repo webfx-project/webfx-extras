@@ -6,8 +6,10 @@ import dev.webfx.extras.styles.materialdesign.util.LayoutChildrenFunction;
 import dev.webfx.extras.styles.materialdesign.util.MaterialAnimation;
 import dev.webfx.extras.util.layout.LayoutUtil;
 import dev.webfx.extras.util.scene.SceneUtil;
+import dev.webfx.kit.util.properties.FXProperties;
 import dev.webfx.kit.util.properties.Unregisterable;
 import dev.webfx.platform.util.Strings;
+import dev.webfx.platform.util.collection.Collections;
 import javafx.beans.property.*;
 import javafx.beans.value.ObservableValue;
 import javafx.collections.ObservableList;
@@ -15,9 +17,7 @@ import javafx.geometry.Insets;
 import javafx.geometry.VPos;
 import javafx.scene.Node;
 import javafx.scene.control.TextInputControl;
-import javafx.scene.layout.*;
-import javafx.scene.paint.Color;
-import javafx.scene.paint.Paint;
+import javafx.scene.layout.Region;
 import javafx.scene.text.Text;
 import javafx.scene.transform.Scale;
 
@@ -34,111 +34,79 @@ public final class MaterialTextFieldImpl implements MaterialTextField {
     private final static double FLOATING_LABEL_SCALE_FACTOR = 0.85;
 
     private ObservableValue<String> inputProperty;
+
     @Override
     public ObservableValue<String> inputProperty() {
         return inputProperty;
     }
 
     private StringProperty placeholderTextProperty;
+
     @Override
     public StringProperty placeholderTextProperty() {
         return placeholderTextProperty;
     }
 
     private final StringProperty labelTextProperty = new SimpleStringProperty();
+
     @Override
     public StringProperty labelTextProperty() {
         return labelTextProperty;
     }
 
     private final StringProperty helperTextProperty = new SimpleStringProperty();
+
     @Override
     public StringProperty helperTextProperty() {
         return helperTextProperty;
     }
 
     private final StringProperty errorMessageProperty = new SimpleStringProperty();
+
     @Override
     public StringProperty errorMessageProperty() {
         return errorMessageProperty;
     }
 
     private final BooleanProperty disabledProperty = new SimpleBooleanProperty(false);
+
     @Override
     public BooleanProperty disabledProperty() {
         return disabledProperty;
     }
 
     private final BooleanProperty requiredProperty = new SimpleBooleanProperty(false);
+
     @Override
     public BooleanProperty requiredProperty() {
         return requiredProperty;
     }
 
     private ReadOnlyBooleanProperty focusedProperty;
+
     @Override
     public ReadOnlyBooleanProperty focusedProperty() {
         return focusedProperty;
     }
 
     private final BooleanProperty denseSpacingProperty = new SimpleBooleanProperty(false);
+
     @Override
     public BooleanProperty denseSpacingProperty() {
         return denseSpacingProperty;
     }
 
-    private final static Color DEFAULT_DISABLED_COLOR = Color.web("#8a8a8a");
-    private final Property<Paint> disabledFillProperty = new SimpleObjectProperty<>(DEFAULT_DISABLED_COLOR);
-    @Override
-    public Property<Paint> disabledFillProperty() {
-        return disabledFillProperty;
-    }
+    private final BooleanProperty animateLabelProperty = new SimpleBooleanProperty(true);
 
-    private final static Color DEFAULT_INPUT_TEXT_COLOR = Color.web("#1e1e1e");
-    private final Property<Paint> inputTextFillProperty = new SimpleObjectProperty<>(DEFAULT_INPUT_TEXT_COLOR);
     @Override
-    public Property<Paint> inputTextFillProperty() {
-        return inputTextFillProperty;
-    }
-
-    private final static Color DEFAULT_INVALID_TEXT_COLOR = Color.web("#fc3259");
-    private final Property<Paint> invalidTextFillProperty = new SimpleObjectProperty<>(DEFAULT_INVALID_TEXT_COLOR);
-    @Override
-    public Property<Paint> invalidTextFillProperty() {
-        return invalidTextFillProperty;
-    }
-
-    private final static Color DEFAULT_INVALID_LINE_COLOR = Color.web("#ff1744");
-    private final Property<Paint> invalidLineFillProperty = new SimpleObjectProperty<>(DEFAULT_INVALID_LINE_COLOR);
-    @Override
-    public Property<Paint> invalidLineFillProperty() {
-        return invalidLineFillProperty;
-    }
-
-    private final static Color DEFAULT_FOCUS_LABEL_COLOR = Color.web("#4273fc");
-    private final Property<Paint> focusLabelFillProperty = new SimpleObjectProperty<>(DEFAULT_FOCUS_LABEL_COLOR);
-    @Override
-    public Property<Paint> focusLabelFillProperty() {
-        return focusLabelFillProperty;
-    }
-
-    private final static Color DEFAULT_FOCUS_LINE_COLOR = Color.web("#2962ff");
-    private final Property<Paint> focusLineFillProperty = new SimpleObjectProperty<>(DEFAULT_FOCUS_LINE_COLOR);
-    @Override
-    public Property<Paint> focusLineFillProperty() {
-        return focusLineFillProperty;
-    }
-
-    private final static Color DEFAULT_IDLE_TEXT_COLOR = Color.web("#6d6d6d");
-    private final Property<Paint> idleTextFillProperty = new SimpleObjectProperty<>(DEFAULT_IDLE_TEXT_COLOR);
-    @Override
-    public Property<Paint> idleTextFillProperty() {
-        return idleTextFillProperty;
+    public BooleanProperty animateLabelProperty() {
+        return animateLabelProperty;
     }
 
     private final ObservableList<Node> skinChildren;
     private Region content;
     private TextInputControl textInputControl;
+    private ObservableList<String> styleClass;
     private boolean recomputeLabelPositionOnNextLayoutPass;
 
     private final Text labelText = new Text("W"); // not empty for first layout pass
@@ -151,11 +119,11 @@ public final class MaterialTextFieldImpl implements MaterialTextField {
     private double restingLabelLayoutX;
     private double restingLabelLayoutY;
 
-    private StackPane line;
-    private StackPane focusedLine;
+    private Region line;
+    private Region focusedLine;
     private Scale focusedLineScale;
 
-    private final Text bottomText = new Text();
+    //private final Text bottomText = new Text();
 
     private final MaterialAnimation materialAnimation = new MaterialAnimation();
     private Unregisterable animationTriggers;
@@ -165,6 +133,7 @@ public final class MaterialTextFieldImpl implements MaterialTextField {
         labelText.setManaged(false);
         labelText.setMouseTransparent(true);
         labelText.getTransforms().add(labelScale);
+        labelText.getStyleClass().add("material-label");
     }
 
     public void setContent(Region content, ObservableValue<String> inputProperty) {
@@ -183,20 +152,23 @@ public final class MaterialTextFieldImpl implements MaterialTextField {
         if (textInputControl != null) {
             placeholderTextProperty = textInputControl.promptTextProperty();
             focusedProperty = textInputControl.focusedProperty();
-            labelText.fontProperty().bind(textInputControl.fontProperty());
+            //labelText.fontProperty().bind(textInputControl.fontProperty());
             skinChildren.addAll(line = newLine(1), focusedLine = newLine(2));
             focusedLine.getTransforms().add(focusedLineScale = new Scale());
+            line.getStyleClass().add("material-line");
+            focusedLine.getStyleClass().add("material-focused-line");
+            styleClass = textInputControl.getStyleClass();
         } else {
             placeholderTextProperty = new SimpleStringProperty();
             focusedProperty = new SimpleBooleanProperty(false);
+            styleClass = content.getStyleClass();
         }
         skinChildren.add(labelText);
-        //content.setBackground(BackgroundUtil.newBackground(Color.YELLOW));
         setUpMaterialAnimation();
     }
 
-    private static StackPane newLine(double height) {
-        StackPane line = new StackPane();
+    private static Region newLine(double height) {
+        Region line = new Region();
         line.setManaged(false);
         line.setPrefHeight(height);
         return line;
@@ -211,35 +183,30 @@ public final class MaterialTextFieldImpl implements MaterialTextField {
             animationTriggers.unregister();
         SceneUtil.onSceneReady(content, scene -> {
             animationTriggers = materialAnimation.runNowAndOnPropertiesChange(this::updateMaterialUiIfReady,
-                    // Listing all properties used by updateMaterialUi()
-                    disabledProperty(),
-                    focusedProperty(),
-                    inputProperty(),
-                    disabledFillProperty(),
-                    inputTextFillProperty(),
-                    invalidTextFillProperty(),
-                    invalidLineFillProperty(),
-                    focusLabelFillProperty(),
-                    focusLineFillProperty(),
-                    idleTextFillProperty(),
-                    labelTextProperty(),
-                    placeholderTextProperty(),
-                    errorMessageProperty(),
-                    // also focus owner property used in SceneUtil.isFocusInside() (not necessary for text input control)
-                    textInputControl == null ? scene.focusOwnerProperty() : null,
-                    textInputControl == null ? null : textInputControl.heightProperty()
+                // Listing all properties used by updateMaterialUi()
+                disabledProperty(),
+                focusedProperty(),
+                inputProperty(),
+                labelTextProperty(),
+                placeholderTextProperty(),
+                errorMessageProperty(),
+                animateLabelProperty(),
+                // also focus owner property used in SceneUtil.isFocusInside() (not necessary for text input control)
+                textInputControl == null ? scene.focusOwnerProperty() : null,
+                textInputControl == null ? null : textInputControl.heightProperty()
             );
             // Releasing focus owner listener on scene change to prevent overload
-            if (textInputControl == null)
-                content.sceneProperty().addListener((observable, oldValue, newScene) -> {
-                    if (newScene != scene) // including null (most probable change when node is removed)
-                        animationTriggers.unregister();
-                    else {
-                        animationTriggers.register();
-                        updateMaterialUiIfReady(); // since we stopped listening, some properties may have changed so updating ui
+            if (textInputControl == null) {
+                FXProperties.runOnPropertyChange(newScene -> {
+                        if (newScene != scene) // including null (most probable change when node is removed)
+                            animationTriggers.unregister();
+                        else {
+                            animationTriggers.register();
+                            updateMaterialUiIfReady(); // since we stopped listening, some properties may have changed so updating ui
+                        }
                     }
-                }
-            );
+                , content.sceneProperty());
+            }
         });
     }
 
@@ -253,20 +220,12 @@ public final class MaterialTextFieldImpl implements MaterialTextField {
         boolean disabled = isDisabled(); // TODO: isDisabled() || isEditable() (requires new editable property)
         boolean empty = isInputEmpty();
         boolean invalid = Strings.isNotEmpty(getErrorMessage());
-        boolean floating = !empty || focused && textInputControl != null;
+        boolean floating = !empty || focused && textInputControl != null || !isAnimateLabel();
         double labelScaleFactor = floating ? FLOATING_LABEL_SCALE_FACTOR : 1;
         boolean animate = labelScale.getX() != labelScaleFactor;
-        Paint labelFill = focused ? getFocusLabelFill() : getIdleTextFill(),
-                lineFill = getIdleTextFill(),
-                focusedLineFill = getFocusLineFill(),
-                bottomTextFill = labelFill;
-        String bottomString = getHelperText();
-        if (invalid) {
-            labelFill = bottomTextFill = getInvalidTextFill();
-            lineFill = focusedLineFill = getInvalidLineFill();
-            bottomString = getErrorMessage();
-        } else if (disabled)
-            labelFill = lineFill = bottomTextFill = getDisabledFill();
+        Collections.addIfNotContainsOrRemove(styleClass, focused, "material-focused");
+        Collections.addIfNotContainsOrRemove(styleClass, invalid, "material-invalid");
+        Collections.addIfNotContainsOrRemove(styleClass, disabled, "material-disabled");
         if (focused && focusedLineScale != null && focusedLineScale.getX() < 1) {
             materialAnimation.addEaseOut(focusedLineScale.xProperty(), 1d);
             animate = true;
@@ -278,29 +237,32 @@ public final class MaterialTextFieldImpl implements MaterialTextField {
             labelString = !floating ? label : placeholder;
         if (label != null) {
             labelString = label;
-            materialAnimation.addEaseOut(labelText.opacityProperty(), focused || Objects.equals(labelString, placeholder) ? 1 : 0);
+            materialAnimation.addEaseOut(labelText.opacityProperty(), !isAnimateLabel() || focused || Objects.equals(labelString, placeholder) ? 1 : 0);
         }
         labelText.setText(labelString);
         labelText.setTextOrigin(floating ? VPos.TOP : VPos.CENTER);
-        labelText.setFill(labelFill);
         if (line != null) {
-            line.setBorder(disabled ? new Border(new BorderStroke(lineFill, BorderStrokeStyle.DOTTED, null, BorderStroke.THIN)) : null);
-            line.setBackground(Background.fill(disabled ? Color.TRANSPARENT : lineFill));
-            focusedLine.setBackground(Background.fill(focusedLineFill));
             if (disabled || !focused)
                 if (focusedLineScale.getX() >= 1)
                     focusedLineScale.setX(0d);
                 else
                     materialAnimation.addEaseOut(focusedLineScale.xProperty(), 0d);
         }
-        bottomText.setFill(bottomTextFill);
-        bottomText.setText(bottomString);
+        //bottomText.setText(bottomString);
+        double labelLayoutX = floating ? floatingLabelLayoutX : restingLabelLayoutX;
+        double labelLayoutY = floating ? floatingLabelLayoutY : restingLabelLayoutY;
+        if (isAnimateLabel()) {
+            materialAnimation
+                .addEaseOut(labelText.layoutXProperty(), labelLayoutX)
+                .addEaseOut(labelText.layoutYProperty(), labelLayoutY);
+        } else {
+            labelText.setLayoutX(labelLayoutX);
+            labelText.setLayoutX(labelLayoutY);
+        }
         materialAnimation
-                .addEaseOut(labelScale.xProperty(), labelScaleFactor)
-                .addEaseOut(labelScale.yProperty(), labelScaleFactor)
-                .addEaseOut(labelText.layoutXProperty(), floating ? floatingLabelLayoutX : restingLabelLayoutX)
-                .addEaseOut(labelText.layoutYProperty(), floating ? floatingLabelLayoutY : restingLabelLayoutY)
-                .play(animate && !recomputeLabelPositionOnNextLayoutPass);
+            .addEaseOut(labelScale.xProperty(), labelScaleFactor)
+            .addEaseOut(labelScale.yProperty(), labelScaleFactor)
+            .play(animate && !recomputeLabelPositionOnNextLayoutPass);
     }
 
     // Layout methods to be called by embedding class (MaterialTextFieldPane or MaterialTextFieldSkin)
@@ -329,7 +291,7 @@ public final class MaterialTextFieldImpl implements MaterialTextField {
 
     private double getFloatingLabelHeight() {
         //if (recomputeLabelPositionOnNextLayoutPass) // Commented optimization (issue with web version)
-            labelTextHeight = labelText.prefHeight(-1);
+        labelTextHeight = labelText.prefHeight(-1);
         return LayoutUtil.snapSize(labelTextHeight * FLOATING_LABEL_SCALE_FACTOR);
     }
 

@@ -6,6 +6,8 @@ import javafx.scene.Node;
 import javafx.scene.control.Labeled;
 import javafx.scene.layout.Region;
 
+import dev.webfx.platform.util.collection.Collections;
+
 /**
  * This interface is not essential but provides a list of css classes that the application code can use. A secondary
  * benefit of using it is that the WebFX CLI will automatically include the bootstrap module by detecting its usage
@@ -50,8 +52,8 @@ public interface Bootstrap {
 
     String STRONG = "strong";
 
-    static <N extends Node> N style(N node, String style) {
-        node.getStyleClass().add(style);
+    static <N extends Node> N style(N node, String... styles) {
+        Collections.addIfNotContainsOrRemove(node.getStyleClass(), true, styles);
         return node;
     }
 
@@ -158,6 +160,7 @@ public interface Bootstrap {
     static <N extends Node> N h1Primary(N node) {
         return style(style(node,Bootstrap.TEXT_PRIMARY),H1);
     }
+
     static <N extends Node> N h2Primary(N node) {
         return style(style(node,TEXT_PRIMARY),H2);
     }

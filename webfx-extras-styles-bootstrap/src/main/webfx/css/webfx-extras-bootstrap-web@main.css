@@ -53,9 +53,9 @@
     text-align: center;
     /*cursor: default;*/
     /*background-insets: 0, 0, -1, 0;*/
-    /*padding: 6px 12px 6px 12px;*/
+    /*padding: 6px 12px 6px 12px;*/ /* hardcoded for web support */
     font-size: 14px;
-    min-width: 80px;
+    /*min-width: 80px;*/ /* hardcoded for web support */
 }
 
 .btn > fx-background {
@@ -259,7 +259,7 @@
 }
 
 .btn-lg {
-    /*padding: 10px 16px 10px 16px;*/
+    /*padding: 10px 16px 10px 16px;*/ /* hardcoded for web support */
     font-size: 18px;
 }
 
@@ -268,7 +268,7 @@
 }
 
 .btn-sm {
-    /*padding: 5px 10px 5px 10px;*/
+    /*padding: 5px 10px 5px 10px;*/ /* hardcoded for web support */
     font-size: 12px;
 }
 
@@ -277,7 +277,7 @@
 }
 
 .btn-xs {
-    /*padding: 1px 5px 1px 5px;*/
+    /*padding: 1px 5px 1px 5px;*/ /* hardcoded for web support */
     font-size: 12px;
 }
 

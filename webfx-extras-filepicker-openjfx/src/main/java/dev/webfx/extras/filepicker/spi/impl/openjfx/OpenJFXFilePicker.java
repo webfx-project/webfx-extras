@@ -17,6 +17,10 @@ public class OpenJFXFilePicker extends BaseFilePicker {
 
     public OpenJFXFilePicker() {
         filePickerClickableRegion.setOnMouseClicked(e -> {
+            if (getAcceptedExtensions().isEmpty())
+                fileChooser.getExtensionFilters().clear();
+            else
+                fileChooser.getExtensionFilters().setAll(new FileChooser.ExtensionFilter(String.join(",", getAcceptedExtensions()), getAcceptedExtensions()));
             Window window = view.getScene().getWindow();
             List<File> files = null;
             if (isMultiple())

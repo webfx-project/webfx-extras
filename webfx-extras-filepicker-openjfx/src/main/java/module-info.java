@@ -6,7 +6,6 @@ module webfx.extras.filepicker.openjfx {
     requires javafx.graphics;
     requires webfx.extras.filepicker;
     requires webfx.platform.file;
-    requires webfx.platform.util;
 
     // Exported packages
     exports dev.webfx.extras.filepicker.spi.impl.openjfx;

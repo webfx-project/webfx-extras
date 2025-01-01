@@ -1,12 +1,11 @@
 package dev.webfx.extras.styles.bootstrap;
 
 
+import dev.webfx.platform.util.collection.Collections;
 import javafx.geometry.Insets;
 import javafx.scene.Node;
 import javafx.scene.control.Labeled;
 import javafx.scene.layout.Region;
-
-import dev.webfx.platform.util.collection.Collections;
 
 /**
  * This interface is not essential but provides a list of css classes that the application code can use. A secondary
@@ -23,6 +22,7 @@ public interface Bootstrap {
 
     /* Bootstrap style */
     String BTN = "btn";
+    // TODO: remove btn-xxx classes (use btn & xxx combination instead)
     String BTN_LG = "btn-lg";
     String BTN_SM = "btn-sm";
     String BTN_XS = "btn-xs";
@@ -34,12 +34,27 @@ public interface Bootstrap {
     String BTN_WARNING = "btn-warning";
     String BTN_DANGER = "btn-danger";
 
-    String TEXT_PRIMARY = "text-primary";
-    String TEXT_SECONDARY = "text-secondary";
-    String TEXT_SUCCESS = "text-success";
-    String TEXT_INFO = "text-info";
-    String TEXT_WARNING = "text-warning";
-    String TEXT_DANGER = "text-danger";
+    String TEXT = "txt"; // Note: txt is used instead of text to avoid conflict with javafx.scene.text.Text
+
+    // TODO: remove text-xxx classes (use text & xxx combination instead)
+    String TEXT_PRIMARY = "txt-primary";
+    String TEXT_SECONDARY = "txt-secondary";
+    String TEXT_SUCCESS = "txt-success";
+    String TEXT_INFO = "txt-info";
+    String TEXT_WARNING = "txt-warning";
+    String TEXT_DANGER = "txt-danger";
+
+    String DEFAULT = "default"; // TODO: remove?
+    String PRIMARY = "primary";
+    String SECONDARY = "secondary";
+    String SUCCESS = "success";
+    String INFO = "info";
+    String WARNING = "warning";
+    String DANGER = "danger";
+
+    String LG = "lg";
+    String SM = "sm";
+    String XS = "xs";
 
     String H1 = "h1";
     String H2 = "h2";
@@ -49,60 +64,112 @@ public interface Bootstrap {
     String H6 = "h6";
 
     String SMALL = "small";
-
     String STRONG = "strong";
+
+    double DEFAULT_H_PADDING = 12;
+    double DEFAULT_V_PADDING = 6;
+
+    double LARGE_H_PADDING = 16;
+    double LARGE_V_PADDING = 10;
 
     static <N extends Node> N style(N node, String... styles) {
         Collections.addIfNotContainsOrRemove(node.getStyleClass(), true, styles);
         return node;
     }
 
-    static <N extends Node> N button(N button) {
+    static <N extends Node> N padding(N node, String... styles) {
+        return padding(node, DEFAULT_H_PADDING, DEFAULT_V_PADDING, styles);
+    }
+
+    static <N extends Node> N padding(N node, double hPadding, double vPadding, String... styles) {
+        if (node instanceof Region) {
+            Region region = (Region) node;
+            region.setPadding(new Insets(vPadding, hPadding, vPadding, hPadding));
+        }
+        return style(node, styles);
+    }
+
+    static <N extends Node> N large(N node) {
+        return style(node, LG);
+    }
+
+    static <N extends Node> N largeResize(N node, String... styles) {
+        return largeResize(node, true, styles);
+    }
+
+    static <N extends Node> N largeResize(N node, boolean largeHeight, String... styles) {
+        if (node instanceof Region) {
+            Region region = (Region) node;
+            region.setMinWidth(240);
+        }
+        if (node instanceof Labeled) {
+            ((Labeled) node).setGraphicTextGap(30);
+        }
+        return large(padding(node, LARGE_H_PADDING, largeHeight ? LARGE_V_PADDING : DEFAULT_V_PADDING, styles));
+    }
+
+    static <N extends Node> N addButtonStyle(N button) {
         return style(button, BTN);
     }
 
-    static <N extends Node> N largeButton(N button) {
-        if (button instanceof Region) {
-            Region region = (Region) button;
-            region.setMinWidth(240);
-            region.setPadding(new Insets(15));
-            if (button instanceof Labeled) {
-                ((Labeled) button).setGraphicTextGap(30);
-            }
-        }
-        return style(button(button), BTN_LG);
+    static <N extends Node> N button(N button, String... styles) {
+        return addButtonStyle(padding(button, styles));
+    }
+
+    static <N extends Node> N button(N button, double hPadding, double vPadding, String... styles) {
+        return addButtonStyle(padding(button, hPadding, vPadding, styles));
+    }
+
+    static <N extends Node> N largeButton(N button, String... styles) {
+        return addButtonStyle(largeResize(button, styles));
+    }
+
+    static <N extends Node> N largeButton(N button, boolean largeHeight, String... styles) {
+        return addButtonStyle(largeResize(button, largeHeight, styles));
     }
 
     static <N extends Node> N successButton(N button) {
-        return style(button(button), BTN_SUCCESS);
+        return button(button, SUCCESS);
     }
 
     static <N extends Node> N primaryButton(N button) {
-        return style(button(button), BTN_PRIMARY);
+        return button(button, PRIMARY);
     }
 
     static <N extends Node> N secondaryButton(N button) {
-        return style(button(button), BTN_SECONDARY);
+        return button(button, SECONDARY);
     }
 
     static <N extends Node> N dangerButton(N button) {
-        return style(button(button), BTN_DANGER);
+        return button(button, DANGER);
     }
 
     static <N extends Node> N largeSuccessButton(N button) {
-        return style(largeButton(button), BTN_SUCCESS);
+        return largeSuccessButton(button, true);
+    }
+
+    static <N extends Node> N largeSuccessButton(N button, boolean largeHeight) {
+        return largeButton(button, largeHeight, SUCCESS);
     }
 
     static <N extends Node> N largePrimaryButton(N button) {
-        return style(largeButton(button), BTN_PRIMARY);
+        return largePrimaryButton(button, true);
+    }
+
+    static <N extends Node> N largePrimaryButton(N button, boolean largeHeight) {
+        return largeButton(button, largeHeight, PRIMARY);
     }
 
     static <N extends Node> N largeSecondaryButton(N button) {
-        return style(largeButton(button), BTN_SECONDARY);
+        return largeSecondaryButton(button, true);
+    }
+
+    static <N extends Node> N largeSecondaryButton(N button, boolean largeHeight) {
+        return largeButton(button, largeHeight, SECONDARY);
     }
 
     static <N extends Node> N largeDangerButton(N button) {
-        return style(largeButton(button), BTN_DANGER);
+        return largeButton(button, DANGER);
     }
 
     static <N extends Node> N h1(N node) {
@@ -129,24 +196,24 @@ public interface Bootstrap {
         return style(node, H6);
     }
 
-     static <N extends Node> N textPrimary(N node) {
-        return style(node, TEXT_PRIMARY);
+    static <N extends Node> N textPrimary(N node) {
+        return style(node, TEXT, PRIMARY);
     }
 
     static <N extends Node> N textSecondary(N node) {
-        return style(node, TEXT_SECONDARY);
+        return style(node, TEXT, SECONDARY);
     }
 
     static <N extends Node> N textSuccess(N node) {
-        return style(node, TEXT_SUCCESS);
+        return style(node, TEXT, SUCCESS);
     }
 
     static <N extends Node> N textWarning(N node) {
-        return style(node, TEXT_WARNING);
+        return style(node, TEXT, WARNING);
     }
 
     static <N extends Node> N textDanger(N node) {
-        return style(node, TEXT_DANGER);
+        return style(node, TEXT, DANGER);
     }
 
     static <N extends Node> N strong(N node) {
@@ -158,11 +225,11 @@ public interface Bootstrap {
     }
 
     static <N extends Node> N h1Primary(N node) {
-        return style(style(node,Bootstrap.TEXT_PRIMARY),H1);
+        return style(node, PRIMARY, H1);
     }
 
     static <N extends Node> N h2Primary(N node) {
-        return style(style(node,TEXT_PRIMARY),H2);
+        return style(node, PRIMARY, H2);
     }
 
 }

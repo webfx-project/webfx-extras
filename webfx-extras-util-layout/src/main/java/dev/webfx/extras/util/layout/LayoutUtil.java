@@ -31,6 +31,7 @@ public final class LayoutUtil {
     }
 
     public static GridPane createGoldLayout(Region child, double percentageWidth, double percentageHeight, Background background) {
+        boolean autoPaddingChild = isEmpty(child.getPadding()); // If no padding has been set on the child, we automatically set a 3% padding
         GridPane goldPane = new GridPane();
         goldPane.setAlignment(Pos.TOP_CENTER); // Horizontal alignment
         RowConstraints headerRowConstraints = new RowConstraints();
@@ -42,7 +43,13 @@ public final class LayoutUtil {
                 (gpHeight, cHeight) -> {
                     if (percentageHeight != 0)
                         child.setPrefHeight(gpHeight.doubleValue() * percentageHeight);
-                    Platform.runLater(() -> goldPane.getRowConstraints().setAll(headerRowConstraints));
+                    Platform.runLater(() -> {
+                        goldPane.getRowConstraints().setAll(headerRowConstraints);
+                        // Setting a 3% breathing padding around the child (will appear in background color, such as transparent gray)
+                        set3PercentPadding(goldPane); // outside the child
+                        if (autoPaddingChild)
+                            set3PercentPadding(child); // inside the child
+                    });
                     return (gpHeight.doubleValue() - cHeight.doubleValue()) / 2.61;
                 }));
         if (percentageWidth != 0)
@@ -231,6 +238,18 @@ public final class LayoutUtil {
 
     public static <N extends Region> N removePadding(N content) {
         return setPadding(content, Insets.EMPTY);
+    }
+
+    public static <N extends Region> N setProportionalPadding(N content, double percent) {
+        return setPadding(content, percent * content.getHeight(), percent * content.getWidth());
+    }
+
+    public static <N extends Region> N set3PercentPadding(N content) {
+        return setProportionalPadding(content, 0.03);
+    }
+
+    public static boolean isEmpty(Insets insets) {
+        return insets == null || insets.equals(Insets.EMPTY);
     }
 
     // lookup method

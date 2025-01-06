@@ -1,6 +1,8 @@
 package dev.webfx.extras.time.pickers;
 
+import java.time.LocalDate;
 import java.time.YearMonth;
+import java.util.function.Function;
 
 /**
  * @author Bruno Salmon
@@ -13,6 +15,7 @@ public final class DatePickerOptions {
     private boolean multipleSelectionAllowed = false;
     private boolean pastDatesSelectionAllowed = true;
     private boolean sortSelectedDates = false;
+    private Function<LocalDate, Boolean> isDateSelectableFunction = null;
 
     public boolean isApplyBorderStyle() {
         return applyBorderStyle;
@@ -68,4 +71,12 @@ public final class DatePickerOptions {
         return this;
     }
 
+    public DatePickerOptions setIsDateSelectableFunction(Function<LocalDate, Boolean> isDateSelectableFunction) {
+        this.isDateSelectableFunction = isDateSelectableFunction;
+        return this;
+    }
+
+    public Function<LocalDate, Boolean> getIsDateSelectableFunction() {
+        return isDateSelectableFunction;
+    }
 }

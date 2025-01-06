@@ -63,6 +63,8 @@ public final class DatePicker {
         this.options = options;
         YearMonth initialDisplayedYearMonth = options.getInitialDisplayedYearMonth();
         setDisplayedYearMonth(initialDisplayedYearMonth == null ? YearMonth.now() : initialDisplayedYearMonth);
+        if (options.getIsDateSelectableFunction() != null)
+            setIsDateSelectableFunction(options.getIsDateSelectableFunction());
         // selectedDate <-> selectedDates sync management
         selectedDateProperty = FXProperties.newObjectProperty(selectedDate -> {
             if (options.isMultipleSelectionAllowed()) { // multiple-selection
@@ -216,7 +218,7 @@ public final class DatePicker {
 
     public String getDateStyleClassDefault(LocalDate localDate) {
         if (!options.isPastDatesSelectionAllowed() && localDate.isBefore(LocalDate.now()))
-            return "date-past";
+            return "date-unselectable";
         return "date-selected";
     }
 
@@ -234,6 +236,7 @@ public final class DatePicker {
         if (displayedYearMonthLabel != null) {
             bindDisplayedYearMonthLabel();
             updateDatesStyles();
+            updateUnselectableDateStyle();
         }
     }
 
@@ -244,16 +247,16 @@ public final class DatePicker {
     private static void bindDayOfWeekLabel(Label label, DayOfWeek dayOfWeek) {
         // We display the first letter of the day of week name
         label.textProperty().bind(FXProperties.compute(TimeFormat.dayOfWeekNameProperty(dayOfWeek), dayName ->
-                dayName != null && !dayName.isEmpty() ? dayName.substring(0, 1) : ""));
+            dayName != null && !dayName.isEmpty() ? dayName.substring(0, 1) : ""));
     }
 
     private Node createDateNode(LocalDate date) {
         Label currentDayLabel = new Label();
         GridPane.setHalignment(currentDayLabel, HPos.CENTER);
         int size = 20;
-        currentDayLabel.setMaxSize(size,size);
-        currentDayLabel.setMinSize(size,size);
-        currentDayLabel.setPrefSize(size,size);
+        currentDayLabel.setMaxSize(size, size);
+        currentDayLabel.setMinSize(size, size);
+        currentDayLabel.setPrefSize(size, size);
         currentDayLabel.setText(String.valueOf(date.getDayOfMonth()));
         currentDayLabel.setAlignment(Pos.CENTER);
         currentDayLabel.setBackground(Background.EMPTY);
@@ -283,6 +286,7 @@ public final class DatePicker {
 
     public void setIsDateSelectableFunction(Function<LocalDate, Boolean> isDateSelectableFunction) {
         this.isDateSelectableFunction = isDateSelectableFunction;
+        updateUnselectableDateStyle();
     }
 
     public void setGetDateStyleClassFunction(Function<LocalDate, String> function) {
@@ -304,20 +308,34 @@ public final class DatePicker {
         Pair<Label, String> LabelCss = dateLabelSelectedStyleClassMap.get(date);
         Label label = LabelCss.get1();
         String css = LabelCss.get2();
-        if (!isSelected) {
+        if (!isSelected&&isDateSelectableFunction.apply(date)) {
             label.getStyleClass().remove(css);
         } else if (!label.getStyleClass().contains(css)) {
             label.getStyleClass().add(css);
         }
     }
 
+    private void updateUnselectableDateStyle() {
+        // We take the CalendarLayout Children that are a list of LocalDate element and the TimeGridPane children that
+        // are a list of Label, and the i element, of the children of both list are corresponding
+        List<LocalDate> localDateElements = daysOfMonthLayout.getChildren();
+        LocalDate currentDate;
+        for (LocalDate localDateElement : localDateElements) {
+            currentDate = localDateElement;
+            if (!selectedDates.contains(currentDate) && !isDateSelectableFunction.apply(currentDate)) {
+                Pair<Label, String> LabelCss = dateLabelSelectedStyleClassMap.get(currentDate);
+                Label label = LabelCss.get1();
+                label.getStyleClass().add("date-unselectable");
+            }
+        }
+    }
 
     private Node createDayOfWeekNode(DayOfWeek dayOfWeek) {
         Label currentDayLabel = new Label();
         int size = 20;
-        currentDayLabel.setMaxSize(size,size);
-        currentDayLabel.setMinSize(size,size);
-        currentDayLabel.setPrefSize(size,size);
+        currentDayLabel.setMaxSize(size, size);
+        currentDayLabel.setMinSize(size, size);
+        currentDayLabel.setPrefSize(size, size);
 
         bindDayOfWeekLabel(currentDayLabel, dayOfWeek);
         currentDayLabel.setAlignment(Pos.CENTER);

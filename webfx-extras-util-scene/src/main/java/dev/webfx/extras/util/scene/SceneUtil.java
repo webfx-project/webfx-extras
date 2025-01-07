@@ -11,7 +11,6 @@ import dev.webfx.platform.uischeduler.AnimationFramePass;
 import dev.webfx.platform.uischeduler.UiScheduler;
 import dev.webfx.platform.util.Booleans;
 import dev.webfx.platform.util.tuples.Pair;
-import dev.webfx.platform.util.tuples.Unit;
 import javafx.animation.Timeline;
 import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.Property;
@@ -99,19 +98,27 @@ public final class SceneUtil {
     public static Unregisterable runOnceFocusIsInsideOrOutside(Node node, boolean includesNullFocus, Runnable runnable, boolean inside) {
         Property<Node> localFocusOwnerProperty;
         ObservableValue<Node> focusOwnerProperty;
-        Unit<Unregisterable> unregisterableUnit = new Unit<>();
+        Unregisterable[] unregisterable = { null };
+        boolean[] localFocusOwnerPropertyInitialised = { false };
         if (node.getScene() != null) {
             focusOwnerProperty = node.getScene().focusOwnerProperty();
             localFocusOwnerProperty = null;
         } else {
             focusOwnerProperty = localFocusOwnerProperty = new SimpleObjectProperty<>();
-            onSceneReady(node, scene -> localFocusOwnerProperty.bind(scene.focusOwnerProperty()));
+            onSceneReady(node, scene -> {
+                localFocusOwnerPropertyInitialised[0] = true;
+                localFocusOwnerProperty.bind(scene.focusOwnerProperty());
+            });
         }
-        unregisterableUnit.set(new UnregisterableListener(p -> {
+        unregisterable[0] = new UnregisterableListener(p -> {
+            // When using localFocusOwnerProperty, we ignore the initial null value
+            if (localFocusOwnerProperty != null && !localFocusOwnerPropertyInitialised[0]) {
+                return;
+            }
             Node newFocusOwner = (Node) p.getValue();
             if ((newFocusOwner == null ? includesNullFocus : inside == isFocusInsideNode(newFocusOwner, node))) {
                 runnable.run();
-                unregisterableUnit.get().unregister();
+                unregisterable[0].unregister();
             }
         }, focusOwnerProperty) {
             @Override
@@ -120,8 +127,8 @@ public final class SceneUtil {
                     localFocusOwnerProperty.unbind();
                 super.unregister();
             }
-        });
-        return unregisterableUnit.get();
+        };
+        return unregisterable[0];
     }
 
     public static boolean isFocusInsideNode(Node node) {

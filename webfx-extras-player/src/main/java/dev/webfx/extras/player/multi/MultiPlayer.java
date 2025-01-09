@@ -63,7 +63,8 @@ public final class MultiPlayer extends PlayerBase {
                 unbindMultiPlayerFromPlayer();
             }
             if (oldSelectedPlayer != null) {
-                ((PlayerBase) selectedPlayer).unbindPlayerFromMultiPlayer();
+                if (selectedPlayer != null)
+                    ((PlayerBase) selectedPlayer).unbindPlayerFromMultiPlayer();
                 oldSelectedPlayer.setOnEndOfPlaying(null);
             }
         }

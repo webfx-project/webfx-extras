@@ -9,6 +9,7 @@
     -webfx-time-pickers-date-background-color: -webfx-time-pickers-gray-color;
     -webfx-time-pickers-selected-date-background-color: -webfx-time-pickers-blue2-color;
     -webfx-time-pickers-unselectable-date-background-color: -webfx-time-pickers-gray-color;
+    -webfx-time-pickers-background-color: #FFFFFF;
 }
 
 .webfx-datepicker.border {
@@ -38,4 +39,8 @@
 .webfx-datepicker .month {
     -fx-text-fill: -webfx-time-pickers-month-color;
     -fx-font-size: 14px;
+}
+
+.webfx-datepicker .background {
+    -fx-background-color: -webfx-time-pickers-background-color;
 }

@@ -22,7 +22,6 @@ import javafx.scene.layout.Background;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.VBox;
-import javafx.scene.paint.Color;
 import javafx.scene.shape.SVGPath;
 
 import java.time.DayOfWeek;
@@ -161,7 +160,7 @@ public final class DatePicker {
             yearMonthCalendarLayout = new CalendarLayout<>();
             yearMonthCalendarLayout.getChildren().setAll(month);
             BorderPane yearMonthSelectionHBox = new BorderPane();
-            yearMonthSelectionHBox.setBackground(Background.fill(Color.WHITE));
+            yearMonthSelectionHBox.getStyleClass().add("background");
 
             yearMonthSelectionHBox.setPadding(new Insets(10, 0, 10, 0));
 
@@ -193,14 +192,14 @@ public final class DatePicker {
             daysOfWeekLayout.getChildren().setAll(TimeUtil.generateDaysOfWeek());
             TimePane<DayOfWeek, DayOfWeek> daysOfWeekPane = new TimePane<>(daysOfWeekLayout, this::createDayOfWeekNode);
             daysOfWeekLayout.setChildFixedHeight(20);
-            daysOfWeekPane.setBackground(Background.fill(Color.WHITE));
+            daysOfWeekPane.getStyleClass().add("background");
 
             daysOfMonthLayout = new CalendarLayout<>();
             daysOfMonthLayout.getChildren().setAll(TimeUtil.generateMonthDates(month));
             TimeGridPane<LocalDate, LocalDate> daysOfMonthPane = new TimeGridPane<>(daysOfMonthLayout, this::createDateNode);
 
             // We put a white background
-            daysOfMonthPane.setBackground(Background.fill(Color.WHITE));
+            daysOfMonthPane.getStyleClass().add("background");
             daysOfWeekPane.setPadding(new Insets(10, 0, 20, 0));
             daysOfMonthPane.setHgap(5);
             daysOfMonthPane.setVgap(5);

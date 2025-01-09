@@ -13,19 +13,19 @@ import netscape.javascript.JSObject;
 /**
  * @author Bruno Salmon
  */
-public final class FxHtmlTextEditorPeer
+public final class OpenJFXHtmlTextEditorPeer
     <FxN extends WebView, N extends HtmlTextEditor, NB extends HtmlTextEditorPeerBase<N, NB, NM>, NM extends HtmlTextEditorPeerMixin<N, NB, NM>>
-    extends FxHtmlTextWebViewPeer<FxN, N, NB, NM>
+    extends OpenJFXHtmlTextWebViewPeer<FxN, N, NB, NM>
     implements HtmlTextEditorPeerMixin<N, NB, NM> {
 
     private static final String CK_EDITOR_URL_TEMPLATE = "https://cdn.ckeditor.com/4.22.1/${mode}/ckeditor.js";
     private JSObject ckEditor;
 
-    public FxHtmlTextEditorPeer() {
+    public OpenJFXHtmlTextEditorPeer() {
         this((NB) new HtmlTextEditorPeerBase());
     }
 
-    public FxHtmlTextEditorPeer(NB base) {
+    public OpenJFXHtmlTextEditorPeer(NB base) {
         super(base);
     }
 

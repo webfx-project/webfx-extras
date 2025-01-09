@@ -21,6 +21,6 @@ module webfx.extras.webtext.peers.openjfx {
     exports dev.webfx.extras.webtext.registry.spi.impl.openjfx;
 
     // Provided services
-    provides dev.webfx.extras.webtext.registry.spi.WebTextRegistryProvider with dev.webfx.extras.webtext.registry.spi.impl.openjfx.JavaFxWebTextRegistryProvider;
+    provides dev.webfx.extras.webtext.registry.spi.WebTextRegistryProvider with dev.webfx.extras.webtext.registry.spi.impl.openjfx.OpenJFXWebTextRegistryProvider;
 
 }

@@ -64,8 +64,10 @@ public final class DatePicker {
         setDisplayedYearMonth(initialDisplayedYearMonth == null ? YearMonth.now() : initialDisplayedYearMonth);
         if (options.getIsDateSelectableFunction() != null)
             setIsDateSelectableFunction(options.getIsDateSelectableFunction());
-        // selectedDate <-> selectedDates sync management
         selectedDateProperty = FXProperties.newObjectProperty(selectedDate -> {
+            if (initialDisplayedYearMonth == null && selectedDate != null)
+                setDisplayedYearMonth(YearMonth.of(selectedDate.getYear(), selectedDate.getMonth()));
+            // selectedDate <-> selectedDates sync management
             if (options.isMultipleSelectionAllowed()) { // multiple-selection
                 if (selectedDate != null && !selectedDates.contains(selectedDate))
                     selectedDates.add(selectedDate);

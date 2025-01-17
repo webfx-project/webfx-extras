@@ -110,6 +110,15 @@ public final class Animations {
         ).play();
     }
 
+    public static void fadeIn(Node node) {
+        node.setOpacity(0);
+        animateProperty(node.opacityProperty(), 1, Duration.seconds(0.7), EASE_BOTH_INTERPOLATOR);
+    }
+
+    public static void fadeOut(Node node) {
+        animateProperty(node.opacityProperty(), 1, Duration.seconds(0.4), EASE_BOTH_INTERPOLATOR);
+    }
+
     // scrollToTop() feature that is partially implemented here (because we don't want to introduce a dependency to
     // javafx-control here), but its implementation is complemented by dev.webfx.extras.util.control.ControlUtil.
     // So modules that depend on javafx-graphics only can use it, it won't do anything if the final application doesn't

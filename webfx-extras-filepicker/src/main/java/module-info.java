@@ -8,6 +8,7 @@ module webfx.extras.filepicker {
     requires webfx.kit.util;
     requires transitive webfx.platform.file;
     requires webfx.platform.service;
+    requires webfx.platform.util;
 
     // Exported packages
     exports dev.webfx.extras.filepicker;

@@ -24,7 +24,7 @@ import java.util.stream.Collectors;
 /**
  * @author Bruno Salmon
  */
-public class FxHtmlTextTextFlowPeer
+public class OpenJFXHtmlTextTextFlowPeer
         <FxN extends TextFlow, N extends HtmlText, NB extends HtmlTextPeerBase<N, NB, NM>, NM extends HtmlTextPeerMixin<N, NB, NM>>
         extends FxNodePeer<FxN, N, NB, NM>
         implements HtmlTextPeerMixin<N, NB, NM>, FxLayoutMeasurable {
@@ -34,11 +34,11 @@ public class FxHtmlTextTextFlowPeer
     private Font font;
     private Paint fill;
 
-    public FxHtmlTextTextFlowPeer() {
+    public OpenJFXHtmlTextTextFlowPeer() {
         this((NB) new HtmlTextPeerBase());
     }
 
-    FxHtmlTextTextFlowPeer(NB base) {
+    OpenJFXHtmlTextTextFlowPeer(NB base) {
         super(base);
         updateText(null);
     }

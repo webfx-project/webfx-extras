@@ -1,8 +1,9 @@
 package dev.webfx.extras.filepicker;
 
 import dev.webfx.extras.filepicker.spi.FilePickerProvider;
+import dev.webfx.kit.util.properties.ObservableLists;
 import dev.webfx.platform.file.File;
-import javafx.beans.InvalidationListener;
+import dev.webfx.platform.util.collection.Collections;
 import javafx.beans.property.*;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
@@ -23,10 +24,12 @@ public abstract class FilePicker {
 
     private final ObjectProperty<File> selectedFileProperty = new SimpleObjectProperty<>();
 
-    private final ObservableList<File> selectedFilesObservableList = FXCollections.observableArrayList();
+    private final ObservableList<File> selectedFiles = FXCollections.observableArrayList();
+
+    private final ObservableList<String> acceptedExtensions = FXCollections.observableArrayList();
 
     public FilePicker() {
-        selectedFilesObservableList.addListener((InvalidationListener) observable -> selectedFileProperty.set(selectedFilesObservableList.isEmpty() ? null : selectedFilesObservableList.get(0)));
+        ObservableLists.runOnListChange(() -> selectedFileProperty.set(Collections.first(selectedFiles)), acceptedExtensions);
     }
 
     public abstract Node getView();
@@ -60,6 +63,10 @@ public abstract class FilePicker {
     }
 
     public ObservableList<File> getSelectedFiles() {
-        return selectedFilesObservableList;
+        return selectedFiles;
+    }
+
+    public ObservableList<String> getAcceptedExtensions() {
+        return acceptedExtensions;
     }
 }

@@ -17,18 +17,18 @@ import javafx.scene.web.WebView;
 /**
  * @author Bruno Salmon
  */
-public class FxHtmlTextWebViewPeer
+public class OpenJFXHtmlTextWebViewPeer
         <FxN extends WebView, N extends HtmlText, NB extends HtmlTextPeerBase<N, NB, NM>, NM extends HtmlTextPeerMixin<N, NB, NM>>
         extends FxNodePeer<FxN, N, NB, NM>
         implements HtmlTextPeerMixin<N, NB, NM>, FxLayoutMeasurable {
 
     protected final WebView webView = new WebView();
 
-    public FxHtmlTextWebViewPeer() {
+    public OpenJFXHtmlTextWebViewPeer() {
         this((NB) new HtmlTextPeerBase());
     }
 
-    FxHtmlTextWebViewPeer(NB base) {
+    OpenJFXHtmlTextWebViewPeer(NB base) {
         super(base);
         updateText(null);
     }

@@ -8,6 +8,11 @@ import java.util.Map;
  */
 public final class WebTextUtil {
 
+    public static String htmlToPlainText(String html) {
+        // Basic first version
+        return unescapeHtml(html).replaceAll("<[^>]*>", "");
+    }
+
     public static String unescapeHtml(String s) {
         return unescapeEntities(unescapeUnicodes(s));
     }

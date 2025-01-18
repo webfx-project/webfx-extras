@@ -276,7 +276,7 @@ public class WebViewPane extends MonoPane {
             if (webWindow == null) {
                 webWindowReadyNotified = false;
                 try {
-                    webWindow = (JSObject) webEngine.executeScript("window");
+                    webWindow = (JSObject) getWebEngine().executeScript("window");
                     if (DEBUG) {
                         Console.logNative(webWindow);
                     }
@@ -336,7 +336,7 @@ public class WebViewPane extends MonoPane {
         if (redirectConsole && !redirectConsoleApplied && !isSeamless() && getWindow() != null) {
             try {
                 webWindow.setMember("redirectConsoleRequested", true);
-                webEngine.executeScript("applyRedirectConsoleNowIfApplicable()");
+                getWebEngine().executeScript("applyRedirectConsoleNowIfApplicable()");
                 redirectConsoleApplied = true;
             } catch (Exception e) {
                 Console.log("Exception when trying to redirect console: " + e.getMessage());
@@ -517,7 +517,7 @@ public class WebViewPane extends MonoPane {
         try {
             setWindowMember("javaWebViewPane", this);
             String webViewPaneScript = Resource.getText(Resource.toUrl("WebViewPane.js", getClass()));
-            webEngine.executeScript(webViewPaneScript);
+            getWebEngine().executeScript(webViewPaneScript);
             applyRedirectConsoleIfApplicable();
         } catch (Exception e) {
             Console.log("Exception when trying to execute WebViewPane script: " + e.getMessage());

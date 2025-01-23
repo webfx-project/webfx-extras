@@ -6,16 +6,14 @@ import javafx.beans.property.IntegerProperty;
 import javafx.beans.property.ObjectProperty;
 import javafx.geometry.*;
 import javafx.scene.Node;
-import javafx.scene.layout.Pane;
 
 import java.util.List;
 import java.util.function.BiFunction;
-import java.util.function.Function;
 
 /**
  * @author Bruno Salmon
  */
-public final class ColumnsPane extends Pane {
+public final class ColumnsPane extends LayoutPane {
 
     private final ObjectProperty<Pos> alignmentProperty = newLayoutObjectProperty(Pos.CENTER);
 
@@ -181,7 +179,7 @@ public final class ColumnsPane extends Pane {
         List<Node> children = getManagedChildren();
         boolean multiRows = colCount < children.size();
         if (multiRows) {
-            h = computeRowMinPrefMaxHeight(children, 0, colCount, node -> node.prefHeight(w));
+            h = -vgap; // this is to keep y unchanged on first row (see y += h + vgap below)
         }
         Insets insets = getInsets();
         double x = insets.getLeft(), y = insets.getTop();
@@ -189,13 +187,13 @@ public final class ColumnsPane extends Pane {
         VPos vpos = getAlignment().getVpos();
         for (int i = 0; i < children.size(); i++) {
             Node child = children.get(i);
-            layoutInArea(child, x, y, w, h, 0, hpos, vpos);
-            x += w + hgap;
-            if (multiRows && x + w > width) {
+            if (multiRows && i % colCount == 0) { // Detecting new row (including the first one)
                 x = insets.getLeft();
                 y += h + vgap;
-                h = computeRowMinPrefMaxHeight(children, i, colCount, node -> node.prefHeight(w));
+                h = computeRowHeight(children, 0, colCount, w, Node::prefHeight);
             }
+            layoutInArea(child, x, y, w, h, 0, hpos, vpos);
+            x += w + hgap;
         }
     }
 
@@ -247,22 +245,17 @@ public final class ColumnsPane extends Pane {
         return getFixedColumnCount() > 0 ||  getMaxColumnCount() > 0 || getMinColumnWidth() > 0 || getFixedColumnWidth() > 0;
     }
 
-    private double computeRowMinPrefMaxHeight(List<Node> children, int rowFirstChildIndex, int colCount, Function<Node, Double> minPrefMaxHeightFunction) {
-        double h = children.stream().skip(rowFirstChildIndex).limit(colCount).mapToDouble(minPrefMaxHeightFunction::apply).max().orElse(0);
+    private double computeRowHeight(List<Node> children, int rowFirstChildIndex, int colCount, double colWidth, BiFunction<Node, Double, Double> cellHeightFunction) {
+        double h = 0;
+        for (int i = rowFirstChildIndex, n = Math.min(rowFirstChildIndex + colCount, children.size()); i < n; i++) {
+            Node node = children.get(i);
+            double nodeHeight = boundedNodeHeightWithBias(node, colWidth, cellHeightFunction.apply(node, colWidth), true, true);
+            h = Math.max(h, nodeHeight);
+        }
         double minRowHeight = minRowHeightProperty.get();
         if (minRowHeight > 0 && h < minRowHeight)
             h = minRowHeight;
         return h;
-    }
-
-    private double insetsWidth() {
-        Insets insets = getInsets();
-        return insets.getLeft() + insets.getRight();
-    }
-
-    private double insetsHeight() {
-        Insets insets = getInsets();
-        return insets.getTop() + insets.getBottom();
     }
 
     @Override
@@ -315,31 +308,31 @@ public final class ColumnsPane extends Pane {
 
     @Override
     protected double computeMinHeight(double width) {
-        return computeMinPrefMaxHeight(width, Node::minHeight);
+        return computeHeight(width, Node::prefHeight);
     }
 
     protected double computePrefHeight(double width) {
-        return computeMinPrefMaxHeight(width, Node::prefHeight);
+        return computeHeight(width, Node::prefHeight);
     }
 
     protected double computeMaxHeight(double width) {
-        return computeMinPrefMaxHeight(width, Node::maxHeight);
+        return computeHeight(width, Node::prefHeight);
     }
 
-    private double computeMinPrefMaxHeight(double width, BiFunction<Node, Double, Double> minPrefMaxHeightFunction) {
-        double minHeight = 0;
+    private double computeHeight(double width, BiFunction<Node, Double, Double> heightFunction) {
+        double totalHeight = 0;
         List<Node> children = getManagedChildren();
         if (!children.isEmpty()) {
             int colCount = computeColumnCount(width);
             double widthNoGap = width - insetsWidth() - getHgap() * (colCount - 1);
-            double w = width < 0 ? -1 : getColWidth(widthNoGap, colCount);
+            double colWidth = width < 0 ? -1 : getColWidth(widthNoGap, colCount);
             for (int childIndex = 0; childIndex < children.size(); childIndex += colCount) {
-                double rowMinPrefMaxHeight = computeRowMinPrefMaxHeight(children, childIndex, colCount, node -> minPrefMaxHeightFunction.apply(node, w));
-                if (minHeight > 0)
-                    rowMinPrefMaxHeight += getVgap();
-                minHeight += rowMinPrefMaxHeight;
+                double rowHeight = computeRowHeight(children, childIndex, colCount, colWidth, heightFunction);
+                if (childIndex > 0)
+                    rowHeight += getVgap();
+                totalHeight += rowHeight;
             }
         }
-        return minHeight + insetsHeight();
+        return totalHeight + insetsHeight();
     }
 }

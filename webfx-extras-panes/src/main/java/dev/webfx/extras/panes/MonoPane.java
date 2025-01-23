@@ -5,7 +5,6 @@ import dev.webfx.platform.util.collection.Collections;
 import javafx.beans.InvalidationListener;
 import javafx.beans.Observable;
 import javafx.beans.property.ObjectProperty;
-import javafx.geometry.Insets;
 import javafx.geometry.Orientation;
 import javafx.geometry.Pos;
 import javafx.scene.Node;
@@ -87,12 +86,9 @@ public class MonoPane extends LayoutPane {
     }
 
     @Override
-    protected void layoutChildren(double width, double height) {
+    protected void layoutChildren(double paddingLeft, double paddingTop, double innerWidth, double innerHeight) {
         if (content != null) {
-            Insets insets = getInsets();
-            layoutInArea(content, insets.getLeft(), insets.getTop()
-                    , width - insetsWidth(), height - insetsHeight()
-                    , getAlignment().getHpos(), getAlignment().getVpos());
+            layoutInArea(content, paddingLeft, paddingTop, innerWidth, innerHeight, getAlignment());
         }
     }
 

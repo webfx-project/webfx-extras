@@ -1,5 +1,6 @@
 package dev.webfx.extras.panes;
 
+import dev.webfx.platform.console.Console;
 import javafx.geometry.HPos;
 import javafx.geometry.Insets;
 import javafx.geometry.Orientation;
@@ -28,6 +29,7 @@ public class ScalePane extends MonoPane {
 
     private double scale;
     private double scaleX, scaleY;
+    private boolean log;
 
     double unscaledContentWidth, unscaledContentHeight;
 
@@ -150,6 +152,10 @@ public class ScalePane extends MonoPane {
         setFixedHeight(forcedHeight);
     }
 
+    public void setLog(boolean log) {
+        this.log = log;
+    }
+
     @Override
     public Orientation getContentBias() {
         // Necessary to return Orientation.VERTICAL in FIT_HEIGHT mode to have correct prefWidth computation (ex: Modality web menu)
@@ -172,7 +178,7 @@ public class ScalePane extends MonoPane {
                     ((Scalable) content).prepareScale(0,
                             (contentWidth, contentHeight) -> ScalePane.this.computeScale(scalePaneInnerWidth, scalePaneInnerHeight, contentWidth, contentHeight));
                 }
-                unscaledContentWidth = boundedSize(content.minWidth(-1), scalePaneInnerWidth, content.maxWidth(-1));
+                unscaledContentWidth = boundedNodeWidthWithBias(content, scalePaneInnerWidth, scalePaneInnerHeight, fillWidth, fillHeight);
                 unscaledContentHeight = content.prefHeight(unscaledContentWidth);
                 scale = computeScale(scalePaneInnerWidth, scalePaneInnerHeight, unscaledContentWidth, unscaledContentHeight);
                 if (!canShrink && scale < 1 || !canGrow && scale > 1)
@@ -183,6 +189,8 @@ public class ScalePane extends MonoPane {
         }
         scaleX = canScaleX ? scale : 1;
         scaleY = canScaleY ? scale : 1;
+        if (log)
+            Console.log("scalePaneInnerWidth = " + scalePaneInnerWidth + ", scalePaneInnerHeight = " + scalePaneInnerHeight + ", scale = " + scale);
     }
 
     private double computeScale(double scalePaneWidth, double scalePaneHeight, double unscaledContentWidth, double unscaledContentHeight) {
@@ -199,6 +207,8 @@ public class ScalePane extends MonoPane {
     protected void layoutChildren(double paddingLeft, double paddingTop, double innerWidth, double innerHeight) {
         if (content == null)
             return;
+        /*if (log)
+            Console.log("ScalePane.layoutChildren(" + innerWidth + ", " + innerHeight + ")");*/
         innerWidth = fixedWidth != -1 ? fixedWidth - insetsWidth() : innerWidth;
         innerHeight = fixedHeight != -1 ? fixedHeight - insetsHeight() : innerHeight;
         computedScales(innerWidth, innerHeight);
@@ -207,18 +217,18 @@ public class ScalePane extends MonoPane {
         boolean stretch = stretchWidth || stretchHeight;
         // With OpenJFX, we can use w = width / scaleX & h = height / scaleY even when stretch = false, but not with
         // WebFX due to scale origin mapping issue (ex: "Java full-stack" card of the WebFX website).
-        double w = stretchWidth ?  innerWidth / scaleX  : innerWidth;
-        double h = stretchHeight ? innerHeight / scaleY : innerHeight;
-        double prefWidth = -1, prefHeight = -1;
+        double w = stretchWidth ?  innerWidth / scaleX  : unscaledContentWidth;
+        double h = stretchHeight ? innerHeight / scaleY : unscaledContentHeight;
+        double memorisedPrefWidth = -1, memorisedPrefHeight = -1;
         Region region = null;
         if (stretch && content instanceof Region) {
             region = (Region) content;
             if (stretchWidth) {
-                prefWidth = region.getPrefWidth();
+                memorisedPrefWidth = region.getPrefWidth();
                 region.setPrefWidth(w);
             }
             if (stretchHeight) {
-                prefHeight = region.getPrefHeight();
+                memorisedPrefHeight = region.getPrefHeight();
                 region.setPrefHeight(h);
             }
         }
@@ -237,10 +247,10 @@ public class ScalePane extends MonoPane {
         }
         layoutInArea(content, paddingLeft + (innerWidth - w) / 2, paddingTop + areaY, w, h, 0, Insets.EMPTY, fillWidth, fillHeight, hAlignment, vAlignment);
         if (stretchWidth && region != null) {
-            region.setPrefWidth(prefWidth);
+            region.setPrefWidth(memorisedPrefWidth);
         }
         if (stretchHeight && region != null) {
-            region.setPrefHeight(prefHeight);
+            region.setPrefHeight(memorisedPrefHeight);
         }
     }
 
@@ -284,6 +294,7 @@ public class ScalePane extends MonoPane {
 
     @Override
     protected double computeContentPrefWidth(double scalePaneInnerHeight) {
+        //double prefWidth = super.computeContentPrefWidth(scalePaneInnerHeight);
         computedScales(-1, scalePaneInnerHeight);
         return scaleX * unscaledContentWidth;
     }

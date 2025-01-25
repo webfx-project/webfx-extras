@@ -41,27 +41,26 @@ public final class TransitionPane extends MonoClipPane {
     private Timeline transitionTimeline;
     private Timeline scrollToTopTimeline;
 
-    private final Pane dualContainer = new Pane() {
+    private final Pane dualContainer = new LayoutPane() {
         @Override
-        protected void layoutChildren() {
-            double width = getWidth(), height = getHeight();
+        protected void layoutChildren(double width, double height) {
             double enteringHeight = enteringNode == null ? 0 : Math.min(height, enteringNode.prefHeight(width));
             double leavingHeight = leavingNode == null ? 0 : Math.min(height, leavingNode.prefHeight(width));
             // Temporary hack to make account page correctly laid out with circle & fade transition
             Pos pos = transition instanceof CircleTransition || transition instanceof FadeTransition ? Pos.TOP_CENTER : getAlignment();
             if (enteringNode != null) {
-                layoutInArea(enteringNode, 0, 0, width, enteringHeight, 0, pos.getHpos(), pos.getVpos());
+                layoutInArea(enteringNode, 0, 0, width, enteringHeight, pos);
             }
             if (leavingNode != null) {
                 if (transition instanceof TranslateTransition) {
                     // transition from right to left => leaving node is on the left
                     if (((TranslateTransition) transition).getDirection() == HPos.LEFT) {
-                        layoutInArea(leavingNode, -width, 0, width, leavingHeight, 0, pos.getHpos(), pos.getVpos());
+                        layoutInArea(leavingNode, -width, 0, width, leavingHeight, pos);
                     } else { // transition from left to right => leaving node is on the right
-                        layoutInArea(leavingNode,  width, 0, width, leavingHeight, 0, pos.getHpos(), pos.getVpos());
+                        layoutInArea(leavingNode,  width, 0, width, leavingHeight, pos);
                     }
                 } else {
-                    layoutInArea(leavingNode, 0, 0, width, leavingHeight, 0, pos.getHpos(), pos.getVpos());
+                    layoutInArea(leavingNode, 0, 0, width, leavingHeight, pos);
                 }
             }
             if (scrollToTop && scrollToTopTimeline == null && enteringHeight > 0) {

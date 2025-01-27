@@ -172,7 +172,7 @@ public class ControlUtil {
             double nodeHeight = node.getLayoutBounds().getHeight();
             double sceneHeight = node.getScene().getHeight();
             VPos wishedPosition = getVerticalScrollNodeWishedPosition(node);
-            double wishedSceneNodeTop = wishedPosition == VPos.TOP ? sceneHeight / 1.618 - nodeHeight / 2
+            double wishedSceneNodeTop = wishedPosition == VPos.TOP ? 0 // sceneHeight / 1.618 - nodeHeight / 2
                 : wishedPosition == VPos.BOTTOM ? sceneHeight - nodeHeight
                 : sceneHeight / 2 - nodeHeight / 2;
             double currentScrollPaneSceneTop = scrollPane.localToScene(0, 0).getY();

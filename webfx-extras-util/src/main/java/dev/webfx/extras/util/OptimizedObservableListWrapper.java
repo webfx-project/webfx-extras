@@ -61,9 +61,10 @@ public final class OptimizedObservableListWrapper<E> extends ObservableListWrapp
                         break;
                     if (!bs.get(i)) {
                         int old = indexOf(e);
-                        if (old == i)
-                            nextUpdate(i);
-                        else if (perm == null || perm[old] != i) {
+                        if (old == i) {
+                            if (e != get(i))
+                                nextUpdate(i);
+                        } else if (perm == null || perm[old] != i) {
                             E previous = backingList.set(i, e);
                             backingList.set(old, previous);
                             if (perm == null) {

@@ -8,6 +8,7 @@ module webfx.extras.panes {
     requires webfx.extras.util.animation;
     requires webfx.extras.util.layout;
     requires webfx.kit.util;
+    requires webfx.platform.console;
     requires webfx.platform.util;
 
     // Exported packages

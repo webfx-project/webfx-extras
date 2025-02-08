@@ -3,6 +3,8 @@ package dev.webfx.extras.webtext;
 import dev.webfx.extras.webtext.registry.WebTextRegistry;
 import javafx.beans.property.Property;
 import javafx.beans.property.SimpleObjectProperty;
+import javafx.beans.property.SimpleStringProperty;
+import javafx.beans.property.StringProperty;
 import javafx.geometry.Orientation;
 import javafx.scene.control.Control;
 import javafx.scene.control.Skin;
@@ -24,8 +26,8 @@ public class HtmlText extends Control {
         setText(text);
     }
 
-    private final Property<String> textProperty = new SimpleObjectProperty<>();
-    public Property<String> textProperty() {
+    private final StringProperty textProperty = new SimpleStringProperty();
+    public StringProperty textProperty() {
         return textProperty;
     }
     public void setText(String text) {

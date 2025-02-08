@@ -6,7 +6,7 @@ import javafx.scene.control.TextField;
 import javafx.scene.control.skin.TextFieldSkin;
 import javafx.scene.layout.Region;
 import javafx.scene.text.HitInfo;
-import dev.webfx.extras.util.layout.LayoutUtil;
+import dev.webfx.extras.util.layout.Layouts;
 import dev.webfx.platform.util.collection.Collections;
 
 
@@ -18,7 +18,7 @@ public final class MaterialTextFieldSkin extends TextFieldSkin implements Materi
     private final MaterialTextFieldImpl materialTextField;
 
     public MaterialTextFieldSkin(TextField textField) {
-        super(LayoutUtil.removePadding(textField));
+        super(Layouts.removePadding(textField));
         ObservableList<Node> children = getChildren();
         Region textBox = (Region) Collections.first(children);
         materialTextField = new MaterialTextFieldImpl(children);

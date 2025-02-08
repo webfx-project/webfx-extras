@@ -16,11 +16,11 @@ import static javafx.scene.layout.Region.USE_PREF_SIZE;
 /**
  * @author Bruno Salmon
  */
-public final class LayoutUtil {
+public final class Layouts {
 
     private static final Background GOLD_LAYOUT_BACKGROUND = BackgroundFactory.newBackground(Color.gray(0.3, 0.5));
 
-    private LayoutUtil() {}
+    private Layouts() {}
 
     public static GridPane createGoldLayout(Region child) {
         return createGoldLayout(child, 0, 0);
@@ -206,7 +206,7 @@ public final class LayoutUtil {
     }
 
     public static void setAllUnmanagedWhenInvisible(Node... nodes) {
-        Arrays.forEach(nodes, LayoutUtil::setUnmanagedWhenInvisible);
+        Arrays.forEach(nodes, Layouts::setUnmanagedWhenInvisible);
     }
 
     public static void setAllUnmanagedWhenInvisible(boolean initialVisibility, Node... nodes) {

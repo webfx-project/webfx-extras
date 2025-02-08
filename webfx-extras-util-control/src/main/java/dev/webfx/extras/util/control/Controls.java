@@ -2,7 +2,7 @@ package dev.webfx.extras.util.control;
 
 import dev.webfx.extras.panes.ScalePane;
 import dev.webfx.extras.util.animation.Animations;
-import dev.webfx.extras.util.layout.LayoutUtil;
+import dev.webfx.extras.util.layout.Layouts;
 import dev.webfx.kit.launcher.WebFxKitLauncher;
 import dev.webfx.kit.util.properties.FXProperties;
 import javafx.collections.ObservableList;
@@ -25,11 +25,11 @@ public class Controls {
     }
 
     public static ScrollPane createVerticalScrollPaneWithPadding(double padding, Region content) {
-        return createVerticalScrollPane(LayoutUtil.createPadding(content, padding));
+        return createVerticalScrollPane(Layouts.createPadding(content, padding));
     }
 
     public static ScrollPane setupVerticalScrollPane(ScrollPane scrollPane, Region content) {
-        scrollPane.setContent(LayoutUtil.setMinMaxWidthToPref(content));
+        scrollPane.setContent(Layouts.setMinMaxWidthToPref(content));
         double verticalScrollbarExtraWidth = WebFxKitLauncher.getVerticalScrollbarExtraWidth();
         content.prefWidthProperty().bind(
             FXProperties.compute(scrollPane.widthProperty(), width -> {
@@ -174,13 +174,13 @@ public class Controls {
                 : wishedPosition == VPos.BOTTOM ? sceneHeight - nodeHeight
                 : sceneHeight / 2 - nodeHeight / 2;
             double currentScrollPaneSceneTop = scrollPane.localToScene(0, 0).getY();
-            wishedSceneNodeTop = LayoutUtil.boundedSize(wishedSceneNodeTop, currentScrollPaneSceneTop, currentScrollPaneSceneTop + viewportHeight);
+            wishedSceneNodeTop = Layouts.boundedSize(wishedSceneNodeTop, currentScrollPaneSceneTop, currentScrollPaneSceneTop + viewportHeight);
             double currentNodeSceneTop = node.localToScene(0, 0).getY();
             double currentViewportSceneTop = computeScrollPaneVTopOffset(scrollPane);
             double wishedViewportSceneTop = currentViewportSceneTop + currentNodeSceneTop - wishedSceneNodeTop;
             //Console.log("👉👉👉👉👉 viewportBounds = " + scrollPane.getViewportBounds() + ", contentHeight = " + contentHeight + ", viewportHeight = " + viewportHeight + ", nodeHeight = " + nodeHeight + ", sceneHeight = " + sceneHeight + ", currentScrollPaneSceneTop = " + currentScrollPaneSceneTop + ", currentNodeSceneTop = " + currentNodeSceneTop + ", currentViewportSceneTop = " + currentViewportSceneTop + ", wishedViewportSceneTop = " + wishedViewportSceneTop);
             double vValue = wishedViewportSceneTop / (contentHeight - viewportHeight);
-            vValue = LayoutUtil.boundedSize(vValue, 0, 1);
+            vValue = Layouts.boundedSize(vValue, 0, 1);
             return vValue;
         }
         return 0;

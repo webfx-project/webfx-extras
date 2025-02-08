@@ -4,7 +4,7 @@ import dev.webfx.extras.styles.materialdesign.util.ComputeBaselineOffsetWithInse
 import dev.webfx.extras.styles.materialdesign.util.ComputeHeightWithInsetsFunction;
 import dev.webfx.extras.styles.materialdesign.util.LayoutChildrenFunction;
 import dev.webfx.extras.styles.materialdesign.util.MaterialAnimation;
-import dev.webfx.extras.util.layout.LayoutUtil;
+import dev.webfx.extras.util.layout.Layouts;
 import dev.webfx.extras.util.scene.SceneUtil;
 import dev.webfx.kit.util.properties.FXProperties;
 import dev.webfx.kit.util.properties.Unregisterable;
@@ -279,10 +279,10 @@ public final class MaterialTextFieldImpl implements MaterialTextField {
         }
         contentLayoutChildrenFunction.layoutChildren(x, yContent, w, hContent);
         if (recomputeLabelPositionOnNextLayoutPass) {
-            floatingLabelLayoutX = LayoutUtil.snapPosition(content.getLayoutX() + 1);
-            floatingLabelLayoutY = LayoutUtil.snapPosition(y);
+            floatingLabelLayoutX = Layouts.snapPosition(content.getLayoutX() + 1);
+            floatingLabelLayoutY = Layouts.snapPosition(y);
             restingLabelLayoutX = floatingLabelLayoutX + (textInputControl != null ? 0 : PLACEHOLDER_LEFT_PADDING_FOR_NON_INPUT_TEXT);
-            restingLabelLayoutY = LayoutUtil.snapPosition(yContent + hContent / 2);
+            restingLabelLayoutY = Layouts.snapPosition(yContent + hContent / 2);
             updateMaterialUi();
             if (Strings.isNotEmpty(labelText.getText()))
                 recomputeLabelPositionOnNextLayoutPass = false;
@@ -292,7 +292,7 @@ public final class MaterialTextFieldImpl implements MaterialTextField {
     private double getFloatingLabelHeight() {
         //if (recomputeLabelPositionOnNextLayoutPass) // Commented optimization (issue with web version)
         labelTextHeight = labelText.prefHeight(-1);
-        return LayoutUtil.snapSize(labelTextHeight * FLOATING_LABEL_SCALE_FACTOR);
+        return Layouts.snapSize(labelTextHeight * FLOATING_LABEL_SCALE_FACTOR);
     }
 
     private double computeHeightAboveContent() {

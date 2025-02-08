@@ -1,7 +1,7 @@
 package dev.webfx.extras.panes;
 
 import dev.webfx.extras.util.animation.Animations;
-import dev.webfx.extras.util.layout.LayoutUtil;
+import dev.webfx.extras.util.layout.Layouts;
 import dev.webfx.kit.util.properties.FXProperties;
 import javafx.animation.Timeline;
 import javafx.beans.property.BooleanProperty;
@@ -108,7 +108,7 @@ public class CollapsePane extends MonoClipPane {
         double minHeight = minHeight(getWidth());
         double prefHeight = prefHeight(getWidth());
         double maxHeight = maxHeight(getWidth());
-        expandedHeight = LayoutUtil.boundedSize(minHeight, prefHeight, maxHeight);
+        expandedHeight = Layouts.boundedSize(minHeight, prefHeight, maxHeight);
         heightDuringCollapseAnimation = expandedHeight;
         if (expandedHeight > 0) {
             animateHeight(expandedHeight);

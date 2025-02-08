@@ -18,7 +18,7 @@ import java.util.function.Predicate;
 /**
  * @author Bruno Salmon
  */
-public class ControlUtil {
+public class Controls {
 
     public static ScrollPane createVerticalScrollPane(Region content) {
         return setupVerticalScrollPane(createScrollPane(), content);
@@ -99,7 +99,7 @@ public class ControlUtil {
 
     public static void onScrollPaneAncestorSet(Node node, Consumer<ScrollPane> scrollPaneConsumer) {
         FXProperties.onPropertySet(node.sceneProperty(), scene -> {
-            ScrollPane scrollPane = ControlUtil.findScrollPaneAncestor(node);
+            ScrollPane scrollPane = Controls.findScrollPaneAncestor(node);
             if (scrollPane != null) {
                 scrollPaneConsumer.accept(scrollPane);
             }
@@ -163,7 +163,7 @@ public class ControlUtil {
     }
 
     public static double computeVerticalScrollNodeWishedValue(Node node) {
-        ScrollPane scrollPane = ControlUtil.findScrollPaneAncestor(node);
+        ScrollPane scrollPane = Controls.findScrollPaneAncestor(node);
         if (scrollPane != null) {
             double contentHeight = scrollPane.getContent().getLayoutBounds().getHeight();
             double viewportHeight = scrollPane.getViewportBounds().getHeight();
@@ -242,13 +242,13 @@ public class ControlUtil {
     }
 
     static {
-        Animations.setScrollPaneAncestorFinder(ControlUtil::findScrollPaneAncestor);
+        Animations.setScrollPaneAncestorFinder(Controls::findScrollPaneAncestor);
         Animations.setScrollPaneValuePropertyGetter(node -> {
             if (node instanceof ScrollPane)
                 return ((ScrollPane) node).vvalueProperty();
             return null;
         });
-        Animations.setComputeVerticalScrollNodeWishedValueGetter(ControlUtil::computeVerticalScrollNodeWishedValue);
+        Animations.setComputeVerticalScrollNodeWishedValueGetter(Controls::computeVerticalScrollNodeWishedValue);
     }
 
 }

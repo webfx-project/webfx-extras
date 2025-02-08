@@ -9,10 +9,7 @@ import javafx.collections.ObservableList;
 import javafx.geometry.VPos;
 import javafx.scene.Node;
 import javafx.scene.Parent;
-import javafx.scene.control.ProgressIndicator;
-import javafx.scene.control.ScrollPane;
-import javafx.scene.control.SplitPane;
-import javafx.scene.control.TextField;
+import javafx.scene.control.*;
 import javafx.scene.layout.Region;
 
 import java.util.function.Consumer;
@@ -208,6 +205,14 @@ public class ControlUtil {
         pi.setPrefSize(size, size);
         pi.setMaxSize(size, size);
         return pi;
+    }
+
+    public static void onSkinReady(Control control, Runnable runnable) {
+        onSkinReady(control, skin -> runnable.run());
+    }
+
+    public static void onSkinReady(Control control, Consumer<Skin<?>> consumer) {
+        FXProperties.onPropertySet(control.skinProperty(), consumer);
     }
 
     public static void setHtmlInputType(TextField textField, HtmlInputType type) {

@@ -195,23 +195,29 @@ public final class Layouts {
         return region;
     }
 
-    public static <N extends Node> N setUnmanagedWhenInvisible(N node) {
+    public static <N extends Node> N setManagedAndVisibleProperties(N node, boolean value) {
+        node.setManaged(value);
+        node.setVisible(value);
+        return node;
+    }
+
+    public static <N extends Node> N bindManagedToVisibleProperty(N node) {
         node.managedProperty().bind(node.visibleProperty());
         return node;
     }
 
-    public static <N extends Node> N setUnmanagedWhenInvisible(N node, ObservableValue<Boolean> visibleProperty) {
+    public static <N extends Node> N bindManagedAndVisiblePropertiesTo(ObservableValue<Boolean> visibleProperty, N node) {
         node.visibleProperty().bind(visibleProperty);
-        return setUnmanagedWhenInvisible(node);
+        return bindManagedToVisibleProperty(node);
     }
 
-    public static void setAllUnmanagedWhenInvisible(Node... nodes) {
-        Arrays.forEach(nodes, Layouts::setUnmanagedWhenInvisible);
+    public static void bindAllManagedToVisibleProperty(Node... nodes) {
+        Arrays.forEach(nodes, Layouts::bindManagedToVisibleProperty);
     }
 
-    public static void setAllUnmanagedWhenInvisible(boolean initialVisibility, Node... nodes) {
+    public static void bindAllManagedToVisiblePropertyWithInitialValue(boolean initialVisibility, Node... nodes) {
         Arrays.forEach(nodes, node -> node.setVisible(initialVisibility));
-        setAllUnmanagedWhenInvisible(nodes);
+        bindAllManagedToVisibleProperty(nodes);
     }
 
     public static <N extends Region> N setPadding(N content, double top, double right, double bottom, double left) {

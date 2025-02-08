@@ -12,6 +12,7 @@ import javafx.scene.Parent;
 import javafx.scene.control.ProgressIndicator;
 import javafx.scene.control.ScrollPane;
 import javafx.scene.control.SplitPane;
+import javafx.scene.control.TextField;
 import javafx.scene.layout.Region;
 
 import java.util.function.Consumer;
@@ -207,6 +208,32 @@ public class ControlUtil {
         pi.setPrefSize(size, size);
         pi.setMaxSize(size, size);
         return pi;
+    }
+
+    public static void setHtmlInputType(TextField textField, HtmlInputType type) {
+        setHtmlInputType(textField, type.name().toLowerCase().replace('_', '-'));
+    }
+
+    public static void setHtmlInputType(TextField textField, String type) {
+        textField.getProperties().put("webfx-html-input-type", type); // Will be considered by HtmlTextFieldPeer
+    }
+
+    public static void setHtmlInputAutocomplete(TextField textField, HtmlInputAutocomplete autocomplete) { // TODO html accept several values => vararg & map to comma separated
+        setHtmlInputAutocomplete(textField, autocomplete.name().toLowerCase().replace('_', '-'));
+    }
+
+    public static void setHtmlInputAutocomplete(TextField textField, String autocomplete) {
+        textField.getProperties().put("webfx-html-input-autocomplete", autocomplete); // Will be considered by HtmlTextFieldPeer
+    }
+
+    public static void setHtmlInputTypeAndAutocompleteToEmail(TextField textField) {
+        setHtmlInputType(textField, HtmlInputType.EMAIL);
+        setHtmlInputAutocomplete(textField, HtmlInputAutocomplete.EMAIL);
+    }
+
+    public static void setHtmlInputTypeAndAutocompleteToTel(TextField textField) {
+        setHtmlInputType(textField, HtmlInputType.TEL);
+        setHtmlInputAutocomplete(textField, HtmlInputAutocomplete.TEL);
     }
 
     static {

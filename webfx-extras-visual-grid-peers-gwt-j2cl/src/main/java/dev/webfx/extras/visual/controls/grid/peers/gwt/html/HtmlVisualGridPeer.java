@@ -211,8 +211,9 @@ public final class HtmlVisualGridPeer
             cssStyle.width = CSSProperties.WidthUnionType.of(prefWidthPx); // Enough for Chrome
             cssStyle.maxWidth = CSSProperties.MaxWidthUnionType.of(prefWidthPx); // Required for FireFox
             cssStyle.tableLayout = "fixed";
+            /* Commented as we didn't want Country to be centered in MediaConsumptionTabView TODO: remove if no side effect
             if (textAlign == null)
-                textAlign = "center";
+                textAlign = "center";*/
         }
         if (textAlign != null)
             cssStyle.textAlign = textAlign;

@@ -2,7 +2,7 @@ package dev.webfx.extras.player.impl;
 
 import dev.webfx.extras.player.Player;
 import dev.webfx.extras.player.PlayerGroup;
-import dev.webfx.extras.player.Status;
+import dev.webfx.extras.player.Players;
 import dev.webfx.extras.player.multi.MultiPlayer;
 import dev.webfx.platform.console.Console;
 import dev.webfx.platform.util.collection.Collections;
@@ -74,7 +74,7 @@ public final class PlayerGroupImpl implements PlayerGroup {
                     maybePlayingPlayers.forEach(Player::pause); // should call back for confirming pause state, will be removed at that time
                 }
             } else { // player doesn't support notification
-                boolean maybePlaying = maybePlayingStatus(player.getStatus());
+                boolean maybePlaying = Players.isMaybePlaying(player);
                 if (!maybePlaying) {
                     maybePlayingPlayers.remove(player);
                     if (currentPlayingPlayer == player) {
@@ -92,15 +92,6 @@ public final class PlayerGroupImpl implements PlayerGroup {
             }
         }
         logDebug("playingPlayer = " + getPlayingPlayer() + ", maybePlayingPlayers = " + maybePlayingPlayers);
-    }
-
-    private static boolean maybePlayingStatus(Status status) {
-        switch (status) {
-            case READY:
-            case PLAYING:
-                return true;
-        }
-        return false;
     }
 
     private static void logDebug(String message) {

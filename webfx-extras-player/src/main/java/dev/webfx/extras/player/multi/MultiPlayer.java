@@ -32,6 +32,10 @@ public final class MultiPlayer extends PlayerBase {
         ((PlayerBase) player).setInMultiPlayer(true);
     }
 
+    public Player getSelectedPlayer() {
+        return selectedPlayer;
+    }
+
     @Override
     public Media acceptMedia(String mediaSource, MediaMetadata mediaMetadata) {
         for (Player player : registeredPlayers) {

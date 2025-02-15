@@ -211,8 +211,9 @@ public final class HtmlVisualGridPeer
             cssStyle.width = CSSProperties.WidthUnionType.of(prefWidthPx); // Enough for Chrome
             cssStyle.maxWidth = CSSProperties.MaxWidthUnionType.of(prefWidthPx); // Required for FireFox
             cssStyle.tableLayout = "fixed";
+            /* Commented as we didn't want Country to be centered in MediaConsumptionTabView TODO: remove if no side effect
             if (textAlign == null)
-                textAlign = "center";
+                textAlign = "center";*/
         }
         if (textAlign != null)
             cssStyle.textAlign = textAlign;
@@ -228,11 +229,16 @@ public final class HtmlVisualGridPeer
             setStyleAttribute(nodePeer.getVisibleContainer(), "position", "relative");
             //setStyleAttribute(contentElement, "width", null);
             //setStyleAttribute(contentElement, "height", null);
-            if (content instanceof HBox || content instanceof CheckBox) { // temporary code for HBox, especially for table headers
-                double spacing = content instanceof HBox ? ((HBox) content).getSpacing() : 0;
+            boolean isHBox = content instanceof HBox;
+            if (isHBox || content instanceof CheckBox) { // temporary code for HBox, especially for table headers
+                double spacing = isHBox ? ((HBox) content).getSpacing() : 0;
                 Element childrenContainer = nodePeer.getChildrenContainer();
                 setStyleAttribute(childrenContainer, "display", "contents");
                 resetChildrenPositionToRelative(childrenContainer, spacing);
+                if (!isHBox && textAlign == null) { // => Centering CheckBox by default
+                   textAlign = "center";
+                }
+                setStyleAttribute(childrenContainer, "textAlign", textAlign);
             } else if (content instanceof Parent) {
                 if (content instanceof Region) {
                     Region region = (Region) content;

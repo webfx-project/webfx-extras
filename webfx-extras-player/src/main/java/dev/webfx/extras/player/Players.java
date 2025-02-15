@@ -24,4 +24,15 @@ public final class Players {
         return GLOBAL_PLAYER_COLOR;
     }
 
+    public static boolean isMaybePlaying(Player player) {
+        if (player.getNavigationSupport().notification())
+            return player.isPlaying();
+        switch (player.getStatus()) {
+            case READY:
+            case PLAYING:
+                return true;
+        }
+        return false;
+    }
+
 }

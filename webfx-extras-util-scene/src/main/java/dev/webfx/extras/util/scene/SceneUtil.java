@@ -1,7 +1,7 @@
 package dev.webfx.extras.util.scene;
 
 import dev.webfx.extras.util.animation.Animations;
-import dev.webfx.extras.util.control.ControlUtil;
+import dev.webfx.extras.util.control.Controls;
 import dev.webfx.kit.launcher.WebFxKitLauncher;
 import dev.webfx.kit.util.properties.FXProperties;
 import dev.webfx.kit.util.properties.Unregisterable;
@@ -210,9 +210,9 @@ public final class SceneUtil {
     }
 
     public static boolean scrollNodeToBeVerticallyVisibleOnScene(Node node, boolean onlyIfNotVisible, boolean animate) {
-        ScrollPane scrollPane = ControlUtil.findScrollPaneAncestor(node);
+        ScrollPane scrollPane = Controls.findScrollPaneAncestor(node);
         if (scrollPane != null && (!onlyIfNotVisible || !isNodeVerticallyVisibleOnScene(node))) {
-            double vValue = ControlUtil.computeVerticalScrollNodeWishedValue(node);
+            double vValue = Controls.computeVerticalScrollNodeWishedValue(node);
             Object timeline = scrollPane.getProperties().get("timeline");
             if (timeline instanceof Timeline)
                 ((Timeline) timeline).stop();

@@ -2,16 +2,14 @@ package dev.webfx.extras.util.control;
 
 import dev.webfx.extras.panes.ScalePane;
 import dev.webfx.extras.util.animation.Animations;
-import dev.webfx.extras.util.layout.LayoutUtil;
+import dev.webfx.extras.util.layout.Layouts;
 import dev.webfx.kit.launcher.WebFxKitLauncher;
 import dev.webfx.kit.util.properties.FXProperties;
 import javafx.collections.ObservableList;
 import javafx.geometry.VPos;
 import javafx.scene.Node;
 import javafx.scene.Parent;
-import javafx.scene.control.ProgressIndicator;
-import javafx.scene.control.ScrollPane;
-import javafx.scene.control.SplitPane;
+import javafx.scene.control.*;
 import javafx.scene.layout.Region;
 
 import java.util.function.Consumer;
@@ -20,18 +18,18 @@ import java.util.function.Predicate;
 /**
  * @author Bruno Salmon
  */
-public class ControlUtil {
+public class Controls {
 
     public static ScrollPane createVerticalScrollPane(Region content) {
         return setupVerticalScrollPane(createScrollPane(), content);
     }
 
     public static ScrollPane createVerticalScrollPaneWithPadding(double padding, Region content) {
-        return createVerticalScrollPane(LayoutUtil.createPadding(content, padding));
+        return createVerticalScrollPane(Layouts.createPadding(content, padding));
     }
 
     public static ScrollPane setupVerticalScrollPane(ScrollPane scrollPane, Region content) {
-        scrollPane.setContent(LayoutUtil.setMinMaxWidthToPref(content));
+        scrollPane.setContent(Layouts.setMinMaxWidthToPref(content));
         double verticalScrollbarExtraWidth = WebFxKitLauncher.getVerticalScrollbarExtraWidth();
         content.prefWidthProperty().bind(
             FXProperties.compute(scrollPane.widthProperty(), width -> {
@@ -101,7 +99,7 @@ public class ControlUtil {
 
     public static void onScrollPaneAncestorSet(Node node, Consumer<ScrollPane> scrollPaneConsumer) {
         FXProperties.onPropertySet(node.sceneProperty(), scene -> {
-            ScrollPane scrollPane = ControlUtil.findScrollPaneAncestor(node);
+            ScrollPane scrollPane = Controls.findScrollPaneAncestor(node);
             if (scrollPane != null) {
                 scrollPaneConsumer.accept(scrollPane);
             }
@@ -165,7 +163,7 @@ public class ControlUtil {
     }
 
     public static double computeVerticalScrollNodeWishedValue(Node node) {
-        ScrollPane scrollPane = ControlUtil.findScrollPaneAncestor(node);
+        ScrollPane scrollPane = Controls.findScrollPaneAncestor(node);
         if (scrollPane != null) {
             double contentHeight = scrollPane.getContent().getLayoutBounds().getHeight();
             double viewportHeight = scrollPane.getViewportBounds().getHeight();
@@ -176,13 +174,13 @@ public class ControlUtil {
                 : wishedPosition == VPos.BOTTOM ? sceneHeight - nodeHeight
                 : sceneHeight / 2 - nodeHeight / 2;
             double currentScrollPaneSceneTop = scrollPane.localToScene(0, 0).getY();
-            wishedSceneNodeTop = LayoutUtil.boundedSize(wishedSceneNodeTop, currentScrollPaneSceneTop, currentScrollPaneSceneTop + viewportHeight);
+            wishedSceneNodeTop = Layouts.boundedSize(wishedSceneNodeTop, currentScrollPaneSceneTop, currentScrollPaneSceneTop + viewportHeight);
             double currentNodeSceneTop = node.localToScene(0, 0).getY();
             double currentViewportSceneTop = computeScrollPaneVTopOffset(scrollPane);
             double wishedViewportSceneTop = currentViewportSceneTop + currentNodeSceneTop - wishedSceneNodeTop;
             //Console.log("👉👉👉👉👉 viewportBounds = " + scrollPane.getViewportBounds() + ", contentHeight = " + contentHeight + ", viewportHeight = " + viewportHeight + ", nodeHeight = " + nodeHeight + ", sceneHeight = " + sceneHeight + ", currentScrollPaneSceneTop = " + currentScrollPaneSceneTop + ", currentNodeSceneTop = " + currentNodeSceneTop + ", currentViewportSceneTop = " + currentViewportSceneTop + ", wishedViewportSceneTop = " + wishedViewportSceneTop);
             double vValue = wishedViewportSceneTop / (contentHeight - viewportHeight);
-            vValue = LayoutUtil.boundedSize(vValue, 0, 1);
+            vValue = Layouts.boundedSize(vValue, 0, 1);
             return vValue;
         }
         return 0;
@@ -209,14 +207,48 @@ public class ControlUtil {
         return pi;
     }
 
+    public static void onSkinReady(Control control, Runnable runnable) {
+        onSkinReady(control, skin -> runnable.run());
+    }
+
+    public static void onSkinReady(Control control, Consumer<Skin<?>> consumer) {
+        FXProperties.onPropertySet(control.skinProperty(), consumer);
+    }
+
+    public static void setHtmlInputType(TextField textField, HtmlInputType type) {
+        setHtmlInputType(textField, type.name().toLowerCase().replace('_', '-'));
+    }
+
+    public static void setHtmlInputType(TextField textField, String type) {
+        textField.getProperties().put("webfx-html-input-type", type); // Will be considered by HtmlTextFieldPeer
+    }
+
+    public static void setHtmlInputAutocomplete(TextField textField, HtmlInputAutocomplete autocomplete) { // TODO html accept several values => vararg & map to comma separated
+        setHtmlInputAutocomplete(textField, autocomplete.name().toLowerCase().replace('_', '-'));
+    }
+
+    public static void setHtmlInputAutocomplete(TextField textField, String autocomplete) {
+        textField.getProperties().put("webfx-html-input-autocomplete", autocomplete); // Will be considered by HtmlTextFieldPeer
+    }
+
+    public static void setHtmlInputTypeAndAutocompleteToEmail(TextField textField) {
+        setHtmlInputType(textField, HtmlInputType.EMAIL);
+        setHtmlInputAutocomplete(textField, HtmlInputAutocomplete.EMAIL);
+    }
+
+    public static void setHtmlInputTypeAndAutocompleteToTel(TextField textField) {
+        setHtmlInputType(textField, HtmlInputType.TEL);
+        setHtmlInputAutocomplete(textField, HtmlInputAutocomplete.TEL);
+    }
+
     static {
-        Animations.setScrollPaneAncestorFinder(ControlUtil::findScrollPaneAncestor);
+        Animations.setScrollPaneAncestorFinder(Controls::findScrollPaneAncestor);
         Animations.setScrollPaneValuePropertyGetter(node -> {
             if (node instanceof ScrollPane)
                 return ((ScrollPane) node).vvalueProperty();
             return null;
         });
-        Animations.setComputeVerticalScrollNodeWishedValueGetter(ControlUtil::computeVerticalScrollNodeWishedValue);
+        Animations.setComputeVerticalScrollNodeWishedValueGetter(Controls::computeVerticalScrollNodeWishedValue);
     }
 
 }

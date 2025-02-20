@@ -3,6 +3,7 @@ package dev.webfx.extras.time.pickers;
 import dev.webfx.extras.panes.MonoPane;
 import dev.webfx.extras.util.scene.SceneUtil;
 import dev.webfx.kit.util.properties.FXProperties;
+import dev.webfx.platform.console.Console;
 import javafx.application.Platform;
 import javafx.beans.property.ObjectProperty;
 import javafx.collections.ObservableList;
@@ -36,6 +37,13 @@ public class DateField {
 
     public DateField(Pane overlayPane) {
         this.overlayPane = overlayPane;
+        FXProperties.runOnPropertyChange(text -> {
+            try {
+                dateProperty.set(LocalDate.from(DATE_TIME_FORMATTER.parse(text)));
+            } catch (Exception e) {
+                Console.log("Invalid date format: " + text);
+            }
+        }, textField.textProperty());
         datePicker.selectedDateProperty().bindBidirectional(dateProperty);
         SVGPath calendarIcon = new SVGPath();
         calendarIcon.setContent(CALENDAR_SVG_PATH);

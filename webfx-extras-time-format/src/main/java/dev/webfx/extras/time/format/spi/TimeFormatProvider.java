@@ -12,35 +12,35 @@ import java.time.YearMonth;
  */
 public interface TimeFormatProvider {
 
-    default String getMonthName(Month month) {
+    default String formatMonth(Month month) {
         return month.name();
     }
 
-    default ObservableStringValue monthNameProperty(Month month) {
-        return new SimpleStringProperty(getMonthName(month));
+    default ObservableStringValue formatMonthProperty(Month month) {
+        return new SimpleStringProperty(formatMonth(month));
     }
 
-    default String getYearMonthName(YearMonth yearMonth) {
-        return getMonthName(yearMonth.getMonth()) + " " + yearMonth.getYear();
+    default String formatYearMonth(YearMonth yearMonth) {
+        return formatMonth(yearMonth.getMonth()) + " " + yearMonth.getYear();
     }
 
-    default ObservableStringValue yearMonthNameProperty(YearMonth yearMonth) {
-        return new SimpleStringProperty(getYearMonthName(yearMonth));
+    default ObservableStringValue formatYearMonthProperty(YearMonth yearMonth) {
+        return new SimpleStringProperty(formatYearMonth(yearMonth));
     }
 
-    default String getDayOfWeekName(DayOfWeek dayOfWeek) {
+    default String formatDayOfWeek(DayOfWeek dayOfWeek) {
         return dayOfWeek.name();
     }
 
-    default ObservableStringValue dayOfWeekNameProperty(DayOfWeek dayOfWeek) {
-        return new SimpleStringProperty(getDayOfWeekName(dayOfWeek));
+    default ObservableStringValue formatDayOfWeekProperty(DayOfWeek dayOfWeek) {
+        return new SimpleStringProperty(formatDayOfWeek(dayOfWeek));
     }
 
-    default String formatDayAndMonth(int day, Month month) {
-        return day + " " + getMonthName(month);
+    default String formatDayMonth(int day, Month month) {
+        return day + " " + formatMonth(month);
     }
 
-    default ObservableStringValue dayAndMonthProperty(int day, Month month) {
-        return new SimpleStringProperty(formatDayAndMonth(day, month));
+    default ObservableStringValue formatDayMonthProperty(int day, Month month) {
+        return new SimpleStringProperty(formatDayMonth(day, month));
     }
 }

@@ -31,45 +31,45 @@ public final class TimeFormat {
         return PROVIDER;
     }
 
-    public static String getMonthName(Month month) {
-        return getProvider().getMonthName(month);
+    public static String formatMonth(Month month) {
+        return getProvider().formatMonth(month);
     }
 
-    public static ObservableStringValue monthNameProperty(Month month) {
-        return getProvider().monthNameProperty(month);
+    public static ObservableStringValue formatMonthProperty(Month month) {
+        return getProvider().formatMonthProperty(month);
     }
 
-    public static String getYearMonthName(YearMonth yearMonth) {
-        return getProvider().getYearMonthName(yearMonth);
+    public static String formatYearMonth(YearMonth yearMonth) {
+        return getProvider().formatYearMonth(yearMonth);
     }
 
-    public static ObservableStringValue yearMonthNameProperty(YearMonth yearMonth) {
-        return getProvider().yearMonthNameProperty(yearMonth);
+    public static ObservableStringValue formatYearMonthProperty(YearMonth yearMonth) {
+        return getProvider().formatYearMonthProperty(yearMonth);
     }
 
 
-    public static String getDayOfWeekName(DayOfWeek dayOfWeek) {
-        return getProvider().getDayOfWeekName(dayOfWeek);
+    public static String formatDayOfWeek(DayOfWeek dayOfWeek) {
+        return getProvider().formatDayOfWeek(dayOfWeek);
     }
 
-    public static ObservableStringValue dayOfWeekNameProperty(DayOfWeek dayOfWeek) {
-        return getProvider().dayOfWeekNameProperty(dayOfWeek);
+    public static ObservableStringValue formatDayOfWeekProperty(DayOfWeek dayOfWeek) {
+        return getProvider().formatDayOfWeekProperty(dayOfWeek);
     }
 
-    public static String formatDayAndMonth(int day, Month month) {
-        return getProvider().formatDayAndMonth(day, month);
+    public static String formatDayMonth(int day, Month month) {
+        return getProvider().formatDayMonth(day, month);
     }
 
-    public static ObservableStringValue dayAndMonthProperty(int day, Month month) {
-        return getProvider().dayAndMonthProperty(day, month);
+    public static ObservableStringValue formatDayMonthProperty(int day, Month month) {
+        return getProvider().formatDayMonthProperty(day, month);
     }
 
-    public static String formatDayAndMonth(LocalDate date) {
-        return formatDayAndMonth(date.getDayOfMonth(), date.getMonth());
+    public static String formatDayMonth(LocalDate date) {
+        return formatDayMonth(date.getDayOfMonth(), date.getMonth());
     }
 
-    public static ObservableStringValue dayAndMonthProperty(LocalDate date) {
-        return dayAndMonthProperty(date.getDayOfMonth(), date.getMonth());
+    public static ObservableStringValue formatDayMonthProperty(LocalDate date) {
+        return formatDayMonthProperty(date.getDayOfMonth(), date.getMonth());
     }
 
 

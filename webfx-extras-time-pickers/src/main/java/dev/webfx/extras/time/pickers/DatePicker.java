@@ -242,12 +242,12 @@ public final class DatePicker {
     }
 
     private void bindDisplayedYearMonthLabel() {
-        displayedYearMonthLabel.textProperty().bind(TimeFormat.yearMonthNameProperty(getDisplayedYearMonth()));
+        displayedYearMonthLabel.textProperty().bind(TimeFormat.formatYearMonthProperty(getDisplayedYearMonth()));
     }
 
     private static void bindDayOfWeekLabel(Label label, DayOfWeek dayOfWeek) {
         // We display the first letter of the day of week name
-        label.textProperty().bind(FXProperties.compute(TimeFormat.dayOfWeekNameProperty(dayOfWeek), dayName ->
+        label.textProperty().bind(FXProperties.compute(TimeFormat.formatDayOfWeekProperty(dayOfWeek), dayName ->
             dayName != null && !dayName.isEmpty() ? dayName.substring(0, 1) : ""));
     }
 

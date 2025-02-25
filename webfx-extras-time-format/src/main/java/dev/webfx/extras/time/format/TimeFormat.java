@@ -6,6 +6,7 @@ import dev.webfx.platform.service.SingleServiceProvider;
 import javafx.beans.value.ObservableStringValue;
 
 import java.time.DayOfWeek;
+import java.time.LocalDate;
 import java.time.Month;
 import java.time.YearMonth;
 import java.util.ServiceLoader;
@@ -53,6 +54,22 @@ public final class TimeFormat {
 
     public static ObservableStringValue dayOfWeekNameProperty(DayOfWeek dayOfWeek) {
         return getProvider().dayOfWeekNameProperty(dayOfWeek);
+    }
+
+    public static String formatDayAndMonth(int day, Month month) {
+        return getProvider().formatDayAndMonth(day, month);
+    }
+
+    public static ObservableStringValue dayAndMonthProperty(int day, Month month) {
+        return getProvider().dayAndMonthProperty(day, month);
+    }
+
+    public static String formatDayAndMonth(LocalDate date) {
+        return formatDayAndMonth(date.getDayOfMonth(), date.getMonth());
+    }
+
+    public static ObservableStringValue dayAndMonthProperty(LocalDate date) {
+        return dayAndMonthProperty(date.getDayOfMonth(), date.getMonth());
     }
 
 

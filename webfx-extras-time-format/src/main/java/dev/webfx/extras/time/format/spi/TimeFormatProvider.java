@@ -35,4 +35,12 @@ public interface TimeFormatProvider {
     default ObservableStringValue dayOfWeekNameProperty(DayOfWeek dayOfWeek) {
         return new SimpleStringProperty(getDayOfWeekName(dayOfWeek));
     }
+
+    default String formatDayAndMonth(int day, Month month) {
+        return day + " " + getMonthName(month);
+    }
+
+    default ObservableStringValue dayAndMonthProperty(int day, Month month) {
+        return new SimpleStringProperty(formatDayAndMonth(day, month));
+    }
 }

@@ -13,7 +13,7 @@ public final class FontIcons {
         return node;
     }
 
-    public static Text newIconText(FontIcon fontIcon) {
-        return applyFontStyleClass(new Text(), fontIcon);
+    public static Text newText(FontIcon fontIcon) {
+        return applyFontStyleClass(new Text(fontIcon.getIconText()), fontIcon);
     }
 }

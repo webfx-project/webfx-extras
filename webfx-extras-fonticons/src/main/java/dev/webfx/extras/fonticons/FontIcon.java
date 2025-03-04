@@ -1,7 +1,6 @@
 package dev.webfx.extras.fonticons;
 
 import javafx.scene.text.Font;
-import javafx.scene.text.Text;
 
 /**
  * @author Bruno Salmon

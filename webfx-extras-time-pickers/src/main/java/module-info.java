@@ -15,6 +15,7 @@ module webfx.extras.time.pickers {
     requires webfx.extras.util;
     requires webfx.extras.util.scene;
     requires webfx.kit.util;
+    requires webfx.platform.console;
     requires webfx.platform.util;
 
     // Exported packages

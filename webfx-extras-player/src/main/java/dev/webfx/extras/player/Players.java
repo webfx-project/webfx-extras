@@ -25,6 +25,8 @@ public final class Players {
     }
 
     public static boolean isMaybePlaying(Player player) {
+        if (player == null)
+            return false;
         if (player.getNavigationSupport().notification())
             return player.isPlaying();
         switch (player.getStatus()) {

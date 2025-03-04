@@ -1,6 +1,7 @@
 package dev.webfx.extras.panes;
 
 import dev.webfx.kit.util.properties.FXProperties;
+import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.DoubleProperty;
 import javafx.beans.property.IntegerProperty;
 import javafx.beans.property.ObjectProperty;
@@ -31,6 +32,8 @@ public final class ColumnsPane extends LayoutPane {
 
     private final DoubleProperty minRowHeightProperty = newLayoutDoubleProperty();
 
+    private final BooleanProperty allOrOneColumnProperty = newLayoutBooleanProperty();
+
     private <T> ObjectProperty<T> newLayoutObjectProperty(T initialValue) {
         return FXProperties.newObjectProperty(initialValue, this::requestLayout);
     }
@@ -41,6 +44,10 @@ public final class ColumnsPane extends LayoutPane {
 
     private IntegerProperty newLayoutIntegerProperty() {
         return FXProperties.newIntegerProperty(this::requestLayout);
+    }
+
+    private BooleanProperty newLayoutBooleanProperty() {
+        return FXProperties.newBooleanProperty(this::requestLayout);
     }
 
     public ColumnsPane() {
@@ -167,6 +174,18 @@ public final class ColumnsPane extends LayoutPane {
         minRowHeightProperty.set(minRowHeight);
     }
 
+    public boolean isAllOrOneColumn() {
+        return allOrOneColumnProperty.get();
+    }
+
+    public BooleanProperty allOrOneColumnProperty() {
+        return allOrOneColumnProperty;
+    }
+
+    public void setAllOrOneColumn(boolean allOrOneColumn) {
+        allOrOneColumnProperty.set(allOrOneColumn);
+    }
+
     @Override
     protected void layoutChildren() {
         double width = getWidth(), height = getHeight();
@@ -233,6 +252,8 @@ public final class ColumnsPane extends LayoutPane {
             double w = getColWidth(widthNoGap, n);
             if (w >= minColumnWidth)
                 break;
+            if (isAllOrOneColumn())
+                return 1;
             n--;
         }
         int maxColumnProperty = maxColumnCountProperty.get();

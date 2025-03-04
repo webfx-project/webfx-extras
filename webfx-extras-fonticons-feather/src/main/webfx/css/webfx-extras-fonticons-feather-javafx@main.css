@@ -1,0 +1,9 @@
+@font-face {
+    font-family: 'Feather';
+    font-style: normal;
+    src: url('webfx-css:fonts/feather/feather.ttf');
+}
+
+.font-feather {
+    -fx-font-family: 'Feather';
+}

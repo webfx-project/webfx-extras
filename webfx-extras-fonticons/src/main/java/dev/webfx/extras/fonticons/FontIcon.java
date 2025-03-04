@@ -8,28 +8,21 @@ import javafx.scene.text.Text;
  */
 public interface FontIcon {
 
-    char getChar();
+    char getIconChar();
+
+    default String getIconText() {
+        return String.valueOf(getIconChar());
+    }
 
     default String getFontFamily() {
         return getClass().getSimpleName();
     }
 
-    default String getStyleClass() {
-        return "font-" + getClass().getSimpleName().toLowerCase();
-    }
-
-    default String getString() {
-        return String.valueOf(getChar());
-    }
-
-    default Text newText() {
-        Text text = new Text(getString());
-        text.getStyleClass().add(getStyleClass());
-        // text.setFont(getFont()); // Normally set by CSS
-        return text;
-    }
-
     default Font getFont() {
         return Font.font(getFontFamily());
+    }
+
+    default String getFontStyleClass() {
+        return "font-" + getClass().getSimpleName().toLowerCase();
     }
 }

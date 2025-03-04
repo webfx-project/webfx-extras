@@ -299,7 +299,7 @@ public enum Feather implements FontIcon {
         this.code = code;
     }
 
-    public char getChar() {
+    public char getIconChar() {
         return code;
     }
 

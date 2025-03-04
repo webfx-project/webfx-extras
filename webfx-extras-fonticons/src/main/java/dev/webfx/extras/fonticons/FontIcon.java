@@ -15,7 +15,7 @@ public interface FontIcon {
     }
 
     default String getStyleClass() {
-        return "font-" + getFontFamily().toLowerCase();
+        return "font-" + getClass().getSimpleName().toLowerCase();
     }
 
     default String getString() {

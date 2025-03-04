@@ -303,4 +303,10 @@ public enum Feather implements FontIcon {
         return code;
     }
 
+    @Override
+    public String getFontFamily() {
+        // Using 'FeatherIcons' (internal family name in font file) because overriding it to 'Feather' doesn't work (JavaFX bug?)
+        return "FeatherIcons";
+    }
+
 }

@@ -1,0 +1,8 @@
+@font-face {
+    -fx-font-family: 'MaterialSymbolsOutlined';
+    src: url('webfx-css:fonts/material/MaterialSymbolsOutlined.ttf');
+}
+
+.font-material-outlined {
+    -fx-font-family: 'MaterialSymbolsOutlined';
+}

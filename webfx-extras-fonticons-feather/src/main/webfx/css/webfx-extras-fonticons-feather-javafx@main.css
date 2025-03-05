@@ -1,8 +1,8 @@
 @font-face {
-    -fx-font-family: 'FeatherIcons';
+    -fx-font-family: 'Feather';
     src: url('webfx-css:fonts/feather/feather.woff');
 }
 
 .font-feather {
-    -fx-font-family: 'FeatherIcons';
+    -fx-font-family: 'Feather';
 }

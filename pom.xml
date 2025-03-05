@@ -59,6 +59,7 @@
         <module>webfx-extras-filepicker-openjfx</module>
         <module>webfx-extras-fonticons</module>
         <module>webfx-extras-fonticons-feather</module>
+        <module>webfx-extras-fonticons-material</module>
         <module>webfx-extras-geometry</module>
         <module>webfx-extras-imagestore</module>
         <module>webfx-extras-label</module>

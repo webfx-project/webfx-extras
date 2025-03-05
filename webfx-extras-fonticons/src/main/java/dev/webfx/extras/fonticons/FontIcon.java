@@ -1,27 +1,32 @@
 package dev.webfx.extras.fonticons;
 
-import javafx.scene.text.Font;
+import dev.webfx.platform.util.Strings;
+
+import java.util.Arrays;
+import java.util.stream.Collectors;
 
 /**
  * @author Bruno Salmon
  */
 public interface FontIcon {
 
-    char getIconChar();
+    String name();
 
-    default String getIconText() {
-        return String.valueOf(getIconChar());
+    default String getDisplayName() {
+        String[] words = Strings.removePrefix(name(), "_").split("_");
+        return Arrays.stream(words).map(word ->
+            Character.toUpperCase(word.charAt(0)) + word.substring(1).toLowerCase()
+        ).collect(Collectors.joining(" "));
     }
 
-    default String getFontFamily() {
-        return getClass().getSimpleName();
+    char getChar();
+
+    default int getCodePoint() {
+        return getChar();
     }
 
-    default Font getFont() {
-        return Font.font(getFontFamily());
+    default String getText() {
+        return String.valueOf(getChar());
     }
 
-    default String getFontStyleClass() {
-        return "font-" + getClass().getSimpleName().toLowerCase();
-    }
 }

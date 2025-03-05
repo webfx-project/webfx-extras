@@ -1,6 +1,8 @@
 package dev.webfx.extras.fonticons;
 
+import dev.webfx.platform.useragent.UserAgent;
 import javafx.scene.Node;
+import javafx.scene.text.Font;
 import javafx.scene.text.Text;
 
 /**
@@ -8,12 +10,21 @@ import javafx.scene.text.Text;
  */
 public final class FontIcons {
 
-    public static <N extends Node> N applyFontStyleClass(N node, FontIcon fontIcon) {
-        node.getStyleClass().add(fontIcon.getFontStyleClass());
+    public static <N extends Node> N applyFontCssClass(N node, IconFont iconFont) {
+        node.getStyleClass().add(iconFont.getCssClass());
         return node;
     }
 
-    public static Text newText(FontIcon fontIcon) {
-        return applyFontStyleClass(new Text(fontIcon.getIconText()), fontIcon);
+    public static Text newText(FontIcon fontIcon, IconFont iconFont) {
+        return applyFontCssClass(new Text(fontIcon.getText()), iconFont);
     }
+
+    public static Font getFont(IconFont iconFont) {
+        return getFont(iconFont, -1);
+    }
+
+    public static Font getFont(IconFont iconFont, double size) {
+        return Font.font(UserAgent.isBrowser() ? iconFont.getCssFamily() : iconFont.getInternalFamily(), size);
+    }
+
 }

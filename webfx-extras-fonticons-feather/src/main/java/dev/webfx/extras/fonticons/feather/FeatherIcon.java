@@ -5,7 +5,7 @@ import dev.webfx.extras.fonticons.FontIcon;
 /**
  * @author Bruno Salmon
  */
-public enum Feather implements FontIcon {
+public enum FeatherIcon implements FontIcon {
     ACTIVITY('\ue000'),
     AIRPLAY('\ue001'),
     ALERT_CIRCLE('\ue002'),
@@ -295,18 +295,12 @@ public enum Feather implements FontIcon {
 
     private final char code;
 
-    Feather(char code) {
+    FeatherIcon(char code) {
         this.code = code;
     }
 
-    public char getIconChar() {
+    public char getChar() {
         return code;
-    }
-
-    @Override
-    public String getFontFamily() {
-        // Using 'FeatherIcons' (internal family name in font file) because overriding it to 'Feather' doesn't work (JavaFX bug?)
-        return "FeatherIcons";
     }
 
 }

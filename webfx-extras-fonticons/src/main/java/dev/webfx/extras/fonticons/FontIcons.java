@@ -15,8 +15,12 @@ public final class FontIcons {
         return node;
     }
 
+    public static Text newText(FontIcon fontIcon) {
+        return new Text(fontIcon.getText());
+    }
+
     public static Text newText(FontIcon fontIcon, IconFont iconFont) {
-        return applyFontCssClass(new Text(fontIcon.getText()), iconFont);
+        return applyFontCssClass(newText(fontIcon), iconFont);
     }
 
     public static Font getFont(IconFont iconFont) {

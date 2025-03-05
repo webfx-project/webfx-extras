@@ -32,6 +32,8 @@ public final class ColumnsPane extends LayoutPane {
 
     private final DoubleProperty minRowHeightProperty = newLayoutDoubleProperty();
 
+    private final DoubleProperty fixedRowHeightProperty = newLayoutDoubleProperty();
+
     private final BooleanProperty allOrOneColumnProperty = newLayoutBooleanProperty();
 
     private <T> ObjectProperty<T> newLayoutObjectProperty(T initialValue) {
@@ -166,12 +168,28 @@ public final class ColumnsPane extends LayoutPane {
         return maxColumnCountProperty.get();
     }
 
+    public double getMinRowHeight() {
+        return minRowHeightProperty.get();
+    }
+
     public DoubleProperty minRowHeightProperty() {
         return minRowHeightProperty;
     }
 
     public void setMinRowHeight(double minRowHeight) {
         minRowHeightProperty.set(minRowHeight);
+    }
+
+    public double getFixedRowHeight() {
+        return fixedRowHeightProperty.get();
+    }
+
+    public DoubleProperty fixedRowHeightProperty() {
+        return fixedRowHeightProperty;
+    }
+
+    public void setFixedRowHeight(double fixedRowHeight) {
+        fixedRowHeightProperty.set(fixedRowHeight);
     }
 
     public boolean isAllOrOneColumn() {
@@ -196,7 +214,8 @@ public final class ColumnsPane extends LayoutPane {
         double widthNoGap = width - insetsWidth() - hgap * (colCount - 1);
         double w = getColWidth(widthNoGap, colCount), h = height - insetsHeight();
         List<Node> children = getManagedChildren();
-        boolean multiRows = colCount < children.size();
+        int n = children.size();
+        boolean multiRows = colCount < n;
         if (multiRows) {
             h = -vgap; // this is to keep y unchanged on first row (see y += h + vgap below)
         }
@@ -204,7 +223,7 @@ public final class ColumnsPane extends LayoutPane {
         double x = insets.getLeft(), y = insets.getTop();
         HPos hpos = getAlignment().getHpos();
         VPos vpos = getAlignment().getVpos();
-        for (int i = 0; i < children.size(); i++) {
+        for (int i = 0; i < n; i++) {
             Node child = children.get(i);
             if (multiRows && i % colCount == 0) { // Detecting new row (including the first one)
                 x = insets.getLeft();
@@ -267,7 +286,10 @@ public final class ColumnsPane extends LayoutPane {
     }
 
     private double computeRowHeight(List<Node> children, int rowFirstChildIndex, int colCount, double colWidth, BiFunction<Node, Double, Double> cellHeightFunction) {
-        double h = 0;
+        double h = getFixedRowHeight();
+        if (h > 0)
+            return h;
+        h = 0;
         for (int i = rowFirstChildIndex, n = Math.min(rowFirstChildIndex + colCount, children.size()); i < n; i++) {
             Node node = children.get(i);
             double nodeHeight = boundedNodeHeightWithBias(node, colWidth, cellHeightFunction.apply(node, colWidth), true, true);

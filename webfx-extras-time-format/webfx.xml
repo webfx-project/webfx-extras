@@ -10,8 +10,4 @@
         <used-by-source-modules/>
     </dependencies>
 
-    <providers>
-        <provider interface="dev.webfx.extras.time.format.spi.TimeFormatProvider">dev.webfx.extras.time.format.spi.impl.TimeFormatProviderImpl</provider>
-    </providers>
-
 </project>

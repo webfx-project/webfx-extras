@@ -2,7 +2,7 @@ package dev.webfx.extras.time.pickers;
 
 import dev.webfx.extras.theme.text.TextTheme;
 import dev.webfx.extras.time.TimeUtil;
-import dev.webfx.extras.time.format.TimeFormat;
+import dev.webfx.extras.time.format.LocalizedTimeFormat;
 import dev.webfx.extras.time.layout.calendar.CalendarLayout;
 import dev.webfx.extras.time.layout.node.TimeGridPane;
 import dev.webfx.extras.time.layout.node.TimePane;
@@ -27,6 +27,7 @@ import javafx.scene.shape.SVGPath;
 import java.time.DayOfWeek;
 import java.time.LocalDate;
 import java.time.YearMonth;
+import java.time.format.TextStyle;
 import java.util.*;
 import java.util.function.Function;
 
@@ -242,13 +243,12 @@ public final class DatePicker {
     }
 
     private void bindDisplayedYearMonthLabel() {
-        displayedYearMonthLabel.textProperty().bind(TimeFormat.formatYearMonthProperty(getDisplayedYearMonth()));
+        displayedYearMonthLabel.textProperty().bind(LocalizedTimeFormat.formatYearMonthProperty(getDisplayedYearMonth(), TextStyle.FULL));
     }
 
     private static void bindDayOfWeekLabel(Label label, DayOfWeek dayOfWeek) {
         // We display the first letter of the day of week name
-        label.textProperty().bind(FXProperties.compute(TimeFormat.formatDayOfWeekProperty(dayOfWeek), dayName ->
-            dayName != null && !dayName.isEmpty() ? dayName.substring(0, 1) : ""));
+        label.textProperty().bind(LocalizedTimeFormat.formatDayOfWeekProperty(dayOfWeek, TextStyle.NARROW));
     }
 
     private Node createDateNode(LocalDate date) {

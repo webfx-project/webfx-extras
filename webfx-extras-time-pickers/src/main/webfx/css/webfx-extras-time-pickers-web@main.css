@@ -42,6 +42,10 @@
     font-size: 14px;
 }
 
-.webfx-datepicker .background {
+.webfx-datepicker.background, .webfx-datepicker .background {
     background-color: var(--webfx-time-pickers-background-color);
+}
+
+.webfx-datepicker.background {
+    border-radius: 10px;
 }

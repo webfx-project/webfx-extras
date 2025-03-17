@@ -1,7 +1,7 @@
 package dev.webfx.extras.player.audio.javafxmedia;
 
-import dev.webfx.extras.player.FeatureSupport;
 import dev.webfx.extras.media.metadata.MediaMetadata;
+import dev.webfx.extras.player.FeatureSupport;
 import dev.webfx.extras.player.Status;
 import dev.webfx.extras.player.impl.PlayerBase;
 import dev.webfx.kit.util.properties.FXProperties;
@@ -11,18 +11,10 @@ import javafx.scene.media.Media;
 import javafx.scene.media.MediaPlayer;
 import javafx.util.Duration;
 
-import java.util.HashMap;
-import java.util.Map;
-
 /**
  * @author Bruno Salmon
  */
 public class JavaFXMediaAudioPlayer extends PlayerBase {
-
-    // will hold the player currently playing (only one player can be playing at one time)
-    // Keeping all media players in memory (even if paused) to hold their states (ex: current time). There shouldn't be
-    // that many because we create the media players only when the user actually presses the podcast play button.
-    private static final Map<String /* source */, MediaPlayer> INSTANTIATED_PLAYERS = new /*Weak*/HashMap<>();
 
     private MediaPlayer mediaPlayer;
     private Unregisterable mediaPlayerBinding; // will allow to unbind a recycled view from its previous associated media player.
@@ -35,7 +27,7 @@ public class JavaFXMediaAudioPlayer extends PlayerBase {
 
     @Override
     public Node getMediaView() {
-        if(audioMediaView==null)
+        if (audioMediaView == null)
             audioMediaView = new AudioMediaView(this);
         return audioMediaView.getContainer();
     }
@@ -125,11 +117,7 @@ public class JavaFXMediaAudioPlayer extends PlayerBase {
             if (media instanceof JavaFXMedia) {
                 JavaFXMedia javaFxMedia = (JavaFXMedia) media;
                 Media actualJavaFxMedia = javaFxMedia.getFxMedia();
-                String source = actualJavaFxMedia.getSource();
-                //mediaPlayer = INSTANTIATED_PLAYERS.get(source);
-                if (mediaPlayer == null) {
-                    INSTANTIATED_PLAYERS.put(source, mediaPlayer = new MediaPlayer(actualJavaFxMedia));
-                }
+                mediaPlayer = new MediaPlayer(actualJavaFxMedia);
                 mediaPlayer.setOnEndOfMedia(onEndOfPlaying);
                 mediaPlayerBinding = FXProperties.runNowAndOnPropertyChange(status ->
                         setStatus(convertMediaStatus(status))

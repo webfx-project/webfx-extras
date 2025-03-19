@@ -335,20 +335,48 @@ public final class LocalizedTime {
 
     // MonthDay formatting
 
-    public static String formatMonthDay(MonthDay monthDay, FormatStyle formatStyle) {
-        return formatMonthDay(monthDay, dateFormatter(formatStyle));
+    public static String formatMonthDay(MonthDay monthDay, FormatStyle dateFormatStyle) {
+        return formatMonthDay(monthDay, dateFormatter(dateFormatStyle));
+    }
+
+    public static String formatMonthDay(MonthDay monthDay, String datePattern) {
+        return formatMonthDay(monthDay, dateFormatter(datePattern));
     }
 
     public static String formatMonthDay(MonthDay monthDay, DateTimeFormatter dateFormatter) {
         return clean(formatLocalDate(monthDay.atYear(9999), dateFormatter).replace("9999", ""));
     }
 
+    public static String formatMonthDay(MonthDay monthDay, LocalizedFormat dateFormat) {
+        return formatMonthDay(monthDay, dateFormatter(dateFormat));
+    }
+
+    public static String formatMonthDay(MonthDay monthDay, LocalizedDateTimeFormat dateTimeFormat) {
+        return formatMonthDay(monthDay, dateFormatter(dateTimeFormat));
+    }
+
     private static String clean(String text) {
         return Strings.removeSuffix(text.trim(), ",");
     }
 
-    public static ObservableStringValue formatMonthDayProperty(MonthDay monthDay, FormatStyle formatStyle) {
-        return formatMonthDayProperty(monthDay, dateFormatterProperty(formatStyle));
+    public static ObservableStringValue formatMonthDayProperty(MonthDay monthDay, FormatStyle dateFormatStyle) {
+        return formatMonthDayProperty(monthDay, dateFormatterProperty(dateFormatStyle));
+    }
+
+    public static ObservableStringValue formatMonthDayProperty(MonthDay monthDay, String datePattern) {
+        return formatMonthDayProperty(monthDay, dateFormatterProperty(datePattern));
+    }
+
+    public static ObservableStringValue formatMonthDayProperty(MonthDay monthDay, DateTimeFormatter dateFormatter) {
+        return formatMonthDayProperty(monthDay, dateFormatterProperty(dateFormatter));
+    }
+
+    public static ObservableStringValue formatMonthDayProperty(MonthDay monthDay, LocalizedFormat dateFormat) {
+        return formatMonthDayProperty(monthDay, dateFormatterProperty(dateFormat));
+    }
+
+    public static ObservableStringValue formatMonthDayProperty(MonthDay monthDay, LocalizedDateTimeFormat dateTimeFormat) {
+        return formatMonthDayProperty(monthDay, dateFormatterProperty(dateTimeFormat));
     }
 
     public static ObservableStringValue formatMonthDayProperty(MonthDay monthDay, ObservableValue<DateTimeFormatter> dateFormatterProperty) {
@@ -476,36 +504,36 @@ public final class LocalizedTime {
 
     // Shorthand methods with alternative parameter types
 
-    public static String formatMonthDay(LocalDate date, FormatStyle formatStyle) {
-        return formatMonthDay(MonthDay.of(date.getMonth(), date.getDayOfMonth()), formatStyle);
+    public static String formatMonthDay(LocalDate date, FormatStyle dateFormatStyle) {
+        return formatMonthDay(MonthDay.of(date.getMonth(), date.getDayOfMonth()), dateFormatStyle);
     }
 
-    public static ObservableStringValue formatMonthDayProperty(LocalDate date, FormatStyle formatStyle) {
-        return formatMonthDayProperty(MonthDay.of(date.getMonth(), date.getDayOfMonth()), formatStyle);
+    public static ObservableStringValue formatMonthDayProperty(LocalDate date, FormatStyle dateFormatStyle) {
+        return formatMonthDayProperty(MonthDay.of(date.getMonth(), date.getDayOfMonth()), dateFormatStyle);
     }
 
-    public static String formatLocalDate(LocalDateTime dateTime, FormatStyle formatStyle) {
-        return formatLocalDate(dateTime.toLocalDate(), formatStyle);
+    public static String formatLocalDate(LocalDateTime dateTime, FormatStyle dateFormatStyle) {
+        return formatLocalDate(dateTime.toLocalDate(), dateFormatStyle);
     }
 
-    public static ObservableStringValue formatLocalDateProperty(LocalDateTime dateTime, FormatStyle formatStyle) {
-        return formatLocalDateProperty(dateTime.toLocalDate(), formatStyle);
+    public static ObservableStringValue formatLocalDateProperty(LocalDateTime dateTime, FormatStyle dateFormatStyle) {
+        return formatLocalDateProperty(dateTime.toLocalDate(), dateFormatStyle);
     }
 
-    public static ObservableStringValue formatLocalDateTimeProperty(LocalDate date, LocalTime time, FormatStyle formatStyle) {
+    public static ObservableStringValue formatLocalDateTimeProperty(LocalDate date, LocalTime time, FormatStyle dateTimeFormatStyle) {
         if (time == null)
-            return formatLocalDateProperty(date, formatStyle);
+            return formatLocalDateProperty(date, dateTimeFormatStyle);
         if (date == null)
-            return formatLocalTimeProperty(time, formatStyle);
-        return formatLocalDateTimeProperty(LocalDateTime.of(date, time), formatStyle);
+            return formatLocalTimeProperty(time, dateTimeFormatStyle);
+        return formatLocalDateTimeProperty(LocalDateTime.of(date, time), dateTimeFormatStyle);
     }
 
-    public static String formatLocalTime(LocalDate date, LocalTime time, FormatStyle formatStyle) {
+    public static String formatLocalTime(LocalDate date, LocalTime time, FormatStyle dateTimeFormatStyle) {
         if (time == null)
-            return formatLocalDate(date, formatStyle);
+            return formatLocalDate(date, dateTimeFormatStyle);
         if (date == null)
-            return formatLocalTime(time, formatStyle);
-        return formatLocalDateTime(LocalDateTime.of(date, time), formatStyle);
+            return formatLocalTime(time, dateTimeFormatStyle);
+        return formatLocalDateTime(LocalDateTime.of(date, time), dateTimeFormatStyle);
     }
 
 

@@ -92,6 +92,38 @@ public final class LocalizedTime {
         return localeDateTimeFormatterProperty(() -> dateTimeFormatter(dateTimeFormatter));
     }
 
+    public static DateTimeFormatter dateTimeFormatter(FormatStyle dateFormatStyle, FormatStyle timeFormatStyle) {
+        return dateTimeFormatter(DateTimeFormatter.ofLocalizedDateTime(dateFormatStyle, timeFormatStyle));
+    }
+
+    public static ObservableValue<DateTimeFormatter> dateTimeFormatterProperty(FormatStyle formatStyle, FormatStyle timeFormatStyle) {
+        return localeDateTimeFormatterProperty(() -> dateTimeFormatter(formatStyle, timeFormatStyle));
+    }
+
+    public static DateTimeFormatter dateTimeFormatter(DateTimeFormatStyle dateTimeFormatStyle) {
+        FormatStyle dateStyle = dateTimeFormatStyle.getDateStyle();
+        FormatStyle timeStyle = dateTimeFormatStyle.getTimeStyle();
+        if (dateStyle != null && timeStyle != null)
+           return dateTimeFormatter(DateTimeFormatter.ofLocalizedDateTime(dateStyle, timeStyle));
+        DateTimeFormatter dateFormatter = dateTimeFormatStyle.getDateFormatter();
+        if (dateFormatter == null && dateStyle != null)
+            dateFormatter = dateFormatter(dateStyle);
+        DateTimeFormatter timeFormatter = dateTimeFormatStyle.getTimeFormatter();
+        if (timeFormatter == null && timeStyle != null)
+            timeFormatter = timeFormatter(timeStyle);
+        if (dateFormatter == null)
+            return timeFormatter;
+        if (timeFormatter == null)
+            return dateFormatter;
+        String datePattern = inferLocalDatePattern(dateFormatter, false);
+        String timePattern = "HH:mm"; // TODO: infer time pattern
+        return DateTimeFormatter.ofPattern(datePattern + " " + timePattern);
+    }
+
+    public static ObservableValue<DateTimeFormatter> dateTimeFormatterProperty(DateTimeFormatStyle dateTimeFormatStyle) {
+        return localeDateTimeFormatterProperty(() -> dateTimeFormatter(dateTimeFormatStyle));
+    }
+
 
     // Time formatter
 
@@ -150,6 +182,13 @@ public final class LocalizedTime {
         return formatObservableStringValue(dateTimeFormatterProperty, dateTimeFormatter -> formatLocalDateTime(dateTime, dateTimeFormatter));
     }
 
+    public static String formatLocalDateTime(LocalDateTime dateTime, DateTimeFormatStyle dateTimeFormatStyle) {
+        return formatLocalDateTime(dateTime, dateTimeFormatter(dateTimeFormatStyle));
+    }
+
+    public static ObservableStringValue formatLocalDateTimeProperty(LocalDateTime dateTime, DateTimeFormatStyle dateTimeFormatStyle) {
+        return formatLocalDateTimeProperty(dateTime, dateTimeFormatterProperty(dateTimeFormatStyle));
+    }
 
     // LocalTime formatting
 
@@ -228,31 +267,36 @@ public final class LocalizedTime {
 
     //
 
-    public static String inferLocalDatePattern(DateTimeFormatter dateTimeFormatter) {
+    public static String inferLocalDatePattern(DateTimeFormatter dateTimeFormatter, boolean ui) {
         LocalDate sampleDate = LocalDate.of(2025, 11, 28);
         String format = sampleDate.format(dateTimeFormatter)
+            .replaceAll("[a-zA-Z]+", "MMM")
             .replace("2025", "yyyy")
             .replace("25", "yy")
             .replace("11", "MM")
-            .replace("28", "dd");
-        Character d = null, y = null;
-        Locale locale = getLocale();
-        switch (locale.getLanguage().toLowerCase()) {
-            case "fr": d = 'j';
-            case "es":
-            case "pt":
-                y = 'a';
-                break;
+            .replace("28", "dd")
+            ;
+        if (ui) {
+            Character d = null, y = null;
+            Locale locale = getLocale();
+            switch (locale.getLanguage().toLowerCase()) {
+                case "fr":
+                    d = 'j';
+                case "es":
+                case "pt":
+                    y = 'a';
+                    break;
+            }
+            if (d != null)
+                format = format.replace('d', d);
+            if (y != null)
+                format = format.replace('y', y);
         }
-        if (d != null)
-            format = format.replace('d', d);
-        if (y != null)
-            format = format.replace('y', y);
         return format;
     }
 
-    public static ObservableStringValue inferLocalDatePatternProperty(ObservableValue<DateTimeFormatter> dateFormatterProperty) {
-        return formatObservableStringValue(dateFormatterProperty, LocalizedTime::inferLocalDatePattern);
+    public static ObservableStringValue inferLocalDatePatternProperty(ObservableValue<DateTimeFormatter> dateFormatterProperty, boolean ui) {
+        return formatObservableStringValue(dateFormatterProperty, dateTimeFormatter ->  inferLocalDatePattern(dateTimeFormatter, ui));
     }
 
     // Shorthand methods with alternative parameter types

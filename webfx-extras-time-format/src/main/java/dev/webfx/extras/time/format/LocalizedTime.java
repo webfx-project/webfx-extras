@@ -117,7 +117,7 @@ public final class LocalizedTime {
             return dateFormatter;
         String datePattern = inferLocalDatePattern(dateFormatter, false);
         String timePattern = "HH:mm"; // TODO: infer time pattern
-        return DateTimeFormatter.ofPattern(datePattern + " " + timePattern);
+        return dateFormatter(DateTimeFormatter.ofPattern(datePattern + " " + timePattern));
     }
 
     public static ObservableValue<DateTimeFormatter> dateTimeFormatterProperty(DateTimeFormatStyle dateTimeFormatStyle) {
@@ -269,8 +269,17 @@ public final class LocalizedTime {
 
     public static String inferLocalDatePattern(DateTimeFormatter dateTimeFormatter, boolean ui) {
         LocalDate sampleDate = LocalDate.of(2025, 11, 28);
+        Month month = sampleDate.getMonth();
+        DayOfWeek dayOfWeek = sampleDate.getDayOfWeek();
         String format = sampleDate.format(dateTimeFormatter)
-            .replaceAll("[a-zA-Z]+", "MMM")
+            .replace(formatMonth(month, TextStyle.FULL), "MMMM")
+            .replace(formatMonth(month, TextStyle.FULL_STANDALONE), "MMMM")
+            .replace(formatMonth(month, TextStyle.SHORT), "MMM")
+            .replace(formatMonth(month, TextStyle.SHORT_STANDALONE), "MMM")
+            .replace(formatDayOfWeek(dayOfWeek, TextStyle.FULL), "EEEE")
+            .replace(formatDayOfWeek(dayOfWeek, TextStyle.FULL_STANDALONE), "EEEE")
+            .replace(formatDayOfWeek(dayOfWeek, TextStyle.SHORT), "EEE")
+            .replace(formatDayOfWeek(dayOfWeek, TextStyle.SHORT_STANDALONE), "EEE")
             .replace("2025", "yyyy")
             .replace("25", "yy")
             .replace("11", "MM")
@@ -295,8 +304,8 @@ public final class LocalizedTime {
         return format;
     }
 
-    public static ObservableStringValue inferLocalDatePatternProperty(ObservableValue<DateTimeFormatter> dateFormatterProperty, boolean ui) {
-        return formatObservableStringValue(dateFormatterProperty, dateTimeFormatter ->  inferLocalDatePattern(dateTimeFormatter, ui));
+    public static ObservableStringValue inferLocalDatePatternProperty(ObservableValue<DateTimeFormatter> dateFormatterProperty, boolean forUserDisplay) {
+        return formatObservableStringValue(dateFormatterProperty, dateTimeFormatter ->  inferLocalDatePattern(dateTimeFormatter, forUserDisplay));
     }
 
     // Shorthand methods with alternative parameter types

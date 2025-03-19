@@ -138,7 +138,8 @@ public final class LocalizedTime {
     }
 
     public static String formatLocalDateTime(LocalDateTime dateTime, DateTimeFormatter dateTimeFormatter) {
-        return dateTime.format(dateTimeFormatter);
+        // May raise an "Unable to extract ZoneId from temporal" exception if the dateTime is not associated with a zone
+        return dateTime.atZone(ZoneId.of("GMT")).format(dateTimeFormatter).replace("GMT", "");
     }
 
     public static ObservableStringValue formatLocalDateTimeProperty(LocalDateTime dateTime, FormatStyle formatStyle) {
@@ -146,7 +147,7 @@ public final class LocalizedTime {
     }
 
     public static ObservableStringValue formatLocalDateTimeProperty(LocalDateTime dateTime, ObservableValue<DateTimeFormatter> dateTimeFormatterProperty) {
-        return formatObservableStringValue(dateTimeFormatterProperty, dateTime::format);
+        return formatObservableStringValue(dateTimeFormatterProperty, dateTimeFormatter -> formatLocalDateTime(dateTime, dateTimeFormatter));
     }
 
 

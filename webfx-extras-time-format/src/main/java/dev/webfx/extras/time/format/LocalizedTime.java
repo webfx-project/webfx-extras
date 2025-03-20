@@ -183,6 +183,10 @@ public final class LocalizedTime {
         return localeDateTimeFormatterProperty(() -> timeFormatter(timeFormatStyle));
     }
 
+    public static ObservableValue<DateTimeFormatter> timeFormatterProperty(String timePattern) {
+        return localeDateTimeFormatterProperty(() -> timeFormatter(timePattern));
+    }
+
     public static ObservableValue<DateTimeFormatter> timeFormatterProperty(DateTimeFormatter timeFormatter) {
         return localeDateTimeFormatterProperty(() -> timeFormatter(timeFormatter));
     }
@@ -314,6 +318,10 @@ public final class LocalizedTime {
 
     public static ObservableStringValue formatLocalTimeProperty(LocalTime time, FormatStyle timeFormatStyle) {
         return formatLocalTimeProperty(time, timeFormatterProperty(timeFormatStyle));
+    }
+
+    public static ObservableStringValue formatLocalTimeProperty(LocalTime time, String timePattern) {
+        return formatLocalTimeProperty(time, timeFormatterProperty(timePattern));
     }
 
     public static ObservableStringValue formatLocalTimeProperty(LocalTime time, DateTimeFormatter timeFormatter) {

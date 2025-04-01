@@ -341,56 +341,105 @@ public final class LocalizedTime {
     }
 
 
-    // MonthDay formatting
+    // MonthDay formatting (with explicit year) - year is important to have the correct day of the week for formats displaying it
 
-    public static String formatMonthDay(MonthDay monthDay, FormatStyle dateFormatStyle) {
-        return formatMonthDay(monthDay, dateFormatter(dateFormatStyle));
+    public static String formatMonthDay(MonthDay monthDay, int year, FormatStyle dateFormatStyle) {
+        return formatMonthDay(monthDay, year, dateFormatter(dateFormatStyle));
     }
 
-    public static String formatMonthDay(MonthDay monthDay, String datePattern) {
-        return formatMonthDay(monthDay, dateFormatter(datePattern));
+    public static String formatMonthDay(MonthDay monthDay, int year, String datePattern) {
+        return formatMonthDay(monthDay, year, dateFormatter(datePattern));
     }
 
-    public static String formatMonthDay(MonthDay monthDay, DateTimeFormatter dateFormatter) {
-        return clean(formatLocalDate(monthDay.atYear(9999), dateFormatter).replace("9999", ""));
+    public static String formatMonthDay(MonthDay monthDay, int year, DateTimeFormatter dateFormatter) {
+        return clean(formatLocalDate(monthDay.atYear(year), dateFormatter).replace(String.valueOf(year), ""));
     }
 
-    public static String formatMonthDay(MonthDay monthDay, LocalizedFormat dateFormat) {
-        return formatMonthDay(monthDay, dateFormatter(dateFormat));
+    public static String formatMonthDay(MonthDay monthDay, int year, LocalizedFormat dateFormat) {
+        return formatMonthDay(monthDay, year, dateFormatter(dateFormat));
     }
 
-    public static String formatMonthDay(MonthDay monthDay, LocalizedDateTimeFormat dateTimeFormat) {
-        return formatMonthDay(monthDay, dateFormatter(dateTimeFormat));
+    public static String formatMonthDay(MonthDay monthDay, int year, LocalizedDateTimeFormat dateTimeFormat) {
+        return formatMonthDay(monthDay, year, dateFormatter(dateTimeFormat));
+    }
+
+    public static ObservableStringValue formatMonthDayProperty(MonthDay monthDay, int year, FormatStyle dateFormatStyle) {
+        return formatMonthDayProperty(monthDay, year, dateFormatterProperty(dateFormatStyle));
+    }
+
+    public static ObservableStringValue formatMonthDayProperty(MonthDay monthDay, int year, String datePattern) {
+        return formatMonthDayProperty(monthDay, year, dateFormatterProperty(datePattern));
+    }
+
+    public static ObservableStringValue formatMonthDayProperty(MonthDay monthDay, int year, DateTimeFormatter dateFormatter) {
+        return formatMonthDayProperty(monthDay, year, dateFormatterProperty(dateFormatter));
+    }
+
+    public static ObservableStringValue formatMonthDayProperty(MonthDay monthDay, int year, LocalizedFormat dateFormat) {
+        return formatMonthDayProperty(monthDay, year, dateFormatterProperty(dateFormat));
+    }
+
+    public static ObservableStringValue formatMonthDayProperty(MonthDay monthDay, int year, LocalizedDateTimeFormat dateTimeFormat) {
+        return formatMonthDayProperty(monthDay, year, dateFormatterProperty(dateTimeFormat));
+    }
+
+    public static ObservableStringValue formatMonthDayProperty(MonthDay monthDay, int year, ObservableValue<DateTimeFormatter> dateFormatterProperty) {
+        return formatObservableStringValue(dateFormatterProperty, dateTimeFormatter -> formatMonthDay(monthDay, year, dateTimeFormatter));
     }
 
     private static String clean(String text) {
         return Strings.removeSuffix(text.trim(), ",");
     }
 
+    // MonthDay formatting (with implicit year = this year) - also handy for formats not displaying the day of the week
+
+    public static String formatMonthDay(MonthDay monthDay, FormatStyle dateFormatStyle) {
+        return formatMonthDay(monthDay, thisYear(), dateFormatStyle);
+    }
+
+    public static String formatMonthDay(MonthDay monthDay, String datePattern) {
+        return formatMonthDay(monthDay, thisYear(), datePattern);
+    }
+
+    public static String formatMonthDay(MonthDay monthDay, DateTimeFormatter dateFormatter) {
+        return formatMonthDay(monthDay, thisYear(), dateFormatter);
+    }
+
+    public static String formatMonthDay(MonthDay monthDay, LocalizedFormat dateFormat) {
+        return formatMonthDay(monthDay, thisYear(), dateFormat);
+    }
+
+    public static String formatMonthDay(MonthDay monthDay, LocalizedDateTimeFormat dateTimeFormat) {
+        return formatMonthDay(monthDay, thisYear(), dateTimeFormat);
+    }
+
     public static ObservableStringValue formatMonthDayProperty(MonthDay monthDay, FormatStyle dateFormatStyle) {
-        return formatMonthDayProperty(monthDay, dateFormatterProperty(dateFormatStyle));
+        return formatMonthDayProperty(monthDay, thisYear(), dateFormatStyle);
     }
 
     public static ObservableStringValue formatMonthDayProperty(MonthDay monthDay, String datePattern) {
-        return formatMonthDayProperty(monthDay, dateFormatterProperty(datePattern));
+        return formatMonthDayProperty(monthDay, thisYear(), datePattern);
     }
 
     public static ObservableStringValue formatMonthDayProperty(MonthDay monthDay, DateTimeFormatter dateFormatter) {
-        return formatMonthDayProperty(monthDay, dateFormatterProperty(dateFormatter));
+        return formatMonthDayProperty(monthDay, thisYear(), dateFormatter);
     }
 
     public static ObservableStringValue formatMonthDayProperty(MonthDay monthDay, LocalizedFormat dateFormat) {
-        return formatMonthDayProperty(monthDay, dateFormatterProperty(dateFormat));
+        return formatMonthDayProperty(monthDay, thisYear(), dateFormat);
     }
 
     public static ObservableStringValue formatMonthDayProperty(MonthDay monthDay, LocalizedDateTimeFormat dateTimeFormat) {
-        return formatMonthDayProperty(monthDay, dateFormatterProperty(dateTimeFormat));
+        return formatMonthDayProperty(monthDay, thisYear(), dateTimeFormat);
     }
 
     public static ObservableStringValue formatMonthDayProperty(MonthDay monthDay, ObservableValue<DateTimeFormatter> dateFormatterProperty) {
-        return formatObservableStringValue(dateFormatterProperty, dateTimeFormatter -> formatMonthDay(monthDay, dateTimeFormatter));
+        return formatMonthDayProperty(monthDay, thisYear(), dateFormatterProperty);
     }
 
+    private static int thisYear() {
+        return LocalDate.now().getYear();
+    }
 
     // DayOfWeek formatting
 
@@ -513,11 +562,11 @@ public final class LocalizedTime {
     // Shorthand methods with alternative parameter types
 
     public static String formatMonthDay(LocalDate date, FormatStyle dateFormatStyle) {
-        return formatMonthDay(MonthDay.of(date.getMonth(), date.getDayOfMonth()), dateFormatStyle);
+        return formatMonthDay(MonthDay.of(date.getMonth(), date.getDayOfMonth()), date.getYear(), dateFormatStyle);
     }
 
     public static ObservableStringValue formatMonthDayProperty(LocalDate date, FormatStyle dateFormatStyle) {
-        return formatMonthDayProperty(MonthDay.of(date.getMonth(), date.getDayOfMonth()), dateFormatStyle);
+        return formatMonthDayProperty(MonthDay.of(date.getMonth(), date.getDayOfMonth()), date.getYear(), dateFormatStyle);
     }
 
     public static String formatLocalDate(LocalDateTime dateTime, FormatStyle dateFormatStyle) {

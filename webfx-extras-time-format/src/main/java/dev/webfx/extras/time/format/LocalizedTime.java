@@ -337,7 +337,54 @@ public final class LocalizedTime {
     }
 
     public static ObservableStringValue formatLocalTimeProperty(LocalTime time, ObservableValue<DateTimeFormatter> timeFormatterProperty) {
-        return formatObservableStringValue(timeFormatterProperty, time::format);
+        return formatObservableStringValue(timeFormatterProperty, timeFormatter -> formatLocalTime(time, timeFormatter));
+    }
+
+
+    // LocalTime range formatting
+
+    public static String formatLocalTimeRange(LocalTime startTime, LocalTime endTime, FormatStyle timeFormatStyle) {
+        return formatLocalTimeRange(startTime, endTime, timeFormatter(timeFormatStyle));
+    }
+
+    public static String formatLocalTimeRange(LocalTime startTime, LocalTime endTime, String timePattern) {
+        return formatLocalTimeRange(startTime, endTime, timeFormatter(timePattern));
+    }
+
+    public static String formatLocalTimeRange(LocalTime startTime, LocalTime endTime, DateTimeFormatter timeFormatter) {
+        return formatLocalTime(startTime, timeFormatter) + " - " + formatLocalTime(endTime, timeFormatter);
+    }
+
+    public static String formatLocalTimeRange(LocalTime startTime, LocalTime endTime, LocalizedFormat timeFormat) {
+        return formatLocalTimeRange(startTime, endTime, timeFormatter(timeFormat));
+    }
+
+    public static String formatLocalTimeRange(LocalTime startTime, LocalTime endTime, LocalizedDateTimeFormat dateTimeFormat) {
+        return formatLocalTimeRange(startTime, endTime, timeFormatter(dateTimeFormat));
+    }
+
+    public static ObservableStringValue formatLocalTimeRangeProperty(LocalTime startTime, LocalTime endTime, FormatStyle timeFormatStyle) {
+        return formatLocalTimeRangeProperty(startTime, endTime, timeFormatterProperty(timeFormatStyle));
+    }
+
+    public static ObservableStringValue formatLocalTimeRangeProperty(LocalTime startTime, LocalTime endTime, String timePattern) {
+        return formatLocalTimeRangeProperty(startTime, endTime, timeFormatterProperty(timePattern));
+    }
+
+    public static ObservableStringValue formatLocalTimeRangeProperty(LocalTime startTime, LocalTime endTime, DateTimeFormatter timeFormatter) {
+        return formatLocalTimeRangeProperty(startTime, endTime, timeFormatterProperty(timeFormatter));
+    }
+
+    public static ObservableStringValue formatLocalTimeRangeProperty(LocalTime startTime, LocalTime endTime, LocalizedFormat timeFormat) {
+        return formatLocalTimeRangeProperty(startTime, endTime, timeFormatterProperty(timeFormat));
+    }
+
+    public static ObservableStringValue formatLocalTimeRangeProperty(LocalTime startTime, LocalTime endTime, LocalizedDateTimeFormat dateTimeFormat) {
+        return formatLocalTimeRangeProperty(startTime, endTime, timeFormatterProperty(dateTimeFormat));
+    }
+
+    public static ObservableStringValue formatLocalTimeRangeProperty(LocalTime startTime, LocalTime endTime, ObservableValue<DateTimeFormatter> timeFormatterProperty) {
+        return formatObservableStringValue(timeFormatterProperty, timeFormatter -> formatLocalTimeRange(startTime, endTime, timeFormatter));
     }
 
 
@@ -585,12 +632,16 @@ public final class LocalizedTime {
         return formatLocalDateTimeProperty(LocalDateTime.of(date, time), dateTimeFormatStyle);
     }
 
-    public static String formatLocalTime(LocalDate date, LocalTime time, FormatStyle dateTimeFormatStyle) {
+    public static String formatLocalTimeRange(LocalDate date, LocalTime time, FormatStyle dateTimeFormatStyle) {
         if (time == null)
             return formatLocalDate(date, dateTimeFormatStyle);
         if (date == null)
             return formatLocalTime(time, dateTimeFormatStyle);
         return formatLocalDateTime(LocalDateTime.of(date, time), dateTimeFormatStyle);
+    }
+
+    public static LocalTime durationToLocalTime(Duration duration) {
+        return LocalTime.ofNanoOfDay(duration.getNano());
     }
 
 

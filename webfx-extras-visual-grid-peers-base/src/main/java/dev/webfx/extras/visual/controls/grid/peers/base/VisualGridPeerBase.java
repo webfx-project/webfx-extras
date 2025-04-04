@@ -1,5 +1,6 @@
 package dev.webfx.extras.visual.controls.grid.peers.base;
 
+import dev.webfx.extras.visual.controls.VisualResultControlSkinBase;
 import javafx.beans.value.ObservableValue;
 import javafx.scene.paint.*;
 import dev.webfx.extras.cell.renderer.ImageTextRenderer;
@@ -148,15 +149,7 @@ public class VisualGridPeerBase
     }
 
     public Paint getRowBackground(Object value) {
-        if (value instanceof String) {
-            Paint paint = Paint.valueOf(value.toString());
-            if (paint instanceof Color) {
-                Color color = (Color) paint;
-                paint = new LinearGradient(0, 0, 0, 1, true, CycleMethod.NO_CYCLE, new Stop(0, color.deriveColor(0, 1.0, 1.2, 1.0)), new Stop(1, color.deriveColor(0, 1.0, 0.8, 1.0)));
-            }
-            return paint;
-        }
-        return null;
+        return VisualResultControlSkinBase.getRowBackground(value);
     }
 
     public Paint getRowBackground(int rowIndex) {
@@ -180,17 +173,7 @@ public class VisualGridPeerBase
     }
 
     public String getRowStyle(int rowIndex) {
-        Object[] styleClasses = getRowStyleClasses(rowIndex);
-        if (styleClasses == null)
-            return null;
-        StringBuilder sb = new StringBuilder();
-        for (Object styleClass : styleClasses) {
-            if (styleClass != null) {
-                if (sb.length() > 0)
-                    sb.append(' ');
-                sb.append(styleClass);
-            }
-        }
-        return sb.toString().trim();
+        return VisualResultControlSkinBase.getRowStyle(getRowStyleClasses(rowIndex));
     }
+
 }

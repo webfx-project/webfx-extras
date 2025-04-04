@@ -8,6 +8,7 @@ module webfx.extras.visual.grid.peers.base {
     requires javafx.graphics;
     requires webfx.extras.cell;
     requires webfx.extras.visual;
+    requires webfx.extras.visual.controls;
     requires webfx.extras.visual.grid;
     requires webfx.extras.visual.peers.base;
     requires webfx.kit.javafxgraphics.peers;

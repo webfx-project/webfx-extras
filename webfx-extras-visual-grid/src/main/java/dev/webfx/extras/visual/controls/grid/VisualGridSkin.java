@@ -1,23 +1,23 @@
 package dev.webfx.extras.visual.controls.grid;
 
+import dev.webfx.extras.visual.*;
+import dev.webfx.extras.visual.controls.SelectableVisualResultControlSkinBase;
+import dev.webfx.kit.util.properties.FXProperties;
+import dev.webfx.platform.scheduler.Scheduled;
+import dev.webfx.platform.uischeduler.UiScheduler;
+import dev.webfx.platform.useragent.UserAgent;
+import dev.webfx.platform.util.collection.Collections;
 import javafx.geometry.HPos;
 import javafx.geometry.Insets;
 import javafx.geometry.VPos;
 import javafx.scene.Node;
 import javafx.scene.control.ScrollPane;
 import javafx.scene.layout.Background;
-import javafx.scene.layout.BackgroundFill;
+import javafx.scene.layout.HBox;
 import javafx.scene.layout.Pane;
 import javafx.scene.layout.Region;
-import javafx.scene.paint.Color;
 import javafx.scene.paint.Paint;
 import javafx.scene.shape.Rectangle;
-import dev.webfx.extras.visual.*;
-import dev.webfx.extras.visual.controls.SelectableVisualResultControlSkinBase;
-import dev.webfx.kit.util.properties.FXProperties;
-import dev.webfx.platform.uischeduler.UiScheduler;
-import dev.webfx.platform.scheduler.Scheduled;
-import dev.webfx.platform.util.collection.Collections;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -28,6 +28,10 @@ import java.util.function.Consumer;
  */
 public final class VisualGridSkin extends SelectableVisualResultControlSkinBase<VisualGrid, Pane, Pane> {
 
+    private static final double ROW_HEIGHT = 48;
+    private static final double HEADER_HEIGHT = ROW_HEIGHT;
+    private static final int INITIAL_BUILT_ROWS_MAX = 20;
+
     private final GridHead gridHead = new GridHead();
     private final GridBody gridBody = new GridBody();
     private ScrollPane bodyScrollPane;
@@ -36,14 +40,10 @@ public final class VisualGridSkin extends SelectableVisualResultControlSkinBase<
     private final static Pane fakeCell = new Pane();
     private List<Node> fakeCellChildren;
 
-    private final static double rowHeight = 24;
-    private final static double headerHeight = rowHeight;
-
     VisualGridSkin(VisualGrid visualGrid) {
         super(visualGrid, false);
         visualGrid.getStyleClass().add("grid");
         clipChildren(gridBody);
-        gridBody.setBackground(Background.fill(Color.grayRgb(245)));
         FXProperties.runNowAndOnPropertiesChange(() -> {
             if (visualGrid.isFullHeight()) {
                 if (bodyScrollPane != null)
@@ -55,16 +55,15 @@ public final class VisualGridSkin extends SelectableVisualResultControlSkinBase<
                         bodyScrollPane = new ScrollPane();
                         bodyScrollPane.setHbarPolicy(ScrollPane.ScrollBarPolicy.NEVER);
                         FXProperties.runOnPropertyChange(() -> {
-                                // Same code as LayoutUtil.computeScrollPaneHoffset() - but not accessible from here
-                                double hmin = bodyScrollPane.getHmin();
-                                double hmax = bodyScrollPane.getHmax();
-                                double hvalue = bodyScrollPane.getHvalue();
-                                double contentWidth = gridBody.getLayoutBounds().getWidth();
-                                double viewportWidth = bodyScrollPane.getViewportBounds().getWidth();
-                                headOffset = Math.max(0, contentWidth - viewportWidth) * (hvalue - hmin) / (hmax - hmin);
-                                gridHead.relocate(-headOffset, 0);
-                            }
-                        , bodyScrollPane.hvalueProperty());
+                            // Same code as LayoutUtil.computeScrollPaneHoffset() - but not accessible from here
+                            double hmin = bodyScrollPane.getHmin();
+                            double hmax = bodyScrollPane.getHmax();
+                            double hvalue = bodyScrollPane.getHvalue();
+                            double contentWidth = gridBody.getLayoutBounds().getWidth();
+                            double viewportWidth = bodyScrollPane.getViewportBounds().getWidth();
+                            headOffset = Math.max(0, contentWidth - viewportWidth) * (hvalue - hmin) / (hmax - hmin);
+                            gridHead.relocate(-headOffset, 0);
+                        }, bodyScrollPane.hvalueProperty());
                     }
                     bodyScrollPane.setContent(gridBody);
                     body = bodyScrollPane;
@@ -95,17 +94,17 @@ public final class VisualGridSkin extends SelectableVisualResultControlSkinBase<
 
     @Override
     protected void buildRowCells(Pane bodyRow, int rowIndex) {
-        if (getRowCount() <= 20)
+        if (getRowCount() <= INITIAL_BUILT_ROWS_MAX)
             super.buildRowCells(bodyRow, rowIndex);
     }
 
     @Override
     protected void endBuildingGrid() {
-        if (getRowCount() <= 20) {
+        if (getRowCount() <= INITIAL_BUILT_ROWS_MAX) {
             gridHead.endBuildingGrid();
             gridBody.endBuildingGrid();
         } else
-            UiScheduler.schedulePeriodicInAnimationFrame(new Consumer<Scheduled/*GWT*/>() {
+            UiScheduler.schedulePeriodicInAnimationFrame(new Consumer<>() {
                 final VisualResult rs = getRs();
                 int rowIndex = 0;
                 @Override
@@ -123,6 +122,7 @@ public final class VisualGridSkin extends SelectableVisualResultControlSkinBase<
                             gridBody.endBuildingGrid();
                         }
                         rowIndex++;
+                        lastContentWidth = -1;
                     }
                 }
             });
@@ -209,7 +209,7 @@ public final class VisualGridSkin extends SelectableVisualResultControlSkinBase<
 
     @Override
     protected double computePrefHeight(double width, double topInset, double rightInset, double bottomInset, double leftInset) {
-        return (getSkinnable().isHeaderVisible() ? headerHeight : 0) + rowHeight * getRowCount() + topInset + bottomInset;
+        return (getSkinnable().isHeaderVisible() ? HEADER_HEIGHT : 0) + ROW_HEIGHT * getRowCount() + topInset + bottomInset;
     }
 
     @Override
@@ -221,9 +221,9 @@ public final class VisualGridSkin extends SelectableVisualResultControlSkinBase<
     protected void layoutChildren(double contentX, double contentY, double contentWidth, double contentHeight) {
         updateColumnWidths(contentWidth);
         if (getSkinnable().isHeaderVisible()) {
-            layoutInArea(gridHead, contentX - headOffset, contentY, columnWidthsTotal, headerHeight, -1, HPos.LEFT, VPos.TOP);
-            contentY += headerHeight;
-            contentHeight -= headerHeight;
+            layoutInArea(gridHead, contentX - headOffset, contentY, columnWidthsTotal, HEADER_HEIGHT, -1, HPos.LEFT, VPos.TOP);
+            contentY += HEADER_HEIGHT;
+            contentHeight -= HEADER_HEIGHT;
         }
         layoutInArea(body, contentX, contentY, contentWidth, contentHeight, -1, HPos.LEFT, VPos.TOP);
     }
@@ -238,6 +238,7 @@ public final class VisualGridSkin extends SelectableVisualResultControlSkinBase<
             int columnCount = headColumns.size();
             int remainingColumnCount = columnCount;
             double currentColumnWidthsTotal = 0;
+            // First we set the fixed width columns
             for (GridColumn headColumn : headColumns) {
                 Double fixedWidth = headColumn.fixedWidth;
                 if (fixedWidth != null) {
@@ -251,8 +252,9 @@ public final class VisualGridSkin extends SelectableVisualResultControlSkinBase<
             }
             //double resizableColumnWidth = snapSize(remainingColumnWidthsTotal / remainingColumnCount);
             List<GridColumn> bodyColumns = gridBody.bodyColumns;
-            if (remainingColumnCount > 0) {
+            if (remainingColumnCount > 0) { // If there are resizable columns
                 double currentResizableColumnWidthsTotal = 0;
+                // We set the column width from the body column cumulator
                 for (int i = 0; i < columnCount; i++) {
                     GridColumn headColumn = headColumns.get(i);
                     if (headColumn.fixedWidth == null) {
@@ -265,6 +267,7 @@ public final class VisualGridSkin extends SelectableVisualResultControlSkinBase<
                 }
                 currentColumnWidthsTotal += currentResizableColumnWidthsTotal;
                 double remainingColumnWidthsTotal = columnWidthsTotal - currentColumnWidthsTotal;
+                // If there is some remaining space, we spread it over the resizable columns, keeping same proportions
                 if (remainingColumnWidthsTotal > 0) {
                     for (GridColumn headColumn : headColumns)
                         if (headColumn.fixedWidth == null) {
@@ -272,7 +275,7 @@ public final class VisualGridSkin extends SelectableVisualResultControlSkinBase<
                             columnWidth += columnWidth / currentResizableColumnWidthsTotal * remainingColumnWidthsTotal;
                             headColumn.setColumnWidth(columnWidth);
                         }
-                } else if (remainingColumnWidthsTotal < 0) {
+                } else if (remainingColumnWidthsTotal < 0) { // if we exceed the content width, we reduce the largest resizable column
                     GridColumn largestColumn = null;
                     for (GridColumn headColumn : headColumns)
                         if (headColumn.fixedWidth == null && (largestColumn == null || largestColumn.getColumnWidth() < headColumn.getColumnWidth()))
@@ -281,10 +284,13 @@ public final class VisualGridSkin extends SelectableVisualResultControlSkinBase<
                         largestColumn.setColumnWidth(Math.max(0, largestColumn.getColumnWidth() + remainingColumnWidthsTotal));
                 }
             }
+            // Applying the column widths to the body columns
             for (int i = 0; i < columnCount; i++)
                 bodyColumns.get(i).setColumnWidth(headColumns.get(i).getColumnWidth());
             gridBody.setPrefWidth(columnWidthsTotal);
             lastContentWidth = contentWidth;
+            // Once the column widths are set, we also need to layout the grid head so that its columns are aligned with the body ones
+            gridHead.requestLayout();
         }
     }
 
@@ -321,13 +327,13 @@ public final class VisualGridSkin extends SelectableVisualResultControlSkinBase<
 
         @Override
         protected void layoutChildren() {
-            boolean isJavaFxScrollPane = body == bodyScrollPane && bodyScrollPane.getSkin() != null;
-            double x = 0; // isJavaFxScrollPane ? 1 : 0;
-            double height = rowHeight;
+            boolean isOpenJFXScrollPane = body == bodyScrollPane && bodyScrollPane.getSkin() != null;
+            double x = 0; // isOpenJFXScrollPane ? 1 : 0;
+            double height = ROW_HEIGHT;
             for (GridColumn headColumn : headColumns) {
                 double columnWidth = headColumn.getColumnWidth();
                 headColumn.resizeRelocate(x, 0, columnWidth, height);
-                if (isJavaFxScrollPane)
+                if (isOpenJFXScrollPane)
                     headColumn.setClip(new Rectangle(columnWidth, height));
                 x += columnWidth;
             }
@@ -353,7 +359,7 @@ public final class VisualGridSkin extends SelectableVisualResultControlSkinBase<
             rowsAndColumns.addAll(bodyColumns);
             getChildren().setAll(rowsAndColumns);
             //setPrefWidth(getGridColumnCount() * columnWidth);
-            setPrefHeight(getRowCount() * rowHeight);
+            setPrefHeight(getRowCount() * ROW_HEIGHT);
         }
 
         private GridColumn getOrCreateBodyColumn(int columnIndex) {
@@ -364,7 +370,7 @@ public final class VisualGridSkin extends SelectableVisualResultControlSkinBase<
                 bodyColumns.add(gridColumn = new GridColumn());
                 gridColumn.setOnMouseClicked(e -> {
                     if (getSkinnable().getSelectionMode() != SelectionMode.DISABLED) {
-                        int rowIndex = (int) (e.getY() / rowHeight);
+                        int rowIndex = (int) (e.getY() / ROW_HEIGHT);
                         Pane row = Collections.get(bodyRows, rowIndex);
                         if (row != null)
                             row.getOnMouseClicked().handle(e);
@@ -381,7 +387,7 @@ public final class VisualGridSkin extends SelectableVisualResultControlSkinBase<
                 bodyRow = bodyRows.get(rowIndex);
             else {
                 bodyRow = new Pane();
-                bodyRow.relocate(0, rowIndex * rowHeight);
+                bodyRow.relocate(0, rowIndex * ROW_HEIGHT);
                 //bodyRow.resize(BIG_WIDTH, rowHeight);
                 bodyRow.getStyleClass().add("grid-row");
                 bodyRows.add(bodyRow);
@@ -401,21 +407,21 @@ public final class VisualGridSkin extends SelectableVisualResultControlSkinBase<
                         bodyRow.getStyleClass().add(rowStyleClass.toString());
             }
             Paint fill = getRowBackground(rowIndex);
-            bodyRow.setBackground(fill == null ? null : new Background(new BackgroundFill(fill, null, null)));
-            //bodyRow.setBackground(new Background(new BackgroundFill(Color.YELLOW, null, null)));
+            bodyRow.setBackground(fill == null ? null : Background.fill(fill));
         }
 
         @Override
         protected void layoutChildren() {
             double width = columnWidthsTotal;
             for (Pane row : bodyRows)
-                row.resize(width, rowHeight);
+                row.resize(width, ROW_HEIGHT);
             double x = 0;
-            double height = rowHeight * getRowCount();
+            double height = ROW_HEIGHT * getRowCount();
             for (GridColumn bodyColumn : bodyColumns) {
                 double columnWidth = bodyColumn.getColumnWidth();
                 bodyColumn.resizeRelocate(x, 0, columnWidth, height);
-                bodyColumn.setClip(new Rectangle(columnWidth, height));
+                if (!UserAgent.isBrowser()) // We need to clip the column to avoid overflow (done via CSS in web)
+                    bodyColumn.setClip(new Rectangle(columnWidth, height));
                 x += columnWidth;
             }
         }
@@ -489,8 +495,12 @@ public final class VisualGridSkin extends SelectableVisualResultControlSkinBase<
             double cellWidth = getWidth();
             double y = 0;
             for (Node child : getChildren()) {
-                layoutInArea(child, 0, y, cellWidth, rowHeight, -1, CELL_MARGIN, true, true, hAlignment, vAlignment, snapToPixel);
-                y += rowHeight;
+                // We try to fill the with and height in general, but for HBox we don't fill the width in order to make
+                // hAlignment work (otherwise fillWidth would stretch the HBox which would apply its own internal
+                // alignement instead).
+                boolean fillWidth = !(child instanceof HBox);
+                layoutInArea(child, 0, y, cellWidth, ROW_HEIGHT, -1, CELL_MARGIN, fillWidth, true, hAlignment, vAlignment, snapToPixel);
+                y += ROW_HEIGHT;
             }
         }
     }

@@ -211,7 +211,7 @@ public final class LocalizedTime {
     }
 
     public static String formatLocalDate(LocalDate date, DateTimeFormatter dateFormatter) {
-        return date.format(dateFormatter);
+        return date == null ? null : date.format(dateFormatter);
     }
 
     public static String formatLocalDate(LocalDate date, LocalizedFormat dateFormat) {
@@ -259,7 +259,7 @@ public final class LocalizedTime {
 
     public static String formatLocalDateTime(LocalDateTime dateTime, DateTimeFormatter dateTimeFormatter) {
         // May raise an "Unable to extract ZoneId from temporal" exception if the dateTime is not associated with a zone
-        return dateTime.atZone(ZoneId.of("GMT")).format(dateTimeFormatter(dateTimeFormatter)).replace("GMT", "");
+        return dateTime == null ? null : dateTime.atZone(ZoneId.of("GMT")).format(dateTimeFormatter(dateTimeFormatter)).replace("GMT", "");
     }
 
     public static String formatLocalDateTime(LocalDateTime dateTime, LocalizedFormat dateFormat, LocalizedFormat timeFormat) {
@@ -305,7 +305,7 @@ public final class LocalizedTime {
     }
 
     public static String formatLocalTime(LocalTime time, DateTimeFormatter timeFormatter) {
-        return time.format(timeFormatter(timeFormatter));
+        return time == null ? null : time.format(timeFormatter(timeFormatter));
     }
 
     public static String formatLocalTime(LocalTime time, LocalizedFormat timeFormat) {
@@ -514,7 +514,7 @@ public final class LocalizedTime {
 
     public static String formatYearMonth(YearMonth yearMonth, TextStyle textStyle) {
         //return yearMonth.format(getFormatter(formatStyle)); // raises exception Unsupported field: DayOfWeek
-        return formatMonth(yearMonth.getMonth(), textStyle) + " " + yearMonth.getYear(); //
+        return yearMonth == null ? null : formatMonth(yearMonth.getMonth(), textStyle) + " " + yearMonth.getYear(); //
     }
 
     public static ObservableStringValue formatYearMonthProperty(YearMonth yearMonth, TextStyle textStyle) {

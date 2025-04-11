@@ -10,7 +10,7 @@ public interface ValueRendererFactory {
     ValueRenderer createValueRenderer(Type type);
 
     static ValueRendererFactory getDefault() {
-        return ValueRendererFactoryImpl.INSTANCE;
+        return GenericValueRendererFactory.SINGLETON;
     }
 
 }

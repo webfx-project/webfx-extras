@@ -55,7 +55,7 @@ public interface VisualColumn {
     Object getSource(); // Ex: EntityColumn
 
     /**
-     * Quick factory method for a simple DisplayColumn creation with just a label and type. Use the DisplayColumnBuilder
+     * Quick factory method for a simple VisualColumn creation with just a label and type. Use the VisualColumnBuilder
      * for more complex cases.
      */
     static VisualColumn create(Object label, Type type) {

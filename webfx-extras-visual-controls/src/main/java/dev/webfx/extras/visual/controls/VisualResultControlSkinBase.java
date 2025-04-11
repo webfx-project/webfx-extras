@@ -211,7 +211,7 @@ public abstract class VisualResultControlSkinBase<C extends VisualResultControl,
         return getSafeResultValue(rowIndex, rowBackgroundColumnIndex);
     }
 
-    public Paint getRowBackground(Object value) {
+    public static Paint getRowBackground(Object value) {
         if (value instanceof String) {
             Paint paint = Paint.valueOf(value.toString());
             if (paint instanceof Color) {
@@ -244,7 +244,10 @@ public abstract class VisualResultControlSkinBase<C extends VisualResultControl,
     }
 
     public String getRowStyle(int rowIndex) {
-        Object[] styleClasses = getRowStyleClasses(rowIndex);
+        return getRowStyle(getRowStyleClasses(rowIndex));
+    }
+
+    public static String getRowStyle(Object[] styleClasses) {
         if (styleClasses == null)
             return null;
         StringBuilder sb = new StringBuilder();

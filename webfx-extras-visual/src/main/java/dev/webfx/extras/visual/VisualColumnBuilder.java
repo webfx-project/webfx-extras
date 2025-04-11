@@ -67,8 +67,12 @@ public final class VisualColumnBuilder {
         return new VisualColumnImpl(headerValue, label, type, role, style, valueRenderer, cumulator, source);
     }
 
+    public static VisualColumnBuilder create() {
+        return create(null);
+    }
+
     public static VisualColumnBuilder create(Object label) {
-        return new VisualColumnBuilder(label, null);
+        return create(label, null);
     }
 
     public static VisualColumnBuilder create(Object label, Type type) {

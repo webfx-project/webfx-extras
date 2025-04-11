@@ -10,9 +10,9 @@ import dev.webfx.platform.util.Arrays;
 /**
  * @author Bruno Salmon
  */
-final class ValueRendererFactoryImpl implements ValueRendererFactory {
+public final class GenericValueRendererFactory implements ValueRendererFactory {
 
-    final static ValueRendererFactoryImpl INSTANCE = new ValueRendererFactoryImpl();
+    public final static GenericValueRendererFactory SINGLETON = new GenericValueRendererFactory();
 
     @Override
     public ValueRenderer createValueRenderer(Type type) {
@@ -37,7 +37,7 @@ final class ValueRendererFactoryImpl implements ValueRendererFactory {
         return TextRenderer.SINGLETON;
     }
 
-    protected NodeCollator getNodeCollator() {
+    private NodeCollator getNodeCollator() {
         return NodeCollatorRegistry.hBoxCollator();
     }
 }

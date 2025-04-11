@@ -1,5 +1,6 @@
 package dev.webfx.extras.player.audio.javafxmedia;
 
+import dev.webfx.extras.media.metadata.MediaMetadata;
 import dev.webfx.extras.media.metadata.MetadataUtil;
 import dev.webfx.extras.panes.ScalePane;
 import dev.webfx.extras.player.Player;
@@ -8,9 +9,6 @@ import dev.webfx.extras.styles.bootstrap.Bootstrap;
 import dev.webfx.kit.util.properties.FXProperties;
 import dev.webfx.kit.util.properties.Unregisterable;
 import dev.webfx.platform.util.Objects;
-import javafx.beans.InvalidationListener;
-import javafx.beans.Observable;
-import javafx.beans.binding.StringBinding;
 import javafx.beans.property.LongProperty;
 import javafx.beans.property.SimpleLongProperty;
 import javafx.beans.property.SimpleStringProperty;
@@ -34,6 +32,8 @@ import javafx.util.Duration;
 
 public class AudioMediaView {
 
+    private static final double PLAYER_WIDTH = 700;
+
     private final Player player;
     final static HBox container = new HBox();
 
@@ -43,7 +43,6 @@ public class AudioMediaView {
     protected Pane pauseButton;
     protected final ProgressBar progressBar = new ProgressBar();
     protected final VBox titleAndProgressBarVBox = new VBox();
-    static final int PLAYER_WIDTH = 700;
     protected StringProperty titleProperty = new SimpleStringProperty();
     protected LongProperty durationProperty = new SimpleLongProperty();
     protected double elapsedTimeMilliseconds = 0;
@@ -57,12 +56,7 @@ public class AudioMediaView {
 
     public AudioMediaView(Player player) {
         this.player = player;
-        player.mediaProperty().addListener(new InvalidationListener() {
-            @Override
-            public void invalidated(Observable observable) {
-                playNewMedia();
-            }
-        });
+        FXProperties.runOnPropertyChange(this::playNewMedia, player.mediaProperty());
         Label title = new Label();
         title.textProperty().bind(titleProperty);
         titleProperty.set("Choose an audio track to play");
@@ -71,21 +65,12 @@ public class AudioMediaView {
         title.setMaxWidth(450);
         elapsedTimeLabel = new Label("00:00:00");
         elapsedTimeLabel.getStyleClass().add("time");
-        //We put a min width here because when we play, the width can change, depending if it displays 1 et 8.
+        //We put a min width here because when we play, the width can change, depending on if it displays 1 et 8.
         elapsedTimeLabel.setMinWidth(60);
         Label durationLabel = new Label("00:00:00");
         durationLabel.getStyleClass().add("time");
-        durationLabel.textProperty().bind(new StringBinding() {
-            {
-                super.bind(durationProperty); // Bind to the LongProperty
-            }
-
-            @Override
-            protected String computeValue() {
-                bindMediaPlayer();
-                return formatDuration(durationProperty.get());
-            }
-        });
+        bindMediaPlayer();
+        durationLabel.textProperty().bind(FXProperties.compute(durationProperty, duration -> formatDuration(duration.longValue())));
 
         HBox progressBarContainer = new HBox();
         progressBarContainer.setSpacing(10);
@@ -107,13 +92,13 @@ public class AudioMediaView {
         backwardButton = createBackwardButton();
         backwardButton.setOnMouseClicked(e -> seekRelative(-15));
         playButton = createPlayButton();
-        playButton.setOnMouseClicked(e->play());
+        playButton.setOnMouseClicked(e -> play());
         playButton.setDisable(true);
         pauseButton = createPauseButton();
         pauseButton.setVisible(false);
-        pauseButton.setOnMouseClicked(e->pause());
+        pauseButton.setOnMouseClicked(e -> pause());
         StackPane playPauseStackPane = new StackPane();
-        playPauseStackPane.getChildren().addAll(playButton,pauseButton);
+        playPauseStackPane.getChildren().addAll(playButton, pauseButton);
         forwardButton = createForwardButton();
         forwardButton.setOnMouseClicked(e -> seekRelative(+15));
 
@@ -125,7 +110,7 @@ public class AudioMediaView {
         minus15sLabel.setTextFill(Color.WHITE);
         minus15sLabel.setScaleX(0.8);
         minus15sLabel.setScaleY(0.8);
-        Label plus15sLabel =  new Label("15s");
+        Label plus15sLabel = new Label("15s");
         plus15sLabel.setScaleX(0.8);
         plus15sLabel.setScaleY(0.8);
         plus15sLabel.setTextFill(Color.WHITE);
@@ -134,13 +119,13 @@ public class AudioMediaView {
         container.getChildren().addAll(buttonsHBox, titleAndProgressBarVBox);
     }
 
-
     private void playNewMedia() {
         player.setOnEndOfPlaying(player::stop); // Forcing stop status (sometimes this doesn't happen automatically for any reason)
         seekX(0);
-        titleProperty.set(MetadataUtil.getTitle(player.mediaProperty().get().getMetadata()));
-        if(player.mediaProperty().get().getMetadata()!=null)
-            durationProperty.set(MetadataUtil.getDurationMillis(player.mediaProperty().get().getMetadata()));
+        MediaMetadata metadata = player.getMedia().getMetadata();
+        titleProperty.set(MetadataUtil.getTitle(metadata));
+        if (metadata != null)
+            durationProperty.set(MetadataUtil.getDurationMillis(metadata));
     }
 
     public Node getContainer() {
@@ -170,40 +155,41 @@ public class AudioMediaView {
     }
 
     private static void updateText(Label text, String newContent) {
-        if (text!=null && !Objects.areEquals(newContent, text.getText()))
+        if (text != null && !Objects.areEquals(newContent, text.getText()))
             text.setText(newContent);
     }
 
     public Pane createForwardButton() {
         return embedButton(new StackPane(
-            createSVGButton(FORWARD_BUTTON_PATH_32,null, Color.WHITE)));
+            createSVGButton(FORWARD_BUTTON_PATH_32, null, Color.WHITE)));
     }
 
     private void bindMediaPlayer() {
         unbindMediaPlayer(); // in case this view was previously bound with another player
         // audio
-            mediaPlayerBinding = FXProperties.runNowAndOnPropertiesChange(() -> {
-                updatePlayPauseButtons(null);
-                boolean isPlaying = player.isPlaying();
-                Status status = player.getStatus();
-                if (status == null || status == Status.LOADING)
-                    progressBar.setProgress(ProgressBar.INDETERMINATE_PROGRESS);
-                else
-                    updateElapsedTimeAndProgressBar(status == Status.NO_MEDIA ? Duration.ZERO : isPlaying || status == Status.PAUSED ? player.getCurrentTime() : new Duration(durationProperty.get()));
-            }, player.statusProperty(), player.currentTimeProperty());
+        mediaPlayerBinding = FXProperties.runNowAndOnPropertiesChange(() -> {
+            updatePlayPauseButtons(null);
+            boolean isPlaying = player.isPlaying();
+            Status status = player.getStatus();
+            if (status == null || status == Status.LOADING)
+                progressBar.setProgress(ProgressBar.INDETERMINATE_PROGRESS);
+            else
+                updateElapsedTimeAndProgressBar(status == Status.NO_MEDIA ? Duration.ZERO : isPlaying || status == Status.PAUSED ? player.getCurrentTime() : new Duration(durationProperty.get()));
+        }, player.statusProperty(), player.currentTimeProperty());
         // Not yet supported by WebFX
-        //mediaPlayer.setOnError(() -> System.out.println("An error occurred: " + mediaPlayer.getError()));
+        // player.setOnError(() -> System.out.println("An error occurred: " + player.getError()));
 
     }
 
     protected void updatePlayPauseButtons(Boolean anticipatePlaying) {
-        if(playButton!=null) playButton.setDisable(false);
+        if (playButton != null)
+            playButton.setDisable(false);
         Status status = player.getStatus();
         boolean playing = status == Status.PLAYING;
-        if(pauseButton!=null) {
+        if (pauseButton != null) {
             pauseButton.setVisible((anticipatePlaying != null ? anticipatePlaying : playing));
         }
-        if(playButton!=null) {
+        if (playButton != null) {
             playButton.setVisible((anticipatePlaying != null ? !anticipatePlaying : !playing));
         }
         // Sometimes this method is called with an anticipated value for isPlaying (ex: play() method). So we check if
@@ -215,12 +201,12 @@ public class AudioMediaView {
     private void seekRelative(double relativeSeconds) {
         player.seek(player.getCurrentTime().add(Duration.seconds(relativeSeconds)));
     }
+
     private void seekX(double x) {
         double percentage = x / progressBar.getWidth();
         Duration seekTime = new Duration(durationProperty.get()).multiply(percentage);
         player.seek(seekTime);
     }
-
 
     private void unbindMediaPlayer() {
         if (mediaPlayerBinding != null) {
@@ -249,7 +235,6 @@ public class AudioMediaView {
         return pane;
     }
 
-
     public static String formatDuration(long durationMillis) {
         // Calculate hours, minutes, and seconds
         long hours = durationMillis / (1000 * 60 * 60); // Calculate hours
@@ -257,11 +242,11 @@ public class AudioMediaView {
         long seconds = (durationMillis / 1000) % 60; // Calculate seconds
 
         return (hours < 10 ? "0" : "") + hours + ":" + (minutes < 10 ? "0" : "") + minutes + ":" + (seconds < 10 ? "0" : "") + seconds;
-        }
+    }
 
     private void play() {
         // Starting playing
-        if(elapsedTimeMilliseconds>= durationProperty.get()) {
+        if (elapsedTimeMilliseconds >= durationProperty.get()) {
             player.resetToInitialState();
         }
         player.play();
@@ -272,7 +257,7 @@ public class AudioMediaView {
         player.pause();
     }
 
-    public StringProperty getTitleProperty() {
+    public StringProperty titleProperty() {
         return titleProperty;
     }
 

@@ -1,16 +1,20 @@
 package dev.webfx.extras.time.pickers;
 
 import dev.webfx.extras.panes.MonoPane;
+import dev.webfx.extras.time.format.LocalizedTime;
 import dev.webfx.extras.util.scene.SceneUtil;
 import dev.webfx.kit.util.properties.FXProperties;
-import dev.webfx.platform.console.Console;
+import dev.webfx.kit.util.properties.Unregisterable;
 import javafx.application.Platform;
 import javafx.beans.property.ObjectProperty;
+import javafx.beans.property.SimpleObjectProperty;
 import javafx.collections.ObservableList;
+import javafx.event.EventHandler;
 import javafx.geometry.Point2D;
 import javafx.geometry.Pos;
 import javafx.scene.Node;
 import javafx.scene.control.TextField;
+import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.Pane;
 import javafx.scene.layout.Priority;
@@ -19,31 +23,31 @@ import javafx.scene.shape.SVGPath;
 
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
+import java.time.format.FormatStyle;
 
 /**
  * @author Bruno Salmon
  */
-public class DateField {
+public final class DateField {
 
-    private static final DateTimeFormatter DATE_TIME_FORMATTER = DateTimeFormatter.ofPattern("dd/MM/yyyy");
     private static final String CALENDAR_SVG_PATH = "M 32 4 h -2 V 2 a 2 2 90 0 0 -4 0 v 2 H 10 V 2 a 2 2 90 0 0 -4 0 v 2 H 4 c -2.2 0 -4 1.8 -4 4 v 28 c 0 2.2 1.8 4 4 4 h 28 c 2.2 0 4 -1.8 4 -4 V 8 c 0 -2.2 -1.8 -4 -4 -4 z m 0 32 H 4 V 14 h 28 v 22 z M 4 10 V 8 h 28 v 2 H 4 z";
 
     private final Pane overlayPane;
-    private final ObjectProperty<LocalDate> dateProperty = FXProperties.newObjectProperty(this::onDateChanged);
+
+    private final ObjectProperty<LocalDate> dateProperty = new SimpleObjectProperty<>();
+    private final ObjectProperty<DateTimeFormatter> dateTimeFormatterProperty = new SimpleObjectProperty<>();
 
     private final TextField textField = new TextField();
-    private final DatePicker datePicker = new DatePicker(new DatePickerOptions().setApplyBorderStyle(false).setApplyMaxSize(false));
+    private final DatePicker datePicker = new DatePicker(new DatePickerOptions().setApplyBorderStyle(true).setApplyMaxSize(false));
     private final HBox container;
+
+    private Unregisterable datePickerRelocator, datePickerAutoHiderOnLeavingScene, datePickerAutoHiderOnFocusLoss;
+    private final Unregisterable datePickerAutoHiderOnOutsideClick;
 
     public DateField(Pane overlayPane) {
         this.overlayPane = overlayPane;
-        FXProperties.runOnPropertyChange(text -> {
-            try {
-                dateProperty.set(LocalDate.from(DATE_TIME_FORMATTER.parse(text)));
-            } catch (Exception e) {
-                Console.log("Invalid date format: " + text);
-            }
-        }, textField.textProperty());
+        dateTimeFormatterProperty.bind(LocalizedTime.dateFormatterProperty(FormatStyle.SHORT)); // binding by default - can be overridden by application code with dateTimeFormatterProperty().bind(...)
+        LocalizedTime.bindLocalDateTextProperty(textField.textProperty(), dateProperty, dateTimeFormatterProperty);
         datePicker.selectedDateProperty().bindBidirectional(dateProperty);
         SVGPath calendarIcon = new SVGPath();
         calendarIcon.setContent(CALENDAR_SVG_PATH);
@@ -51,28 +55,68 @@ public class DateField {
         container = new HBox(10, textField, calendarIconPane);
         HBox.setHgrow(textField, Priority.ALWAYS);
         container.setAlignment(Pos.BOTTOM_LEFT);
+        calendarIconPane.setOnMouseClicked(e -> {
+            if (isDatePickerShowing()) {
+                hideDatePicker();
+            } else {
+                showDatePicker();
+            }
+        });
+        EventHandler<MouseEvent> eventFilter = me -> {
+            Node topClickedNode = me.getPickResult().getIntersectedNode();
+            if (topClickedNode != null
+                && !SceneUtil.hasAncestor(topClickedNode, datePicker.getView())
+                && !SceneUtil.hasAncestor(topClickedNode, calendarIconPane)) {
+                hideDatePicker();
+            }
+        };
+        datePickerAutoHiderOnOutsideClick = new Unregisterable() {
+            @Override
+            public void register() {
+                container.getScene().addEventFilter(MouseEvent.MOUSE_PRESSED, eventFilter);
+            }
+
+            @Override
+            public void unregister() {
+                container.getScene().removeEventFilter(MouseEvent.MOUSE_PRESSED, eventFilter);
+            }
+        };
+    }
+
+    private void showDatePicker() {
+        // Adding the date picker view to the overlay pane
         ObservableList<Node> overlayChildren = overlayPane.getChildren();
         Node datePickerView = datePicker.getView();
-        calendarIconPane.setOnMouseClicked(e -> {
-            if (overlayChildren.contains(datePickerView)) {
-                overlayChildren.remove(datePickerView);
-                return;
-            }
-            datePickerView.setManaged(false);
-            overlayChildren.add(datePickerView);
-            relocateDatePicker();
-            SceneUtil.runOnceFocusIsOutside(datePickerView, false, () -> overlayChildren.remove(datePickerView));
-        });
+        datePickerView.setManaged(false);
+        overlayChildren.add(datePickerView);
         // Keeping the position of the date picker up-to-date
-        FXProperties.runOnPropertiesChange(this::relocateDatePicker,
+        datePickerRelocator = FXProperties.runNowAndOnPropertiesChange(this::relocateDatePicker,
             container.layoutXProperty(), container.layoutYProperty(), overlayPane.widthProperty(), overlayPane.heightProperty());
-        // Removing the date picker when leaving the scene (ex: on dialog close if we were in a dialog)
-        FXProperties.runOnPropertyChange(scene -> {
+        // Auto hiding the date picker when leaving the scene (ex: on dialog close if we were in a dialog)
+        datePickerAutoHiderOnLeavingScene = FXProperties.runNowAndOnPropertyChange(scene -> {
             if (scene == null) {
                 // The reason for running later is to prevent an exception (this listener being called already during overlayChildren modification)
-                Platform.runLater(() -> overlayChildren.remove(datePickerView));
+                Platform.runLater(this::hideDatePicker);
+            } else {
+                datePickerAutoHiderOnOutsideClick.register();
             }
         }, container.sceneProperty());
+        datePickerAutoHiderOnFocusLoss = SceneUtil.runOnceFocusIsOutside(datePickerView, false, this::hideDatePicker);
+    }
+
+    private void hideDatePicker() {
+        overlayPane.getChildren().remove(datePicker.getView());
+        if (datePickerRelocator != null) {
+            datePickerRelocator.unregister();
+            datePickerAutoHiderOnLeavingScene.unregister();
+            datePickerAutoHiderOnFocusLoss.unregister();
+            datePickerAutoHiderOnOutsideClick.unregister();
+            datePickerRelocator = datePickerAutoHiderOnLeavingScene = datePickerAutoHiderOnFocusLoss = null;
+        }
+    }
+
+    private boolean isDatePickerShowing() {
+        return overlayPane.getChildren().contains(datePicker.getView());
     }
 
     private void relocateDatePicker() {
@@ -115,10 +159,15 @@ public class DateField {
         return dateProperty;
     }
 
-    private void onDateChanged() {
-        textField.setText(DATE_TIME_FORMATTER.format(getDate()));
-        // Note: there is no need to update the datePicker selectedDate because this is already done by the bidirectional
-        // binding set in the constructor.
+    public DateTimeFormatter getDateTimeFormatter() {
+        return dateTimeFormatterProperty.get();
     }
 
+    public void setDateTimeFormatter(DateTimeFormatter dateTimeFormatter) {
+        dateTimeFormatterProperty.set(dateTimeFormatter);
+    }
+
+    public ObjectProperty<DateTimeFormatter> dateTimeFormatterProperty() {
+        return dateTimeFormatterProperty;
+    }
 }

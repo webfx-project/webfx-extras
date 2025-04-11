@@ -18,8 +18,16 @@ public final class ImageTextRenderer implements ValueRenderer {
     @Override
     public Node renderValue(Object value, ValueRenderingContext context) {
         Object[] array = getAndCheckArray(value);
-        if (array != null)
-            return NodeCollatorRegistry.hBoxCollator().collateNodes(getImage(array), getTextNode(array));
+        if (array != null) {
+            ImageView imageView = getImage(array);
+            Text textNode = getTextNode(array);
+            if (imageView != null && textNode != null)
+                return NodeCollatorRegistry.hBoxCollator().collateNodes(imageView, textNode);
+            if (imageView != null)
+                return imageView;
+            if (textNode != null)
+                return textNode;
+        }
         // When the value is null, we don't return null (otherwise this may skip a row in a DataGrid and the selected
         // row index will not match what the user sees). So we return an empty HBox instead.
         return NodeCollatorRegistry.hBoxCollator().collateNodes();
@@ -41,7 +49,7 @@ public final class ImageTextRenderer implements ValueRenderer {
 
     public ImageView getImage(Object[] array) {
         String imageUrl = getImageUrl(array);
-        return ImageRenderer.SINGLETON.renderValue(imageUrl, null);
+        return imageUrl == null ? null : ImageRenderer.SINGLETON.renderValue(imageUrl, null);
     }
 
     public String getText(Object[] array) {

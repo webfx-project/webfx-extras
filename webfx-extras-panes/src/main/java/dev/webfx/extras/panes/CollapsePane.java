@@ -5,8 +5,11 @@ import dev.webfx.extras.util.layout.Layouts;
 import dev.webfx.kit.util.properties.FXProperties;
 import javafx.animation.Timeline;
 import javafx.beans.property.BooleanProperty;
+import javafx.beans.property.ObjectProperty;
 import javafx.beans.property.SimpleBooleanProperty;
+import javafx.beans.property.SimpleObjectProperty;
 import javafx.geometry.Pos;
+import javafx.geometry.Side;
 import javafx.scene.Cursor;
 import javafx.scene.Node;
 import javafx.scene.layout.*;
@@ -19,11 +22,13 @@ import javafx.scene.shape.StrokeLineJoin;
 
 /**
  * A Pane that can be collapsed (and then expanded) programmatically, or through user interaction (see static methods).
- * This is a first version where collapse works only from bottom to top. Other directions will be added later.
+ * This is a first version where collapse works correctly only for bottom and right slides. Other sides will be added later.
  *
  * @author Bruno Salmon
  */
 public class CollapsePane extends MonoClipPane {
+
+    private final ObjectProperty<Side> collapseSideProperty = new SimpleObjectProperty<>(Side.BOTTOM);
 
     private final BooleanProperty collapsedProperty = FXProperties.newBooleanProperty(collapsed -> {
         if (collapsed)
@@ -35,8 +40,8 @@ public class CollapsePane extends MonoClipPane {
     private final BooleanProperty animateProperty = new SimpleBooleanProperty(true);
 
     private Timeline timeline;
-    private double expandedHeight;
-    private double heightDuringCollapseAnimation;
+    private double expandedWidthOrHeight;
+    private double widthOrHeightDuringCollapseAnimation;
 
     public CollapsePane() {
     }
@@ -45,14 +50,50 @@ public class CollapsePane extends MonoClipPane {
         super(content);
     }
 
+    public CollapsePane(Side side) {
+        setCollapseSide(side);
+    }
+
+    public CollapsePane(Side side, Node content) {
+        super(content);
+        setCollapseSide(side);
+    }
+
+    @Override
+    protected double getLayoutWidth() {
+        if (timeline != null && isHorizontal())
+            return widthOrHeightDuringCollapseAnimation;
+        return super.getLayoutWidth();
+    }
+
     @Override
     protected double getLayoutHeight() {
         // During the collapse animation, the layout is performed with the captured height of the content in order to
         // make the sliding effect (otherwise the layout would try to shrink the content to this CollapsePane height).
         // Even if the content height exceeds this CollapsePane height, it doesn't matter as it's clipped.
-        if (timeline != null)
-            return heightDuringCollapseAnimation;
+        if (timeline != null && isVertical())
+            return widthOrHeightDuringCollapseAnimation;
         return super.getLayoutHeight();
+    }
+
+    private boolean isHorizontal() { // refers to the collapse direction
+        return getCollapseSide().isVertical(); // refers to the rectangle side (ie. LEFT or RIGHT)
+    }
+
+    private boolean isVertical() {
+        return !isHorizontal();
+    }
+
+    public Side getCollapseSide() {
+        return collapseSideProperty.get();
+    }
+
+    public ObjectProperty<Side> collapseSideProperty() {
+        return collapseSideProperty;
+    }
+
+    public void setCollapseSide(Side side) {
+        collapseSideProperty.set(side);
     }
 
     public boolean isCollapsed() {
@@ -96,40 +137,52 @@ public class CollapsePane extends MonoClipPane {
     }
 
     private void doCollapse() {
-        if (timeline == null)
-            expandedHeight = getHeight();
-        heightDuringCollapseAnimation = expandedHeight;
-        setPrefHeight(expandedHeight);
-        animateHeight(0);
+        boolean isHorizontal = isHorizontal();
+        if (timeline == null) {
+            expandedWidthOrHeight = isHorizontal ? getWidth() : getHeight();
+        }
+        widthOrHeightDuringCollapseAnimation = expandedWidthOrHeight;
+        if (isHorizontal)
+            setPrefWidth(expandedWidthOrHeight);
+        else
+            setPrefHeight(expandedWidthOrHeight);
+        animateWidthOrHeight(0);
     }
 
     private void doExpand() {
-        setHeightComputationMode(USE_COMPUTED_SIZE);
+        setWidthOrHeightComputationMode(USE_COMPUTED_SIZE);
         double minHeight = minHeight(getWidth());
         double prefHeight = prefHeight(getWidth());
         double maxHeight = maxHeight(getWidth());
-        expandedHeight = Layouts.boundedSize(minHeight, prefHeight, maxHeight);
-        heightDuringCollapseAnimation = expandedHeight;
-        if (expandedHeight > 0) {
-            animateHeight(expandedHeight);
+        expandedWidthOrHeight = Layouts.boundedSize(minHeight, prefHeight, maxHeight);
+        widthOrHeightDuringCollapseAnimation = expandedWidthOrHeight;
+        if (expandedWidthOrHeight > 0) {
+            animateWidthOrHeight(expandedWidthOrHeight);
         }
     }
 
-    private void setHeightComputationMode(double heightComputationMode) {
-        setMinHeight(heightComputationMode);
-        if (heightComputationMode == USE_COMPUTED_SIZE)
-            setPrefHeight(USE_COMPUTED_SIZE);
-        setMaxHeight(heightComputationMode);
+    private void setWidthOrHeightComputationMode(double widthOrHeightComputationMode) {
+        if (isHorizontal()) {
+            setMinWidth(widthOrHeightComputationMode);
+            if (widthOrHeightComputationMode == USE_COMPUTED_SIZE)
+                setPrefWidth(USE_COMPUTED_SIZE);
+            setMaxWidth(widthOrHeightComputationMode);
+        } else {
+            setMinHeight(widthOrHeightComputationMode);
+            if (widthOrHeightComputationMode == USE_COMPUTED_SIZE)
+                setPrefHeight(USE_COMPUTED_SIZE);
+            setMaxHeight(widthOrHeightComputationMode);
+        }
     }
 
-    private void animateHeight(double finalValue) {
+    private void animateWidthOrHeight(double finalValue) {
         if (timeline != null)
             timeline.stop();
-        setHeightComputationMode(USE_PREF_SIZE);
-        timeline = Animations.animateProperty(prefHeightProperty(), finalValue, isAnimate());
+        setWidthOrHeightComputationMode(USE_PREF_SIZE);
+        timeline = Animations.animateProperty(isHorizontal() ? prefWidthProperty() : prefHeightProperty(), finalValue, isAnimate());
         Animations.setOrCallOnTimelineFinished(timeline, e -> {
             if (finalValue > 0) {
-                setHeightComputationMode(USE_COMPUTED_SIZE);
+                setWidthOrHeightComputationMode(USE_COMPUTED_SIZE);
             }
             timeline = null;
         });

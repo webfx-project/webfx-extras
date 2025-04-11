@@ -1,15 +1,21 @@
 package dev.webfx.extras.visual.controls.grid;
 
-import javafx.beans.property.BooleanProperty;
-import javafx.beans.property.SimpleBooleanProperty;
+import javafx.beans.property.*;
 import dev.webfx.extras.visual.controls.grid.registry.VisualGridRegistry;
 import dev.webfx.extras.visual.VisualResult;
 import dev.webfx.extras.visual.controls.SelectableVisualResultControl;
+import javafx.geometry.Insets;
 
 /**
  * @author Bruno Salmon
  */
 public class VisualGrid extends SelectableVisualResultControl {
+
+    private static final double DEFAULT_ROW_HEIGHT = 24;
+    private static final Insets DEFAULT_CELL_MARGIN = new Insets(0, 0, 0, 5);
+
+    private final DoubleProperty rowHeightProperty = new SimpleDoubleProperty(DEFAULT_ROW_HEIGHT);
+    private final ObjectProperty<Insets> cellMarginProperty = new SimpleObjectProperty<>(DEFAULT_CELL_MARGIN);
 
     public VisualGrid() {
     }
@@ -44,6 +50,30 @@ public class VisualGrid extends SelectableVisualResultControl {
 
     public void setFullHeight(boolean fullHeight) {
         this.fullHeightProperty.set(fullHeight);
+    }
+
+    public double getRowHeight() {
+        return rowHeightProperty.get();
+    }
+
+    public DoubleProperty rowHeightProperty() {
+        return rowHeightProperty;
+    }
+
+    public void setRowHeight(double rowHeight) {
+        rowHeightProperty.set(rowHeight);
+    }
+
+    public Insets getCellMargin() {
+        return cellMarginProperty.get();
+    }
+
+    public ObjectProperty<Insets> cellMarginProperty() {
+        return cellMarginProperty;
+    }
+
+    public void setCellMargin(Insets cellMargin) {
+        cellMarginProperty.set(cellMargin);
     }
 
     static {

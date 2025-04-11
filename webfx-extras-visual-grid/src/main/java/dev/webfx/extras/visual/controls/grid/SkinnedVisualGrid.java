@@ -1,7 +1,7 @@
 package dev.webfx.extras.visual.controls.grid;
 
-import javafx.scene.control.Skin;
 import dev.webfx.extras.visual.VisualResult;
+import javafx.scene.control.Skin;
 
 /**
  * @author Bruno Salmon

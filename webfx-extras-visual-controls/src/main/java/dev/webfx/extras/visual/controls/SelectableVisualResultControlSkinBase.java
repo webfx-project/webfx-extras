@@ -16,11 +16,12 @@ public abstract class SelectableVisualResultControlSkinBase<C extends Selectable
     }
 
     @Override
-    protected void start() {
-        super.start();
-        updateVisualSelection(getSkinnable().getVisualSelection(), null);
-        FXProperties.runOnPropertyChange((o, oldValue, newValue) -> updateVisualSelection(newValue, oldValue)
-            , getSkinnable().visualSelectionProperty());
+    public void install() {
+        super.install();
+        unregisterOnDispose(
+            FXProperties.runNowAndOnPropertyChange((o, oldValue, newValue) -> updateVisualSelection(newValue, oldValue)
+                , getSkinnable().visualSelectionProperty())
+        );
     }
 
     private void updateVisualSelection(VisualSelection selection, VisualSelection oldSelection) {

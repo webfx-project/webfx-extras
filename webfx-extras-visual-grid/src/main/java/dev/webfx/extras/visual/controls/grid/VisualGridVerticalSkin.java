@@ -25,11 +25,13 @@ final class VisualGridVerticalSkin extends VisualGridSkinBase<Pane, Pane> {
 
     VisualGridVerticalSkin(VisualGrid control) {
         super(control);
-        FXProperties.runNowAndOnPropertyChange(skin -> {
-            if (skin == this)
-                getChildren().setAll(container);
-        }, control.skinProperty());
-        start();
+    }
+
+
+    @Override
+    public void install() {
+        super.install();
+        getChildren().setAll(container);
     }
 
     @Override

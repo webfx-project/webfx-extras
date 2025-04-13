@@ -1,5 +1,6 @@
 package dev.webfx.extras.visual.controls;
 
+import dev.webfx.kit.util.properties.Unregisterable;
 import dev.webfx.platform.util.Arrays;
 import dev.webfx.platform.util.collection.ToStringOptions;
 import javafx.scene.Node;
@@ -15,6 +16,9 @@ import dev.webfx.extras.label.Label;
 import dev.webfx.kit.util.properties.FXProperties;
 import dev.webfx.platform.uischeduler.UiScheduler;
 
+import java.util.ArrayList;
+import java.util.List;
+
 /**
  * @author Bruno Salmon
  */
@@ -27,13 +31,29 @@ public abstract class VisualResultControlSkinBase<C extends VisualResultControl,
         this.hasSpecialRenderingForImageAndText = hasSpecialRenderingForImageAndText;
     }
 
+    private final List<Unregisterable> listenersToUnregisterOnDispose = new ArrayList<>();
     private VisualResult rs;
     private int gridColumnCount;
     private int rowStyleColumnIndex;
     private int rowBackgroundColumnIndex;
 
-    protected void start() {
-        FXProperties.runNowAndOnPropertyChange(this::updateResult, getSkinnable().visualResultProperty());
+    @Override
+    public void install() {
+        super.install();
+        unregisterOnDispose(
+            FXProperties.runNowAndOnPropertyChange(this::updateResult, getSkinnable().visualResultProperty())
+        );
+    }
+
+    @Override
+    public void dispose() {
+        super.dispose();
+        listenersToUnregisterOnDispose.forEach(Unregisterable::unregister);
+        listenersToUnregisterOnDispose.clear();
+    }
+
+    protected void unregisterOnDispose(Unregisterable unregisterable) {
+        listenersToUnregisterOnDispose.add(unregisterable);
     }
 
     protected void updateResult(VisualResult rs) {

@@ -1,5 +1,6 @@
 package dev.webfx.extras.visual.controls.grid;
 
+import dev.webfx.extras.cell.renderer.ValueRendererRegistry;
 import dev.webfx.extras.util.control.Controls;
 import dev.webfx.extras.visual.*;
 import dev.webfx.extras.visual.controls.SelectableVisualResultControlSkinBase;
@@ -12,7 +13,6 @@ import javafx.geometry.HPos;
 import javafx.geometry.Insets;
 import javafx.geometry.VPos;
 import javafx.scene.Node;
-import javafx.scene.control.Label;
 import javafx.scene.control.ScrollPane;
 import javafx.scene.layout.Background;
 import javafx.scene.layout.HBox;
@@ -45,33 +45,38 @@ final class VisualGridTableSkin extends SelectableVisualResultControlSkinBase<Vi
         super(visualGrid, false);
         visualGrid.getStyleClass().add("grid");
         clipChildren(gridBody);
-        FXProperties.runNowAndOnPropertiesChange(() -> {
-            if (visualGrid.isFullHeight()) {
-                if (bodyScrollPane != null)
-                    bodyScrollPane.setContent(null);
-                body = gridBody;
-            } else {
-                if (!(body instanceof ScrollPane)) {
-                    if (bodyScrollPane == null) {
-                        bodyScrollPane = new ScrollPane();
-                        bodyScrollPane.setHbarPolicy(ScrollPane.ScrollBarPolicy.NEVER);
-                        FXProperties.runOnPropertyChange(() -> {
-                            headOffset = Controls.computeScrollPaneHOffset(bodyScrollPane, false);
-                            gridHead.relocate(-headOffset, 0);
-                        }, bodyScrollPane.hvalueProperty());
+    }
+
+    @Override
+    public void install() {
+        super.install();
+        VisualGrid visualGrid = getSkinnable();
+        unregisterOnDispose(
+            FXProperties.runNowAndOnPropertiesChange(() -> {
+                if (visualGrid.isFullHeight()) {
+                    if (bodyScrollPane != null)
+                        bodyScrollPane.setContent(null);
+                    body = gridBody;
+                } else {
+                    if (!(body instanceof ScrollPane)) {
+                        if (bodyScrollPane == null) {
+                            bodyScrollPane = new ScrollPane();
+                            bodyScrollPane.setHbarPolicy(ScrollPane.ScrollBarPolicy.NEVER);
+                            FXProperties.runOnPropertyChange(() -> {
+                                headOffset = Controls.computeScrollPaneHOffset(bodyScrollPane, false);
+                                gridHead.relocate(-headOffset, 0);
+                            }, bodyScrollPane.hvalueProperty());
+                        }
+                        bodyScrollPane.setContent(gridBody);
+                        body = bodyScrollPane;
                     }
-                    bodyScrollPane.setContent(gridBody);
-                    body = bodyScrollPane;
                 }
-            }
-            if (visualGrid.getSkin() == this) {
                 if (visualGrid.isHeaderVisible())
                     getChildren().setAll(gridHead, body);
                 else
                     getChildren().setAll(body);
-            }
-        }, visualGrid.headerVisibleProperty(), visualGrid.fullHeightProperty(), visualGrid.skinProperty());
-        start();
+            }, visualGrid.headerVisibleProperty(), visualGrid.fullHeightProperty())
+        );
     }
 
     private static void clipChildren(Region region) {
@@ -167,10 +172,12 @@ final class VisualGridTableSkin extends SelectableVisualResultControlSkinBase<Vi
         List<Node> children = cell == fakeCell ? fakeCellChildren : cell.getChildren();
         if (content == null) // If there is no content, we use an empty text instead (each row must have a content)
             content = new Text();
-        else if (content instanceof Label) {
-            Region region = (Region) content;
-            region.setMinHeight(0);
-        }
+        else
+            // If the content to render in the cell is a wrapped label that has been constrained in height to auto wrap
+            // (such as "wrappedLabel" or "ellipsisLabel" renderers from ValueRendererRegistry), we actually remove that
+            // constraint because we don't want the label to indefinitely grow in height, but want it rather to be truncated
+            // (with possible ellipsis) if all the text doesn't fit in the cell.
+            ValueRendererRegistry.removePossibleLabelAutoWrap(content);
         children.add(content);
     }
 

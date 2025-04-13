@@ -6,6 +6,7 @@ module webfx.extras.visual.grid {
     requires javafx.base;
     requires javafx.controls;
     requires javafx.graphics;
+    requires webfx.extras.cell;
     requires webfx.extras.util.control;
     requires webfx.extras.visual;
     requires webfx.extras.visual.controls;

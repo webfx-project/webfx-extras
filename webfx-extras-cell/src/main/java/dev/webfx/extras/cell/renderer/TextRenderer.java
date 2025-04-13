@@ -1,10 +1,8 @@
 package dev.webfx.extras.cell.renderer;
 
-import javafx.geometry.Pos;
 import javafx.scene.Node;
 import javafx.scene.control.TextField;
 import javafx.scene.text.Text;
-import javafx.scene.text.TextAlignment;
 import dev.webfx.platform.util.Strings;
 
 import java.util.function.BiFunction;
@@ -26,37 +24,15 @@ public final class TextRenderer implements ValueRenderer {
 
     @Override
     public Node renderValue(Object value, ValueRenderingContext context) {
+        if (context.isReadOnly()) {
+            Text text = new Text();
+            ValueApplier.applyValue(value, text.textProperty());
+            return RenderingContextApplier.applyRenderingContextToText(text, context);
+        }
+        TextField textField = RenderingContextApplier.applyRenderingContextToTextField(textFieldFactory.apply(context.getLabelKey(), context.getPlaceholderKey()), context);
         String stringValue = Strings.toSafeString(value);
-        if (context.isReadOnly())
-            return applyRenderingContextToText(new Text(stringValue), context);
-        TextField textField = applyRenderingContextToTextField(textFieldFactory.apply(context.getLabelKey(), context.getPlaceholderKey()), context);
         context.bindEditedValuePropertyTo(textField.textProperty(), stringValue);
         return textField;
     }
 
-    private static Text applyRenderingContextToText(Text text, ValueRenderingContext context) {
-        if (context.getTextAlign() != null) {
-            TextAlignment textAlignment = null;
-            switch (context.getTextAlign()) {
-                case "left":   textAlignment = TextAlignment.LEFT; break;
-                case "center": textAlignment = TextAlignment.CENTER; break;
-                case "right":  textAlignment = TextAlignment.RIGHT; break;
-            }
-            text.setTextAlignment(textAlignment);
-        }
-        return text;
-    }
-
-    private static TextField applyRenderingContextToTextField(TextField textField, ValueRenderingContext context) {
-        if (context.getTextAlign() != null) {
-            Pos textAlignment = null;
-            switch (context.getTextAlign()) {
-                case "left":   textAlignment = Pos.BASELINE_LEFT; break;
-                case "center": textAlignment = Pos.BASELINE_CENTER; break;
-                case "right":  textAlignment = Pos.BASELINE_RIGHT; break;
-            }
-            textField.setAlignment(textAlignment);
-        }
-        return textField;
-    }
 }

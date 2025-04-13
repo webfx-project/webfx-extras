@@ -1,5 +1,6 @@
 package dev.webfx.extras.visual.controls.grid;
 
+import dev.webfx.extras.util.control.Controls;
 import dev.webfx.extras.visual.*;
 import dev.webfx.extras.visual.controls.SelectableVisualResultControlSkinBase;
 import dev.webfx.kit.util.properties.FXProperties;
@@ -11,6 +12,7 @@ import javafx.geometry.HPos;
 import javafx.geometry.Insets;
 import javafx.geometry.VPos;
 import javafx.scene.Node;
+import javafx.scene.control.Label;
 import javafx.scene.control.ScrollPane;
 import javafx.scene.layout.Background;
 import javafx.scene.layout.HBox;
@@ -18,6 +20,7 @@ import javafx.scene.layout.Pane;
 import javafx.scene.layout.Region;
 import javafx.scene.paint.Paint;
 import javafx.scene.shape.Rectangle;
+import javafx.scene.text.Text;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -26,19 +29,19 @@ import java.util.function.Consumer;
 /**
  * @author Bruno Salmon
  */
-public final class VisualGridSkin extends SelectableVisualResultControlSkinBase<VisualGrid, Pane, Pane> {
+final class VisualGridTableSkin extends SelectableVisualResultControlSkinBase<VisualGrid, Pane, Pane> {
 
     private static final int INITIAL_BUILT_ROWS_MAX = 20;
 
     private final GridHead gridHead = new GridHead();
     private final GridBody gridBody = new GridBody();
     private ScrollPane bodyScrollPane;
-    private Region body;
+    private Region body; // = gridBody if fullHeight, bodyScrollPane otherwise
     private double headOffset;
     private final static Pane fakeCell = new Pane();
     private List<Node> fakeCellChildren;
 
-    VisualGridSkin(VisualGrid visualGrid) {
+    VisualGridTableSkin(VisualGrid visualGrid) {
         super(visualGrid, false);
         visualGrid.getStyleClass().add("grid");
         clipChildren(gridBody);
@@ -53,13 +56,7 @@ public final class VisualGridSkin extends SelectableVisualResultControlSkinBase<
                         bodyScrollPane = new ScrollPane();
                         bodyScrollPane.setHbarPolicy(ScrollPane.ScrollBarPolicy.NEVER);
                         FXProperties.runOnPropertyChange(() -> {
-                            // Same code as LayoutUtil.computeScrollPaneHoffset() - but not accessible from here
-                            double hmin = bodyScrollPane.getHmin();
-                            double hmax = bodyScrollPane.getHmax();
-                            double hvalue = bodyScrollPane.getHvalue();
-                            double contentWidth = gridBody.getLayoutBounds().getWidth();
-                            double viewportWidth = bodyScrollPane.getViewportBounds().getWidth();
-                            headOffset = Math.max(0, contentWidth - viewportWidth) * (hvalue - hmin) / (hmax - hmin);
+                            headOffset = Controls.computeScrollPaneHOffset(bodyScrollPane, false);
                             gridHead.relocate(-headOffset, 0);
                         }, bodyScrollPane.hvalueProperty());
                     }
@@ -67,11 +64,13 @@ public final class VisualGridSkin extends SelectableVisualResultControlSkinBase<
                     body = bodyScrollPane;
                 }
             }
-            if (visualGrid.isHeaderVisible())
-                getChildren().setAll(gridHead, body);
-            else
-                getChildren().setAll(body);
-        }, visualGrid.headerVisibleProperty(), visualGrid.fullHeightProperty());
+            if (visualGrid.getSkin() == this) {
+                if (visualGrid.isHeaderVisible())
+                    getChildren().setAll(gridHead, body);
+                else
+                    getChildren().setAll(body);
+            }
+        }, visualGrid.headerVisibleProperty(), visualGrid.fullHeightProperty(), visualGrid.skinProperty());
         start();
     }
 
@@ -90,10 +89,15 @@ public final class VisualGridSkin extends SelectableVisualResultControlSkinBase<
         gridBody.startBuildingGrid();
     }
 
+    private int builtRowIndex = -1;
+
     @Override
     protected void buildRowCells(Pane bodyRow, int rowIndex) {
-        if (getRowCount() <= INITIAL_BUILT_ROWS_MAX)
+        // Skipping rows after INITIAL_BUILT_ROWS_MAX (will be built later in animation frames)
+        if (rowIndex <= INITIAL_BUILT_ROWS_MAX) {
             super.buildRowCells(bodyRow, rowIndex);
+            builtRowIndex = rowIndex;
+        }
     }
 
     @Override
@@ -104,23 +108,20 @@ public final class VisualGridSkin extends SelectableVisualResultControlSkinBase<
         } else
             UiScheduler.schedulePeriodicInAnimationFrame(new Consumer<>() {
                 final VisualResult rs = getRs();
-                int rowIndex = 0;
                 @Override
                 public void accept(Scheduled scheduled) {
                     if (rs != getRs())
                         scheduled.cancel();
                     else {
-                        if (rowIndex >= getRowCount())
+                        builtRowIndex++;
+                        if (builtRowIndex >= getRowCount()) {
                             scheduled.cancel();
-                        else {
-                            VisualGridSkin.super.buildRowCells(null, rowIndex);
-                        }
-                        if (rowIndex == 0) {
                             gridHead.endBuildingGrid();
                             gridBody.endBuildingGrid();
+                        } else {
+                            VisualGridTableSkin.super.buildRowCells(null, builtRowIndex);
+                            lastContentWidth = -1;
                         }
-                        rowIndex++;
-                        lastContentWidth = -1;
                     }
                 }
             });
@@ -163,10 +164,14 @@ public final class VisualGridSkin extends SelectableVisualResultControlSkinBase<
 
     @Override
     protected void setCellContent(Pane cell, Node content, VisualColumn visualColumn) {
-        if (content != null) {
-            List<Node> children = cell == fakeCell ? fakeCellChildren : cell.getChildren();
-            children.add(content);
+        List<Node> children = cell == fakeCell ? fakeCellChildren : cell.getChildren();
+        if (content == null) // If there is no content, we use an empty text instead (each row must have a content)
+            content = new Text();
+        else if (content instanceof Label) {
+            Region region = (Region) content;
+            region.setMinHeight(0);
         }
+        children.add(content);
     }
 
     @Override

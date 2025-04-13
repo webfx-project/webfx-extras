@@ -1,25 +1,30 @@
 package dev.webfx.extras.visual.controls.grid;
 
-import dev.webfx.extras.visual.VisualResult;
+import javafx.geometry.Orientation;
 import javafx.scene.control.Skin;
+
+import java.util.function.Function;
 
 /**
  * @author Bruno Salmon
  */
-public final class SkinnedVisualGrid extends VisualGrid {
+final class SkinnedVisualGrid extends VisualGrid {
 
-    public SkinnedVisualGrid() {
-        this(null);
-    }
+    private final Function<VisualGrid, Skin<?>> skinFactory;
 
-    public SkinnedVisualGrid(VisualResult rs) {
-        super(rs);
+    public SkinnedVisualGrid(Function<VisualGrid, Skin<?>> skinFactory) {
+        this.skinFactory = skinFactory;
         // Creating the skin now, otherwise the first layout may have a wrong cached pref size
-        skinProperty().set(createDefaultSkin());
+        setSkin(createDefaultSkin());
     }
 
     @Override
     protected Skin<?> createDefaultSkin() {
-        return new VisualGridSkin(this);
+        return skinFactory.apply(this);
+    }
+
+    @Override
+    public Orientation getContentBias() {
+        return Orientation.HORIZONTAL;
     }
 }

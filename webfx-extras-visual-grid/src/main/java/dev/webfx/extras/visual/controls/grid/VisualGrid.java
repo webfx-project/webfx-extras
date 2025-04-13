@@ -1,9 +1,10 @@
 package dev.webfx.extras.visual.controls.grid;
 
-import javafx.beans.property.*;
-import dev.webfx.extras.visual.controls.grid.registry.VisualGridRegistry;
 import dev.webfx.extras.visual.VisualResult;
 import dev.webfx.extras.visual.controls.SelectableVisualResultControl;
+import dev.webfx.extras.visual.controls.grid.registry.VisualGridRegistry;
+import dev.webfx.kit.util.properties.FXProperties;
+import javafx.beans.property.*;
 import javafx.geometry.Insets;
 
 /**
@@ -74,6 +75,27 @@ public class VisualGrid extends SelectableVisualResultControl {
 
     public void setCellMargin(Insets cellMargin) {
         cellMarginProperty.set(cellMargin);
+    }
+
+    public static VisualGrid createVisualGridWithTableSkin() {
+        return new SkinnedVisualGrid(VisualGridTableSkin::new);
+    }
+
+    public static VisualGrid createVisualGridWithVerticalSkin() {
+        return new SkinnedVisualGrid(VisualGridVerticalSkin::new);
+    }
+
+    public static VisualGrid createVisualGridWithResponsiveSkin(double minDesktopWidth) {
+        VisualGrid visualGrid = createVisualGridWithTableSkin();
+        FXProperties.runOnPropertyChange(width -> {
+            boolean useMobileSkin = width.doubleValue() < minDesktopWidth;
+            if (useMobileSkin && !(visualGrid.getSkin() instanceof VisualGridVerticalSkin)) {
+                visualGrid.setSkin(new VisualGridVerticalSkin(visualGrid));
+            } else if (!useMobileSkin && !(visualGrid.getSkin() instanceof VisualGridTableSkin)) {
+                visualGrid.setSkin(new VisualGridTableSkin(visualGrid));
+            }
+        }, visualGrid.widthProperty());
+        return visualGrid;
     }
 
     static {

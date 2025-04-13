@@ -11,6 +11,7 @@ module webfx.extras.visual.controls {
     requires webfx.extras.visual;
     requires webfx.kit.util;
     requires webfx.platform.uischeduler;
+    requires webfx.platform.util;
 
     // Exported packages
     exports dev.webfx.extras.visual.controls;

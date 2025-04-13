@@ -1,5 +1,7 @@
 package dev.webfx.extras.visual.controls;
 
+import dev.webfx.platform.util.Arrays;
+import dev.webfx.platform.util.collection.ToStringOptions;
 import javafx.scene.Node;
 import javafx.scene.control.SkinBase;
 import javafx.scene.paint.*;
@@ -93,8 +95,7 @@ public abstract class VisualResultControlSkinBase<C extends VisualResultControl,
         fillCell(getOrAddHeadCell(gridColumnIndex), new Object[]{label.getIconPath(), label.getText()}, visualColumn, ImageTextRenderer.SINGLETON);
     }
 
-    protected void setCellContent(CELL cell, Node content, VisualColumn visualColumn) {
-    }
+    protected abstract void setCellContent(CELL cell, Node content, VisualColumn visualColumn);
 
     protected void setCellTextContent(CELL cell, String text, VisualColumn visualColumn) {
         setCellImageAndTextContent(cell, null, text, visualColumn);
@@ -238,9 +239,7 @@ public abstract class VisualResultControlSkinBase<C extends VisualResultControl,
     }
 
     public Object[] getRowStyleClasses(Object value) {
-        if (!(value instanceof Object[]))
-            return null;
-        return (Object[]) value;
+        return Arrays.asArray(value);
     }
 
     public String getRowStyle(int rowIndex) {
@@ -248,16 +247,6 @@ public abstract class VisualResultControlSkinBase<C extends VisualResultControl,
     }
 
     public static String getRowStyle(Object[] styleClasses) {
-        if (styleClasses == null)
-            return null;
-        StringBuilder sb = new StringBuilder();
-        for (Object styleClass : styleClasses) {
-            if (styleClass != null) {
-                if (sb.length() > 0)
-                    sb.append(' ');
-                sb.append(styleClass);
-            }
-        }
-        return sb.toString().trim();
+        return Arrays.toString(styleClasses, ToStringOptions.SPACE_SEPARATED_TO_STRING_OPTIONS);
     }
 }

@@ -5,6 +5,6 @@ package dev.webfx.extras.responsive;
  */
 public interface ApplicableResponsiveLayout extends ResponsiveLayout {
 
-    boolean isResponsiveApplicable();
+    boolean isResponsiveLayoutApplicable();
 
 }

@@ -1,6 +1,6 @@
 package dev.webfx.extras.visual.controls.grid;
 
-import dev.webfx.extras.responsive.ResponsiveLayout;
+import dev.webfx.extras.responsive.ResponsiveDesign;
 import dev.webfx.extras.visual.VisualResult;
 import dev.webfx.extras.visual.controls.SelectableVisualResultControl;
 import dev.webfx.extras.visual.controls.grid.registry.VisualGridRegistry;
@@ -89,7 +89,7 @@ public class VisualGrid extends SelectableVisualResultControl {
         VisualGrid visualGrid = createVisualGridWithTableSkin();
         VisualGridTableSkin tableSkin = (VisualGridTableSkin) visualGrid.getSkin();
         VisualGridVerticalSkin verticalSkin = new VisualGridVerticalSkin(visualGrid);
-        ResponsiveLayout.startResponsiveDesign(visualGrid.widthProperty(), tableSkin, verticalSkin);
+        ResponsiveDesign.startResponsiveDesign(visualGrid.widthProperty(), tableSkin, verticalSkin);
         return visualGrid;
     }
 

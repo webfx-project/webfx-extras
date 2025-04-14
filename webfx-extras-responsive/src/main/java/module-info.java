@@ -4,6 +4,7 @@ module webfx.extras.responsive {
 
     // Direct dependencies modules
     requires javafx.base;
+    requires javafx.graphics;
     requires webfx.kit.util;
     requires webfx.platform.util;
 

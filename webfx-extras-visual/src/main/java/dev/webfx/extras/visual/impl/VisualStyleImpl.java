@@ -7,16 +7,23 @@ import dev.webfx.extras.visual.VisualStyle;
  */
 public final class VisualStyleImpl implements VisualStyle {
 
+    private final Double minWidth;
     private final Double prefWidth;
     private final String textAlign;
 
     public VisualStyleImpl() {
-        this(null, null);
+        this(null, null, null);
     }
 
-    public VisualStyleImpl(Double prefWidth, String textAlign) {
+    public VisualStyleImpl(Double minWidth, Double prefWidth, String textAlign) {
+        this.minWidth = minWidth;
         this.prefWidth = prefWidth;
         this.textAlign = textAlign;
+    }
+
+    @Override
+    public Double getMinWidth() {
+        return minWidth;
     }
 
     public Double getPrefWidth() {

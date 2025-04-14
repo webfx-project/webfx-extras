@@ -1,9 +1,9 @@
 package dev.webfx.extras.visual.controls.grid;
 
+import dev.webfx.extras.responsive.ResponsiveLayout;
 import dev.webfx.extras.visual.VisualResult;
 import dev.webfx.extras.visual.controls.SelectableVisualResultControl;
 import dev.webfx.extras.visual.controls.grid.registry.VisualGridRegistry;
-import dev.webfx.kit.util.properties.FXProperties;
 import javafx.beans.property.*;
 import javafx.geometry.Insets;
 
@@ -85,16 +85,11 @@ public class VisualGrid extends SelectableVisualResultControl {
         return new SkinnedVisualGrid(VisualGridVerticalSkin::new);
     }
 
-    public static VisualGrid createVisualGridWithResponsiveSkin(double minDesktopWidth) {
+    public static VisualGrid createVisualGridWithResponsiveSkin() {
         VisualGrid visualGrid = createVisualGridWithTableSkin();
-        FXProperties.runOnPropertyChange(width -> {
-            boolean useMobileSkin = width.doubleValue() < minDesktopWidth;
-            if (useMobileSkin && !(visualGrid.getSkin() instanceof VisualGridVerticalSkin)) {
-                visualGrid.setSkin(new VisualGridVerticalSkin(visualGrid));
-            } else if (!useMobileSkin && !(visualGrid.getSkin() instanceof VisualGridTableSkin)) {
-                visualGrid.setSkin(new VisualGridTableSkin(visualGrid));
-            }
-        }, visualGrid.widthProperty());
+        VisualGridTableSkin tableSkin = (VisualGridTableSkin) visualGrid.getSkin();
+        VisualGridVerticalSkin verticalSkin = new VisualGridVerticalSkin(visualGrid);
+        ResponsiveLayout.startResponsiveDesign(visualGrid.widthProperty(), tableSkin, verticalSkin);
         return visualGrid;
     }
 

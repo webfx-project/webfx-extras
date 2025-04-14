@@ -1,7 +1,6 @@
 package dev.webfx.extras.visual.controls.grid;
 
 import dev.webfx.extras.visual.VisualColumn;
-import dev.webfx.kit.util.properties.FXProperties;
 import javafx.collections.ObservableList;
 import javafx.geometry.Insets;
 import javafx.geometry.Orientation;
@@ -27,6 +26,11 @@ final class VisualGridVerticalSkin extends VisualGridSkinBase<Pane, Pane> {
         super(control);
     }
 
+    @Override
+    public void applyResponsiveLayout() {
+        if (!(visualGrid.getSkin() instanceof VisualGridVerticalSkin))
+            visualGrid.setSkin(new VisualGridVerticalSkin(visualGrid));
+    }
 
     @Override
     public void install() {

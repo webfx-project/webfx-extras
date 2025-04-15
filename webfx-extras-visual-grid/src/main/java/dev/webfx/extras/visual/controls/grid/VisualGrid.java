@@ -87,9 +87,10 @@ public class VisualGrid extends SelectableVisualResultControl {
 
     public static VisualGrid createVisualGridWithResponsiveSkin() {
         VisualGrid visualGrid = createVisualGridWithTableSkin();
-        VisualGridTableSkin tableSkin = (VisualGridTableSkin) visualGrid.getSkin();
-        VisualGridVerticalSkin verticalSkin = new VisualGridVerticalSkin(visualGrid);
-        ResponsiveDesign.startResponsiveDesign(visualGrid.widthProperty(), tableSkin, verticalSkin);
+        new ResponsiveDesign(visualGrid)
+                .addResponsiveLayout((VisualGridTableSkin) visualGrid.getSkin())
+                .addResponsiveLayout(new VisualGridVerticalSkin(visualGrid))
+                .start();
         return visualGrid;
     }
 

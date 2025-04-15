@@ -1,7 +1,7 @@
 package dev.webfx.extras.visual.controls.grid;
 
 import dev.webfx.extras.cell.renderer.ValueRendererRegistry;
-import dev.webfx.extras.responsive.MinWidthResponsiveLayout;
+import dev.webfx.extras.responsive.ResponsiveLayout;
 import dev.webfx.extras.util.control.Controls;
 import dev.webfx.extras.visual.*;
 import dev.webfx.kit.util.properties.FXProperties;
@@ -32,7 +32,7 @@ import java.util.function.Consumer;
 /**
  * @author Bruno Salmon
  */
-final class VisualGridTableSkin extends VisualGridSkinBase<Pane, Pane> implements MinWidthResponsiveLayout {
+final class VisualGridTableSkin extends VisualGridSkinBase<Pane, Pane> implements ResponsiveLayout {
 
     private static final int INITIAL_BUILT_ROWS_MAX = 20;
 
@@ -52,19 +52,19 @@ final class VisualGridTableSkin extends VisualGridSkinBase<Pane, Pane> implement
     }
 
     @Override
-    public ObservableValue[] getResponsiveDependencies() {
-        return new ObservableValue[] { responsiveMinWidthProperty };
-    }
-
-    @Override
-    public double getResponsiveMinWidth() {
-        return responsiveMinWidthProperty.get();
+    public boolean testResponsiveLayoutApplicability(double width) {
+        return width >= responsiveMinWidthProperty.get();
     }
 
     @Override
     public void applyResponsiveLayout() {
         if (!(visualGrid.getSkin() instanceof VisualGridTableSkin))
             visualGrid.setSkin(new VisualGridTableSkin(visualGrid));
+    }
+
+    @Override
+    public ObservableValue<?>[] getResponsiveTestDependencies() {
+        return new ObservableValue[] { responsiveMinWidthProperty };
     }
 
     @Override

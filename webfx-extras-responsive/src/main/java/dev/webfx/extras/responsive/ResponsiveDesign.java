@@ -3,10 +3,13 @@ package dev.webfx.extras.responsive;
 import dev.webfx.kit.util.properties.FXProperties;
 import dev.webfx.kit.util.properties.Unregisterable;
 import dev.webfx.platform.util.Arrays;
-import dev.webfx.platform.util.Objects;
 import javafx.beans.value.ObservableDoubleValue;
 import javafx.beans.value.ObservableValue;
 import javafx.scene.layout.Region;
+
+import java.util.ArrayList;
+import java.util.List;
+import java.util.function.Function;
 
 
 /**
@@ -14,34 +17,54 @@ import javafx.scene.layout.Region;
  */
 public final class ResponsiveDesign {
 
-    public static Unregisterable startResponsiveDesign(Region responsiveRegion, ResponsiveLayout... responsiveLayouts) {
-        return startResponsiveDesign(responsiveRegion.widthProperty(), responsiveLayouts);
+    private final Region responsiveRegion;
+    private final ObservableDoubleValue responsiveWidthProperty;
+    private final List<ResponsiveLayout> responsiveLayouts = new ArrayList<>();
+    private Unregisterable unregisterable;
+
+    public ResponsiveDesign(Region responsiveRegion) {
+        this.responsiveRegion = responsiveRegion;
+        this.responsiveWidthProperty = responsiveRegion.widthProperty();
     }
 
-    public static Unregisterable startResponsiveDesign(ObservableDoubleValue responsiveWidthProperty, ResponsiveLayout... responsiveLayouts) {
-        ObservableValue[] dependencies = Arrays.flatMap(responsiveLayouts, ResponsiveLayout::getResponsiveDependencies, ObservableValue[]::new);
-        dependencies = Arrays.filter(dependencies, Objects::nonNull, ObservableValue[]::new);
+    public ResponsiveDesign(ObservableDoubleValue responsiveWidthProperty) {
+        this.responsiveRegion = null;
+        this.responsiveWidthProperty = responsiveWidthProperty;
+    }
+
+    public ResponsiveDesign addResponsiveLayout(ResponsiveLayout responsiveLayout) {
+        responsiveLayouts.add(responsiveLayout);
+        return this;
+    }
+
+    public ResponsiveDesign addResponsiveLayout(Function<Double, Boolean> applicabilityTestFunction, Runnable applyMethod, ObservableValue<?>... testDependencies) {
+        return addResponsiveLayout(ResponsiveLayout.create(applicabilityTestFunction, applyMethod, testDependencies));
+    }
+
+    public ResponsiveDesign start() {
+        ObservableValue[] dependencies = Arrays.flatMap(responsiveLayouts.toArray(new ResponsiveLayout[0]), ResponsiveLayout::getResponsiveTestDependencies, ObservableValue[]::new);
         dependencies = Arrays.add(ObservableValue[]::new, dependencies, responsiveWidthProperty);
         ResponsiveLayout[] activeResponsiveLayouts = { null };
-        return FXProperties.runNowAndOnPropertiesChange(() -> {
+        unregisterable = FXProperties.runNowAndOnPropertiesChange(() -> {
             double responsiveWidth = responsiveWidthProperty.get();
             ResponsiveLayout bestResponsiveLayout = null;
             for (ResponsiveLayout responsiveLayout : responsiveLayouts) {
-                if (responsiveLayout instanceof MinWidthResponsiveLayout layout) {
-                    if (responsiveWidth >= layout.getResponsiveMinWidth())
-                        bestResponsiveLayout = responsiveLayout;
-                } else if (responsiveLayout instanceof ApplicableResponsiveLayout layout) {
-                    if (layout.isResponsiveLayoutApplicable())
-                        bestResponsiveLayout = responsiveLayout;
-                } else
+                if (responsiveLayout.testResponsiveLayoutApplicability(responsiveWidth)) {
                     bestResponsiveLayout = responsiveLayout;
-                if (bestResponsiveLayout != null)
                     break;
+                }
             }
             if (bestResponsiveLayout != null && bestResponsiveLayout != activeResponsiveLayouts[0]) {
                 activeResponsiveLayouts[0] = bestResponsiveLayout;
                 bestResponsiveLayout.applyResponsiveLayout();
             }
         }, dependencies);
+        return this;
+    }
+
+    public ResponsiveDesign stop() {
+        if (unregisterable != null)
+            unregisterable.unregister();
+        return this;
     }
 }

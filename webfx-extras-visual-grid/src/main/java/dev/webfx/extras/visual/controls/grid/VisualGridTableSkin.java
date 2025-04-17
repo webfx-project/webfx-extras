@@ -27,6 +27,7 @@ import javafx.scene.text.Text;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 import java.util.function.Consumer;
 
 /**
@@ -34,8 +35,10 @@ import java.util.function.Consumer;
  */
 final class VisualGridTableSkin extends VisualGridSkinBase<Pane, Pane> implements ResponsiveLayout {
 
-    private static final int INITIAL_BUILT_ROWS_MAX = 20;
+    private static final long INITIAL_BUILD_TIME_MAX_MILLIS = 50;
+    private static final long ANIMATION_FRAME_BUILD_TIME_MAX_MILLIS = 10;
 
+    private long initialBuildTimeMillis;
     private final GridHead gridHead = new GridHead();
     private final GridBody gridBody = new GridBody();
     private ScrollPane bodyScrollPane;
@@ -58,6 +61,7 @@ final class VisualGridTableSkin extends VisualGridSkinBase<Pane, Pane> implement
 
     @Override
     public void applyResponsiveLayout() {
+        // Because of a bug in OpenJFX, we can't reuse the same skin again, so we need to create a new instance
         if (!(visualGrid.getSkin() instanceof VisualGridTableSkin))
             visualGrid.setSkin(new VisualGridTableSkin(visualGrid));
     }
@@ -109,6 +113,7 @@ final class VisualGridTableSkin extends VisualGridSkinBase<Pane, Pane> implement
 
     @Override
     protected void startBuildingGrid() {
+        initialBuildTimeMillis = System.currentTimeMillis();
         gridHead.startBuildingGrid();
         gridBody.startBuildingGrid();
     }
@@ -117,8 +122,8 @@ final class VisualGridTableSkin extends VisualGridSkinBase<Pane, Pane> implement
 
     @Override
     protected void buildRowCells(Pane bodyRow, int rowIndex) {
-        // Skipping rows after INITIAL_BUILT_ROWS_MAX (will be built later in animation frames)
-        if (rowIndex <= INITIAL_BUILT_ROWS_MAX) {
+        // Skipping rows after INITIAL_BUILD_TIME_MAX_MILLIS (remaining rows will be built later in next animation frames)
+        if (System.currentTimeMillis() <= initialBuildTimeMillis + INITIAL_BUILD_TIME_MAX_MILLIS) {
             super.buildRowCells(bodyRow, rowIndex);
             builtRowIndex = rowIndex;
         }
@@ -126,7 +131,7 @@ final class VisualGridTableSkin extends VisualGridSkinBase<Pane, Pane> implement
 
     @Override
     protected void endBuildingGrid() {
-        if (getRowCount() <= INITIAL_BUILT_ROWS_MAX) {
+        if (builtRowIndex >= getRowCount() - 1) {
             gridHead.endBuildingGrid();
             gridBody.endBuildingGrid();
         } else
@@ -137,14 +142,18 @@ final class VisualGridTableSkin extends VisualGridSkinBase<Pane, Pane> implement
                     if (rs != getRs())
                         scheduled.cancel();
                     else {
-                        builtRowIndex++;
-                        if (builtRowIndex >= getRowCount()) {
-                            scheduled.cancel();
-                            gridHead.endBuildingGrid();
-                            gridBody.endBuildingGrid();
-                        } else {
-                            VisualGridTableSkin.super.buildRowCells(null, builtRowIndex);
-                            lastContentWidth = -1;
+                        long animationFrameBuildEndTimeMillis = System.currentTimeMillis() + ANIMATION_FRAME_BUILD_TIME_MAX_MILLIS;
+                        while (System.currentTimeMillis() <= animationFrameBuildEndTimeMillis) {
+                            if (builtRowIndex >= getRowCount() - 1) {
+                                scheduled.cancel();
+                                gridHead.endBuildingGrid();
+                                gridBody.endBuildingGrid();
+                                break;
+                            } else {
+                                builtRowIndex++;
+                                VisualGridTableSkin.super.buildRowCells(null, builtRowIndex);
+                                lastContentWidth = -1;
+                            }
                         }
                     }
                 }
@@ -194,7 +203,7 @@ final class VisualGridTableSkin extends VisualGridSkinBase<Pane, Pane> implement
         else
             // If the content to render in the cell is a wrapped label that has been constrained in height to auto wrap
             // (such as "wrappedLabel" or "ellipsisLabel" renderers from ValueRendererRegistry), we actually remove that
-            // constraint because we don't want the label to indefinitely grow in height, but want it rather to be truncated
+            // constraint. We don't want the label to indefinitely grow in height, but want it rather to be truncated
             // (with possible ellipsis) if all the text doesn't fit in the cell.
             ValueRendererRegistry.removePossibleLabelAutoWrap(content);
         children.add(content);
@@ -297,15 +306,12 @@ final class VisualGridTableSkin extends VisualGridSkinBase<Pane, Pane> implement
                         double columnWidth = snapSizeX(cumulator.getMaxWidth() + hMargin);
                         headColumn.setColumnWidth(columnWidth);
                         currentResizableColumnWidthsTotal += columnWidth;
-                        if (headColumn.minWidth != null)
-                            responsiveMinWidth += headColumn.minWidth;
-                        else
-                            responsiveMinWidth += columnWidth;
+                        responsiveMinWidth += Objects.requireNonNullElse(headColumn.minWidth, columnWidth);
                     }
                 }
                 currentColumnWidthsTotal += currentResizableColumnWidthsTotal;
                 double remainingColumnWidthsTotal = columnWidthsTotal - currentColumnWidthsTotal;
-                // If there is some remaining space, we spread it over the resizable columns, keeping same proportions
+                // If there is some remaining space, we spread it over the resizable columns, keeping the same proportions
                 if (remainingColumnWidthsTotal > 0) {
                     for (GridColumn headColumn : headColumns)
                         if (headColumn.fixedWidth == null) {
@@ -536,8 +542,8 @@ final class VisualGridTableSkin extends VisualGridSkinBase<Pane, Pane> implement
             double cellWidth = getWidth();
             double y = 0;
             for (Node child : getChildren()) {
-                // We try to fill the with and height in general, but for HBox we don't fill the width in order to make
-                // hAlignment work (otherwise fillWidth would stretch the HBox which would apply its own internal
+                // We try to fill the with and height in general, but for HBox we don't fill the width to make
+                // hAlignment work (otherwise fillWidth would stretch the HBox, which would apply its own internal
                 // alignment instead).
                 boolean fillWidth = !(child instanceof HBox);
                 layoutInArea(child, 0, y, cellWidth, rowHeight, -1, cellMargin, fillWidth, true, hAlignment, vAlignment, snapToPixel);

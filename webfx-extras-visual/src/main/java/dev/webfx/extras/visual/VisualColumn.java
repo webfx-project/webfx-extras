@@ -50,7 +50,7 @@ public interface VisualColumn {
 
     ValueRenderingContext getValueRenderingContext();
 
-    ColumnWidthCumulator getCumulator();
+    ColumnWidthAccumulator getAccumulator();
 
     Object getSource(); // Ex: EntityColumn
 

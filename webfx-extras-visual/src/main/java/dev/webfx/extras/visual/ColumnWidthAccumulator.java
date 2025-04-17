@@ -11,7 +11,7 @@ import java.util.List;
 /**
  * @author Bruno Salmon
  */
-public final class ColumnWidthCumulator {
+public final class ColumnWidthAccumulator {
 
     private double maxWidth;
     private boolean hasChanged;
@@ -36,16 +36,16 @@ public final class ColumnWidthCumulator {
                     if (node.getScene() == null)
                         break;
                     else
-                        cumulate(node);
+                        accumulate(node);
             hasChanged = false;
         }
     }
 
-    public void cumulate(Node cellContent) {
-        cumulate(cellContent.prefWidth(-1));
+    public void accumulate(Node cellContent) {
+        accumulate(cellContent.prefWidth(-1));
     }
 
-    public void cumulate(double columnWidth) {
+    public void accumulate(double columnWidth) {
         if (columnWidth > maxWidth)
             maxWidth = columnWidth;
     }

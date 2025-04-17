@@ -15,7 +15,7 @@ public final class VisualColumnBuilder {
     private String role;
     private VisualStyle style;
     private ValueRenderer valueRenderer;
-    private ColumnWidthCumulator cumulator;
+    private ColumnWidthAccumulator accumulator;
     private Object source;
 
     public VisualColumnBuilder(Object label, Type type) {
@@ -53,8 +53,8 @@ public final class VisualColumnBuilder {
         return this;
     }
 
-    public VisualColumnBuilder setCumulator(ColumnWidthCumulator cumulator) {
-        this.cumulator = cumulator;
+    public VisualColumnBuilder setAccumulator(ColumnWidthAccumulator accumulator) {
+        this.accumulator = accumulator;
         return this;
     }
 
@@ -64,7 +64,7 @@ public final class VisualColumnBuilder {
     }
 
     public VisualColumn build() {
-        return new VisualColumnImpl(headerValue, label, type, role, style, valueRenderer, cumulator, source);
+        return new VisualColumnImpl(headerValue, label, type, role, style, valueRenderer, accumulator, source);
     }
 
     public static VisualColumnBuilder create() {

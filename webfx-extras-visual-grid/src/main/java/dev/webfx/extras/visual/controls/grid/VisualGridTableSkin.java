@@ -129,14 +129,21 @@ final class VisualGridTableSkin extends VisualGridSkinBase<Pane, Pane> implement
         }
     }
 
-    @Override
-    protected void endBuildingGrid() {
+    private boolean endBuildingGridIfAllRowsAreBuilt() {
         if (builtRowIndex >= getRowCount() - 1) {
             gridHead.endBuildingGrid();
             gridBody.endBuildingGrid();
-        } else
+            return true;
+        }
+        return false;
+    }
+
+    @Override
+    protected void endBuildingGrid() {
+        if (!endBuildingGridIfAllRowsAreBuilt()) {
             UiScheduler.schedulePeriodicInAnimationFrame(new Consumer<>() {
-                final VisualResult rs = getRs();
+                final VisualResult rs = getRs(); // Capturing VisualResult to check if it hasn't changed
+
                 @Override
                 public void accept(Scheduled scheduled) {
                     if (rs != getRs())
@@ -144,10 +151,8 @@ final class VisualGridTableSkin extends VisualGridSkinBase<Pane, Pane> implement
                     else {
                         long animationFrameBuildEndTimeMillis = System.currentTimeMillis() + ANIMATION_FRAME_BUILD_TIME_MAX_MILLIS;
                         while (System.currentTimeMillis() <= animationFrameBuildEndTimeMillis) {
-                            if (builtRowIndex >= getRowCount() - 1) {
+                            if (endBuildingGridIfAllRowsAreBuilt()) {
                                 scheduled.cancel();
-                                gridHead.endBuildingGrid();
-                                gridBody.endBuildingGrid();
                                 break;
                             } else {
                                 builtRowIndex++;
@@ -158,6 +163,7 @@ final class VisualGridTableSkin extends VisualGridSkinBase<Pane, Pane> implement
                     }
                 }
             });
+        }
     }
 
     @Override
@@ -166,8 +172,8 @@ final class VisualGridTableSkin extends VisualGridSkinBase<Pane, Pane> implement
         headColumn.setVisualColumn(visualColumn);
         GridColumn bodyColumn = gridBody.getOrCreateBodyColumn(gridColumnIndex);
         bodyColumn.setVisualColumn(visualColumn);
-        if (bodyColumn.cumulator == null)
-            bodyColumn.setCumulator(headColumn.getCumulator());
+        if (bodyColumn.accumulator == null)
+            bodyColumn.setAccumulator(headColumn.getAccumulator());
         super.setUpGridColumn(gridColumnIndex, rsColumnIndex, visualColumn);
     }
 
@@ -238,8 +244,8 @@ final class VisualGridTableSkin extends VisualGridSkinBase<Pane, Pane> implement
                 width += headColumn.fixedWidth;
             else {
                 GridColumn bodyColumn = bodyColumns.get(i);
-                ColumnWidthCumulator cumulator = bodyColumn.getUpToDateCumulator();
-                double columnWidth = snapSizeX(cumulator.getMaxWidth() + hMargin);
+                ColumnWidthAccumulator accumulator = bodyColumn.getUpToDateAccumulator();
+                double columnWidth = snapSizeX(accumulator.getMaxWidth() + hMargin);
                 width += columnWidth;
             }
         }
@@ -285,6 +291,7 @@ final class VisualGridTableSkin extends VisualGridSkinBase<Pane, Pane> implement
             for (GridColumn headColumn : headColumns) {
                 Double fixedWidth = headColumn.fixedWidth;
                 if (fixedWidth != null) {
+                    /* Why is this necessary? Is it a difference between KBS2 and KBS3? */
                     if (fixedWidth > 24)
                         fixedWidth *= 1.3;
                     fixedWidth = snapSizeX(fixedWidth + hMargin);
@@ -297,13 +304,13 @@ final class VisualGridTableSkin extends VisualGridSkinBase<Pane, Pane> implement
             List<GridColumn> bodyColumns = gridBody.bodyColumns;
             if (remainingColumnCount > 0) { // If there are resizable columns
                 double currentResizableColumnWidthsTotal = 0;
-                // We set the column width from the body column cumulator
+                // We set the column width from the body column accumulator
                 for (int i = 0; i < columnCount; i++) {
                     GridColumn headColumn = headColumns.get(i);
                     if (headColumn.fixedWidth == null) {
                         GridColumn bodyColumn = bodyColumns.get(i);
-                        ColumnWidthCumulator cumulator = bodyColumn.getUpToDateCumulator();
-                        double columnWidth = snapSizeX(cumulator.getMaxWidth() + hMargin);
+                        ColumnWidthAccumulator accumulator = bodyColumn.getUpToDateAccumulator();
+                        double columnWidth = snapSizeX(accumulator.getMaxWidth() + hMargin);
                         headColumn.setColumnWidth(columnWidth);
                         currentResizableColumnWidthsTotal += columnWidth;
                         responsiveMinWidth += Objects.requireNonNullElse(headColumn.minWidth, columnWidth);
@@ -475,7 +482,7 @@ final class VisualGridTableSkin extends VisualGridSkinBase<Pane, Pane> implement
     private final class GridColumn extends Pane {
         private Double fixedWidth;
         private Double minWidth;
-        private ColumnWidthCumulator cumulator;
+        private ColumnWidthAccumulator accumulator;
         private HPos hAlignment = HPos.LEFT;
         private final VPos vAlignment = VPos.CENTER;
         private double columnWidth;
@@ -507,25 +514,25 @@ final class VisualGridTableSkin extends VisualGridSkinBase<Pane, Pane> implement
                 }
             }
             if (fixedWidth == null)
-                setCumulator(visualColumn.getCumulator());
+                setAccumulator(visualColumn.getAccumulator());
         }
 
-        void setCumulator(ColumnWidthCumulator cumulator) {
-            this.cumulator = cumulator;
-            if (cumulator != null)
-                cumulator.registerColumnNodes(getChildren());
+        void setAccumulator(ColumnWidthAccumulator accumulator) {
+            this.accumulator = accumulator;
+            if (accumulator != null)
+                accumulator.registerColumnNodes(getChildren());
         }
 
-        ColumnWidthCumulator getCumulator() {
-            if (cumulator == null)
-                setCumulator(new ColumnWidthCumulator());
-            return cumulator;
+        ColumnWidthAccumulator getAccumulator() {
+            if (accumulator == null)
+                setAccumulator(new ColumnWidthAccumulator());
+            return accumulator;
         }
 
-        ColumnWidthCumulator getUpToDateCumulator() {
-            getCumulator();
-            cumulator.update();
-            return cumulator;
+        ColumnWidthAccumulator getUpToDateAccumulator() {
+            getAccumulator();
+            accumulator.update();
+            return accumulator;
         }
 
         Pane getOrAddBodyRowCell() {

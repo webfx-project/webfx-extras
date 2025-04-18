@@ -8,6 +8,7 @@ import dev.webfx.kit.util.properties.FXProperties;
 import dev.webfx.platform.scheduler.Scheduled;
 import dev.webfx.platform.uischeduler.UiScheduler;
 import dev.webfx.platform.useragent.UserAgent;
+import dev.webfx.platform.util.Booleans;
 import dev.webfx.platform.util.collection.Collections;
 import javafx.beans.property.DoubleProperty;
 import javafx.beans.property.SimpleDoubleProperty;
@@ -27,7 +28,6 @@ import javafx.scene.text.Text;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Objects;
 import java.util.function.Consumer;
 
 /**
@@ -157,7 +157,7 @@ final class VisualGridTableSkin extends VisualGridSkinBase<Pane, Pane> implement
                             } else {
                                 builtRowIndex++;
                                 VisualGridTableSkin.super.buildRowCells(null, builtRowIndex);
-                                lastContentWidth = -1;
+                                lastTotalWidth = -1;
                             }
                         }
                     }
@@ -240,14 +240,15 @@ final class VisualGridTableSkin extends VisualGridSkinBase<Pane, Pane> implement
         double hMargin = cellMargin.getLeft() + cellMargin.getRight();
         for (int i = 0; i < columnCount; i++) {
             GridColumn headColumn = headColumns.get(i);
-            if (headColumn.fixedWidth != null)
-                width += headColumn.fixedWidth;
+            double columnWidth;
+            if (headColumn.prefWidth != null)
+                columnWidth = headColumn.computePrefPixelWidth(visualGrid.getWidth() - leftInset - rightInset);
             else {
                 GridColumn bodyColumn = bodyColumns.get(i);
-                ColumnWidthAccumulator accumulator = bodyColumn.getUpToDateAccumulator();
-                double columnWidth = snapSizeX(accumulator.getMaxWidth() + hMargin);
-                width += columnWidth;
+                columnWidth = bodyColumn.getOrComputeContentMaxWidth();
             }
+            columnWidth = snapSizeX(columnWidth + hMargin);
+            width += columnWidth;
         }
         //System.out.println("prefWidth: " + width);
         return width;
@@ -265,7 +266,7 @@ final class VisualGridTableSkin extends VisualGridSkinBase<Pane, Pane> implement
 
     @Override
     protected void layoutChildren(double contentX, double contentY, double contentWidth, double contentHeight) {
-        updateColumnWidths(contentWidth);
+        computeColumnWidths(contentWidth);
         if (visualGrid.isHeaderVisible()) {
             double headerHeight = visualGrid.getRowHeight();
             layoutInArea(gridHead, contentX - headOffset, contentY, columnWidthsTotal, headerHeight, -1, HPos.LEFT, VPos.TOP);
@@ -275,75 +276,103 @@ final class VisualGridTableSkin extends VisualGridSkinBase<Pane, Pane> implement
         layoutInArea(body, contentX, contentY, contentWidth, contentHeight, -1, HPos.LEFT, VPos.TOP);
     }
 
-    private double lastContentWidth;
+    private double lastTotalWidth;
     private double columnWidthsTotal;
 
-    private void updateColumnWidths(double contentWidth) {
-        if (lastContentWidth != contentWidth) {
-            columnWidthsTotal = contentWidth;
-            List<GridColumn> headColumns = gridHead.headColumns;
-            int columnCount = headColumns.size();
-            int remainingColumnCount = columnCount;
-            double currentColumnWidthsTotal = 0;
-            // First we set the fixed width columns
-            Insets cellMargin = visualGrid.getCellMargin();
-            double hMargin = cellMargin.getLeft() + cellMargin.getRight();
-            for (GridColumn headColumn : headColumns) {
-                Double fixedWidth = headColumn.fixedWidth;
-                if (fixedWidth != null) {
-                    /* Why is this necessary? Is it a difference between KBS2 and KBS3? */
-                    if (fixedWidth > 24)
-                        fixedWidth *= 1.3;
-                    fixedWidth = snapSizeX(fixedWidth + hMargin);
-                    headColumn.setColumnWidth(fixedWidth);
-                    currentColumnWidthsTotal += fixedWidth;
-                    remainingColumnCount--;
-                }
+    public void computeColumnWidths(double totalWidth) {
+        if (lastTotalWidth == totalWidth)
+            return;
+        columnWidthsTotal = totalWidth;
+        List<GridColumn> headColumns = gridHead.headColumns;
+        List<GridColumn> bodyColumns = gridBody.bodyColumns;
+        Insets cellMargin = visualGrid.getCellMargin();
+        double hMargin = cellMargin.getLeft() + cellMargin.getRight();
+        double computedTotalWidth = 0;
+        double shrinkableTotalWidth = 0;
+        double growableTotalWidth = 0;
+        double responsiveMinWidth = 0;
+        int columnCount = headColumns.size();
+        for (int i = 0; i < columnCount; i++) {
+            GridColumn headColumn = headColumns.get(i);
+            // Step 1: Initial width computation based on percentage or pixel values
+            double computedWidth;
+            if (headColumn.prefWidth != null) {
+                computedWidth = headColumn.computePrefPixelWidth(totalWidth);
+            } else {
+                GridColumn bodyColumn = bodyColumns.get(i);
+                computedWidth = bodyColumn.getOrComputeContentMaxWidth();
             }
-            double responsiveMinWidth = currentColumnWidthsTotal;
-            List<GridColumn> bodyColumns = gridBody.bodyColumns;
-            if (remainingColumnCount > 0) { // If there are resizable columns
-                double currentResizableColumnWidthsTotal = 0;
-                // We set the column width from the body column accumulator
-                for (int i = 0; i < columnCount; i++) {
-                    GridColumn headColumn = headColumns.get(i);
-                    if (headColumn.fixedWidth == null) {
-                        GridColumn bodyColumn = bodyColumns.get(i);
-                        ColumnWidthAccumulator accumulator = bodyColumn.getUpToDateAccumulator();
-                        double columnWidth = snapSizeX(accumulator.getMaxWidth() + hMargin);
-                        headColumn.setColumnWidth(columnWidth);
-                        currentResizableColumnWidthsTotal += columnWidth;
-                        responsiveMinWidth += Objects.requireNonNullElse(headColumn.minWidth, columnWidth);
+            // Step 2: Apply min/max constraints
+            if (headColumn.minWidth != null) {
+                double minW = headColumn.computeMinPixelWidth(totalWidth);
+                computedWidth = Math.max(computedWidth, minW);
+                if (headColumn.hShrink)
+                    responsiveMinWidth += minW;
+            }
+            if (headColumn.maxWidth != null) {
+                double maxW = headColumn.computeMaxPixelWidth(totalWidth);
+                computedWidth = Math.min(computedWidth, maxW);
+            }
+            computedWidth = snapSizeX(computedWidth + hMargin);
+            headColumn.setComputedWidth(computedWidth);
+            if (headColumn.minWidth == null || !headColumn.hShrink)
+                responsiveMinWidth += computedWidth;
+            // Updating totals
+            computedTotalWidth += computedWidth;
+            if (headColumn.hShrink)
+                shrinkableTotalWidth += computedWidth;
+            if (headColumn.hGrow)
+                growableTotalWidth += computedWidth;
+        }
+
+        // Step 3: Handle space constraints (shrinking if needed)
+        if (computedTotalWidth > totalWidth) {
+            double excessWidth = computedTotalWidth - totalWidth;
+
+            // First attempt: shrink only columns that can shrink, proportionally to their width
+            for (int i = 0; i < columnCount; i++) {
+                GridColumn headColumn = headColumns.get(i);
+                if (headColumn.hShrink) {
+                    double shrinkRatio = headColumn.computedWidth / shrinkableTotalWidth;
+                    double reduction = excessWidth * shrinkRatio;
+                    headColumn.computedWidth -= reduction;
+
+                    // Ensure we don't shrink below minWidth
+                    if (headColumn.minWidth != null) {
+                        double minW = headColumn.computeMinPixelWidth(totalWidth);
+                        headColumn.computedWidth = Math.max(headColumn.computedWidth, minW);
                     }
                 }
-                currentColumnWidthsTotal += currentResizableColumnWidthsTotal;
-                double remainingColumnWidthsTotal = columnWidthsTotal - currentColumnWidthsTotal;
-                // If there is some remaining space, we spread it over the resizable columns, keeping the same proportions
-                if (remainingColumnWidthsTotal > 0) {
-                    for (GridColumn headColumn : headColumns)
-                        if (headColumn.fixedWidth == null) {
-                            double columnWidth = headColumn.getColumnWidth();
-                            columnWidth += columnWidth / currentResizableColumnWidthsTotal * remainingColumnWidthsTotal;
-                            headColumn.setColumnWidth(columnWidth);
-                        }
-                } else if (remainingColumnWidthsTotal < 0) { // if we exceed the content width, we reduce the largest resizable column
-                    GridColumn largestColumn = null;
-                    for (GridColumn headColumn : headColumns)
-                        if (headColumn.fixedWidth == null && (largestColumn == null || largestColumn.getColumnWidth() < headColumn.getColumnWidth()))
-                            largestColumn = headColumn;
-                    if (largestColumn != null)
-                        largestColumn.setColumnWidth(Math.max(0, largestColumn.getColumnWidth() + remainingColumnWidthsTotal));
+            }
+        }
+
+        // Step 4: Or distribute extra space if available
+        else if (computedTotalWidth < totalWidth) {
+            double extraSpace = totalWidth - computedTotalWidth;
+
+            // Only grow columns that can grow and haven't reached their maxWidth
+            for (int i = 0; i < columnCount; i++) {
+                GridColumn headColumn = headColumns.get(i);
+                double growRatio = headColumn.computedWidth / growableTotalWidth;
+                double increase = extraSpace * growRatio;
+                headColumn.computedWidth += increase;
+
+                // Ensure we don't exceed maxWidth
+                if (headColumn.maxWidth != null) {
+                    double maxW = headColumn.computeMaxPixelWidth(totalWidth);
+                    headColumn.computedWidth = Math.min(headColumn.computedWidth, maxW);
                 }
             }
-            // Applying the column widths to the body columns
-            for (int i = 0; i < columnCount; i++)
-                bodyColumns.get(i).setColumnWidth(headColumns.get(i).getColumnWidth());
-            gridBody.setPrefWidth(columnWidthsTotal);
-            lastContentWidth = contentWidth;
-            // Once the column widths are set, we also need to lay out the grid head so that its columns are aligned with the body ones
-            gridHead.requestLayout();
-            responsiveMinWidthProperty.setValue(responsiveMinWidth);
         }
+
+        // Applying the column widths to the body columns
+        for (int i = 0; i < columnCount; i++)
+            bodyColumns.get(i).setComputedWidth(headColumns.get(i).getComputedWidth());
+        gridBody.setPrefWidth(columnWidthsTotal);
+        lastTotalWidth = totalWidth;
+        // Once the column widths are set, we also need to lay out the grid head so that its columns are aligned with the body ones
+        gridHead.requestLayout();
+        responsiveMinWidthProperty.setValue(responsiveMinWidth);
     }
 
     private final class GridHead extends Region {
@@ -372,7 +401,7 @@ final class VisualGridTableSkin extends VisualGridSkinBase<Pane, Pane> implement
                 gridColumn = headColumns.get(columnIndex);
             else {
                 headColumns.add(gridColumn = new GridColumn());
-                lastContentWidth = -1;
+                lastTotalWidth = -1;
             }
             return gridColumn;
         }
@@ -382,7 +411,7 @@ final class VisualGridTableSkin extends VisualGridSkinBase<Pane, Pane> implement
             double x = 0;
             double height = visualGrid.getRowHeight();
             for (GridColumn headColumn : headColumns) {
-                double columnWidth = headColumn.getColumnWidth();
+                double columnWidth = headColumn.getComputedWidth();
                 headColumn.resizeRelocate(x, 0, columnWidth, height);
                 if (!UserAgent.isBrowser()) // We need to clip the column to avoid overflow (done via CSS in web)
                     headColumn.setClip(new Rectangle(columnWidth, height));
@@ -427,7 +456,7 @@ final class VisualGridTableSkin extends VisualGridSkinBase<Pane, Pane> implement
                             row.getOnMouseClicked().handle(e);
                     }
                 });
-                lastContentWidth = -1;
+                lastTotalWidth = -1;
             }
             return gridColumn;
         }
@@ -470,7 +499,7 @@ final class VisualGridTableSkin extends VisualGridSkinBase<Pane, Pane> implement
             double x = 0;
             double height = rowHeight * getRowCount();
             for (GridColumn bodyColumn : bodyColumns) {
-                double columnWidth = bodyColumn.getColumnWidth();
+                double columnWidth = bodyColumn.getComputedWidth();
                 bodyColumn.resizeRelocate(x, 0, columnWidth, height);
                 if (!UserAgent.isBrowser()) // We need to clip the column to avoid overflow (done via CSS in web)
                     bodyColumn.setClip(new Rectangle(columnWidth, height));
@@ -480,30 +509,33 @@ final class VisualGridTableSkin extends VisualGridSkinBase<Pane, Pane> implement
     }
 
     private final class GridColumn extends Pane {
-        private Double fixedWidth;
         private Double minWidth;
+        private Double prefWidth;
+        private Double maxWidth;
+        private boolean hGrow;
+        private boolean hShrink;
         private ColumnWidthAccumulator accumulator;
         private HPos hAlignment = HPos.LEFT;
         private final VPos vAlignment = VPos.CENTER;
-        private double columnWidth;
+        private double computedWidth;
 
         GridColumn() {
             getStyleClass().add("grid-col");
         }
 
-        void setColumnWidth(double width) {
-            columnWidth = width;
-        }
-
-        double getColumnWidth() {
-            return columnWidth;
+        Pane getOrAddBodyRowCell() {
+            fakeCellChildren = getChildren();
+            return fakeCell;
         }
 
         void setVisualColumn(VisualColumn visualColumn) {
             VisualStyle style = visualColumn.getStyle();
             if (style != null) {
-                fixedWidth = style.getPrefWidth();
                 minWidth = style.getMinWidth();
+                prefWidth = style.getPrefWidth();
+                maxWidth = style.getMaxWidth();
+                hGrow = Booleans.isNotFalse(style.getHGrow());
+                hShrink = Booleans.isNotFalse(style.getHShrink());
                 String textAlign = style.getTextAlign();
                 if (textAlign != null) {
                     switch (textAlign) {
@@ -513,7 +545,7 @@ final class VisualGridTableSkin extends VisualGridSkinBase<Pane, Pane> implement
                     }
                 }
             }
-            if (fixedWidth == null)
+            if (prefWidth == null)
                 setAccumulator(visualColumn.getAccumulator());
         }
 
@@ -535,9 +567,32 @@ final class VisualGridTableSkin extends VisualGridSkinBase<Pane, Pane> implement
             return accumulator;
         }
 
-        Pane getOrAddBodyRowCell() {
-            fakeCellChildren = getChildren();
-            return fakeCell;
+        void setComputedWidth(double width) {
+            computedWidth = width;
+        }
+
+        double getComputedWidth() {
+            return computedWidth;
+        }
+
+        double getOrComputeContentMaxWidth() {
+            return getUpToDateAccumulator().getMaxWidth();
+        }
+
+        double computeMinPixelWidth(double totalWidth) {
+            return computeMinPrefMaxPixelWidth(minWidth, totalWidth);
+        }
+
+        double computePrefPixelWidth(double totalWidth) {
+            return computeMinPrefMaxPixelWidth(prefWidth, totalWidth);
+        }
+
+        double computeMaxPixelWidth(double totalWidth) {
+            return computeMinPrefMaxPixelWidth(maxWidth, totalWidth);
+        }
+
+        private static double computeMinPrefMaxPixelWidth(double minPrefMaxWidth, double totalWidth) {
+            return minPrefMaxWidth <= 1 ? minPrefMaxWidth * totalWidth : minPrefMaxWidth;
         }
 
         @Override

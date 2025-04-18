@@ -11,10 +11,16 @@ public interface VisualStyle {
 
     Double getPrefWidth();
 
+    Double getMaxWidth();
+
+    Boolean getHGrow();
+
+    Boolean getHShrink();
+
     String getTextAlign();
 
     VisualStyle NO_STYLE = new VisualStyleImpl();
-    VisualStyle CENTER_STYLE = new VisualStyleImpl(null, null, "center");
-    VisualStyle RIGHT_STYLE = new VisualStyleImpl(null, null, "right");
+    VisualStyle CENTER_STYLE = new VisualStyleImpl(null, null, null, null, null, "center");
+    VisualStyle RIGHT_STYLE = new VisualStyleImpl(null, null, null, null, null, "right");
 
 }

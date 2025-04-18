@@ -9,6 +9,9 @@ public final class VisualStyleBuilder {
 
     private Double minWidth;
     private Double prefWidth;
+    private Double maxWidth;
+    private Boolean hGrow;
+    private Boolean hShrink;
     private String textAlign;
 
     private VisualStyleBuilder() {
@@ -24,13 +27,28 @@ public final class VisualStyleBuilder {
         return this;
     }
 
+    public VisualStyleBuilder setMaxWidth(Double maxWidth) {
+        this.maxWidth = maxWidth;
+        return this;
+    }
+
+    public VisualStyleBuilder setHGrow(Boolean hGrow) {
+        this.hGrow = hGrow;
+        return this;
+    }
+
+    public VisualStyleBuilder setHShrink(Boolean hShrink) {
+        this.hShrink = hShrink;
+        return this;
+    }
+
     public VisualStyleBuilder setTextAlign(String textAlign) {
         this.textAlign = textAlign;
         return this;
     }
 
     public VisualStyle build() {
-        return new VisualStyleImpl(minWidth, prefWidth, textAlign);
+        return new VisualStyleImpl(minWidth, prefWidth, maxWidth, hGrow, hShrink, textAlign);
     }
 
     public static VisualStyleBuilder create() {

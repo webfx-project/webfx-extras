@@ -18,6 +18,7 @@ public class ValueRenderingContext {
     private final Object placeholderKey;
     private final String textAlign;
     private Property editedValueProperty;
+    private int rowIndex;
 
     public ValueRenderingContext(boolean readOnly, Object labelKey, Object placeholderKey, String textAlign) {
         this.readOnly = readOnly;
@@ -78,5 +79,13 @@ public class ValueRenderingContext {
                 nodeProperty.bind(contextProperty);
         } else if (contextProperty != nodeProperty)
             nodeProperty.bindBidirectional(contextProperty);
+    }
+
+    public int getRowIndex() {
+        return rowIndex;
+    }
+
+    public void setRowIndex(int rowIndex) {
+        this.rowIndex = rowIndex;
     }
 }

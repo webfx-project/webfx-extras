@@ -34,7 +34,7 @@ public final class ValueRendererRegistry {
         registerValueRenderer("html", HtmlTextRenderer.SINGLETON);
     }
 
-    private static Label renderLabel(Object value, boolean autoWrap, boolean ellipsis) {
+    public static Label renderLabel(Object value, boolean autoWrap, boolean ellipsis) {
         Label label = new Label();
         if (autoWrap) {
             label.setWrapText(true);
@@ -46,8 +46,8 @@ public final class ValueRendererRegistry {
             // needs to have the exact same width as the container (it may have margin or be laid out differently).
             // So 2) is definitely more generic.
             label.setMinHeight(Region.USE_PREF_SIZE);
-            // This is the general default behaviour for "wrappedLabel" and "ellipsisLabel", but some renderers may
-            // wish a different behaviour. In that case, they can call removePossibleLabelAutoWrap() method (see for
+            // This is the general default behavior for "wrappedLabel" and "ellipsisLabel", but some renderers may
+            // wish a different behavior. In that case, they can call removePossibleLabelAutoWrap() method (see for
             // example VisualGridTableSkin.setCellContent() method).
         }
         if (ellipsis)

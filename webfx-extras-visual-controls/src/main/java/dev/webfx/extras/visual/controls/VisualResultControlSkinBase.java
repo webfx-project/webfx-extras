@@ -175,6 +175,7 @@ public abstract class VisualResultControlSkinBase<C extends VisualResultControl,
     }
 
     public void fillCell(CELL cell, int rowIndex, int rsColumnIndex, VisualColumn visualColumn) {
+        visualColumn.getValueRenderingContext().setRowIndex(rowIndex);
         fillCell(cell, rs.getValue(rowIndex, rsColumnIndex), visualColumn);
     }
 

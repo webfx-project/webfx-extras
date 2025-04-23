@@ -19,6 +19,7 @@ public class ValueRenderingContext {
     private final String textAlign;
     private Property editedValueProperty;
     private int rowIndex;
+    private Object appContext;
 
     public ValueRenderingContext(boolean readOnly, Object labelKey, Object placeholderKey, String textAlign) {
         this.readOnly = readOnly;
@@ -87,5 +88,13 @@ public class ValueRenderingContext {
 
     public void setRowIndex(int rowIndex) {
         this.rowIndex = rowIndex;
+    }
+
+    public <T> T getAppContext() {
+        return (T) appContext;
+    }
+
+    public void setAppContext(Object appContext) {
+        this.appContext = appContext;
     }
 }

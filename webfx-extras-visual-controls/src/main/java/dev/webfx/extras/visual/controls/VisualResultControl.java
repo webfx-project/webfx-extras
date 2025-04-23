@@ -13,6 +13,7 @@ public abstract class VisualResultControl extends Control implements
         HasVisualResultProperty {
 
     private final IntegerProperty rowCountProperty = new SimpleIntegerProperty();
+    private Object appContext;
 
     private final ObjectProperty<VisualResult> visualResultProperty = FXProperties.newObjectProperty(visualResult -> {
             rowCountProperty.set(visualResult == null ? 0 : visualResult.getRowCount());
@@ -30,5 +31,13 @@ public abstract class VisualResultControl extends Control implements
 
     public ReadOnlyIntegerProperty rowCountProperty() {
         return rowCountProperty;
+    }
+
+    public Object getAppContext() {
+        return appContext;
+    }
+
+    public void setAppContext(Object appContext) {
+        this.appContext = appContext;
     }
 }

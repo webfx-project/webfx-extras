@@ -1,15 +1,12 @@
 package dev.webfx.extras.visual.controls;
 
+import dev.webfx.extras.cell.renderer.*;
 import dev.webfx.kit.util.properties.Unregisterable;
 import dev.webfx.platform.util.Arrays;
 import dev.webfx.platform.util.collection.ToStringOptions;
 import javafx.scene.Node;
 import javafx.scene.control.SkinBase;
 import javafx.scene.paint.*;
-import dev.webfx.extras.cell.renderer.ImageRenderer;
-import dev.webfx.extras.cell.renderer.ImageTextRenderer;
-import dev.webfx.extras.cell.renderer.TextRenderer;
-import dev.webfx.extras.cell.renderer.ValueRenderer;
 import dev.webfx.extras.visual.VisualColumn;
 import dev.webfx.extras.visual.VisualResult;
 import dev.webfx.extras.label.Label;
@@ -202,7 +199,9 @@ public abstract class VisualResultControlSkinBase<C extends VisualResultControl,
                 return;
             }
         }
-        setCellContent(cell, valueRenderer.renderValue(cellValue, visualColumn.getValueRenderingContext()), visualColumn);
+        ValueRenderingContext valueRenderingContext = visualColumn.getValueRenderingContext();
+        valueRenderingContext.setAppContext(getSkinnable().getAppContext()); // transmitting the possible app context to the value renderer (via the rendering context)
+        setCellContent(cell, valueRenderer.renderValue(cellValue, valueRenderingContext), visualColumn);
     }
 
 

@@ -28,7 +28,8 @@ final class VisualGridVerticalSkin extends VisualGridSkinBase<Pane, Pane> {
 
     @Override
     public void applyResponsiveLayout() {
-        if (!(visualGrid.getSkin() instanceof VisualGridVerticalSkin))
+        // Because of a bug in OpenJFX, we can't reuse the same skin again, so we need to create a new instance
+        if (visualGrid.getSkin() != this)
             visualGrid.setSkin(new VisualGridVerticalSkin(visualGrid));
     }
 

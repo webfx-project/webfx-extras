@@ -15,7 +15,9 @@ public class VisualGrid extends SelectableVisualResultControl {
     private static final double DEFAULT_ROW_HEIGHT = 24;
     private static final Insets DEFAULT_CELL_MARGIN = new Insets(0, 0, 0, 5);
 
-    private final DoubleProperty rowHeightProperty = new SimpleDoubleProperty(DEFAULT_ROW_HEIGHT);
+    private final DoubleProperty minRowHeightProperty = new SimpleDoubleProperty(USE_PREF_SIZE);
+    private final DoubleProperty prefRowHeightProperty = new SimpleDoubleProperty(DEFAULT_ROW_HEIGHT);
+    private final DoubleProperty maxRowHeightProperty = new SimpleDoubleProperty(USE_PREF_SIZE);
     private final ObjectProperty<Insets> cellMarginProperty = new SimpleObjectProperty<>(DEFAULT_CELL_MARGIN);
 
     public VisualGrid() {
@@ -53,16 +55,40 @@ public class VisualGrid extends SelectableVisualResultControl {
         this.fullHeightProperty.set(fullHeight);
     }
 
-    public double getRowHeight() {
-        return rowHeightProperty.get();
+    public double getMinRowHeight() {
+        return minRowHeightProperty.get();
     }
 
-    public DoubleProperty rowHeightProperty() {
-        return rowHeightProperty;
+    public DoubleProperty minRowHeightProperty() {
+        return minRowHeightProperty;
     }
 
-    public void setRowHeight(double rowHeight) {
-        rowHeightProperty.set(rowHeight);
+    public void setMinRowHeight(double rowHeight) {
+        minRowHeightProperty.set(rowHeight);
+    }
+
+    public double getPrefRowHeight() {
+        return prefRowHeightProperty.get();
+    }
+
+    public DoubleProperty prefRowHeightProperty() {
+        return prefRowHeightProperty;
+    }
+
+    public void setPrefRowHeight(double rowHeight) {
+        prefRowHeightProperty.set(rowHeight);
+    }
+
+    public double getMaxRowHeight() {
+        return maxRowHeightProperty.get();
+    }
+
+    public DoubleProperty maxRowHeightProperty() {
+        return maxRowHeightProperty;
+    }
+
+    public void setMaxRowHeight(double rowHeight) {
+        maxRowHeightProperty.set(rowHeight);
     }
 
     public Insets getCellMargin() {

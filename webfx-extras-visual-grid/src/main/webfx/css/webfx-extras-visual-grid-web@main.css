@@ -73,7 +73,7 @@ th, tbody, td {
     background-color: transparent;
 }
 
-.grid-head, .grid-body, .grid-col, .grid-row {
+.grid-col, .grid-row {
     overflow: hidden;
 }
 

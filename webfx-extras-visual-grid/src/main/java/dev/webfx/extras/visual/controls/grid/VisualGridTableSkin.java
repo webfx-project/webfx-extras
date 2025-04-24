@@ -591,6 +591,9 @@ final class VisualGridTableSkin extends VisualGridSkinBase<Pane, Pane> implement
                         case "right":  hAlignment = HPos.RIGHT;  break;
                     }
                 }
+                String styleClass = style.getStyleClass();
+                if (styleClass != null)
+                    getStyleClass().addAll(styleClass.split("\\s+"));
             }
             if (prefWidth == null)
                 setAccumulator(visualColumn.getAccumulator());

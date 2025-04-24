@@ -13,6 +13,7 @@ public final class VisualStyleBuilder {
     private Boolean hGrow;
     private Boolean hShrink;
     private String textAlign;
+    private String styleClass;
 
     private VisualStyleBuilder() {
     }
@@ -47,8 +48,13 @@ public final class VisualStyleBuilder {
         return this;
     }
 
+    public VisualStyleBuilder setStyleClass(String styleClass) {
+        this.styleClass = styleClass;
+        return this;
+    }
+
     public VisualStyle build() {
-        return new VisualStyleImpl(minWidth, prefWidth, maxWidth, hGrow, hShrink, textAlign);
+        return new VisualStyleImpl(minWidth, prefWidth, maxWidth, hGrow, hShrink, textAlign, styleClass);
     }
 
     public static VisualStyleBuilder create() {

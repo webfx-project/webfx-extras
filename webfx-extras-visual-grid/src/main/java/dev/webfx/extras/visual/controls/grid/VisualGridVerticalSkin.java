@@ -1,6 +1,7 @@
 package dev.webfx.extras.visual.controls.grid;
 
 import dev.webfx.extras.visual.VisualColumn;
+import dev.webfx.extras.visual.VisualStyle;
 import javafx.collections.ObservableList;
 import javafx.geometry.Insets;
 import javafx.geometry.Orientation;
@@ -40,7 +41,7 @@ final class VisualGridVerticalSkin extends VisualGridSkinBase<Pane, Pane> {
     }
 
     @Override
-    protected Pane getOrAddHeadCell(int gridColumnIndex) {
+    protected Pane getOrAddHeadCell(int gridColumnIndex) { // never called in this skin
         return null;
     }
 
@@ -61,14 +62,20 @@ final class VisualGridVerticalSkin extends VisualGridSkinBase<Pane, Pane> {
 
     @Override
     protected Pane getOrAddBodyRowCell(Pane bodyRow, int rowIndex, int gridColumnIndex) {
-        return bodyRow;
+        return bodyRow; // Note: bodyRow is also the cell
     }
 
     @Override
-    protected void setCellContent(Pane pane, Node content, VisualColumn visualColumn) {
+    protected void setCellContent(Pane bodyRowCell, Node content, VisualColumn visualColumn) {
         if (content != null) {
-            VBox.setMargin(content, getSkinnable().getCellMargin());
-            pane.getChildren().add(content);
+            VBox.setMargin(content, visualGrid.getCellMargin());
+            bodyRowCell.getChildren().add(content);
+            VisualStyle style = visualColumn.getStyle();
+            if (style != null) {
+                String styleClass = style.getStyleClass();
+                if (styleClass != null)
+                    content.getStyleClass().addAll(styleClass.split(" "));
+            }
         }
     }
 

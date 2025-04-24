@@ -13,18 +13,20 @@ public final class VisualStyleImpl implements VisualStyle {
     private final Boolean hGrow;
     private final Boolean hShrink;
     private final String textAlign;
+    private final String styleClass;
 
     public VisualStyleImpl() {
-        this(null, null, null, null, null, null);
+        this(null, null, null, null, null, null, null);
     }
 
-    public VisualStyleImpl(Double minWidth, Double prefWidth, Double maxWidth, Boolean hGrow, Boolean hShrink, String textAlign) {
+    public VisualStyleImpl(Double minWidth, Double prefWidth, Double maxWidth, Boolean hGrow, Boolean hShrink, String textAlign, String styleClass) {
         this.minWidth = minWidth;
         this.prefWidth = prefWidth;
         this.maxWidth = maxWidth;
         this.hGrow = hGrow;
         this.hShrink = hShrink;
         this.textAlign = textAlign;
+        this.styleClass = styleClass;
     }
 
     @Override
@@ -53,5 +55,10 @@ public final class VisualStyleImpl implements VisualStyle {
 
     public String getTextAlign() {
         return textAlign;
+    }
+
+    @Override
+    public String getStyleClass() {
+        return styleClass;
     }
 }

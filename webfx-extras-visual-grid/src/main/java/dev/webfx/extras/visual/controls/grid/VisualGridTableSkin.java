@@ -383,7 +383,7 @@ final class VisualGridTableSkin extends VisualGridSkinBase<Pane, Pane> implement
         //long t1 = System.currentTimeMillis();
 
         // Row heights calculation
-        int rowCount = getRowCount();
+        int rowCount = builtRowIndex + 1; // Might be less than getRowCount() in case the table is not yet fully populated
         double minRowHeight = visualGrid.getMinRowHeight();
         double prefRowHeight = visualGrid.getPrefRowHeight();
         double maxRowHeight = visualGrid.getMaxRowHeight();
@@ -476,6 +476,9 @@ final class VisualGridTableSkin extends VisualGridSkinBase<Pane, Pane> implement
         void startBuildingGrid() {
             bodyRows.clear();
             bodyColumns.clear();
+            // We don't wait endBuildingGrid() to create rowHeights, as this would cause NPE in other methods before the
+            // table is not fully built.
+            rowHeights = new double[getRowCount()];
         }
 
         void endBuildingGrid() {
@@ -483,7 +486,6 @@ final class VisualGridTableSkin extends VisualGridSkinBase<Pane, Pane> implement
             rowsAndColumns.addAll(bodyRows);
             rowsAndColumns.addAll(bodyColumns);
             getChildren().setAll(rowsAndColumns);
-            rowHeights = new double[bodyRows.size()];
         }
 
         private GridColumn getOrCreateBodyColumn(int columnIndex) {

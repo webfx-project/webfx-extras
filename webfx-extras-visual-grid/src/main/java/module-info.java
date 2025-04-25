@@ -14,6 +14,7 @@ module webfx.extras.visual.grid {
     requires webfx.extras.visual.controls;
     requires webfx.extras.visual.grid.registry;
     requires webfx.kit.util;
+    requires webfx.platform.console;
     requires webfx.platform.scheduler;
     requires webfx.platform.uischeduler;
     requires webfx.platform.useragent;

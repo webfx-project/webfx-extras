@@ -30,8 +30,8 @@ final class VisualGridVerticalSkin extends VisualGridSkinBase<Pane, Pane> {
     @Override
     public void applyResponsiveLayout() {
         // Because of a bug in OpenJFX, we can't reuse the same skin again, so we need to create a new instance
-        if (visualGrid.getSkin() != this)
-            visualGrid.setSkin(new VisualGridVerticalSkin(visualGrid));
+        if (visualControl.getSkin() != this)
+            visualControl.setSkin(new VisualGridVerticalSkin(visualControl));
     }
 
     @Override
@@ -68,7 +68,7 @@ final class VisualGridVerticalSkin extends VisualGridSkinBase<Pane, Pane> {
     @Override
     protected void setCellContent(Pane bodyRowCell, Node content, VisualColumn visualColumn) {
         if (content != null) {
-            VBox.setMargin(content, visualGrid.getCellMargin());
+            VBox.setMargin(content, visualControl.getCellMargin());
             bodyRowCell.getChildren().add(content);
             VisualStyle style = visualColumn.getStyle();
             if (style != null) {

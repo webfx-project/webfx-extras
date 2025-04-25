@@ -9,7 +9,7 @@ import dev.webfx.extras.visual.VisualSelection;
  * @author Bruno Salmon
  */
 public abstract class SelectableVisualResultControlSkinBase<C extends SelectableVisualResultControl, ROW extends Node, CELL extends Node>
-        extends VisualResultControlSkinBase<C, ROW, CELL> {
+    extends VisualResultControlSkinBase<C, ROW, CELL> {
 
     public SelectableVisualResultControlSkinBase(C control, boolean hasSpecialRenderingForImageAndText) {
         super(control, hasSpecialRenderingForImageAndText);
@@ -19,8 +19,9 @@ public abstract class SelectableVisualResultControlSkinBase<C extends Selectable
     public void install() {
         super.install();
         unregisterOnDispose(
-            FXProperties.runNowAndOnPropertyChange((o, oldValue, newValue) -> updateVisualSelection(newValue, oldValue)
-                , getSkinnable().visualSelectionProperty())
+            FXProperties.runNowAndOnPropertyChange((o, oldValue, newValue)
+                    -> updateVisualSelection(newValue, oldValue)
+                , visualControl.visualSelectionProperty())
         );
     }
 
@@ -33,7 +34,7 @@ public abstract class SelectableVisualResultControlSkinBase<C extends Selectable
 
     @Override
     protected void updateResult(VisualResult rs) {
-        getSkinnable().setVisualSelection(null);
+        visualControl.setVisualSelection(null);
         super.updateResult(rs);
     }
 
@@ -41,13 +42,12 @@ public abstract class SelectableVisualResultControlSkinBase<C extends Selectable
     protected void setUpBodyRow(ROW bodyRow, int rowIndex) {
         super.setUpBodyRow(bodyRow, rowIndex);
         bodyRow.setOnMouseClicked(e -> {
-            C control = getSkinnable();
-            VisualSelection visualSelection = control.getVisualSelection();
+            VisualSelection visualSelection = visualControl.getVisualSelection();
             if (visualSelection == null || visualSelection.getSelectedRow() != rowIndex)
                 visualSelection = VisualSelection.createSingleRowSelection(rowIndex);
             else
                 visualSelection = null;
-            control.setVisualSelection(visualSelection);
+            visualControl.setVisualSelection(visualSelection);
         });
     }
 }

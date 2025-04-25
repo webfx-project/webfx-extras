@@ -6,6 +6,7 @@ import dev.webfx.extras.responsive.ResponsiveLayout;
 import dev.webfx.extras.util.control.Controls;
 import dev.webfx.extras.visual.*;
 import dev.webfx.kit.util.properties.FXProperties;
+import dev.webfx.platform.console.Console;
 import dev.webfx.platform.scheduler.Scheduled;
 import dev.webfx.platform.uischeduler.UiScheduler;
 import dev.webfx.platform.useragent.UserAgent;
@@ -64,13 +65,13 @@ final class VisualGridTableSkin extends VisualGridSkinBase<Pane, Pane> implement
     @Override
     public void applyResponsiveLayout() {
         // Because of a bug in OpenJFX, we can't reuse the same skin again, so we need to create a new instance
-        if (visualGrid.getSkin() != this)
-            visualGrid.setSkin(new VisualGridTableSkin(visualGrid));
+        if (visualControl.getSkin() != this)
+            visualControl.setSkin(new VisualGridTableSkin(visualControl));
     }
 
     @Override
     public ObservableValue<?>[] getResponsiveTestDependencies() {
-        return new ObservableValue[] { responsiveMinWidthProperty };
+        return new ObservableValue[]{responsiveMinWidthProperty};
     }
 
     @Override
@@ -78,7 +79,7 @@ final class VisualGridTableSkin extends VisualGridSkinBase<Pane, Pane> implement
         super.install();
         unregisterOnDispose(
             FXProperties.runNowAndOnPropertiesChange(() -> {
-                if (visualGrid.isFullHeight()) {
+                if (visualControl.isFullHeight()) {
                     if (bodyScrollPane != null)
                         bodyScrollPane.setContent(null);
                     body = gridBody;
@@ -96,11 +97,11 @@ final class VisualGridTableSkin extends VisualGridSkinBase<Pane, Pane> implement
                         body = bodyScrollPane;
                     }
                 }
-                if (visualGrid.isHeaderVisible())
+                if (visualControl.isHeaderVisible())
                     getChildren().setAll(gridHead, body);
                 else
                     getChildren().setAll(body);
-            }, visualGrid.headerVisibleProperty(), visualGrid.fullHeightProperty())
+            }, visualControl.headerVisibleProperty(), visualControl.fullHeightProperty())
         );
     }
 
@@ -131,8 +132,12 @@ final class VisualGridTableSkin extends VisualGridSkinBase<Pane, Pane> implement
         }
     }
 
+    private int getBuiltRowCount() {
+        return builtRowIndex + 1;
+    }
+
     private boolean endBuildingGridIfAllRowsAreBuilt() {
-        if (builtRowIndex < getRowCount() - 1)
+        if (getBuiltRowCount() < getRowCount())
             return false;
         gridHead.endBuildingGrid();
         gridBody.endBuildingGrid();
@@ -237,13 +242,13 @@ final class VisualGridTableSkin extends VisualGridSkinBase<Pane, Pane> implement
         List<GridColumn> headColumns = gridHead.headColumns;
         List<GridColumn> bodyColumns = gridBody.bodyColumns;
         int columnCount = headColumns.size();
-        Insets cellMargin = visualGrid.getCellMargin();
+        Insets cellMargin = visualControl.getCellMargin();
         double hMargin = cellMargin.getLeft() + cellMargin.getRight();
         for (int i = 0; i < columnCount; i++) {
             GridColumn headColumn = headColumns.get(i);
             double columnWidth;
             if (headColumn.prefWidth != null)
-                columnWidth = headColumn.computePrefPixelWidth(visualGrid.getWidth() - leftInset - rightInset);
+                columnWidth = headColumn.computePrefPixelWidth(visualControl.getWidth() - leftInset - rightInset);
             else {
                 GridColumn bodyColumn = bodyColumns.get(i);
                 columnWidth = bodyColumn.getOrComputeContentMaxWidth();
@@ -257,8 +262,8 @@ final class VisualGridTableSkin extends VisualGridSkinBase<Pane, Pane> implement
 
     @Override
     protected double computePrefHeight(double width, double topInset, double rightInset, double bottomInset, double leftInset) {
-        updateColumnWidthsAndRowHeights(width - leftInset - rightInset);
-        return (visualGrid.isHeaderVisible() ? getHeaderHeight() : 0) + gridBody.rowHeightsTotal + topInset + bottomInset;
+        updateColumnWidthsAndRowHeights(width - leftInset - rightInset, false);
+        return (visualControl.isHeaderVisible() ? getHeaderHeight() : 0) +gridBody.computedRowHeightsTotal + topInset + bottomInset;
     }
 
     @Override
@@ -272,8 +277,8 @@ final class VisualGridTableSkin extends VisualGridSkinBase<Pane, Pane> implement
 
     @Override
     protected void layoutChildren(double contentX, double contentY, double contentWidth, double contentHeight) {
-        updateColumnWidthsAndRowHeights(contentWidth);
-        if (visualGrid.isHeaderVisible()) {
+        updateColumnWidthsAndRowHeights(contentWidth, true);
+        if (visualControl.isHeaderVisible()) {
             double headerHeight = getHeaderHeight();
             layoutInArea(gridHead, contentX - headOffset, contentY, columnWidthsTotal, headerHeight, -1, HPos.LEFT, VPos.TOP);
             contentY += headerHeight;
@@ -284,138 +289,140 @@ final class VisualGridTableSkin extends VisualGridSkinBase<Pane, Pane> implement
 
     private double lastTotalWidth;
     private double columnWidthsTotal;
+    double computedResponsiveMinWidth;
 
-    public void updateColumnWidthsAndRowHeights(double totalWidth) {
-        if (lastTotalWidth == totalWidth)
-            return;
-        //long t0 = System.currentTimeMillis();
-        columnWidthsTotal = totalWidth;
-        List<GridColumn> headColumns = gridHead.headColumns;
-        List<GridColumn> bodyColumns = gridBody.bodyColumns;
-        Insets cellMargin = visualGrid.getCellMargin();
-        double hMargin = cellMargin.getLeft() + cellMargin.getRight();
-        double computedTotalWidth = 0;
-        double shrinkableTotalWidth = 0;
-        double growableTotalWidth = 0;
-        double responsiveMinWidth = 0;
-        int columnCount = headColumns.size();
-        for (int i = 0; i < columnCount; i++) {
-            GridColumn headColumn = headColumns.get(i);
-            // Step 1: Initial width computation based on percentage or pixel values
-            double computedWidth;
-            if (headColumn.prefWidth != null) {
-                computedWidth = headColumn.computePrefPixelWidth(totalWidth);
-            } else {
-                GridColumn bodyColumn = bodyColumns.get(i);
-                computedWidth = bodyColumn.getOrComputeContentMaxWidth();
-            }
-            // Step 2: Apply min/max constraints
-            if (headColumn.minWidth != null) {
-                double minW = headColumn.computeMinPixelWidth(totalWidth);
-                computedWidth = Math.max(computedWidth, minW);
-                if (headColumn.hShrink)
-                    responsiveMinWidth += minW;
-            }
-            if (headColumn.maxWidth != null) {
-                double maxW = headColumn.computeMaxPixelWidth(totalWidth);
-                computedWidth = Math.min(computedWidth, maxW);
-            }
-            computedWidth = snapSizeX(computedWidth + hMargin);
-            headColumn.setComputedWidth(computedWidth);
-            if (headColumn.minWidth == null || !headColumn.hShrink)
-                responsiveMinWidth += computedWidth;
-            // Updating totals
-            computedTotalWidth += computedWidth;
-            if (headColumn.hShrink)
-                shrinkableTotalWidth += computedWidth;
-            if (headColumn.hGrow)
-                growableTotalWidth += computedWidth;
-        }
-
-        // Step 3: Handle space constraints (shrinking if needed)
-        if (computedTotalWidth > totalWidth) {
-            double excessWidth = computedTotalWidth - totalWidth;
-
-            // First attempt: shrink only columns that can shrink, proportionally to their width
+    public void updateColumnWidthsAndRowHeights(double totalWidth, boolean apply) {
+        if (lastTotalWidth != totalWidth) {
+            long t0 = System.currentTimeMillis();
+            columnWidthsTotal = totalWidth;
+            List<GridColumn> headColumns = gridHead.headColumns;
+            List<GridColumn> bodyColumns = gridBody.bodyColumns;
+            Insets cellMargin = visualControl.getCellMargin();
+            double hMargin = cellMargin.getLeft() + cellMargin.getRight();
+            double computedTotalWidth = 0;
+            double shrinkableTotalWidth = 0;
+            double growableTotalWidth = 0;
+            computedResponsiveMinWidth = 0;
+            int columnCount = headColumns.size();
             for (int i = 0; i < columnCount; i++) {
                 GridColumn headColumn = headColumns.get(i);
-                if (headColumn.hShrink) {
-                    double shrinkRatio = headColumn.computedWidth / shrinkableTotalWidth;
-                    double reduction = excessWidth * shrinkRatio;
-                    headColumn.computedWidth -= reduction;
+                // Step 1: Initial width computation based on percentage or pixel values
+                double computedWidth;
+                if (headColumn.prefWidth != null) {
+                    computedWidth = headColumn.computePrefPixelWidth(totalWidth);
+                } else {
+                    GridColumn bodyColumn = bodyColumns.get(i);
+                    computedWidth = bodyColumn.getOrComputeContentMaxWidth();
+                }
+                // Step 2: Apply min/max constraints
+                if (headColumn.minWidth != null) {
+                    double minW = headColumn.computeMinPixelWidth(totalWidth);
+                    computedWidth = Math.max(computedWidth, minW);
+                    if (headColumn.hShrink)
+                        computedResponsiveMinWidth += minW;
+                }
+                if (headColumn.maxWidth != null) {
+                    double maxW = headColumn.computeMaxPixelWidth(totalWidth);
+                    computedWidth = Math.min(computedWidth, maxW);
+                }
+                computedWidth = snapSizeX(computedWidth + hMargin);
+                headColumn.setComputedWidth(computedWidth);
+                if (headColumn.minWidth == null || !headColumn.hShrink)
+                    computedResponsiveMinWidth += computedWidth;
+                // Updating totals
+                computedTotalWidth += computedWidth;
+                if (headColumn.hShrink)
+                    shrinkableTotalWidth += computedWidth;
+                if (headColumn.hGrow)
+                    growableTotalWidth += computedWidth;
+            }
 
-                    // Ensure we don't shrink below minWidth
-                    if (headColumn.minWidth != null) {
-                        double minW = headColumn.computeMinPixelWidth(totalWidth);
-                        headColumn.computedWidth = Math.max(headColumn.computedWidth, minW);
+            // Step 3: Handle space constraints (shrinking if needed)
+            if (computedTotalWidth > totalWidth) {
+                double excessWidth = computedTotalWidth - totalWidth;
+
+                // First attempt: shrink only columns that can shrink, proportionally to their width
+                for (int i = 0; i < columnCount; i++) {
+                    GridColumn headColumn = headColumns.get(i);
+                    if (headColumn.hShrink) {
+                        double shrinkRatio = headColumn.computedWidth / shrinkableTotalWidth;
+                        double reduction = excessWidth * shrinkRatio;
+                        headColumn.computedWidth -= reduction;
+
+                        // Ensure we don't shrink below minWidth
+                        if (headColumn.minWidth != null) {
+                            double minW = headColumn.computeMinPixelWidth(totalWidth);
+                            headColumn.computedWidth = Math.max(headColumn.computedWidth, minW);
+                        }
                     }
                 }
             }
-        }
 
-        // Step 4: Or distribute extra space if available
-        else if (computedTotalWidth < totalWidth) {
-            double extraSpace = totalWidth - computedTotalWidth;
+            // Step 4: Or distribute extra space if available
+            else if (computedTotalWidth < totalWidth) {
+                double extraSpace = totalWidth - computedTotalWidth;
 
-            // Only grow columns that can grow and haven't reached their maxWidth
-            for (int i = 0; i < columnCount; i++) {
-                GridColumn headColumn = headColumns.get(i);
-                double growRatio = headColumn.computedWidth / growableTotalWidth;
-                double increase = extraSpace * growRatio;
-                headColumn.computedWidth += increase;
-
-                // Ensure we don't exceed maxWidth
-                if (headColumn.maxWidth != null) {
-                    double maxW = headColumn.computeMaxPixelWidth(totalWidth);
-                    headColumn.computedWidth = Math.min(headColumn.computedWidth, maxW);
-                }
-            }
-        }
-
-        // Applying the column widths to the body columns
-        for (int i = 0; i < columnCount; i++)
-            bodyColumns.get(i).setComputedWidth(headColumns.get(i).getComputedWidth());
-        //gridBody.setPrefWidth(columnWidthsTotal);
-        lastTotalWidth = totalWidth;
-        // Once the column widths are set, we also need to lay out the grid head so that its columns are aligned with the body ones
-        //gridHead.requestLayout();
-        responsiveMinWidthProperty.setValue(responsiveMinWidth);
-        //long t1 = System.currentTimeMillis();
-
-        // Row heights calculation
-        int rowCount = builtRowIndex + 1; // Might be less than getRowCount() in case the table is not yet fully populated
-        double minRowHeight = visualGrid.getMinRowHeight();
-        double prefRowHeight = visualGrid.getPrefRowHeight();
-        double maxRowHeight = visualGrid.getMaxRowHeight();
-        boolean requiresComputation = minRowHeight == Region.USE_COMPUTED_SIZE || prefRowHeight == Region.USE_COMPUTED_SIZE || maxRowHeight == Region.USE_COMPUTED_SIZE;
-        if (!requiresComputation) {
-            double rowHeight = LayoutPane.boundedSize(
-                    minRowHeight == Region.USE_PREF_SIZE ? prefRowHeight : minRowHeight,
-                    prefRowHeight,
-                    maxRowHeight == Region.USE_PREF_SIZE ? prefRowHeight : maxRowHeight);
-            Arrays.fill(gridBody.rowHeights, rowHeight);
-            gridBody.rowHeightsTotal = rowHeight * rowCount;
-        } else {
-            double vMargin = cellMargin.getTop() + cellMargin.getBottom();
-            gridBody.rowHeightsTotal = 0;
-            for (int rowIndex = 0; rowIndex < rowCount; rowIndex++) {
-                double computedRowHeight = 0;
+                // Only grow columns that can grow and haven't reached their maxWidth
                 for (int i = 0; i < columnCount; i++) {
-                    GridColumn gridColumn = bodyColumns.get(i);
-                    computedRowHeight = Math.max(computedRowHeight, gridColumn.getChildren().get(rowIndex).prefHeight(gridColumn.getComputedWidth() - hMargin) + vMargin);
-                }
-                double finalPrefRowHeight = prefRowHeight == Region.USE_COMPUTED_SIZE ? visualGrid.snapSizeY(computedRowHeight) : prefRowHeight;
-                double rowHeight = LayoutPane.boundedSize(
-                        minRowHeight == Region.USE_COMPUTED_SIZE ? computedRowHeight : minRowHeight == Region.USE_PREF_SIZE ? finalPrefRowHeight : minRowHeight,
-                        finalPrefRowHeight,
-                        maxRowHeight == Region.USE_COMPUTED_SIZE ? computedRowHeight : maxRowHeight == Region.USE_PREF_SIZE ? finalPrefRowHeight : maxRowHeight);
-                gridBody.rowHeights[rowIndex] = rowHeight;
-                gridBody.rowHeightsTotal += rowHeight;
-            }
-        }
-        //long t2 = System.currentTimeMillis();
+                    GridColumn headColumn = headColumns.get(i);
+                    double growRatio = headColumn.computedWidth / growableTotalWidth;
+                    double increase = extraSpace * growRatio;
+                    headColumn.computedWidth += increase;
 
-        //Console.log("Column widths computed in " + (t1 - t0) + " ms, row heights computed in " + (t2 - t1) + " ms for width = " + totalWidth);
+                    // Ensure we don't exceed maxWidth
+                    if (headColumn.maxWidth != null) {
+                        double maxW = headColumn.computeMaxPixelWidth(totalWidth);
+                        headColumn.computedWidth = Math.min(headColumn.computedWidth, maxW);
+                    }
+                }
+            }
+
+            // Applying the column widths to the body columns
+            for (int i = 0; i < columnCount; i++)
+                bodyColumns.get(i).setComputedWidth(headColumns.get(i).getComputedWidth());
+            long t1 = System.currentTimeMillis();
+
+            // Row heights calculation
+            int rowCount = getBuiltRowCount(); // Might be less than getRowCount() in case the table is not yet fully populated
+            double minRowHeight = visualControl.getMinRowHeight();
+            double prefRowHeight = visualControl.getPrefRowHeight();
+            double maxRowHeight = visualControl.getMaxRowHeight();
+            boolean requiresComputation = minRowHeight == Region.USE_COMPUTED_SIZE || prefRowHeight == Region.USE_COMPUTED_SIZE || maxRowHeight == Region.USE_COMPUTED_SIZE;
+            if (!requiresComputation) {
+                double rowHeight = finalRowHeight(minRowHeight, prefRowHeight, maxRowHeight, 0);
+                Arrays.fill(gridBody.computedRowHeights, rowHeight);
+                gridBody.computedRowHeightsTotal = rowHeight * rowCount;
+            } else {
+                double vMargin = cellMargin.getTop() + cellMargin.getBottom();
+                gridBody.computedRowHeightsTotal = 0;
+                for (int rowIndex = 0; rowIndex < rowCount; rowIndex++) {
+                    double computedRowHeight = 0;
+                    for (int i = 0; i < columnCount; i++) {
+                        GridColumn gridColumn = bodyColumns.get(i);
+                        computedRowHeight = Math.max(computedRowHeight, gridColumn.getChildren().get(rowIndex).prefHeight(gridColumn.getComputedWidth() - hMargin) + vMargin);
+                    }
+                    double finalPrefRowHeight = prefRowHeight == Region.USE_COMPUTED_SIZE ? visualControl.snapSizeY(computedRowHeight) : prefRowHeight;
+                    double rowHeight = finalRowHeight(minRowHeight, finalPrefRowHeight, maxRowHeight, computedRowHeight);
+                    gridBody.computedRowHeights[rowIndex] = rowHeight;
+                    gridBody.computedRowHeightsTotal += rowHeight;
+                }
+            }
+            long t2 = System.currentTimeMillis();
+
+            Console.log("Column widths computed in " + (t1 - t0) + " ms, row heights computed in " + (t2 - t1) + " ms for width = " + totalWidth);
+            lastTotalWidth = totalWidth;
+        }
+        if (apply) {
+            gridBody.applyComputedRowHeights();
+            responsiveMinWidthProperty.setValue(computedResponsiveMinWidth);
+        }
+    }
+
+    private static double finalRowHeight(double minRowHeight, double finalPrefRowHeight, double maxRowHeight, double computedRowHeight) {
+        return LayoutPane.boundedSize(
+            minRowHeight == Region.USE_COMPUTED_SIZE ? computedRowHeight : minRowHeight == Region.USE_PREF_SIZE ? finalPrefRowHeight : minRowHeight,
+            finalPrefRowHeight,
+            maxRowHeight == Region.USE_COMPUTED_SIZE ? computedRowHeight : maxRowHeight == Region.USE_PREF_SIZE ? finalPrefRowHeight : maxRowHeight);
     }
 
     private final class GridHead extends Region {
@@ -466,8 +473,9 @@ final class VisualGridTableSkin extends VisualGridSkinBase<Pane, Pane> implement
     private final class GridBody extends Region {
         private final List<Pane> bodyRows = new ArrayList<>();
         private final List<GridColumn> bodyColumns = new ArrayList<>();
-        private double[] rowHeights;
-        private double rowHeightsTotal;
+        private double[] computedRowHeights;
+        private double[] appliedRowHeights;
+        private double computedRowHeightsTotal;
 
         GridBody() {
             getStyleClass().add("grid-body");
@@ -478,7 +486,8 @@ final class VisualGridTableSkin extends VisualGridSkinBase<Pane, Pane> implement
             bodyColumns.clear();
             // We don't wait endBuildingGrid() to create rowHeights, as this would cause NPE in other methods before the
             // table is not fully built.
-            rowHeights = new double[getRowCount()];
+            computedRowHeights = new double[getRowCount()];
+            appliedRowHeights = new double[getRowCount()];
         }
 
         void endBuildingGrid() {
@@ -488,6 +497,10 @@ final class VisualGridTableSkin extends VisualGridSkinBase<Pane, Pane> implement
             getChildren().setAll(rowsAndColumns);
         }
 
+        void applyComputedRowHeights() {
+            System.arraycopy(computedRowHeights, 0, appliedRowHeights, 0, computedRowHeights.length);
+        }
+
         private GridColumn getOrCreateBodyColumn(int columnIndex) {
             GridColumn gridColumn;
             if (columnIndex < bodyColumns.size())
@@ -495,8 +508,8 @@ final class VisualGridTableSkin extends VisualGridSkinBase<Pane, Pane> implement
             else {
                 bodyColumns.add(gridColumn = new GridColumn(false));
                 gridColumn.setOnMouseClicked(e -> {
-                    if (visualGrid.getSelectionMode() != SelectionMode.DISABLED) {
-                        int rowIndex = (int) (e.getY() / visualGrid.getPrefRowHeight());
+                    if (visualControl.getSelectionMode() != SelectionMode.DISABLED) {
+                        int rowIndex = (int) (e.getY() / visualControl.getPrefRowHeight());
                         Pane row = Collections.get(bodyRows, rowIndex);
                         if (row != null)
                             row.getOnMouseClicked().handle(e);
@@ -538,8 +551,8 @@ final class VisualGridTableSkin extends VisualGridSkinBase<Pane, Pane> implement
         protected void layoutChildren() {
             double width = columnWidthsTotal;
             double rowY = 0;
-            for (int rowIndex = 0, rowCount = getRowCount(); rowIndex < rowCount; rowIndex++) {
-                double rowHeight = rowHeights[rowIndex];
+            for (int rowIndex = 0, rowCount = getBuiltRowCount(); rowIndex < rowCount; rowIndex++) {
+                double rowHeight = appliedRowHeights[rowIndex];
                 bodyRows.get(rowIndex).resizeRelocate(0, rowY, width, rowHeight);
                 rowY += rowHeight;
             }
@@ -649,13 +662,15 @@ final class VisualGridTableSkin extends VisualGridSkinBase<Pane, Pane> implement
 
         @Override
         protected void layoutChildren() {
-            boolean snapToPixel = visualGrid.isSnapToPixel();
-            Insets cellMargin = visualGrid.getCellMargin();
+            boolean snapToPixel = visualControl.isSnapToPixel();
+            Insets cellMargin = visualControl.getCellMargin();
             double cellWidth = getWidth();
             double y = 0;
             double headerHeight = header ? getHeight() : 0;
-            for (int rowIndex = 0, rowCount = header ? 1 : getRowCount(); rowIndex < rowCount; rowIndex++) {
-                double rowHeight = header ? headerHeight : gridBody.rowHeights[rowIndex];
+            int rowCount = header ? 1 : getChildren().size(); // should be getBuiltRowCount()
+            // TODO: see why getChildren() is sometimes empty() while getBuiltRowCount() > 0
+            for (int rowIndex = 0; rowIndex < rowCount; rowIndex++) {
+                double rowHeight = header ? headerHeight : gridBody.appliedRowHeights[rowIndex];
                 Node child = getChildren().get(rowIndex);
                 // We try to fill the with and height in general, but for HBox we don't fill the width to make
                 // hAlignment work (otherwise fillWidth would stretch the HBox, which would apply its own internal

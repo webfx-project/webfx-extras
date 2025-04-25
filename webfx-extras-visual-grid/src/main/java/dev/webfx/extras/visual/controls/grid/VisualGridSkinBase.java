@@ -10,16 +10,13 @@ import javafx.scene.paint.Paint;
  */
 abstract class VisualGridSkinBase<ROW extends Node, CELL extends Node> extends SelectableVisualResultControlSkinBase<VisualGrid, ROW, CELL> implements ResponsiveLayout {
 
-    protected final VisualGrid visualGrid;
-
     public VisualGridSkinBase(VisualGrid visualGrid) {
         super(visualGrid, false);
-        this.visualGrid = visualGrid;
     }
 
     @Override
     public void applyResponsiveLayout() {
-        visualGrid.setSkin(this); // May produce an exception if reused (OpenJFX bug), so better to override
+        visualControl.setSkin(this); // May produce an exception if reused (OpenJFX bug), so better to override
     }
 
     @Override

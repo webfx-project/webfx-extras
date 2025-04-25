@@ -22,10 +22,12 @@ import java.util.List;
 public abstract class VisualResultControlSkinBase<C extends VisualResultControl, ROW extends Node, CELL extends Node> extends SkinBase<C> {
 
     private final boolean hasSpecialRenderingForImageAndText;
+    protected final C visualControl; // Same as getSkinnable() except that it's never null, even after dispose(), protecting code from possible NPE
 
     public VisualResultControlSkinBase(C control, boolean hasSpecialRenderingForImageAndText) {
         super(control);
         this.hasSpecialRenderingForImageAndText = hasSpecialRenderingForImageAndText;
+        this.visualControl = control;
     }
 
     private final List<Unregisterable> listenersToUnregisterOnDispose = new ArrayList<>();
@@ -33,12 +35,13 @@ public abstract class VisualResultControlSkinBase<C extends VisualResultControl,
     private int gridColumnCount;
     private int rowStyleColumnIndex;
     private int rowBackgroundColumnIndex;
+    private int sectionColumnIndex;
 
     @Override
     public void install() {
         super.install();
         unregisterOnDispose(
-            FXProperties.runNowAndOnPropertyChange(this::updateResult, getSkinnable().visualResultProperty())
+            FXProperties.runNowAndOnPropertyChange(this::updateResult, visualControl.visualResultProperty())
         );
     }
 
@@ -146,7 +149,7 @@ public abstract class VisualResultControlSkinBase<C extends VisualResultControl,
     }
 
     private void computeGridSize(boolean setUpGridColumns) {
-        rowStyleColumnIndex = rowBackgroundColumnIndex = -1;
+        rowStyleColumnIndex = rowBackgroundColumnIndex = sectionColumnIndex = -1;
         gridColumnCount = 0;
         if (rs == null)
             return;
@@ -159,10 +162,17 @@ public abstract class VisualResultControlSkinBase<C extends VisualResultControl,
             if (role == null) {
                 if (setUpGridColumns)
                     setUpGridColumn(gridColumnIndex++, columnIndex, visualColumn);
-            } else if (role.equals("style"))
-                rowStyleColumnIndex = columnIndex;
-            else if (role.equals("background"))
-                rowBackgroundColumnIndex = columnIndex;
+            } else switch (role) {
+                case "style":
+                    rowStyleColumnIndex = gridColumnIndex;
+                    break;
+                case "background":
+                    rowBackgroundColumnIndex = gridColumnIndex;
+                    break;
+                case "section":
+                    sectionColumnIndex = gridColumnIndex;
+                    break;
+            }
         }
         gridColumnCount = gridColumnIndex;
     }
@@ -200,7 +210,7 @@ public abstract class VisualResultControlSkinBase<C extends VisualResultControl,
             }
         }
         ValueRenderingContext valueRenderingContext = visualColumn.getValueRenderingContext();
-        valueRenderingContext.setAppContext(getSkinnable().getAppContext()); // transmitting the possible app context to the value renderer (via the rendering context)
+        valueRenderingContext.setAppContext(visualControl.getAppContext()); // transmitting the possible app context to the value renderer (via the rendering context)
         setCellContent(cell, valueRenderer.renderValue(cellValue, valueRenderingContext), visualColumn);
     }
 
@@ -214,7 +224,7 @@ public abstract class VisualResultControlSkinBase<C extends VisualResultControl,
     }
 
     public boolean isDataColumn(int columnIndex) {
-        return columnIndex != rowStyleColumnIndex && columnIndex != rowBackgroundColumnIndex;
+        return columnIndex != rowStyleColumnIndex && columnIndex != rowBackgroundColumnIndex && columnIndex != sectionColumnIndex;
     }
 
     public int gridColumnIndexToResultColumnIndex(int gridColumnIndex, int rowStyleColumnIndex) {

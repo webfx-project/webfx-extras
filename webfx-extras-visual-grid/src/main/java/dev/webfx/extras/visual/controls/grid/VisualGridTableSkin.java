@@ -263,7 +263,7 @@ final class VisualGridTableSkin extends VisualGridSkinBase<Pane, Pane> implement
     @Override
     protected double computePrefHeight(double width, double topInset, double rightInset, double bottomInset, double leftInset) {
         updateColumnWidthsAndRowHeights(width - leftInset - rightInset, false);
-        return (visualControl.isHeaderVisible() ? getHeaderHeight() : 0) +gridBody.computedRowHeightsTotal + topInset + bottomInset;
+        return (visualControl.isHeaderVisible() ? getHeaderHeight() : 0) + gridBody.computedRowHeightsTotal + topInset + bottomInset;
     }
 
     @Override
@@ -277,7 +277,12 @@ final class VisualGridTableSkin extends VisualGridSkinBase<Pane, Pane> implement
 
     @Override
     protected void layoutChildren(double contentX, double contentY, double contentWidth, double contentHeight) {
+        // Ensuring column widths and row heights are up to date
         updateColumnWidthsAndRowHeights(contentWidth, true);
+        // The previous call may have updated responsiveMinWidthProperty, which may have changed the visualGrid skin (if
+        // managed by responsive design) in which case this skin has been disposed! If this is the case, we exit
+        if (getSkinnable() == null) // indicates it has been disposed
+            return; // Not relevant anymore to lay out children. Moreover, exiting prevents a NPE in layoutInArea() !
         if (visualControl.isHeaderVisible()) {
             double headerHeight = getHeaderHeight();
             layoutInArea(gridHead, contentX - headOffset, contentY, columnWidthsTotal, headerHeight, -1, HPos.LEFT, VPos.TOP);

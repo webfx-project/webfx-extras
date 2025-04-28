@@ -1,10 +1,12 @@
 package dev.webfx.extras.visual.controls.grid;
 
+import dev.webfx.extras.panes.MonoPane;
 import dev.webfx.extras.visual.VisualColumn;
 import dev.webfx.extras.visual.VisualStyle;
 import javafx.collections.ObservableList;
 import javafx.geometry.Insets;
 import javafx.geometry.Orientation;
+import javafx.geometry.Pos;
 import javafx.scene.Node;
 import javafx.scene.layout.Pane;
 import javafx.scene.layout.VBox;
@@ -41,8 +43,8 @@ final class VisualGridVerticalSkin extends VisualGridSkinBase<Pane, Pane> {
     }
 
     @Override
-    protected Pane getOrAddHeadCell(int gridColumnIndex) { // never called in this skin
-        return null;
+    protected Pane getOrAddHeadCell(int gridColumnIndex) {
+        return null; // No header in this skin
     }
 
     @Override
@@ -68,14 +70,30 @@ final class VisualGridVerticalSkin extends VisualGridSkinBase<Pane, Pane> {
     @Override
     protected void setCellContent(Pane bodyRowCell, Node content, VisualColumn visualColumn) {
         if (content != null) {
-            VBox.setMargin(content, visualControl.getCellMargin());
-            bodyRowCell.getChildren().add(content);
             VisualStyle style = visualColumn.getStyle();
             if (style != null) {
                 String styleClass = style.getStyleClass();
                 if (styleClass != null)
                     content.getStyleClass().addAll(styleClass.split(" "));
+                String textAlign = style.getTextAlign();
+                if (textAlign != null) {
+                    // If an alignment is specified, we wrap the content in a mono pane to consider it, because VBox
+                    // alone doesn't support alignment (there is no VBox.setAlignment() method)
+                    Pos alignment;
+                    switch (textAlign) {
+                        case "center": alignment = Pos.CENTER;       break;
+                        case "right":  alignment = Pos.CENTER_RIGHT; break;
+                        case "left":
+                        default:       alignment = Pos.CENTER_LEFT;  break;
+                    }
+                    MonoPane monoPane = new MonoPane(content);
+                    monoPane.setAlignment(alignment);
+                    monoPane.setMaxWidth(Double.MAX_VALUE); // Filling the VBox width so the alignment is correctly applied
+                    content = monoPane;
+                }
             }
+            VBox.setMargin(content, visualControl.getCellMargin());
+            bodyRowCell.getChildren().add(content);
         }
     }
 

@@ -370,14 +370,16 @@ final class VisualGridTableSkin extends VisualGridSkinBase<Pane, Pane> implement
                 // Only grow columns that can grow and haven't reached their maxWidth
                 for (int i = 0; i < columnCount; i++) {
                     GridColumn headColumn = headColumns.get(i);
-                    double growRatio = headColumn.computedWidth / growableTotalWidth;
-                    double increase = extraSpace * growRatio;
-                    headColumn.computedWidth += increase;
+                    if (headColumn.hGrow) {
+                        double growRatio = headColumn.computedWidth / growableTotalWidth;
+                        double increase = extraSpace * growRatio;
+                        headColumn.computedWidth += increase;
 
-                    // Ensure we don't exceed maxWidth
-                    if (headColumn.maxWidth != null) {
-                        double maxW = headColumn.computeMaxPixelWidth(totalWidth);
-                        headColumn.computedWidth = Math.min(headColumn.computedWidth, maxW);
+                        // Ensure we don't exceed maxWidth
+                        if (headColumn.maxWidth != null) {
+                            double maxW = headColumn.computeMaxPixelWidth(totalWidth);
+                            headColumn.computedWidth = Math.min(headColumn.computedWidth, maxW);
+                        }
                     }
                 }
             }

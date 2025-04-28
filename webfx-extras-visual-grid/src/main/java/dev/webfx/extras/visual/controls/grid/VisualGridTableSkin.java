@@ -556,7 +556,9 @@ final class VisualGridTableSkin extends VisualGridSkinBase<Pane, Pane> implement
         protected void layoutChildren() {
             double width = columnWidthsTotal;
             double rowY = 0;
-            for (int rowIndex = 0, rowCount = getBuiltRowCount(); rowIndex < rowCount; rowIndex++) {
+            int rowCount = Math.min(getBuiltRowCount(), appliedRowHeights.length);
+            // TODO: see why appliedRowHeights is sometimes empty() while getBuiltRowCount() > 0
+            for (int rowIndex = 0; rowIndex < rowCount; rowIndex++) {
                 double rowHeight = appliedRowHeights[rowIndex];
                 bodyRows.get(rowIndex).resizeRelocate(0, rowY, width, rowHeight);
                 rowY += rowHeight;
@@ -672,7 +674,7 @@ final class VisualGridTableSkin extends VisualGridSkinBase<Pane, Pane> implement
             double cellWidth = getWidth();
             double y = 0;
             double headerHeight = header ? getHeight() : 0;
-            int rowCount = header ? 1 : getChildren().size(); // should be getBuiltRowCount()
+            int rowCount = header ? 1 : Math.min(getBuiltRowCount(), getChildren().size());
             // TODO: see why getChildren() is sometimes empty() while getBuiltRowCount() > 0
             for (int rowIndex = 0; rowIndex < rowCount; rowIndex++) {
                 double rowHeight = header ? headerHeight : gridBody.appliedRowHeights[rowIndex];

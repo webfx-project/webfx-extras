@@ -406,7 +406,9 @@ final class VisualGridTableSkin extends VisualGridSkinBase<Pane, Pane> implement
                     double computedRowHeight = 0;
                     for (int i = 0; i < columnCount; i++) {
                         GridColumn gridColumn = bodyColumns.get(i);
-                        computedRowHeight = Math.max(computedRowHeight, gridColumn.getChildren().get(rowIndex).prefHeight(gridColumn.getComputedWidth() - hMargin) + vMargin);
+                        Node cellNode = Collections.get(gridColumn.getChildren(), rowIndex);
+                        if (cellNode != null)
+                            computedRowHeight = Math.max(computedRowHeight, cellNode.prefHeight(gridColumn.getComputedWidth() - hMargin) + vMargin);
                     }
                     double finalPrefRowHeight = prefRowHeight == Region.USE_COMPUTED_SIZE ? visualControl.snapSizeY(computedRowHeight) : prefRowHeight;
                     double rowHeight = finalRowHeight(minRowHeight, finalPrefRowHeight, maxRowHeight, computedRowHeight);

@@ -390,7 +390,7 @@ final class VisualGridTableSkin extends VisualGridSkinBase<Pane, Pane> implement
             long t1 = System.currentTimeMillis();
 
             // Row heights calculation
-            int rowCount = getBuiltRowCount(); // Might be less than getRowCount() in case the table is not yet fully populated
+            int rowCount = Math.min(getBuiltRowCount(), gridBody.computedRowHeights.length); // in case the table is not yet fully populated
             double minRowHeight = visualControl.getMinRowHeight();
             double prefRowHeight = visualControl.getPrefRowHeight();
             double maxRowHeight = visualControl.getMaxRowHeight();

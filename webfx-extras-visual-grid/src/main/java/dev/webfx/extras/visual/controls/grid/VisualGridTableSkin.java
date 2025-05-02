@@ -2,6 +2,7 @@ package dev.webfx.extras.visual.controls.grid;
 
 import dev.webfx.extras.cell.renderer.ValueRendererRegistry;
 import dev.webfx.extras.panes.LayoutPane;
+import dev.webfx.extras.panes.MonoPane;
 import dev.webfx.extras.responsive.ResponsiveLayout;
 import dev.webfx.extras.util.control.Controls;
 import dev.webfx.extras.visual.*;
@@ -29,7 +30,6 @@ import javafx.scene.shape.Rectangle;
 import javafx.scene.text.Text;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 import java.util.function.Consumer;
 
@@ -38,7 +38,8 @@ import java.util.function.Consumer;
  */
 final class VisualGridTableSkin extends VisualGridSkinBase<Pane, Pane> implements ResponsiveLayout {
 
-    private static final long INITIAL_BUILD_TIME_MAX_MILLIS = 50;
+    private static final boolean LOG_TIMING = false;
+    private static final long INITIAL_BUILD_TIME_MAX_MILLIS = 50000; // TODO: set back to 500 once incremental build is working again
     private static final long ANIMATION_FRAME_BUILD_TIME_MAX_MILLIS = 10;
 
     private long initialBuildTimeMillis;
@@ -189,8 +190,13 @@ final class VisualGridTableSkin extends VisualGridSkinBase<Pane, Pane> implement
     }
 
     @Override
+    protected Pane createBodyGroupCell(int rowIndex, VisualColumn groupColumn) {
+        return gridBody.createBodyGroupCell(rowIndex, groupColumn);
+    }
+
+    @Override
     protected Pane getOrAddBodyRow(int rowIndex) {
-        return gridBody.getOrAddBodyRow(rowIndex);
+        return gridBody.createBodyRow(rowIndex);
     }
 
     @Override
@@ -203,8 +209,8 @@ final class VisualGridTableSkin extends VisualGridSkinBase<Pane, Pane> implement
     }
 
     @Override
-    protected Pane getOrAddBodyRowCell(Pane bodyRow, int rowIndex, int gridColumnIndex) {
-        return gridBody.getOrAddBodyRowCell(gridColumnIndex);
+    protected Pane createBodyRowCell(Pane bodyRow, int rowIndex, int gridColumnIndex) {
+        return gridBody.createBodyRowCell(gridColumnIndex);
     }
 
     @Override
@@ -275,6 +281,7 @@ final class VisualGridTableSkin extends VisualGridSkinBase<Pane, Pane> implement
         return 48; // temporarily hard coded
     }
 
+    // Layout of the grid head and body
     @Override
     protected void layoutChildren(double contentX, double contentY, double contentWidth, double contentHeight) {
         // Ensuring column widths and row heights are up to date
@@ -390,35 +397,48 @@ final class VisualGridTableSkin extends VisualGridSkinBase<Pane, Pane> implement
             long t1 = System.currentTimeMillis();
 
             // Row heights calculation
-            int rowCount = Math.min(getBuiltRowCount(), gridBody.computedRowHeights.length); // in case the table is not yet fully populated
+            int globalRowCount = gridBody.globalRowsIndexes.size();
             double minRowHeight = visualControl.getMinRowHeight();
             double prefRowHeight = visualControl.getPrefRowHeight();
             double maxRowHeight = visualControl.getMaxRowHeight();
             boolean requiresComputation = minRowHeight == Region.USE_COMPUTED_SIZE || prefRowHeight == Region.USE_COMPUTED_SIZE || maxRowHeight == Region.USE_COMPUTED_SIZE;
             if (!requiresComputation) {
                 double rowHeight = finalRowHeight(minRowHeight, prefRowHeight, maxRowHeight, 0);
-                Arrays.fill(gridBody.computedRowHeights, rowHeight);
-                gridBody.computedRowHeightsTotal = rowHeight * rowCount;
+                Collections.setAll(gridBody.computedRowHeights, java.util.Collections.nCopies(globalRowCount, rowHeight));
+                gridBody.computedRowHeightsTotal = rowHeight * globalRowCount;
             } else {
                 double vMargin = cellMargin.getTop() + cellMargin.getBottom();
                 gridBody.computedRowHeightsTotal = 0;
-                for (int rowIndex = 0; rowIndex < rowCount; rowIndex++) {
+                Collections.setAll(gridBody.computedRowHeights, java.util.Collections.nCopies(globalRowCount, 0d));
+                int dataRowCount = getBuiltRowCount(); // in case the table is not yet fully populated
+                for (int globalRowIndex = 0; globalRowIndex < globalRowCount; globalRowIndex++) {
                     double computedRowHeight = 0;
-                    for (int i = 0; i < columnCount; i++) {
-                        GridColumn gridColumn = bodyColumns.get(i);
-                        Node cellNode = Collections.get(gridColumn.getChildren(), rowIndex);
-                        if (cellNode != null)
-                            computedRowHeight = Math.max(computedRowHeight, cellNode.prefHeight(gridColumn.getComputedWidth() - hMargin) + vMargin);
+                    int matchingIndex = gridBody.globalRowsIndexes.get(globalRowIndex);
+                    if (matchingIndex < 0) { // group row
+                        Node groupRow = gridBody.bodyGroupRows.get(-matchingIndex - 1);
+                        computedRowHeight = groupRow.prefHeight(totalWidth - hMargin);
+                    } else { // data row
+                        if (matchingIndex >= dataRowCount)
+                            break;
+                        for (int i = 0; i < columnCount; i++) {
+                            GridColumn gridColumn = bodyColumns.get(i);
+                            Node cellNode = Collections.get(gridColumn.getChildren(), globalRowIndex);
+                            if (cellNode != null)
+                                computedRowHeight = Math.max(computedRowHeight, cellNode.prefHeight(gridColumn.getComputedWidth() - hMargin) + vMargin);
+                        }
                     }
                     double finalPrefRowHeight = prefRowHeight == Region.USE_COMPUTED_SIZE ? visualControl.snapSizeY(computedRowHeight) : prefRowHeight;
                     double rowHeight = finalRowHeight(minRowHeight, finalPrefRowHeight, maxRowHeight, computedRowHeight);
-                    gridBody.computedRowHeights[rowIndex] = rowHeight;
+                    gridBody.computedRowHeights.set(globalRowIndex, rowHeight);
                     gridBody.computedRowHeightsTotal += rowHeight;
                 }
             }
-            long t2 = System.currentTimeMillis();
 
-            Console.log("Column widths computed in " + (t1 - t0) + " ms, row heights computed in " + (t2 - t1) + " ms for width = " + totalWidth);
+            if (LOG_TIMING) {
+                long t2 = System.currentTimeMillis();
+                Console.log("Column widths computed in " + (t1 - t0) + " ms, row heights computed in " + (t2 - t1) + " ms for width = " + totalWidth);
+            }
+
             lastTotalWidth = totalWidth;
         }
         if (apply) {
@@ -451,7 +471,7 @@ final class VisualGridTableSkin extends VisualGridSkinBase<Pane, Pane> implement
         }
 
         Pane getOrAddHeadCell(int gridColumnIndex) {
-            return getOrCreateHeadColumn(gridColumnIndex).getOrAddBodyRowCell();
+            return getOrCreateHeadColumn(gridColumnIndex).createBodyRowCell();
         }
 
         private GridColumn getOrCreateHeadColumn(int columnIndex) {
@@ -465,6 +485,7 @@ final class VisualGridTableSkin extends VisualGridSkinBase<Pane, Pane> implement
             return gridColumn;
         }
 
+        // Layout of the grid head columns
         @Override
         protected void layoutChildren() {
             double x = 0;
@@ -480,10 +501,17 @@ final class VisualGridTableSkin extends VisualGridSkinBase<Pane, Pane> implement
     }
 
     private final class GridBody extends Region {
-        private final List<Pane> bodyRows = new ArrayList<>();
         private final List<GridColumn> bodyColumns = new ArrayList<>();
-        private double[] computedRowHeights;
-        private double[] appliedRowHeights;
+        // List containing all group rows (index = index of the group)
+        private final List<Pane> bodyGroupRows = new ArrayList<>();
+        // List containing all data rows (index = index of the data in the visual result)
+        private final List<Pane> bodyDataRows = new ArrayList<>();
+        // List of global row indexes (mixed group/data rows). For each global row, this list contains either a
+        // negative index to indicate a group row index or a positive index to indicate a data row index.
+        private final List<Integer> globalRowsIndexes = new ArrayList<>();
+        // Array containing all row heights (index = global index of mixed group/data row)
+        private final List<Double> computedRowHeights = new ArrayList<>();
+        private double[] appliedDataRowHeights;
         private double computedRowHeightsTotal;
 
         GridBody() {
@@ -491,23 +519,24 @@ final class VisualGridTableSkin extends VisualGridSkinBase<Pane, Pane> implement
         }
 
         void startBuildingGrid() {
-            bodyRows.clear();
             bodyColumns.clear();
-            // We don't wait endBuildingGrid() to create rowHeights, as this would cause NPE in other methods before the
-            // table is not fully built.
-            computedRowHeights = new double[getRowCount()];
-            appliedRowHeights = new double[getRowCount()];
+            bodyGroupRows.clear();
+            bodyDataRows.clear();
+            globalRowsIndexes.clear();
+            computedRowHeights.clear();
         }
 
         void endBuildingGrid() {
-            List<Node> rowsAndColumns = new ArrayList<>(bodyRows.size() + bodyColumns.size());
-            rowsAndColumns.addAll(bodyRows);
+            int globalRowCount = bodyGroupRows.size() + bodyDataRows.size();
+            List<Node> rowsAndColumns = new ArrayList<>(globalRowCount + bodyColumns.size());
+            rowsAndColumns.addAll(bodyDataRows);
             rowsAndColumns.addAll(bodyColumns);
+            rowsAndColumns.addAll(bodyGroupRows);
             getChildren().setAll(rowsAndColumns);
         }
 
         void applyComputedRowHeights() {
-            System.arraycopy(computedRowHeights, 0, appliedRowHeights, 0, computedRowHeights.length);
+            appliedDataRowHeights = computedRowHeights.stream().mapToDouble(Double::doubleValue).toArray();
         }
 
         private GridColumn getOrCreateBodyColumn(int columnIndex) {
@@ -519,7 +548,7 @@ final class VisualGridTableSkin extends VisualGridSkinBase<Pane, Pane> implement
                 gridColumn.setOnMouseClicked(e -> {
                     if (visualControl.getSelectionMode() != SelectionMode.DISABLED) {
                         int rowIndex = (int) (e.getY() / visualControl.getPrefRowHeight());
-                        Pane row = Collections.get(bodyRows, rowIndex);
+                        Pane row = Collections.get(bodyDataRows, rowIndex);
                         if (row != null)
                             row.getOnMouseClicked().handle(e);
                     }
@@ -529,20 +558,30 @@ final class VisualGridTableSkin extends VisualGridSkinBase<Pane, Pane> implement
             return gridColumn;
         }
 
-        Pane getOrAddBodyRow(int rowIndex) {
-            Pane bodyRow;
-            if (rowIndex < bodyRows.size())
-                bodyRow = bodyRows.get(rowIndex);
-            else {
-                bodyRow = new Pane();
-                bodyRow.getStyleClass().add("grid-row");
-                bodyRows.add(bodyRow);
+        Pane createBodyGroupCell(int rowIndex, VisualColumn groupColumn) {
+            MonoPane groupCell = new MonoPane();
+            groupCell.getStyleClass().add("grid-group");
+            VisualStyle style = groupColumn.getStyle();
+            if (style != null) {
+                String styleClass = style.getStyleClass();
+                if (styleClass != null)
+                    groupCell.getStyleClass().addAll(styleClass.split("\\s+"));
             }
+            globalRowsIndexes.add(-bodyGroupRows.size() - 1);
+            bodyGroupRows.add(groupCell);
+            return groupCell;
+        }
+
+        Pane createBodyRow(int rowIndex) {
+            Pane bodyRow = new Pane();
+            bodyRow.getStyleClass().add("grid-row");
+            globalRowsIndexes.add(bodyDataRows.size());
+            bodyDataRows.add(bodyRow);
             return bodyRow;
         }
 
-        Pane getOrAddBodyRowCell(int gridColumnIndex) {
-            return getOrCreateBodyColumn(gridColumnIndex).getOrAddBodyRowCell();
+        Pane createBodyRowCell(int gridColumnIndex) {
+            return getOrCreateBodyColumn(gridColumnIndex).createBodyRowCell();
         }
 
         void applyBodyRowStyleAndBackground(Pane bodyRow, int rowIndex) {
@@ -556,15 +595,22 @@ final class VisualGridTableSkin extends VisualGridSkinBase<Pane, Pane> implement
             bodyRow.setBackground(fill == null ? null : Background.fill(fill));
         }
 
+        // Layout of the grid body rows and columns
         @Override
         protected void layoutChildren() {
             double width = columnWidthsTotal;
             double rowY = 0;
-            int rowCount = Math.min(getBuiltRowCount(), appliedRowHeights.length);
+            int globalRowCount = gridBody.globalRowsIndexes.size();
             // TODO: see why appliedRowHeights is sometimes empty() while getBuiltRowCount() > 0
-            for (int rowIndex = 0; rowIndex < rowCount; rowIndex++) {
-                double rowHeight = appliedRowHeights[rowIndex];
-                bodyRows.get(rowIndex).resizeRelocate(0, rowY, width, rowHeight);
+            for (int globalRowIndex = 0; globalRowIndex < globalRowCount; globalRowIndex++) {
+                Node rowNode;
+                int matchingRowIndex = globalRowsIndexes.get(globalRowIndex);
+                if (matchingRowIndex < 0) // group row
+                    rowNode = bodyGroupRows.get(-matchingRowIndex - 1);
+                else // data row
+                    rowNode = bodyDataRows.get(matchingRowIndex);
+                double rowHeight = appliedDataRowHeights[globalRowIndex];
+                rowNode.resizeRelocate(0, rowY, width, rowHeight);
                 rowY += rowHeight;
             }
             double x = 0;
@@ -586,9 +632,9 @@ final class VisualGridTableSkin extends VisualGridSkinBase<Pane, Pane> implement
         private Double maxWidth;
         private boolean hGrow;
         private boolean hShrink;
-        private ColumnWidthAccumulator accumulator;
         private HPos hAlignment = HPos.LEFT;
         private final VPos vAlignment = VPos.CENTER;
+        private ColumnWidthAccumulator accumulator;
         private double computedWidth;
 
         GridColumn(boolean header) {
@@ -596,7 +642,7 @@ final class VisualGridTableSkin extends VisualGridSkinBase<Pane, Pane> implement
             getStyleClass().add("grid-col");
         }
 
-        Pane getOrAddBodyRowCell() {
+        Pane createBodyRowCell() {
             fakeCellChildren = getChildren();
             return fakeCell;
         }
@@ -671,6 +717,7 @@ final class VisualGridTableSkin extends VisualGridSkinBase<Pane, Pane> implement
             return minPrefMaxWidth <= 1 ? minPrefMaxWidth * totalWidth : minPrefMaxWidth;
         }
 
+        // Layout of the cells within that head or body column
         @Override
         protected void layoutChildren() {
             boolean snapToPixel = visualControl.isSnapToPixel();
@@ -678,11 +725,23 @@ final class VisualGridTableSkin extends VisualGridSkinBase<Pane, Pane> implement
             double cellWidth = getWidth();
             double y = 0;
             double headerHeight = header ? getHeight() : 0;
-            int rowCount = header ? 1 : Math.min(getBuiltRowCount(), getChildren().size());
-            // TODO: see why getChildren() is sometimes empty() while getBuiltRowCount() > 0
-            for (int rowIndex = 0; rowIndex < rowCount; rowIndex++) {
-                double rowHeight = header ? headerHeight : gridBody.appliedRowHeights[rowIndex];
-                Node child = getChildren().get(rowIndex);
+            int globalRowCount = header ? 1 : gridBody.appliedDataRowHeights.length;
+            int dataRowCount = header ? 1 : Math.min(getBuiltRowCount(), getChildren().size());;
+            for (int globalRowIndex = 0; globalRowIndex < globalRowCount; globalRowIndex++) {
+                double rowHeight = header ? headerHeight : gridBody.appliedDataRowHeights[globalRowIndex];
+                int matchingIndex;
+                if (header)
+                    matchingIndex = 0;
+                else {
+                    matchingIndex = gridBody.globalRowsIndexes.get(globalRowIndex);
+                    if (matchingIndex < 0) { // ignoring group rows
+                        y += rowHeight;
+                        continue;
+                    }
+                    if (matchingIndex >= dataRowCount)
+                        break;
+                }
+                Node child = getChildren().get(matchingIndex);
                 // We try to fill the with and height in general, but for HBox we don't fill the width to make
                 // hAlignment work (otherwise fillWidth would stretch the HBox, which would apply its own internal
                 // alignment instead).

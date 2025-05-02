@@ -3,8 +3,6 @@ package dev.webfx.extras.visual.controls.grid;
 import dev.webfx.extras.panes.MonoPane;
 import dev.webfx.extras.visual.VisualColumn;
 import dev.webfx.extras.visual.VisualStyle;
-import javafx.collections.ObservableList;
-import javafx.geometry.Insets;
 import javafx.geometry.Orientation;
 import javafx.geometry.Pos;
 import javafx.scene.Node;
@@ -43,27 +41,41 @@ final class VisualGridVerticalSkin extends VisualGridSkinBase<Pane, Pane> {
     }
 
     @Override
+    protected void startBuildingGrid() {
+        container.getChildren().clear();
+        super.startBuildingGrid();
+    }
+
+    @Override
     protected Pane getOrAddHeadCell(int gridColumnIndex) {
         return null; // No header in this skin
     }
 
     @Override
+    protected Pane createBodyGroupCell(int rowIndex, VisualColumn groupColumn) {
+        MonoPane groupCell = new MonoPane();
+        groupCell.setMaxWidth(Double.MAX_VALUE);
+        groupCell.paddingProperty().bind(visualControl.cellMarginProperty());
+        groupCell.minHeightProperty().bind(visualControl.minRowHeightProperty());
+        groupCell.maxHeightProperty().bind(visualControl.maxRowHeightProperty());
+        groupCell.getStyleClass().add("grid-group");
+        container.getChildren().add(groupCell);
+        return groupCell;
+    }
+
+    @Override
     protected Pane getOrAddBodyRow(int rowIndex) {
-        ObservableList<Node> bodyRows = container.getChildren();
-        VBox bodyRow;
-        if (rowIndex < bodyRows.size())
-            bodyRow = (VBox) bodyRows.get(rowIndex);
-        else {
-            bodyRow = new HorizontalBiasVBox();
-            bodyRow.setPadding(new Insets(10, 0, 10, 0));
-            bodyRow.getStyleClass().add("grid-row");
-            bodyRows.add(bodyRow);
-        }
+        VBox bodyRow = new HorizontalBiasVBox();
+        bodyRow.paddingProperty().bind(visualControl.cellMarginProperty());
+        bodyRow.minHeightProperty().bind(visualControl.minRowHeightProperty());
+        bodyRow.maxHeightProperty().bind(visualControl.maxRowHeightProperty());
+        bodyRow.getStyleClass().add("grid-row");
+        container.getChildren().add(bodyRow);
         return bodyRow;
     }
 
     @Override
-    protected Pane getOrAddBodyRowCell(Pane bodyRow, int rowIndex, int gridColumnIndex) {
+    protected Pane createBodyRowCell(Pane bodyRow, int rowIndex, int gridColumnIndex) {
         return bodyRow; // Note: bodyRow is also the cell
     }
 

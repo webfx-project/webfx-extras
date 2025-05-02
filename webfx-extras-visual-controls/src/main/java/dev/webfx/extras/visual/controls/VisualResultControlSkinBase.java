@@ -35,7 +35,7 @@ public abstract class VisualResultControlSkinBase<C extends VisualResultControl,
     private int gridColumnCount;
     private int rowStyleColumnIndex;
     private int rowBackgroundColumnIndex;
-    private int sectionColumnIndex;
+    private int groupColumnIndex;
 
     @Override
     public void install() {
@@ -71,8 +71,17 @@ public abstract class VisualResultControlSkinBase<C extends VisualResultControl,
     protected void buildRows() {
         if (rs != null) {
             int rowCount = rs.getRowCount();
-            for (int rowIndex = 0; rowIndex < rowCount; rowIndex++)
+            Object lastGroupValue = null;
+            for (int rowIndex = 0; rowIndex < rowCount; rowIndex++) {
+                if (groupColumnIndex >= 0) {
+                    Object groupValue = ValueApplier.getApplicableValue(rs.getValue(rowIndex, groupColumnIndex));
+                    if (groupValue != null && !groupValue.equals(lastGroupValue)) {
+                        buildGroup(rowIndex);
+                    }
+                    lastGroupValue = groupValue;
+                }
                 buildRow(rowIndex);
+            }
         }
     }
 
@@ -82,11 +91,15 @@ public abstract class VisualResultControlSkinBase<C extends VisualResultControl,
         buildRowCells(bodyRow, rowIndex);
     }
 
+    protected void buildGroup(int rowIndex) {
+        fillCell(createBodyGroupCell(rowIndex, rs.getColumns()[groupColumnIndex]), rowIndex, groupColumnIndex);
+    }
+
     protected void buildRowCells(ROW bodyRow, int rowIndex) {
         int columnCount = rs.getColumnCount();
         for (int columnIndex = 0, gridColumnIndex = 0; columnIndex < columnCount; columnIndex++) {
             if (isDataColumn(columnIndex))
-                fillCell(getOrAddBodyRowCell(bodyRow, rowIndex, gridColumnIndex++), rowIndex, columnIndex);
+                fillCell(createBodyRowCell(bodyRow, rowIndex, gridColumnIndex++), rowIndex, columnIndex);
         }
     }
 
@@ -108,7 +121,9 @@ public abstract class VisualResultControlSkinBase<C extends VisualResultControl,
 
     protected abstract void applyBodyRowStyleAndBackground(ROW bodyRow, int rowIndex, String rowStyle, Paint rowBackground);
 
-    protected abstract CELL getOrAddBodyRowCell(ROW bodyRow, int rowIndex, int gridColumnIndex);
+    protected abstract CELL createBodyRowCell(ROW bodyRow, int rowIndex, int gridColumnIndex);
+
+    protected abstract CELL createBodyGroupCell(int rowIndex, VisualColumn groupColumn);
 
     protected void setUpGridColumn(int gridColumnIndex, int rsColumnIndex, VisualColumn visualColumn) {
         Label label = visualColumn.getLabel();
@@ -149,7 +164,7 @@ public abstract class VisualResultControlSkinBase<C extends VisualResultControl,
     }
 
     private void computeGridSize(boolean setUpGridColumns) {
-        rowStyleColumnIndex = rowBackgroundColumnIndex = sectionColumnIndex = -1;
+        rowStyleColumnIndex = rowBackgroundColumnIndex = groupColumnIndex = -1;
         gridColumnCount = 0;
         if (rs == null)
             return;
@@ -169,8 +184,8 @@ public abstract class VisualResultControlSkinBase<C extends VisualResultControl,
                 case "background":
                     rowBackgroundColumnIndex = gridColumnIndex;
                     break;
-                case "section":
-                    sectionColumnIndex = gridColumnIndex;
+                case "group":
+                    groupColumnIndex = gridColumnIndex;
                     break;
             }
         }
@@ -224,7 +239,7 @@ public abstract class VisualResultControlSkinBase<C extends VisualResultControl,
     }
 
     public boolean isDataColumn(int columnIndex) {
-        return columnIndex != rowStyleColumnIndex && columnIndex != rowBackgroundColumnIndex && columnIndex != sectionColumnIndex;
+        return columnIndex != rowStyleColumnIndex && columnIndex != rowBackgroundColumnIndex && columnIndex != groupColumnIndex;
     }
 
     public int gridColumnIndexToResultColumnIndex(int gridColumnIndex, int rowStyleColumnIndex) {

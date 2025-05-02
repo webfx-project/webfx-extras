@@ -175,8 +175,11 @@ public class OpenJFXHtmlTextTextFlowPeer
             int openingPos = html.indexOf("<", pos);
             if (openingPos == -1) {
                 // Adding the remaining text at the end with the style unchanged
-                if (pos < html.length())
+                if (pos < html.length()) {
+                    if (lineBreakPairBeforeNextText != null)
+                        list.add(lineBreakPairBeforeNextText);
                     list.add(new Pair<>(html.substring(pos), parentStyle));
+                }
                 break;
             }
             if (lineBreakPairBeforeNextText != null) {

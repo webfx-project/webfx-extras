@@ -7,7 +7,7 @@ import javafx.beans.value.ObservableValue;
 /**
  * @author Bruno Salmon
  */
-final class ValueApplier {
+public final class ValueApplier {
 
     /**
      * Applies the value to a graphical property that will render the value (typically a textProperty from Text, Label,
@@ -22,8 +22,12 @@ final class ValueApplier {
         // automatically updated on changes (ex: when the user changes the i18n language).
         if (value instanceof ObservableValue<?>) {
             property.bind((ObservableValue<?>) value);
-        } else // Otherwise we just set the value (forcing unbind if necessary)
+        } else // Otherwise we just set the value (forcing unbinding if necessary)
             FXProperties.setEvenIfBound(property, value);
+    }
+
+    public static Object getApplicableValue(Object value) {
+        return value instanceof ObservableValue<?> ? ((ObservableValue<?>) value).getValue() : value;
     }
 
 }

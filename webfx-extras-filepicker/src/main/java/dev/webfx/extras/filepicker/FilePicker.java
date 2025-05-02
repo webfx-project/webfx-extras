@@ -29,7 +29,9 @@ public abstract class FilePicker {
     private final ObservableList<String> acceptedExtensions = FXCollections.observableArrayList();
 
     public FilePicker() {
-        ObservableLists.runOnListChange(() -> selectedFileProperty.set(Collections.first(selectedFiles)), acceptedExtensions);
+        ObservableLists.runOnListChange(() ->
+            selectedFileProperty.set(Collections.first(selectedFiles)),
+            selectedFiles);
     }
 
     public abstract Node getView();

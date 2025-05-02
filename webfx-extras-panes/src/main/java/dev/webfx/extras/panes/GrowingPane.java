@@ -1,5 +1,6 @@
 package dev.webfx.extras.panes;
 
+import javafx.geometry.Pos;
 import javafx.scene.Node;
 
 /**
@@ -11,10 +12,13 @@ public final class GrowingPane extends MonoPane {
     private double minContentMinHeight, minContentPrefHeight, minContentMaxHeight;
 
     public GrowingPane() {
+        this(null);
     }
 
     public GrowingPane(Node content) {
         super(content);
+        // Setting the default alignment to TOP_CENTER (so the growing space will be at the bottom)
+        setAlignment(Pos.TOP_CENTER);
     }
 
     public void reset() {

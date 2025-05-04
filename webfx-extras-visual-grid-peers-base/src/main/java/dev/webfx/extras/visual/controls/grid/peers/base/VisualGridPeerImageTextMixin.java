@@ -16,10 +16,10 @@ public interface VisualGridPeerImageTextMixin
         setCellImageAndTextContent(cell, content, null, visualColumn);
     }
 
-    default void setCellTextContent(C cell, String text, VisualColumn visualColumn) {
+    default void setCellTextContent(C cell, Object /* String or StringProperty */ text, VisualColumn visualColumn) {
         setCellImageAndTextContent(cell, null, text, visualColumn);
     }
 
-    void setCellImageAndTextContent(C cell, Node image, String text, VisualColumn visualColumn);
+    void setCellImageAndTextContent(C cell, Node image, Object /* String or StringProperty */ text, VisualColumn visualColumn);
 
 }

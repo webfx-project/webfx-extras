@@ -17,7 +17,7 @@ public final class ValueApplier {
      * @param value the value (immutable or observable value) whose type is compatible with the property
      * @param property the property to set or bind with the value
      */
-    static void applyValue(Object value, Property property) {
+    public static void applyValue(Object value, Property property) {
         // If the value is observable (ex: from I18n or LocalizedDateTimeFormat), we bind the property so that it is
         // automatically updated on changes (ex: when the user changes the i18n language).
         if (value instanceof ObservableValue<?>) {

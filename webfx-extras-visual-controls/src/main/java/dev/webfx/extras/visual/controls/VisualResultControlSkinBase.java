@@ -140,7 +140,7 @@ public abstract class VisualResultControlSkinBase<C extends VisualResultControl,
         setCellContent(cell, image, visualColumn);
     }
 
-    protected void setCellImageAndTextContent(CELL cell, Node image, String text, VisualColumn visualColumn) {
+    protected void setCellImageAndTextContent(CELL cell, Node image, Object /* String or StringProperty */ text, VisualColumn visualColumn) {
     }
 
     public int getRowCount() {

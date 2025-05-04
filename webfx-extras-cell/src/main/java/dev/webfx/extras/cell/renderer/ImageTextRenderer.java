@@ -52,12 +52,12 @@ public final class ImageTextRenderer implements ValueRenderer {
         return imageUrl == null ? null : ImageRenderer.SINGLETON.renderValue(imageUrl, null);
     }
 
-    public String getText(Object[] array) {
-        return Arrays.getString(array, 1);
+    public Object getText(Object[] array) { // expecting either a String or a StringProperty
+        return Arrays.getValue(array, 1);
     }
 
     private Text getTextNode(Object[] array) {
-        String text = getText(array);
+        Object text = getText(array); // String or a StringProperty
         return (Text) TextRenderer.SINGLETON.renderValue(text);
     }
 }

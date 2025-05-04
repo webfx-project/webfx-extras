@@ -1,5 +1,6 @@
 package dev.webfx.extras.visual.impl;
 
+import dev.webfx.extras.cell.renderer.ValueApplier;
 import dev.webfx.extras.cell.renderer.ValueRenderer;
 import dev.webfx.extras.cell.renderer.ValueRenderingContext;
 import dev.webfx.extras.label.Label;
@@ -7,6 +8,7 @@ import dev.webfx.extras.type.Type;
 import dev.webfx.extras.visual.ColumnWidthAccumulator;
 import dev.webfx.extras.visual.VisualColumn;
 import dev.webfx.extras.visual.VisualStyle;
+import dev.webfx.platform.util.Strings;
 
 /**
  * @author Bruno Salmon
@@ -51,7 +53,7 @@ public final class VisualColumnImpl implements VisualColumn {
 
     @Override
     public String getName() {
-        return label.getText();
+        return Strings.toString(ValueApplier.getApplicableValue(label.getText()));
     }
 
     @Override

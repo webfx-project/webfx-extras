@@ -1,5 +1,6 @@
 package dev.webfx.extras.visual.controls.grid.peers.openjfx;
 
+import dev.webfx.extras.cell.renderer.ValueApplier;
 import dev.webfx.extras.cell.rowstyle.RowAdapter;
 import dev.webfx.extras.cell.rowstyle.RowStyleUpdater;
 import dev.webfx.extras.imagestore.ImageStore;
@@ -271,7 +272,8 @@ public final class FxVisualGridPeer
         TableColumn<Integer, ?> gridColumn = gridColumnIndex < currentColumns.size() ? currentColumns.get(gridColumnIndex) : new TableColumn<>();
         newColumns.add(gridColumn);
         Label label = visualColumn.getLabel();
-        gridColumn.setText(label.getText());
+        // label.getText() is an object, and may be a String or a StringProperty
+        ValueApplier.applyValue(label.getText(), gridColumn.textProperty());
         gridColumn.setGraphic(ImageStore.createImageView(label.getIconPath()));
         Double prefWidth = visualColumn.getStyle().getPrefWidth();
         if (prefWidth != null) {
@@ -297,9 +299,9 @@ public final class FxVisualGridPeer
     }
 
     @Override
-    public void setCellImageAndTextContent(TableCell cell, Node image, String text, VisualColumn visualColumn) {
+    public void setCellImageAndTextContent(TableCell cell, Node image, Object text, VisualColumn visualColumn) {
         cell.setGraphic(image);
-        cell.setText(text);
+        ValueApplier.applyValue(text, cell.textProperty());
     }
 
     private Callback<TableView<Integer>, TableRow<Integer>> createRowFactory() {

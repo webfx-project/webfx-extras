@@ -55,7 +55,7 @@ final class VisualGridTableSkin extends VisualGridSkinBase<Pane, Pane> implement
     VisualGridTableSkin(VisualGrid visualGrid) {
         super(visualGrid);
         visualGrid.getStyleClass().add("grid");
-        clipChildren(gridBody);
+        bindRegionClip(gridBody);
     }
 
     @Override
@@ -106,13 +106,20 @@ final class VisualGridTableSkin extends VisualGridSkinBase<Pane, Pane> implement
         );
     }
 
-    private static void clipChildren(Region region) {
-        Rectangle outputClip = new Rectangle();
+    private static void clipRegion(Region region) {
+        if (UserAgent.isBrowser()) // Done via web CSS with overflow: hidden
+            return;
+        Node clip = region.getClip();
+        Rectangle outputClip = clip instanceof Rectangle ? (Rectangle) clip : new Rectangle();
+        outputClip.setWidth(region.getWidth());
+        outputClip.setHeight(region.getHeight());
         region.setClip(outputClip);
-        FXProperties.runOnPropertyChange(layoutBounds -> {
-            outputClip.setWidth(layoutBounds.getWidth());
-            outputClip.setHeight(layoutBounds.getHeight());
-        }, region.layoutBoundsProperty());
+    }
+
+    private static void bindRegionClip(Region region) {
+        if (UserAgent.isBrowser()) // Done via web CSS with overflow: hidden
+            return;
+        FXProperties.runOnPropertyChange(layoutBounds -> clipRegion(region), region.layoutBoundsProperty());
     }
 
     @Override
@@ -493,8 +500,7 @@ final class VisualGridTableSkin extends VisualGridSkinBase<Pane, Pane> implement
             for (GridColumn headColumn : headColumns) {
                 double columnWidth = headColumn.getComputedWidth();
                 headColumn.resizeRelocate(x, 0, columnWidth, height);
-                if (!UserAgent.isBrowser()) // We need to clip the column to avoid overflow (done via CSS in web)
-                    headColumn.setClip(new Rectangle(columnWidth, height));
+                clipRegion(headColumn);
                 x += columnWidth;
             }
         }
@@ -618,8 +624,7 @@ final class VisualGridTableSkin extends VisualGridSkinBase<Pane, Pane> implement
             for (GridColumn bodyColumn : bodyColumns) {
                 double columnWidth = bodyColumn.getComputedWidth();
                 bodyColumn.resizeRelocate(x, 0, columnWidth, height);
-                if (!UserAgent.isBrowser()) // We need to clip the column to avoid overflow (done via CSS in web)
-                    bodyColumn.setClip(new Rectangle(columnWidth, height));
+                clipRegion(bodyColumn);
                 x += columnWidth;
             }
         }

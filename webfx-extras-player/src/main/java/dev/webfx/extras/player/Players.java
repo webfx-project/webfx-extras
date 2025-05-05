@@ -1,6 +1,7 @@
 package dev.webfx.extras.player;
 
 import dev.webfx.extras.player.impl.PlayerGroupImpl;
+import dev.webfx.extras.player.multi.MultiPlayer;
 import javafx.scene.paint.Color;
 
 /**
@@ -35,6 +36,14 @@ public final class Players {
                 return true;
         }
         return false;
+    }
+
+    public static Player getSelectedPlayer(Player player) {
+        return player instanceof MultiPlayer ? ((MultiPlayer) player).getSelectedPlayer() : player;
+    }
+
+    public static boolean sameSelectedPlayer(Player p1, Player p2) {
+        return getSelectedPlayer(p1) == getSelectedPlayer(p2);
     }
 
 }

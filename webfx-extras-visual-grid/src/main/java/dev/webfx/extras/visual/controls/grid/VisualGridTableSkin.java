@@ -420,16 +420,18 @@ final class VisualGridTableSkin extends VisualGridSkinBase<Pane, Pane> implement
                 int dataRowCount = getBuiltRowCount(); // in case the table is not yet fully populated
                 for (int globalRowIndex = 0; globalRowIndex < globalRowCount; globalRowIndex++) {
                     double computedRowHeight = 0;
-                    int matchingIndex = gridBody.globalRowsIndexes.get(globalRowIndex);
-                    if (matchingIndex < 0) { // group row
-                        Node groupRow = gridBody.bodyGroupRows.get(-matchingIndex - 1);
+                    int matchingRowIndex = gridBody.globalRowIndexToMatchingRowIndex(globalRowIndex);
+                    if (GridBody.isMatchingRowIndexGroupRowIndex(matchingRowIndex)) { // group row
+                        int groupRowIndex = GridBody.matchingRowIndexToGroupRowIndex(matchingRowIndex);
+                        Node groupRow = gridBody.bodyGroupRows.get(groupRowIndex);
                         computedRowHeight = groupRow.prefHeight(totalWidth - hMargin);
                     } else { // data row
-                        if (matchingIndex >= dataRowCount)
+                        int dataRowIndex = GridBody.matchingRowIndexToDataRowIndex(matchingRowIndex);
+                        if (dataRowIndex >= dataRowCount)
                             break;
                         for (int i = 0; i < columnCount; i++) {
                             GridColumn gridColumn = bodyColumns.get(i);
-                            Node cellNode = Collections.get(gridColumn.getChildren(), globalRowIndex);
+                            Node cellNode = Collections.get(gridColumn.getChildren(), dataRowIndex);
                             if (cellNode != null)
                                 computedRowHeight = Math.max(computedRowHeight, cellNode.prefHeight(gridColumn.getComputedWidth() - hMargin) + vMargin);
                         }
@@ -586,6 +588,22 @@ final class VisualGridTableSkin extends VisualGridSkinBase<Pane, Pane> implement
             return bodyRow;
         }
 
+        int globalRowIndexToMatchingRowIndex(int globalRowIndex) {
+            return globalRowsIndexes.get(globalRowIndex);
+        }
+
+        static boolean isMatchingRowIndexGroupRowIndex(int matchingRowIndex) {
+            return matchingRowIndex < 0;
+        }
+
+        static int matchingRowIndexToGroupRowIndex(int matchingRowIndex) {
+            return -matchingRowIndex - 1;
+        }
+
+        static int matchingRowIndexToDataRowIndex(int matchingRowIndex) {
+            return matchingRowIndex;
+        }
+
         Pane createBodyRowCell(int gridColumnIndex) {
             return getOrCreateBodyColumn(gridColumnIndex).createBodyRowCell();
         }
@@ -606,15 +624,15 @@ final class VisualGridTableSkin extends VisualGridSkinBase<Pane, Pane> implement
         protected void layoutChildren() {
             double width = columnWidthsTotal;
             double rowY = 0;
-            int globalRowCount = gridBody.globalRowsIndexes.size();
+            int globalRowCount = globalRowsIndexes.size();
             // TODO: see why appliedRowHeights is sometimes empty() while getBuiltRowCount() > 0
             for (int globalRowIndex = 0; globalRowIndex < globalRowCount; globalRowIndex++) {
                 Node rowNode;
-                int matchingRowIndex = globalRowsIndexes.get(globalRowIndex);
-                if (matchingRowIndex < 0) // group row
-                    rowNode = bodyGroupRows.get(-matchingRowIndex - 1);
+                int matchingRowIndex = globalRowIndexToMatchingRowIndex(globalRowIndex);
+                if (isMatchingRowIndexGroupRowIndex(matchingRowIndex)) // group row
+                    rowNode = bodyGroupRows.get(matchingRowIndexToGroupRowIndex(matchingRowIndex));
                 else // data row
-                    rowNode = bodyDataRows.get(matchingRowIndex);
+                    rowNode = bodyDataRows.get(matchingRowIndexToDataRowIndex(matchingRowIndex));
                 double rowHeight = appliedDataRowHeights[globalRowIndex];
                 rowNode.resizeRelocate(0, rowY, width, rowHeight);
                 rowY += rowHeight;

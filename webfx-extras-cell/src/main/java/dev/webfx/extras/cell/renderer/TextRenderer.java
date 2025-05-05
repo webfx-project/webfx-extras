@@ -26,7 +26,7 @@ public final class TextRenderer implements ValueRenderer {
     public Node renderValue(Object value, ValueRenderingContext context) {
         if (context.isReadOnly()) {
             Text text = new Text();
-            ValueApplier.applyValue(value, text.textProperty());
+            ValueApplier.applyTextValue(value, text.textProperty());
             return RenderingContextApplier.applyRenderingContextToText(text, context);
         }
         TextField textField = RenderingContextApplier.applyRenderingContextToTextField(textFieldFactory.apply(context.getLabelKey(), context.getPlaceholderKey()), context);

@@ -273,7 +273,7 @@ public final class FxVisualGridPeer
         newColumns.add(gridColumn);
         Label label = visualColumn.getLabel();
         // label.getText() is an object, and may be a String or a StringProperty
-        ValueApplier.applyValue(label.getText(), gridColumn.textProperty());
+        ValueApplier.applyTextValue(label.getText(), gridColumn.textProperty());
         gridColumn.setGraphic(ImageStore.createImageView(label.getIconPath()));
         Double prefWidth = visualColumn.getStyle().getPrefWidth();
         if (prefWidth != null) {
@@ -301,7 +301,7 @@ public final class FxVisualGridPeer
     @Override
     public void setCellImageAndTextContent(TableCell cell, Node image, Object text, VisualColumn visualColumn) {
         cell.setGraphic(image);
-        ValueApplier.applyValue(text, cell.textProperty());
+        ValueApplier.applyTextValue(text, cell.textProperty());
     }
 
     private Callback<TableView<Integer>, TableRow<Integer>> createRowFactory() {

@@ -40,7 +40,7 @@ public final class ValueRendererRegistry {
     }
 
     public static <L extends Labeled> L renderLabeled(L labeled, Object value, boolean autoWrap, boolean ellipsis) {
-        ValueApplier.applyValue(value, labeled.textProperty());
+        ValueApplier.applyTextValue(value, labeled.textProperty());
         return renderLabeled(labeled, autoWrap, ellipsis);
     }
 

@@ -9,6 +9,7 @@ module webfx.extras.cell {
     requires webfx.extras.imagestore;
     requires webfx.extras.label;
     requires webfx.extras.type;
+    requires webfx.extras.util.control;
     requires webfx.extras.webtext;
     requires webfx.kit.util;
     requires webfx.platform.util;

@@ -4,10 +4,7 @@ import dev.webfx.extras.util.animation.Animations;
 import dev.webfx.extras.util.layout.Layouts;
 import dev.webfx.kit.util.properties.FXProperties;
 import javafx.animation.Timeline;
-import javafx.beans.property.BooleanProperty;
-import javafx.beans.property.ObjectProperty;
-import javafx.beans.property.SimpleBooleanProperty;
-import javafx.beans.property.SimpleObjectProperty;
+import javafx.beans.property.*;
 import javafx.geometry.Pos;
 import javafx.geometry.Side;
 import javafx.scene.Cursor;
@@ -38,6 +35,7 @@ public class CollapsePane extends MonoClipPane {
     });
 
     private final BooleanProperty animateProperty = new SimpleBooleanProperty(true);
+    private final BooleanProperty transitingProperty = new SimpleBooleanProperty();
 
     private Timeline timeline;
     private double expandedWidthOrHeight;
@@ -136,6 +134,14 @@ public class CollapsePane extends MonoClipPane {
         animateProperty.set(animate);
     }
 
+    public boolean isTransiting() {
+        return transitingProperty.get();
+    }
+
+    public ReadOnlyBooleanProperty transitingProperty() {
+        return transitingProperty;
+    }
+
     private void doCollapse() {
         boolean isHorizontal = isHorizontal();
         if (timeline == null) {
@@ -179,12 +185,14 @@ public class CollapsePane extends MonoClipPane {
         if (timeline != null)
             timeline.stop();
         setWidthOrHeightComputationMode(USE_PREF_SIZE);
+        transitingProperty.set(true);
         timeline = Animations.animateProperty(isHorizontal() ? prefWidthProperty() : prefHeightProperty(), finalValue, isAnimate());
         Animations.setOrCallOnTimelineFinished(timeline, e -> {
             if (finalValue > 0) {
                 setWidthOrHeightComputationMode(USE_COMPUTED_SIZE);
             }
             timeline = null;
+            transitingProperty.set(false);
         });
     }
 

@@ -223,12 +223,13 @@ public final class ColumnsPane extends LayoutPane {
         double x = insets.getLeft(), y = insets.getTop();
         HPos hpos = getAlignment().getHpos();
         VPos vpos = getAlignment().getVpos();
-        for (int i = 0; i < n; i++) {
+        for (int i = 0, rowChildIndex = 0; i < n; i++) {
             Node child = children.get(i);
             if (multiRows && i % colCount == 0) { // Detecting new row (including the first one)
                 x = insets.getLeft();
                 y += h + vgap;
-                h = computeRowHeight(children, 0, colCount, w, Node::prefHeight);
+                h = computeRowHeight(children, rowChildIndex, colCount, w, Node::prefHeight);
+                rowChildIndex += colCount;
             }
             layoutInArea(child, x, y, w, h, 0, hpos, vpos);
             x += w + hgap;
@@ -351,7 +352,7 @@ public final class ColumnsPane extends LayoutPane {
 
     @Override
     protected double computeMinHeight(double width) {
-        return computeHeight(width, Node::prefHeight);
+        return computeHeight(width, Node::minHeight);
     }
 
     protected double computePrefHeight(double width) {
@@ -359,7 +360,7 @@ public final class ColumnsPane extends LayoutPane {
     }
 
     protected double computeMaxHeight(double width) {
-        return computeHeight(width, Node::prefHeight);
+        return computeHeight(width, Node::maxHeight);
     }
 
     private double computeHeight(double width, BiFunction<Node, Double, Double> heightFunction) {

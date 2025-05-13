@@ -13,7 +13,7 @@ import dev.webfx.extras.visual.controls.charts.VisualPieChart;
 import dev.webfx.extras.visual.controls.charts.peers.base.VisualChartPeerBase;
 import dev.webfx.extras.visual.controls.charts.peers.base.VisualChartPeerMixin;
 import dev.webfx.kit.mapper.peers.javafxgraphics.gwtj2cl.html.HtmlRegionPeer;
-import dev.webfx.kit.mapper.peers.javafxgraphics.gwtj2cl.html.layoutmeasurable.HtmlLayoutMeasurable;
+import dev.webfx.kit.mapper.peers.javafxgraphics.gwtj2cl.html.layoutmeasurable.HtmlMeasurable;
 import dev.webfx.kit.mapper.peers.javafxgraphics.gwtj2cl.util.HtmlUtil;
 import dev.webfx.platform.console.Console;
 import dev.webfx.platform.uischeduler.UiScheduler;
@@ -41,7 +41,7 @@ import java.util.function.Function;
 abstract class GwtJ2clCharbaVisualChartPeer
         <C, N extends VisualChart, NB extends VisualChartPeerBase<C, N, NB, NM>, NM extends VisualChartPeerMixin<C, N, NB, NM>>
         extends HtmlRegionPeer<N, NB, NM>
-        implements VisualChartPeerMixin<C, N, NB, NM>, HtmlLayoutMeasurable {
+        implements VisualChartPeerMixin<C, N, NB, NM>, HtmlMeasurable {
 
     static {
         Charba.enable(); // For embedded resources

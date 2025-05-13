@@ -9,7 +9,7 @@ import dev.webfx.extras.visual.controls.grid.peers.base.VisualGridPeerMixin;
 import dev.webfx.kit.mapper.peers.javafxgraphics.HasNoChildrenPeers;
 import dev.webfx.kit.mapper.peers.javafxgraphics.SceneRequester;
 import dev.webfx.kit.mapper.peers.javafxgraphics.gwtj2cl.html.HtmlRegionPeer;
-import dev.webfx.kit.mapper.peers.javafxgraphics.gwtj2cl.html.layoutmeasurable.HtmlLayoutMeasurable;
+import dev.webfx.kit.mapper.peers.javafxgraphics.gwtj2cl.html.layoutmeasurable.HtmlMeasurable;
 import dev.webfx.kit.mapper.peers.javafxgraphics.gwtj2cl.shared.HtmlSvgNodePeer;
 import dev.webfx.kit.mapper.peers.javafxgraphics.gwtj2cl.util.DomType;
 import dev.webfx.kit.mapper.peers.javafxgraphics.gwtj2cl.util.HtmlPaints;
@@ -34,7 +34,7 @@ public final class HtmlVisualGridPeer
         <N extends VisualGrid, NB extends VisualGridPeerBase<HTMLTableCellElement, N, NB, NM>, NM extends VisualGridPeerMixin<HTMLTableCellElement, N, NB, NM>>
 
         extends HtmlRegionPeer<N, NB, NM>
-        implements VisualGridPeerMixin<HTMLTableCellElement, N, NB, NM>, HtmlLayoutMeasurable, HasNoChildrenPeers {
+        implements VisualGridPeerMixin<HTMLTableCellElement, N, NB, NM>, HtmlMeasurable, HasNoChildrenPeers {
 
 
     private final HTMLTableElement table = HtmlUtil.createTableElement();

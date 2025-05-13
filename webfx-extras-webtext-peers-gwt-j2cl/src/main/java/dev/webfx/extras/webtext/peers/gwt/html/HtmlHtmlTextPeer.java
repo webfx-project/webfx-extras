@@ -8,7 +8,7 @@ import dev.webfx.kit.mapper.peers.javafxcontrols.gwtj2cl.html.HtmlControlPeer;
 import dev.webfx.kit.mapper.peers.javafxgraphics.HasNoChildrenPeers;
 import dev.webfx.kit.mapper.peers.javafxgraphics.emul_coupling.HasSizeChangedCallback;
 import dev.webfx.kit.mapper.peers.javafxgraphics.gwtj2cl.html.NormalWhiteSpacePeer;
-import dev.webfx.kit.mapper.peers.javafxgraphics.gwtj2cl.html.layoutmeasurable.HtmlLayoutMeasurableNoVGrow;
+import dev.webfx.kit.mapper.peers.javafxgraphics.gwtj2cl.html.layoutmeasurable.HtmlMeasurableNoVGrow;
 import dev.webfx.kit.mapper.peers.javafxgraphics.gwtj2cl.util.HtmlPaints;
 import dev.webfx.kit.mapper.peers.javafxgraphics.gwtj2cl.util.HtmlUtil;
 import dev.webfx.platform.util.Strings;
@@ -25,7 +25,7 @@ import javafx.scene.text.Font;
 public final class HtmlHtmlTextPeer
         <N extends HtmlText, NB extends HtmlTextPeerBase<N, NB, NM>, NM extends HtmlTextPeerMixin<N, NB, NM>>
         extends HtmlControlPeer<N, NB, NM>
-        implements HtmlTextPeerMixin<N, NB, NM>, HtmlLayoutMeasurableNoVGrow, NormalWhiteSpacePeer, HasNoChildrenPeers, HasSizeChangedCallback {
+        implements HtmlTextPeerMixin<N, NB, NM>, HtmlMeasurableNoVGrow, NormalWhiteSpacePeer, HasNoChildrenPeers, HasSizeChangedCallback {
 
     public HtmlHtmlTextPeer() {
         this((NB) new HtmlTextPeerBase());

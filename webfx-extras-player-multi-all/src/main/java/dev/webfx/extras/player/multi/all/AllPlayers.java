@@ -3,6 +3,7 @@ package dev.webfx.extras.player.multi.all;
 import dev.webfx.extras.player.Player;
 import dev.webfx.extras.player.audio.javafxmedia.JavaFXMediaAudioPlayer;
 import dev.webfx.extras.player.multi.MultiPlayer;
+import dev.webfx.extras.player.video.web.GenericWebVideoPlayer;
 import dev.webfx.extras.player.video.web.castr.CastrVideoPlayer;
 import dev.webfx.extras.player.video.web.wistia.WistiaVideoPlayer;
 import dev.webfx.extras.player.video.web.youtube.YoutubeVideoPlayer;
@@ -36,6 +37,7 @@ public final class AllPlayers {
             createYoutubeVideoPlayer(),
             createWistiaVideoPlayer(),
             createCastrVideoPlayer(),
+            createGenericWebVideoPlayer()
         };
     }
 
@@ -53,6 +55,10 @@ public final class AllPlayers {
 
     public static CastrVideoPlayer createCastrVideoPlayer() {
         return new CastrVideoPlayer();
+    }
+
+    public static GenericWebVideoPlayer createGenericWebVideoPlayer() {
+        return new GenericWebVideoPlayer();
     }
 
     public static JavaFXMediaAudioPlayer createJavaFXMediaAudioPlayer() {

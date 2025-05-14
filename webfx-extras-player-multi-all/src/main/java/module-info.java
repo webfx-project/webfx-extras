@@ -7,6 +7,7 @@ module webfx.extras.player.multi.all {
     requires javafx.graphics;
     requires webfx.extras.player;
     requires webfx.extras.player.audio.javafxmedia;
+    requires webfx.extras.player.video.web;
     requires webfx.extras.player.video.web.castr;
     requires webfx.extras.player.video.web.wistia;
     requires webfx.extras.player.video.web.youtube;

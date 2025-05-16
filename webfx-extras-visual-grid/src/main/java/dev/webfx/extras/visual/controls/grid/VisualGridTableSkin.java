@@ -39,7 +39,7 @@ import java.util.function.Consumer;
 final class VisualGridTableSkin extends VisualGridSkinBase<Pane, Pane> implements ResponsiveLayout {
 
     private static final boolean LOG_TIMING = false;
-    private static final long INITIAL_BUILD_TIME_MAX_MILLIS = 50000; // TODO: set back to 500 once incremental build is working again
+    private static final long INITIAL_BUILD_TIME_MAX_MILLIS = 50;
     private static final long ANIMATION_FRAME_BUILD_TIME_MAX_MILLIS = 10;
 
     private long initialBuildTimeMillis;

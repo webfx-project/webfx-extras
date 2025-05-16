@@ -2,17 +2,27 @@ package dev.webfx.extras.visual.controls.grid;
 
 import dev.webfx.extras.panes.MonoPane;
 import dev.webfx.extras.visual.VisualColumn;
+import dev.webfx.extras.visual.VisualResult;
 import dev.webfx.extras.visual.VisualStyle;
+import dev.webfx.platform.scheduler.Scheduled;
+import dev.webfx.platform.uischeduler.UiScheduler;
 import javafx.geometry.Orientation;
 import javafx.geometry.Pos;
 import javafx.scene.Node;
 import javafx.scene.layout.Pane;
 import javafx.scene.layout.VBox;
 
+import java.util.ArrayList;
+import java.util.List;
+import java.util.function.Consumer;
+
 /**
  * @author Bruno Salmon
  */
 final class VisualGridVerticalSkin extends VisualGridSkinBase<Pane, Pane> {
+
+    private static final long INITIAL_BUILD_TIME_MAX_MILLIS = 50;
+    private static final long ANIMATION_FRAME_BUILD_TIME_MAX_MILLIS = 10;
 
     static class HorizontalBiasVBox extends VBox {
         @Override
@@ -21,7 +31,10 @@ final class VisualGridVerticalSkin extends VisualGridSkinBase<Pane, Pane> {
         }
     }
 
+    private long initialBuildTimeMillis;
     private final VBox container = new HorizontalBiasVBox();
+    // List containing all data rows (index = index of the data in the visual result)
+    private final List<Pane> bodyDataRows = new ArrayList<>();
 
     VisualGridVerticalSkin(VisualGrid control) {
         super(control);
@@ -42,8 +55,58 @@ final class VisualGridVerticalSkin extends VisualGridSkinBase<Pane, Pane> {
 
     @Override
     protected void startBuildingGrid() {
+        initialBuildTimeMillis = System.currentTimeMillis();
         container.getChildren().clear();
+        bodyDataRows.clear();
         super.startBuildingGrid();
+    }
+
+    private int builtRowIndex = -1;
+
+    @Override
+    protected void buildRowCells(Pane bodyRow, int rowIndex) {
+        // Skipping rows after INITIAL_BUILD_TIME_MAX_MILLIS (remaining rows will be built later in next animation frames)
+        if (System.currentTimeMillis() <= initialBuildTimeMillis + INITIAL_BUILD_TIME_MAX_MILLIS) {
+            super.buildRowCells(bodyRow, rowIndex);
+            builtRowIndex = rowIndex;
+        }
+    }
+
+    private int getBuiltRowCount() {
+        return builtRowIndex + 1;
+    }
+
+    private boolean endBuildingGridIfAllRowsAreBuilt() {
+        if (getBuiltRowCount() < getRowCount())
+            return false;
+        return true;
+    }
+
+    @Override
+    protected void endBuildingGrid() {
+        if (!endBuildingGridIfAllRowsAreBuilt()) {
+            UiScheduler.schedulePeriodicInAnimationFrame(new Consumer<>() {
+                final VisualResult rs = getRs(); // Capturing VisualResult to check if it hasn't changed
+
+                @Override
+                public void accept(Scheduled scheduled) {
+                    if (rs != getRs())
+                        scheduled.cancel();
+                    else {
+                        long animationFrameBuildEndTimeMillis = System.currentTimeMillis() + ANIMATION_FRAME_BUILD_TIME_MAX_MILLIS;
+                        while (System.currentTimeMillis() <= animationFrameBuildEndTimeMillis) {
+                            if (endBuildingGridIfAllRowsAreBuilt()) {
+                                scheduled.cancel();
+                                break;
+                            } else {
+                                builtRowIndex++;
+                                VisualGridVerticalSkin.super.buildRowCells(getOrAddBodyRow(builtRowIndex), builtRowIndex);
+                            }
+                        }
+                    }
+                }
+            });
+        }
     }
 
     @Override
@@ -65,12 +128,15 @@ final class VisualGridVerticalSkin extends VisualGridSkinBase<Pane, Pane> {
 
     @Override
     protected Pane getOrAddBodyRow(int rowIndex) {
+        if (bodyDataRows.size() > rowIndex)
+            return bodyDataRows.get(rowIndex);
         VBox bodyRow = new HorizontalBiasVBox();
         bodyRow.paddingProperty().bind(visualControl.cellMarginProperty());
         bodyRow.minHeightProperty().bind(visualControl.minRowHeightProperty());
         bodyRow.maxHeightProperty().bind(visualControl.maxRowHeightProperty());
         bodyRow.getStyleClass().add("grid-row");
         container.getChildren().add(bodyRow);
+        bodyDataRows.add(bodyRow);
         return bodyRow;
     }
 

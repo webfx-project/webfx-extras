@@ -1,11 +1,15 @@
 package dev.webfx.extras.visual.controls.grid;
 
 import dev.webfx.extras.responsive.ResponsiveDesign;
+import dev.webfx.extras.responsive.ResponsiveLayout;
 import dev.webfx.extras.visual.VisualResult;
 import dev.webfx.extras.visual.controls.SelectableVisualResultControl;
 import dev.webfx.extras.visual.controls.grid.registry.VisualGridRegistry;
+import dev.webfx.extras.visual.controls.grid.skin.VisualGridSkin;
 import javafx.beans.property.*;
+import javafx.beans.value.ObservableValue;
 import javafx.geometry.Insets;
+import javafx.scene.control.Skin;
 
 /**
  * @author Bruno Salmon
@@ -104,20 +108,48 @@ public class VisualGrid extends SelectableVisualResultControl {
     }
 
     public static VisualGrid createVisualGridWithTableSkin() {
-        return new SkinnedVisualGrid(VisualGridTableSkin::new);
+        return new SkinnedVisualGrid(VisualGridSkin::new);
     }
 
     public static VisualGrid createVisualGridWithVerticalSkin() {
-        return new SkinnedVisualGrid(VisualGridVerticalSkin::new);
+        VisualGrid visualGrid = createVisualGridWithTableSkin();
+        VisualGridSkin skin = (VisualGridSkin) visualGrid.getSkin();
+        skin.setMonoColumnLayout();
+        return visualGrid;
     }
 
     public static VisualGrid createVisualGridWithResponsiveSkin() {
         VisualGrid visualGrid = createVisualGridWithTableSkin();
+        VisualGridSkin skin = (VisualGridSkin) visualGrid.getSkin();
         new ResponsiveDesign(visualGrid)
-                .addResponsiveLayout((VisualGridTableSkin) visualGrid.getSkin())
-                .addResponsiveLayout(new VisualGridVerticalSkin(visualGrid))
+                .addResponsiveLayout(new ResponsiveLayout() {
+                    @Override
+                    public boolean testResponsiveLayoutApplicability(double width) {
+                        return width >= skin.getMultiColumnMinWidth();
+                    }
+
+                    @Override
+                    public ObservableValue<?>[] getResponsiveTestDependencies() {
+                        return new ObservableValue[]{ skin.multiColumnMinWidthProperty() };
+                    }
+
+                    @Override
+                    public void applyResponsiveLayout() {
+                        skin.setMultiColumnLayout();
+                    }
+                })
+                .addResponsiveLayout(skin::setMonoColumnLayout)
                 .start();
         return visualGrid;
+    }
+
+    public static boolean isMonoColumnLayout(VisualGrid visualGrid) {
+        Skin<?> skin = visualGrid.getSkin();
+        return skin instanceof VisualGridSkin s && s.isMonoColumnLayout();
+    }
+
+    public static boolean isMultiColumnLayout(VisualGrid visualGrid) {
+        return !isMonoColumnLayout(visualGrid);
     }
 
     static {

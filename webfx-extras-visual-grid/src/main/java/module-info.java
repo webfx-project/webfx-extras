@@ -15,12 +15,12 @@ module webfx.extras.visual.grid {
     requires webfx.extras.visual.grid.registry;
     requires webfx.kit.util;
     requires webfx.platform.console;
-    requires webfx.platform.scheduler;
     requires webfx.platform.uischeduler;
     requires webfx.platform.useragent;
     requires webfx.platform.util;
 
     // Exported packages
     exports dev.webfx.extras.visual.controls.grid;
+    exports dev.webfx.extras.visual.controls.grid.skin;
 
 }

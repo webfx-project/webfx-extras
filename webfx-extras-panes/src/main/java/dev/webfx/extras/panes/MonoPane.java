@@ -99,7 +99,7 @@ public class MonoPane extends LayoutPane {
 
     @Override
     protected double computeMinWidth(double height) { // pane height
-        return insetsWidth() + computeContentMinWidth(height - insetsHeight());
+        return insetsWidth() + computeContentMinWidth(height < 0 ? -1 : height - insetsHeight());
     }
 
     protected double computeContentMinWidth(double height) { // content height
@@ -108,7 +108,7 @@ public class MonoPane extends LayoutPane {
 
     @Override
     protected double computeMinHeight(double width) { // pane width
-        return insetsHeight() + computeContentMinHeight(width - insetsWidth());
+        return insetsHeight() + computeContentMinHeight(width < 0 ? -1 : width - insetsWidth());
     }
 
     protected double computeContentMinHeight(double width) { // content width
@@ -117,7 +117,7 @@ public class MonoPane extends LayoutPane {
 
     @Override
     protected double computePrefWidth(double height) { // pane height
-        return insetsWidth() + computeContentPrefWidth(height - insetsHeight());
+        return insetsWidth() + computeContentPrefWidth(height < 0 ? -1 : height - insetsHeight());
     }
 
     protected double computeContentPrefWidth(double height) { // content height
@@ -126,7 +126,7 @@ public class MonoPane extends LayoutPane {
 
     @Override
     protected double computePrefHeight(double width) { // pane width
-        return insetsHeight() + computeContentPrefHeight(width - insetsWidth());
+        return insetsHeight() + computeContentPrefHeight(width < 0 ? -1 : width - insetsWidth());
     }
 
     protected double computeContentPrefHeight(double width) { // content width
@@ -135,7 +135,7 @@ public class MonoPane extends LayoutPane {
 
     @Override
     protected double computeMaxWidth(double height) { // pane height
-        return insetsWidth() + computeContentMaxWidth(height - insetsHeight());
+        return insetsWidth() + computeContentMaxWidth(height < 0 ? -1 : height - insetsHeight());
     }
 
     protected double computeContentMaxWidth(double height) { // content height
@@ -144,7 +144,7 @@ public class MonoPane extends LayoutPane {
 
     @Override
     protected double computeMaxHeight(double width) { // pane width
-        return insetsHeight() + computeContentMaxHeight(width - insetsWidth());
+        return insetsHeight() + computeContentMaxHeight(width < 0 ? -1 : width - insetsWidth());
     }
 
     protected double computeContentMaxHeight(double width) { // content width

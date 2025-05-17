@@ -1,5 +1,6 @@
 package dev.webfx.extras.visual.controls;
 
+import dev.webfx.extras.visual.SelectionMode;
 import dev.webfx.kit.util.properties.FXProperties;
 import javafx.scene.Node;
 import dev.webfx.extras.visual.VisualResult;
@@ -42,12 +43,14 @@ public abstract class SelectableVisualResultControlSkinBase<C extends Selectable
     protected void setUpBodyRow(ROW bodyRow, int rowIndex) {
         super.setUpBodyRow(bodyRow, rowIndex);
         bodyRow.setOnMouseClicked(e -> {
-            VisualSelection visualSelection = visualControl.getVisualSelection();
-            if (visualSelection == null || visualSelection.getSelectedRow() != rowIndex)
-                visualSelection = VisualSelection.createSingleRowSelection(rowIndex);
-            else
-                visualSelection = null;
-            visualControl.setVisualSelection(visualSelection);
+            if (visualControl.getSelectionMode() != SelectionMode.DISABLED) {
+                VisualSelection visualSelection = visualControl.getVisualSelection();
+                if (visualSelection == null || visualSelection.getSelectedRow() != rowIndex)
+                    visualSelection = VisualSelection.createSingleRowSelection(rowIndex);
+                else
+                    visualSelection = null;
+                visualControl.setVisualSelection(visualSelection);
+            }
         });
     }
 }

@@ -59,7 +59,7 @@ final class GridBody extends Region {
         int globalRowCount = bodyGroupRows.size() + bodyDataRows.size();
         List<Node> rowsAndColumns = new ArrayList<>(globalRowCount + bodyTableColumns.size());
         rowsAndColumns.addAll(bodyDataRows);
-        if (visualGridSkin.isMultiColumnLayout())
+        if (visualGridSkin.isTableLayout())
             rowsAndColumns.addAll(bodyTableColumns);
         rowsAndColumns.addAll(bodyGroupRows);
         getChildren().setAll(rowsAndColumns);
@@ -173,7 +173,7 @@ final class GridBody extends Region {
             resizeRelocateRow(globalRowIndex, rowY, width, rowHeight);
             rowY += rowHeight;
         }
-        if (visualGridSkin.isMultiColumnLayout()) {
+        if (visualGridSkin.isTableLayout()) {
             double x = 0;
             if (rowY == 0)
                 rowY = getRowMaxY(globalRowCount - 1);

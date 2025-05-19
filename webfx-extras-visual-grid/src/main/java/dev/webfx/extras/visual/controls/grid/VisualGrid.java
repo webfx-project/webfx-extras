@@ -107,35 +107,35 @@ public class VisualGrid extends SelectableVisualResultControl {
         cellMarginProperty.set(cellMargin);
     }
 
-    public static VisualGrid createVisualGridWithTableSkin() {
+    public static VisualGrid createVisualGridWithTableLayoutSkin() {
         return new SkinnedVisualGrid(VisualGridSkin::new);
     }
 
-    public static VisualGrid createVisualGridWithVerticalSkin() {
-        VisualGrid visualGrid = createVisualGridWithTableSkin();
+    public static VisualGrid createVisualGridWithMonoColumnLayoutSkin() {
+        VisualGrid visualGrid = createVisualGridWithTableLayoutSkin();
         VisualGridSkin skin = (VisualGridSkin) visualGrid.getSkin();
         skin.setMonoColumnLayout();
         return visualGrid;
     }
 
     public static VisualGrid createVisualGridWithResponsiveSkin() {
-        VisualGrid visualGrid = createVisualGridWithTableSkin();
+        VisualGrid visualGrid = createVisualGridWithTableLayoutSkin();
         VisualGridSkin skin = (VisualGridSkin) visualGrid.getSkin();
         new ResponsiveDesign(visualGrid)
                 .addResponsiveLayout(new ResponsiveLayout() {
                     @Override
                     public boolean testResponsiveLayoutApplicability(double width) {
-                        return width >= skin.getMultiColumnMinWidth();
+                        return width >= skin.getTableLayoutMinWidth();
                     }
 
                     @Override
                     public ObservableValue<?>[] getResponsiveTestDependencies() {
-                        return new ObservableValue[]{ skin.multiColumnMinWidthProperty() };
+                        return new ObservableValue[]{ skin.tableLayoutMinWidthProperty() };
                     }
 
                     @Override
                     public void applyResponsiveLayout() {
-                        skin.setMultiColumnLayout();
+                        skin.setTableLayout();
                     }
                 })
                 .addResponsiveLayout(skin::setMonoColumnLayout)

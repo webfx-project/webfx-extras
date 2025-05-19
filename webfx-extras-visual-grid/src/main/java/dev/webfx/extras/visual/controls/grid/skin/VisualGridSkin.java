@@ -37,7 +37,7 @@ public final class VisualGridSkin extends dev.webfx.extras.visual.controls.Selec
 
     private static final boolean LOG_TIMING = false;
 
-    private long initialBuildTimeMillis;
+    //private long initialBuildTimeMillis;
     private final GridTableHead gridTableHead = new GridTableHead(this);
     final GridBody gridBody = new GridBody(this);
     private ScrollPane bodyScrollPane;
@@ -45,8 +45,8 @@ public final class VisualGridSkin extends dev.webfx.extras.visual.controls.Selec
     private double headOffset;
     private final static Pane fakeCell = new Pane();
     private List<Node> fakeCellChildren;
-    private final DoubleProperty multiColumnMinWidthProperty = new SimpleDoubleProperty();
-    private final BooleanProperty monoColumnLayoutProperty = new SimpleBooleanProperty(true) {
+    private final DoubleProperty tableLayoutMinWidthProperty = new SimpleDoubleProperty();
+    private final BooleanProperty monoColumnLayoutProperty = new SimpleBooleanProperty(false) {
         @Override
         protected void invalidated() {
             // Initial version where we rebuild the grid when switching between desktop/table and mobile layout
@@ -64,13 +64,13 @@ public final class VisualGridSkin extends dev.webfx.extras.visual.controls.Selec
         return visualControl;
     }
 
-    public double getMultiColumnMinWidth() {
-        multiColumnMinWidthProperty.setValue(computedMultiColumnMinWidth);
-        return multiColumnMinWidthProperty.get();
+    public double getTableLayoutMinWidth() {
+        tableLayoutMinWidthProperty.setValue(computedTableLayoutMinWidth);
+        return tableLayoutMinWidthProperty.get();
     }
 
-    public DoubleProperty multiColumnMinWidthProperty() {
-        return multiColumnMinWidthProperty;
+    public DoubleProperty tableLayoutMinWidthProperty() {
+        return tableLayoutMinWidthProperty;
     }
 
     public void setMonoColumnLayout(boolean mobileLayout) {
@@ -85,11 +85,11 @@ public final class VisualGridSkin extends dev.webfx.extras.visual.controls.Selec
         return monoColumnLayoutProperty.get();
     }
 
-    public boolean isMultiColumnLayout() {
+    public boolean isTableLayout() {
         return !isMonoColumnLayout();
     }
 
-    public void setMultiColumnLayout() {
+    public void setTableLayout() {
         setMonoColumnLayout(false);
     }
 
@@ -152,7 +152,7 @@ public final class VisualGridSkin extends dev.webfx.extras.visual.controls.Selec
 
     @Override
     protected void buildRowCells(Pane bodyRow, int rowIndex) {
-        initialBuildTimeMillis = System.currentTimeMillis();
+        //initialBuildTimeMillis = System.currentTimeMillis();
         super.buildRowCells(bodyRow, rowIndex);
         builtRowIndex = rowIndex;
         invalidateRowHeight(builtRowIndex);
@@ -166,7 +166,7 @@ public final class VisualGridSkin extends dev.webfx.extras.visual.controls.Selec
     protected void endBuildingGrid() {
         gridTableHead.endBuildingGrid();
         gridBody.endBuildingGrid();
-        Console.log("Grid built in " + (System.currentTimeMillis() - initialBuildTimeMillis) + " ms");
+        //Console.log("Grid built in " + (System.currentTimeMillis() - initialBuildTimeMillis) + " ms");
     }
 
     void invalidateColumnWidths() {
@@ -226,7 +226,7 @@ public final class VisualGridSkin extends dev.webfx.extras.visual.controls.Selec
 
     @Override
     protected void setCellContent(Pane cell, Node content, VisualColumn visualColumn) {
-        if (isMultiColumnLayout()) {
+        if (isTableLayout()) { // probably desktops
             if (content == null) // If there is no content, we use an empty text instead (each row must have a content)
                 content = new Text();
             else
@@ -236,7 +236,7 @@ public final class VisualGridSkin extends dev.webfx.extras.visual.controls.Selec
                 // (with possible ellipsis) if all the text doesn't fit in the cell.
                 ValueRendererRegistry.removePossibleLabelAutoWrap(content);
             getCellChildren(cell).add(content);
-        } else {
+        } else { // Mono-column layout - probably mobiles
             if (content != null) {
                 VisualStyle style = visualColumn.getStyle();
                 if (style != null) {
@@ -315,7 +315,7 @@ public final class VisualGridSkin extends dev.webfx.extras.visual.controls.Selec
     }
 
     private boolean isHeaderVisible() {
-        return isMultiColumnLayout() && visualControl.isHeaderVisible();
+        return isTableLayout() && visualControl.isHeaderVisible();
     }
 
     @Override
@@ -355,22 +355,22 @@ public final class VisualGridSkin extends dev.webfx.extras.visual.controls.Selec
 
     private double lastTotalWidth;
     private int lastComputedRowHeightsBuiltRowIndex;
-    double computedMultiColumnMinWidth;
+    double computedTableLayoutMinWidth;
 
     private void updateColumnWidthsAndRowHeights(double totalWidth, boolean apply) {
         if (lastTotalWidth != totalWidth) {
             lastTotalWidth = totalWidth;
-            if (isMultiColumnLayout())
+            if (isTableLayout())
                 updateColumnWidths(totalWidth);
             lastComputedRowHeightsBuiltRowIndex = -1;
-        } else if (computedMultiColumnMinWidth == 0)
+        } else if (computedTableLayoutMinWidth == 0)
             updateColumnWidths(totalWidth);
         if (lastComputedRowHeightsBuiltRowIndex == -1 || lastComputedRowHeightsBuiltRowIndex < gridBody.globalRowsIndexes.size() - 1) {
             computeRowHeights(totalWidth);
         }
         if (apply) {
             gridBody.applyComputedRowHeights();
-            multiColumnMinWidthProperty.setValue(computedMultiColumnMinWidth);
+            tableLayoutMinWidthProperty.setValue(computedTableLayoutMinWidth);
         }
     }
 
@@ -385,7 +385,7 @@ public final class VisualGridSkin extends dev.webfx.extras.visual.controls.Selec
         double computedTotalWidth = 0;
         double shrinkableTotalWidth = 0;
         double growableTotalWidth = 0;
-        computedMultiColumnMinWidth = 0;
+        computedTableLayoutMinWidth = 0;
         for (int i = 0; i < columnCount; i++) {
             GridTableColumn headColumn = headColumns.get(i);
             // Step 1: Initial width computation based on percentage or pixel values
@@ -401,7 +401,7 @@ public final class VisualGridSkin extends dev.webfx.extras.visual.controls.Selec
                 double minW = headColumn.computeMinPixelWidth(totalWidth);
                 computedWidth = Math.max(computedWidth, minW);
                 if (headColumn.hShrink)
-                    computedMultiColumnMinWidth += minW;
+                    computedTableLayoutMinWidth += minW;
             }
             if (headColumn.maxWidth != null) {
                 double maxW = headColumn.computeMaxPixelWidth(totalWidth);
@@ -410,7 +410,7 @@ public final class VisualGridSkin extends dev.webfx.extras.visual.controls.Selec
             computedWidth = snapSizeX(computedWidth + hMargin);
             headColumn.setComputedWidth(computedWidth);
             if (headColumn.minWidth == null || !headColumn.hShrink)
-                computedMultiColumnMinWidth += computedWidth;
+                computedTableLayoutMinWidth += computedWidth;
             // Updating totals
             computedTotalWidth += computedWidth;
             if (headColumn.hShrink)
@@ -541,7 +541,6 @@ public final class VisualGridSkin extends dev.webfx.extras.visual.controls.Selec
         double rowHeight = finalRowHeight(minRowHeight, finalPrefRowHeight, maxRowHeight, computedRowHeight);
         if (gridBody.computedRowHeights.isEmpty())
             Collections.setAll(gridBody.computedRowHeights, java.util.Collections.nCopies(gridBody.globalRowsIndexes.size(), 0d));
-        Console.log("Row " + globalRowIndex + ".height = " + rowHeight);
         gridBody.computedRowHeights.set(globalRowIndex, rowHeight);
         gridBody.computedRowHeightsTotal += rowHeight;
     }

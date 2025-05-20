@@ -42,11 +42,24 @@ public final class TransitionPane extends MonoClipPane {
     private Timeline scrollToTopTimeline;
 
     private final Pane dualContainer = new LayoutPane() {
+        //private double lastWidth, lastHeight;
+        //private Node lastEnteringNode, lastLeavingNode;
         @Override
         protected void layoutChildren(double width, double height) {
+/* Optimization commented for now, as this prevents the scroll pane to be in full height when switch pages in Modality front-office
+            if (width == lastWidth && height == lastHeight && lastEnteringNode == enteringNode && lastLeavingNode == leavingNode) {
+                return;
+            }
+            lastWidth = width;
+            lastHeight = height;
+            lastEnteringNode = enteringNode;
+            lastLeavingNode = leavingNode;
+            long t0 = System.currentTimeMillis();
+*/
             double enteringHeight = enteringNode == null ? 0 : Math.min(height, enteringNode.prefHeight(width));
             double leavingHeight = leavingNode == null ? 0 : Math.min(height, leavingNode.prefHeight(width));
-            // Temporary hack to make account page correctly laid out with circle & fade transition
+            //long t1 = System.currentTimeMillis();
+            // Temporary hack to make the account page correctly laid out with circle and fade transition
             Pos pos = transition instanceof CircleTransition || transition instanceof FadeTransition ? Pos.TOP_CENTER : getAlignment();
             if (enteringNode != null) {
                 layoutInArea(enteringNode, 0, 0, width, enteringHeight, pos);
@@ -65,11 +78,14 @@ public final class TransitionPane extends MonoClipPane {
             }
             if (scrollToTop && scrollToTopTimeline == null && enteringHeight > 0) {
                 // Postponing to ensure the layout bound is set on the possible target node for scrollTop
-                Platform.runLater(() -> {
-                    scrollToTopTimeline = Animations.scrollToTop(enteringNode, transition.shouldVerticalScrollBeAnimated());
-                });
+                Platform.runLater(() ->
+                    scrollToTopTimeline = Animations.scrollToTop(enteringNode, transition.shouldVerticalScrollBeAnimated())
+                );
             }
-
+/*
+            long t2 = System.currentTimeMillis();
+            Console.log("👉 TransitionPane.layoutChildren() took " + (t2 - t0) + " ms (prefHeight: " + (t1 - t0) + ", layoutInArea: " + (t2 - t1) + ") " + this);
+*/
         }
 
         @Override
@@ -146,10 +162,10 @@ public final class TransitionPane extends MonoClipPane {
     public void setUnmanagedDuringTransition() {
         // This is a performance optimization that can be activated in some cases for transitions triggering layouts
         // such as TranslateTransition. It sets the dual container as unmanaged during the transition, which stops the
-        // layout propagation between its transiting children and the rest of the scene (this solved the slow
-        // TranslateTransition on mobiles when the dual container was in a HtmlScrollPanePeer in SIMPLE_CSS mode).
-        // To avoid however if the transiting children have images not yet loaded, because if these images are loaded
-        // before the end of the transition, they won't be positioned correctly during the transition.
+        // layout propagation between its transiting children and the rest of the scene; this solved the slow
+        // TranslateTransition on mobiles when the dual container was in a HtmlScrollPanePeer in SIMPLE_CSS mode.
+        // This is to avoid, however, if the transiting children have images not yet loaded, because if these images are
+        // loaded before the end of the transition, they won't be positioned correctly during the transition.
         dualContainer.managedProperty().bind(transitingProperty.not());
     }
 
@@ -245,22 +261,17 @@ public final class TransitionPane extends MonoClipPane {
             if (!dualChildren.contains(enteringNode)) {
                 dualChildren.add(enteringNode);
             }
-            if (animate && (leavingNode != null || animateFirstContent))
+            if (animate && transition != null && (leavingNode != null || animateFirstContent))
                 doAnimate(newContent);
             else {
-                if (leavingNode != null) {
-                    if (keepsLeavingNodes)
-                        leavingNode.setVisible(false);
-                    else
-                        dualChildren.remove(leavingNode);
-                }
+                onTransitionFinished(newContent, leavingNode, null, -1);
             }
         }
     }
 
     private void doAnimate(Node newContent) {
-        if (getWidth() == 0) { // may happen on first time this transition pane is displayed
-            // In that case, we postpone the animation when the transition pane is resized (presumably on next layout pass)
+        if (getWidth() == 0) { // may happen on the first time this transition pane is displayed
+            // In that case, we postpone the animation when the transition pane is resized (presumably on the next layout pass)
             FXProperties.runOrUnregisterOnPropertyChange((thisListener, oldValue, newValue) -> {
                 thisListener.unregister();
                 doAnimate(newContent);
@@ -272,15 +283,18 @@ public final class TransitionPane extends MonoClipPane {
         // smoothness of the transition animation (the next layout pass may suddenly move down that node)
         Region oldRegion = oldContent instanceof Region ? (Region) oldContent : null;
         Region newRegion = newContent instanceof Region ? (Region) newContent : null;
-        double oldRegionMaxHeight = -1; // memorising the previous max height (to reestablish it at transition end)
+        double oldRegionMaxHeight; // memorizing the previous max height (to reestablish it at the transition end)
         if (oldRegion != null) {
             oldRegionMaxHeight = oldRegion.getMaxHeight();
             oldRegion.setMaxHeight(getHeight());
-        }
+        } else
+            oldRegionMaxHeight = -1;
         rescheduleScrollTopTimeline();
         transitionTimeline = transition.createAndStartTransitionTimeline(oldContent, newContent, oldRegion, newRegion, dualContainer, this::getWidth, this::getHeight, reverse);
         transitingProperty.set(true);
-        finishTimeline(newContent, oldContent, oldRegion, oldRegionMaxHeight);
+        Animations.setOrCallOnTimelineFinished(transitionTimeline, e ->
+            onTransitionFinished(newContent, oldContent, oldRegion, oldRegionMaxHeight)
+        );
     }
 
     private void rescheduleScrollTopTimeline() {
@@ -291,30 +305,28 @@ public final class TransitionPane extends MonoClipPane {
         }
     }
 
-    private void finishTimeline(Node newContent, Node oldContent, Region oldRegion, double oldRegionMaxHeight) {
-        Animations.setOrCallOnTimelineFinished(transitionTimeline, e -> {
-            newContent.setClip(null);
-            if (oldContent != null)
-                oldContent.setClip(null);
-            // Reestablishing the previous max height of the leaving node
-            if (oldRegion != null)
-                oldRegion.setMaxHeight(oldRegionMaxHeight);
-            if (oldContent != null) {
-                if (oldContent != enteringNode) {
-                    if (keepsLeavingNodes && isKeepsLeavingNode(oldContent))
-                        oldContent.setVisible(false);
-                    else {
-                        dualContainer.getChildren().remove(oldContent);
-                        rescheduleScrollTopTimeline();
-                    }
+    private void onTransitionFinished(Node newContent, Node oldContent, Region oldRegion, double oldRegionMaxHeight) {
+        newContent.setClip(null);
+        if (oldContent != null)
+            oldContent.setClip(null);
+        // Reestablishing the previous max height of the leaving node
+        if (oldRegion != null)
+            oldRegion.setMaxHeight(oldRegionMaxHeight);
+        if (oldContent != null) {
+            if (oldContent != enteringNode) {
+                if (keepsLeavingNodes && isKeepsLeavingNode(oldContent))
+                    oldContent.setVisible(false);
+                else {
+                    dualContainer.getChildren().remove(oldContent);
+                    rescheduleScrollTopTimeline();
                 }
-                if (leavingNode == oldContent)
-                    leavingNode = null;
             }
-            if (enteringNode == newContent) {
-                transitingProperty.set(false);
-            }
-        });
+            if (leavingNode == oldContent)
+                leavingNode = null;
+        }
+        if (enteringNode == newContent) {
+            transitingProperty.set(false);
+        }
     }
 
 }

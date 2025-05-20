@@ -148,7 +148,7 @@ public class VisualGrid extends SelectableVisualResultControl {
         return skin instanceof VisualGridSkin s && s.isMonoColumnLayout();
     }
 
-    public static boolean isMultiColumnLayout(VisualGrid visualGrid) {
+    public static boolean isTableLayout(VisualGrid visualGrid) {
         return !isMonoColumnLayout(visualGrid);
     }
 

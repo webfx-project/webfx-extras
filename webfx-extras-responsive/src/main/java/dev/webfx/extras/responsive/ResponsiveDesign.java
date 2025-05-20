@@ -47,8 +47,6 @@ public final class ResponsiveDesign {
         ResponsiveLayout[] activeResponsiveLayouts = { null };
         unregisterable = FXProperties.runNowAndOnPropertiesChange(() -> {
             double responsiveWidth = responsiveWidthProperty.get();
-            if (responsiveWidth <= 0)
-                return;
             ResponsiveLayout bestResponsiveLayout = null;
             for (ResponsiveLayout responsiveLayout : responsiveLayouts) {
                 if (responsiveLayout.testResponsiveLayoutApplicability(responsiveWidth)) {

@@ -6,6 +6,7 @@ import dev.webfx.extras.visual.VisualColumn;
 import dev.webfx.extras.visual.VisualStyle;
 import dev.webfx.extras.visual.controls.grid.VisualGrid;
 import dev.webfx.platform.util.collection.Collections;
+import javafx.geometry.Insets;
 import javafx.scene.Node;
 import javafx.scene.layout.Background;
 import javafx.scene.layout.Pane;
@@ -26,6 +27,9 @@ import java.util.List;
  * @author Bruno Salmon
  */
 final class GridBody extends Region {
+
+    private static final Insets MONO_COLUMN_ROW_PADDING = new Insets(15, 0, 0, 0); // Temporarily hardcoded
+
     // List containing all data rows (index = index of the data in the visual result)
     final List<Pane> bodyDataRows = new ArrayList<>();
     // List of table columns for the desktop responsive layout
@@ -110,10 +114,7 @@ final class GridBody extends Region {
         if (visualGridSkin.isMonoColumnLayout()) {
             // In mono column layout, the body row is a VBox that will contain all the data cells of that row
             bodyRow = new VBox();
-            VisualGrid visualGrid = visualGridSkin.getVisualGrid();
-            //bodyRow.paddingProperty().bind(visualGrid.cellMarginProperty());
-            bodyRow.minHeightProperty().bind(visualGrid.minRowHeightProperty());
-            bodyRow.maxHeightProperty().bind(visualGrid.maxRowHeightProperty());
+            bodyRow.setPadding(MONO_COLUMN_ROW_PADDING);
         } else {
             // In multicolumn layout, the body row is an empty Pane used only to display the row borders.
             // The data cells will be injected in the GridTableColumn instead
@@ -163,7 +164,7 @@ final class GridBody extends Region {
     protected void layoutChildren() {
         double width = getWidth();
         double rowY = 0;
-        int globalRowCount = globalRowsIndexes.size();
+        int globalRowCount = appliedDataRowHeights.length;
         // TODO: see why appliedRowHeights is sometimes empty() while getBuiltRowCount() > 0
         for (int globalRowIndex = 0; globalRowIndex < globalRowCount; globalRowIndex++) {
             double rowHeight = appliedDataRowHeights[globalRowIndex];

@@ -31,8 +31,9 @@ public final class Layouts {
     }
 
     public static GridPane createGoldLayout(Region child, double percentageWidth, double percentageHeight, Background background) {
-        boolean autoPaddingChild = isEmpty(child.getPadding()); // If no padding has been set on the child, we automatically set a 3% padding
+        boolean autoPaddingChild = isEmpty(child.getPadding()); // If no padding has been set on the child, we automatically set 3% padding
         GridPane goldPane = new GridPane();
+        goldPane.getStyleClass().add("gold-layout");
         goldPane.setAlignment(Pos.TOP_CENTER); // Horizontal alignment
         RowConstraints headerRowConstraints = new RowConstraints();
         // Making the gold pane invisible during a few animation frames because its height may not be stable on start
@@ -45,7 +46,7 @@ public final class Layouts {
                         child.setPrefHeight(gpHeight.doubleValue() * percentageHeight);
                     Platform.runLater(() -> {
                         goldPane.getRowConstraints().setAll(headerRowConstraints);
-                        // Setting a 3% breathing padding around the child (will appear in background color, such as transparent gray)
+                        // Setting 3% breathing padding around the child (will appear in background color, such as transparent gray)
                         set3PercentPadding(goldPane); // outside the child
                         if (autoPaddingChild)
                             set3PercentPadding(child); // inside the child

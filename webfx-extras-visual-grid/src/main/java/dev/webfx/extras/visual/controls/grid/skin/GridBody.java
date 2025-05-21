@@ -114,6 +114,9 @@ final class GridBody extends Region {
         if (visualGridSkin.isMonoColumnLayout()) {
             // In mono column layout, the body row is a VBox that will contain all the data cells of that row
             bodyRow = new VBox();
+            // No need to compute min/max height as different to pref (layout computation optimization)
+            bodyRow.setMinHeight(USE_PREF_SIZE);
+            bodyRow.setMaxHeight(USE_PREF_SIZE);
             bodyRow.setPadding(MONO_COLUMN_ROW_PADDING);
         } else {
             // In multicolumn layout, the body row is an empty Pane used only to display the row borders.

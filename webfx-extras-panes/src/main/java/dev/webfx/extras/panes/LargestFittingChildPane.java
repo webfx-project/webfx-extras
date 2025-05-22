@@ -17,6 +17,8 @@ public class LargestFittingChildPane extends StackPane {
     // Optimization fields:
     private boolean layoutPass; // used to detect if the layout pass is new, or still the same
     private double lastWidth; // used to keep the same selection during the same layout pass
+    private double smallestChildWidth;
+    private double largestChildWidth;
     // The best child candidate to display at this time:
     private Node largestFittingChild;
 
@@ -29,7 +31,7 @@ public class LargestFittingChildPane extends StackPane {
         return Orientation.HORIZONTAL;
     }
 
-    private void selectLargestFittingChild(double width) {
+    private void selectLargestFittingChild(double width, boolean apply) {
         if (width <= 0)
             return;
         if (!layoutPass) { // New layout pass detection
@@ -40,56 +42,62 @@ public class LargestFittingChildPane extends StackPane {
         //Console.log("width = " + width);
         lastWidth = width;
         largestFittingChild = null;
-        double bestCandidateWidth = 0;
-        for (int i = 0, n = getChildren().size(); i < n; i++) {
-            Node candidate = getChildren().get(i);
-            double candidateWidth = candidate.prefWidth(-1);
+        double largestFittingChildWidth = smallestChildWidth = largestChildWidth = 0; // in case the children are empty
+        for (Node child : getChildren()) {
+            double childWidth = child.prefWidth(-1);
             if (largestFittingChild == null) {
-                largestFittingChild = candidate;
-                bestCandidateWidth = candidateWidth;
-            } else if (candidateWidth <= width && (bestCandidateWidth > width || candidateWidth > bestCandidateWidth)) {
-                largestFittingChild = candidate;
-                bestCandidateWidth = candidateWidth;
+                largestFittingChild = child;
+                largestFittingChildWidth = smallestChildWidth = largestChildWidth = childWidth;
+            } else if (childWidth <= width && (largestFittingChildWidth > width || childWidth > largestFittingChildWidth)) {
+                largestFittingChild = child;
+                largestFittingChildWidth = childWidth;
+            }
+            if (childWidth < smallestChildWidth) {
+                smallestChildWidth = childWidth;
+            } else if (childWidth > largestChildWidth) {
+                largestChildWidth = childWidth;
             }
         }
-        for (Node child : getChildren()) {
-            Layouts.setManagedAndVisibleProperties(child, largestFittingChild == child);
+        if (apply) {
+            for (Node child : getChildren()) {
+                Layouts.setManagedAndVisibleProperties(child, largestFittingChild == child);
+            }
         }
     }
 
     @Override
     protected double computeMinWidth(double height) {
-        selectLargestFittingChild(getWidth());
-        return largestFittingChild == null ? 0 : largestFittingChild.minWidth(height);
+        selectLargestFittingChild(getWidth(), false);
+        return smallestChildWidth;
     }
 
     @Override
     protected double computePrefWidth(double height) {
-        selectLargestFittingChild(getWidth());
-        return largestFittingChild == null ? 0 : largestFittingChild.prefWidth(height);
+        selectLargestFittingChild(getWidth(), false);
+        return largestChildWidth;
     }
 
     @Override
     protected double computeMaxWidth(double height) {
-        selectLargestFittingChild(getWidth());
-        return largestFittingChild == null ? 0 : largestFittingChild.maxWidth(height);
+        selectLargestFittingChild(getWidth(), false);
+        return largestChildWidth;
     }
 
     @Override
     protected double computeMinHeight(double width) {
-        selectLargestFittingChild(width);
+        selectLargestFittingChild(width, true);
         return largestFittingChild == null ? 0 : largestFittingChild.minHeight(width);
     }
 
     @Override
     protected double computePrefHeight(double width) {
-        selectLargestFittingChild(width);
+        selectLargestFittingChild(width, true);
         return largestFittingChild == null ? 0 : largestFittingChild.prefHeight(width);
     }
 
     @Override
     protected double computeMaxHeight(double width) {
-        selectLargestFittingChild(width);
+        selectLargestFittingChild(width, true);
         return largestFittingChild == null ? 0 : largestFittingChild.maxHeight(width);
     }
 

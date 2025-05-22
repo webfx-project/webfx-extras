@@ -23,8 +23,6 @@ import java.util.function.Supplier;
  */
 public final class LocalizedTime {
 
-    private static final ZoneId ZONE_ID = ZoneId.of("Europe/London"); // Hotfix for Spring Festival wrong dates in some timezones such as US
-
     private static final ObjectProperty<Locale> localeProperty = new SimpleObjectProperty<>(Locale.getDefault());
 
     public static Locale getLocale() {
@@ -68,7 +66,7 @@ public final class LocalizedTime {
     }
 
     public static DateTimeFormatter dateFormatter(DateTimeFormatter dateFormatter) {
-        return dateFormatter.withLocale(getLocale()).withZone(ZONE_ID);
+        return dateFormatter.withLocale(getLocale());
     }
 
     public static DateTimeFormatter dateFormatter(LocalizedFormat dateFormat) {
@@ -245,7 +243,43 @@ public final class LocalizedTime {
     }
 
     public static ObservableStringValue formatLocalDateProperty(LocalDate date, ObservableValue<DateTimeFormatter> dateFormatterProperty) {
-        return formatObservableStringValue(dateFormatterProperty, date::format);
+        return formatObservableStringValue(dateFormatterProperty, dtf -> {
+            String format = date.format(dtf);
+            // Hotfix for Spring Festival 2025 in US timezone (looks like a bug in GWT-time)
+            switch (format) {
+                case "Thu, May 23": return "Fri, May 23";
+                case "Fri, May 24": return "Sat, May 24";
+                case "Sat, May 25": return "Sun, May 25";
+                case "Sun, May 26": return "Mon, May 26";
+                case "Mon, May 27": return "Tue, May 27";
+                case "Tue, May 28": return "Wed, May 28";
+                case "jeu., mai 23": return "ven., mai 23";
+                case "ven., mai 24": return "sam., mai 24";
+                case "sam., mai 25": return "dim., mai 25";
+                case "dim., mai 26": return "lun., mai 26";
+                case "lun., mai 27": return "mar., mai 27";
+                case "mar., mai 28": return "mer., mai 28";
+                case "Do., Mai 23": return "Fr., Mai 23";
+                case "Fr., Mai 24": return "Sa., Mai 24";
+                case "Sa., Mai 25": return "So., Mai 25";
+                case "So., Mai 26": return "Mo., Mai 26";
+                case "Mo., Mai 27": return "Di., Mai 27";
+                case "Di., Mai 28": return "Mi., Mai 28";
+                case "jue, mayo 23": return "vie, mayo 23";
+                case "vie, mayo 24": return "sáb, mayo 24";
+                case "sáb, mayo 25": return "dom, mayo 25";
+                case "dom, mayo 26": return "lun, mayo 26";
+                case "lun, mayo 27": return "mar, mayo 27";
+                case "mar, mayo 28": return "mié, mayo 28";
+                case "qui., maio 23": return "sex., maio 23";
+                case "sex., maio 24": return "sáb., maio 24";
+                case "sáb., maio 25": return "dom., maio 25";
+                case "dom., maio 26": return "seg, maio 26";
+                case "seg., maio 27": return "ter, maio 27";
+                case "ter., maio 28": return "qua, maio 28";
+            }
+            return format;
+        });
     }
 
 

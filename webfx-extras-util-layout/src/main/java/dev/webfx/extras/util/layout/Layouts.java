@@ -186,6 +186,12 @@ public final class Layouts {
         return setMaxHeight(region, USE_PREF_SIZE);
     }
 
+    public static <N extends Region> N setMinMaxSizeToPref(N region) {
+        setMinMaxWidthToPref(region);
+        setMinMaxHeightToPref(region);
+        return region;
+    }
+
     public static <N extends Region> N setMinHeight(N region, double value) {
         region.setMinHeight(value);
         return region;

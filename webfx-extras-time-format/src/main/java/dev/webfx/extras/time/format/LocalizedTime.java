@@ -23,6 +23,8 @@ import java.util.function.Supplier;
  */
 public final class LocalizedTime {
 
+    private static final ZoneId ZONE_ID = ZoneId.of("Europe/London"); // Hotfix for Spring Festival wrong dates in some timezones such as US
+
     private static final ObjectProperty<Locale> localeProperty = new SimpleObjectProperty<>(Locale.getDefault());
 
     public static Locale getLocale() {
@@ -66,7 +68,7 @@ public final class LocalizedTime {
     }
 
     public static DateTimeFormatter dateFormatter(DateTimeFormatter dateFormatter) {
-        return dateFormatter.withLocale(getLocale());
+        return dateFormatter.withLocale(getLocale()).withZone(ZONE_ID);
     }
 
     public static DateTimeFormatter dateFormatter(LocalizedFormat dateFormat) {

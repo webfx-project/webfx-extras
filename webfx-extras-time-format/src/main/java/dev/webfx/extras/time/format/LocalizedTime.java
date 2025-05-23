@@ -1,6 +1,7 @@
 package dev.webfx.extras.time.format;
 
 import dev.webfx.kit.util.properties.FXProperties;
+import dev.webfx.platform.console.Console;
 import dev.webfx.platform.util.Strings;
 import javafx.beans.property.ObjectProperty;
 import javafx.beans.property.SimpleObjectProperty;
@@ -14,7 +15,10 @@ import java.time.*;
 import java.time.format.DateTimeFormatter;
 import java.time.format.FormatStyle;
 import java.time.format.TextStyle;
+import java.util.HashMap;
 import java.util.Locale;
+import java.util.Map;
+import java.util.Objects;
 import java.util.function.Function;
 import java.util.function.Supplier;
 
@@ -23,7 +27,47 @@ import java.util.function.Supplier;
  */
 public final class LocalizedTime {
 
-    private static final ObjectProperty<Locale> localeProperty = new SimpleObjectProperty<>(Locale.getDefault());
+    // Hotfix for Spring Festival 2025 in US timezone (looks like a bug in GWT-time)
+    private static final boolean GWT_TIME_DAY_OF_WEEK_BUG_DETECTED = "Thursday".equalsIgnoreCase(DayOfWeek.FRIDAY.getDisplayName(TextStyle.FULL, new Locale("en")));
+    private static final Map<String, String> GWT_TIME_DAY_OF_WEEK_BUG_FIX_MAP_FULL = new HashMap<>();
+    private static final Map<String, String> GWT_TIME_DAY_OF_WEEK_BUG_FIX_MAP_SHORT = new HashMap<>();
+    static {
+        Console.log("⚛️⚛️⚛️⚛️⚛️ GWT_TIME_BUG_DETECTED = " + GWT_TIME_DAY_OF_WEEK_BUG_DETECTED);
+    }
+
+    private static String fixGwtTime(String format) {
+        // Hotfix for Spring Festival 2025 in US timezone (looks like a bug in GWT-time)
+        if (GWT_TIME_DAY_OF_WEEK_BUG_DETECTED) {
+            String f = format;
+            format = fixGwtTime(format, GWT_TIME_DAY_OF_WEEK_BUG_FIX_MAP_FULL);
+            if (Objects.equals(f, format)) // Correction must be applied only once
+                format = fixGwtTime(format, GWT_TIME_DAY_OF_WEEK_BUG_FIX_MAP_SHORT);
+        }
+        return format;
+    }
+
+    private static String fixGwtTime(String format, Map<String, String> fixMap) {
+        for (Map.Entry<String, String> fixEntry : fixMap.entrySet()) {
+            String f = format;
+            format = format.replace(fixEntry.getKey(), fixEntry.getValue());
+            if (!f.equals(format)) { // Correction must be applied only once
+                break;
+            }
+        }
+        return format;
+    }
+
+    private static final ObjectProperty<Locale> localeProperty = new SimpleObjectProperty<>(Locale.getDefault()) {
+        @Override
+        protected void invalidated() {
+            Locale locale = get();
+            GWT_TIME_DAY_OF_WEEK_BUG_FIX_MAP_FULL.clear();
+            for (DayOfWeek dayOfWeek : DayOfWeek.values()) {
+                GWT_TIME_DAY_OF_WEEK_BUG_FIX_MAP_FULL.put(dayOfWeek.getDisplayName(TextStyle.FULL, locale), dayOfWeek.plus(1).getDisplayName(TextStyle.FULL, locale));
+                GWT_TIME_DAY_OF_WEEK_BUG_FIX_MAP_SHORT.put(dayOfWeek.getDisplayName(TextStyle.SHORT, locale), dayOfWeek.plus(1).getDisplayName(TextStyle.SHORT, locale));
+            }
+        }
+    };
 
     public static Locale getLocale() {
         return localeProperty.getValue();
@@ -245,40 +289,7 @@ public final class LocalizedTime {
     public static ObservableStringValue formatLocalDateProperty(LocalDate date, ObservableValue<DateTimeFormatter> dateFormatterProperty) {
         return formatObservableStringValue(dateFormatterProperty, dtf -> {
             String format = date.format(dtf);
-            // Hotfix for Spring Festival 2025 in US timezone (looks like a bug in GWT-time)
-            switch (format) {
-                case "Thu, May 23": return "Fri, May 23";
-                case "Fri, May 24": return "Sat, May 24";
-                case "Sat, May 25": return "Sun, May 25";
-                case "Sun, May 26": return "Mon, May 26";
-                case "Mon, May 27": return "Tue, May 27";
-                case "Tue, May 28": return "Wed, May 28";
-                case "jeu., mai 23": return "ven., mai 23";
-                case "ven., mai 24": return "sam., mai 24";
-                case "sam., mai 25": return "dim., mai 25";
-                case "dim., mai 26": return "lun., mai 26";
-                case "lun., mai 27": return "mar., mai 27";
-                case "mar., mai 28": return "mer., mai 28";
-                case "Do., Mai 23": return "Fr., Mai 23";
-                case "Fr., Mai 24": return "Sa., Mai 24";
-                case "Sa., Mai 25": return "So., Mai 25";
-                case "So., Mai 26": return "Mo., Mai 26";
-                case "Mo., Mai 27": return "Di., Mai 27";
-                case "Di., Mai 28": return "Mi., Mai 28";
-                case "jue, mayo 23": return "vie, mayo 23";
-                case "vie, mayo 24": return "sáb, mayo 24";
-                case "sáb, mayo 25": return "dom, mayo 25";
-                case "dom, mayo 26": return "lun, mayo 26";
-                case "lun, mayo 27": return "mar, mayo 27";
-                case "mar, mayo 28": return "mié, mayo 28";
-                case "qui., maio 23": return "sex., maio 23";
-                case "sex., maio 24": return "sáb., maio 24";
-                case "sáb., maio 25": return "dom., maio 25";
-                case "dom., maio 26": return "seg, maio 26";
-                case "seg., maio 27": return "ter, maio 27";
-                case "ter., maio 28": return "qua, maio 28";
-            }
-            return format;
+            return fixGwtTime(format);
         });
     }
 
@@ -435,7 +446,7 @@ public final class LocalizedTime {
     }
 
     public static String formatMonthDay(MonthDay monthDay, int year, DateTimeFormatter dateFormatter) {
-        return clean(formatLocalDate(monthDay.atYear(year), dateFormatter).replace(String.valueOf(year), ""));
+        return fixGwtTime(clean(formatLocalDate(monthDay.atYear(year), dateFormatter).replace(String.valueOf(year), "")));
     }
 
     public static String formatMonthDay(MonthDay monthDay, int year, LocalizedFormat dateFormat) {

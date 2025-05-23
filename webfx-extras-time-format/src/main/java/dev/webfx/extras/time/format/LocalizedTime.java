@@ -437,7 +437,21 @@ public final class LocalizedTime {
 
     // MonthDay formatting (with explicit year) - year is important to have the correct day of the week for formats displaying it
 
+    // Temporarily hardcoded patterns for FormatStyle.SHORT in 5 languages. TODO: should be injected by i18n
+    private static final Map<Locale, String> MONTH_DAY_SHORT_PATTERN = Map.of(
+        new Locale("en"), "EEE, MMMM d",
+        new Locale("de"), "EEE, d. MMMM",
+        new Locale("fr"), "EEE d MMMM",
+        new Locale("es"), "EEE d 'de' MMMM",
+        new Locale("pt"), "EEE, d 'de' MMMM"
+    );
     public static String formatMonthDay(MonthDay monthDay, int year, FormatStyle dateFormatStyle) {
+        if (dateFormatStyle == FormatStyle.SHORT) {
+            String shortPattern = MONTH_DAY_SHORT_PATTERN.get(getLocale());
+            if (shortPattern != null) {
+                return formatMonthDay(monthDay, year, shortPattern);
+            }
+        }
         return formatMonthDay(monthDay, year, dateFormatter(dateFormatStyle));
     }
 
@@ -458,7 +472,8 @@ public final class LocalizedTime {
     }
 
     public static ObservableStringValue formatMonthDayProperty(MonthDay monthDay, int year, FormatStyle dateFormatStyle) {
-        return formatMonthDayProperty(monthDay, year, dateFormatterProperty(dateFormatStyle));
+        //return formatMonthDayProperty(monthDay, year, dateFormatterProperty(dateFormatStyle));
+        return localeObservableStringValue(() -> formatMonthDay(monthDay, year, dateFormatStyle));
     }
 
     public static ObservableStringValue formatMonthDayProperty(MonthDay monthDay, int year, String datePattern) {
@@ -482,7 +497,7 @@ public final class LocalizedTime {
     }
 
     private static String clean(String text) {
-        return Strings.removeSuffix(text.trim(), ",");
+        return Strings.removeSuffix(Strings.removeSuffix(text.trim(), ","), " de");
     }
 
     // MonthDay formatting (with implicit year = this year) - also handy for formats not displaying the day of the week

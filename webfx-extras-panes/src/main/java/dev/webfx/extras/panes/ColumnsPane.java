@@ -28,6 +28,8 @@ public final class ColumnsPane extends LayoutPane {
 
     private final IntegerProperty fixedColumnCountProperty = newLayoutIntegerProperty();
 
+    private final DoubleProperty maxColumnWidthProperty = newLayoutDoubleProperty();
+
     private final IntegerProperty maxColumnCountProperty = newLayoutIntegerProperty();
 
     private final DoubleProperty minRowHeightProperty = newLayoutDoubleProperty();
@@ -142,6 +144,18 @@ public final class ColumnsPane extends LayoutPane {
 
     public void setMinColumnWidth(double minColumnWidth) {
         minColumnWidthProperty.set(minColumnWidth);
+    }
+
+    public double getMaxColumnWidth() {
+        return maxColumnWidthProperty.get();
+    }
+
+    public DoubleProperty maxColumnWidthProperty() {
+        return maxColumnWidthProperty;
+    }
+
+    public void setMaxColumnWidth(double MaxColumnWidth) {
+        maxColumnWidthProperty.set(MaxColumnWidth);
     }
 
     public int getFixedColumnCount() {
@@ -267,10 +281,11 @@ public final class ColumnsPane extends LayoutPane {
             return Math.min(n, nmax);
         }
         double minColumnWidth = getMinColumnWidth();
-        while (minColumnWidth > 0 && n > 1) {
+        double maxColumnWidth = getMaxColumnWidth();
+        while ((minColumnWidth > 0 || maxColumnWidth > 0) && n > 1) {
             double widthNoGap = width - insetsWidth() - getHgap() * (n - 1);
             double w = getColWidth(widthNoGap, n);
-            if (w >= minColumnWidth)
+            if ((minColumnWidth <= 0 || w >= minColumnWidth) && (maxColumnWidth <= 0 || w <= maxColumnWidth))
                 break;
             if (isAllOrOneColumn())
                 return 1;
@@ -283,7 +298,7 @@ public final class ColumnsPane extends LayoutPane {
     }
 
     private boolean isMultipleRowsEnabled() {
-        return getFixedColumnCount() > 0 ||  getMaxColumnCount() > 0 || getMinColumnWidth() > 0 || getFixedColumnWidth() > 0;
+        return getFixedColumnCount() > 0 ||  getMaxColumnCount() > 0 || getMinColumnWidth() > 0 || getMaxColumnWidth() > 0 || getFixedColumnWidth() > 0;
     }
 
     private double computeRowHeight(List<Node> children, int rowFirstChildIndex, int colCount, double colWidth, BiFunction<Node, Double, Double> cellHeightFunction) {

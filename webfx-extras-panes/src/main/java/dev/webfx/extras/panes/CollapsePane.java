@@ -2,6 +2,8 @@ package dev.webfx.extras.panes;
 
 import dev.webfx.extras.util.animation.Animations;
 import dev.webfx.extras.util.layout.Layouts;
+import dev.webfx.kit.launcher.WebFxKitLauncher;
+import dev.webfx.kit.launcher.aria.AriaRole;
 import dev.webfx.kit.util.properties.FXProperties;
 import javafx.animation.Timeline;
 import javafx.beans.property.*;
@@ -32,6 +34,7 @@ public class CollapsePane extends MonoClipPane {
             doCollapse();
         else
             doExpand();
+        WebFxKitLauncher.setAriaExpanded(this, isExpanded());
     });
 
     private final BooleanProperty animateProperty = new SimpleBooleanProperty(true);
@@ -40,6 +43,11 @@ public class CollapsePane extends MonoClipPane {
     private Timeline timeline;
     private double expandedWidthOrHeight;
     private double widthOrHeightDuringCollapseAnimation;
+
+    {
+        WebFxKitLauncher.setAriaRole(this, AriaRole.DISCLOSURE);
+        WebFxKitLauncher.setAriaExpanded(this, isExpanded());
+    }
 
     public CollapsePane() {
     }
@@ -157,9 +165,10 @@ public class CollapsePane extends MonoClipPane {
 
     private void doExpand() {
         setWidthOrHeightComputationMode(USE_COMPUTED_SIZE);
-        double minHeight = minHeight(getWidth());
-        double prefHeight = prefHeight(getWidth());
-        double maxHeight = maxHeight(getWidth());
+        double width = getWidth();
+        double minHeight = minHeight(width);
+        double prefHeight = prefHeight(width);
+        double maxHeight = maxHeight(width);
         expandedWidthOrHeight = Layouts.boundedSize(minHeight, prefHeight, maxHeight);
         widthOrHeightDuringCollapseAnimation = expandedWidthOrHeight;
         if (expandedWidthOrHeight > 0) {

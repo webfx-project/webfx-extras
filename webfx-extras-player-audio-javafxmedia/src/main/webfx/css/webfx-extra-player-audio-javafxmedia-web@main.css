@@ -1,6 +1,6 @@
-.audio-player > fx-background {
-     background-color: #838788;  /* Background color */
-     border-radius: 30px;
+.audio-player {
+     --fx-background: #838788;  /* Background color */
+     --fx-border-radius: 30px;
 }
 
 .audio-player .h4 {
@@ -8,7 +8,7 @@
     font-weight: 600;
     font-size: 13px;
     text-align: left;
-    color: white;
+    --fx-text-fill: white;
 }
 
 /* Customizing the progress bar for podcasts */
@@ -26,17 +26,16 @@
 
 .audio-player progress::-webkit-progress-value { /* For Chrome & Safari */
     background-color: #0096D6;
-     border-radius: 10px;
+    border-radius: 10px;
 }
 
 .audio-player progress::-moz-progress-bar { /* For FireFox */
     background-color: #0096D6;
-     border-radius: 10px;
+    border-radius: 10px;
 }
-
 
 .audio-player .time {
     font-family: "Poppins", sans-serif;
-    color: white;
     font-size: 13px;
+    --fx-text-fill: white;
 }

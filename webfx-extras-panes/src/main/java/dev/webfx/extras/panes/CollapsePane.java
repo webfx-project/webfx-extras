@@ -2,8 +2,8 @@ package dev.webfx.extras.panes;
 
 import dev.webfx.extras.util.animation.Animations;
 import dev.webfx.extras.util.layout.Layouts;
-import dev.webfx.kit.launcher.WebFxKitLauncher;
-import dev.webfx.kit.launcher.aria.AriaRole;
+import dev.webfx.kit.util.aria.AriaRole;
+import dev.webfx.kit.util.aria.Aria;
 import dev.webfx.kit.util.properties.FXProperties;
 import javafx.animation.Timeline;
 import javafx.beans.property.*;
@@ -34,7 +34,7 @@ public class CollapsePane extends MonoClipPane {
             doCollapse();
         else
             doExpand();
-        WebFxKitLauncher.setAriaExpanded(this, isExpanded());
+        Aria.setAriaExpanded(this, isExpanded());
     });
 
     private final BooleanProperty animateProperty = new SimpleBooleanProperty(true);
@@ -45,8 +45,8 @@ public class CollapsePane extends MonoClipPane {
     private double widthOrHeightDuringCollapseAnimation;
 
     {
-        WebFxKitLauncher.setAriaRole(this, AriaRole.DISCLOSURE);
-        WebFxKitLauncher.setAriaExpanded(this, isExpanded());
+        Aria.setAriaRole(this, AriaRole.DISCLOSURE);
+        Aria.setAriaExpanded(this, isExpanded());
     }
 
     public CollapsePane() {

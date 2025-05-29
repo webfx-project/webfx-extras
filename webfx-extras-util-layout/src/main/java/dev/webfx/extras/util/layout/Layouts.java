@@ -90,8 +90,7 @@ public final class Layouts {
     }
 
     public static <N extends Region> N setMinSize(N region, double minWidth, double minHeight) {
-        region.setMinWidth(minWidth);
-        region.setMinHeight(minHeight);
+        region.setMinSize(minWidth, minHeight);
         return region;
     }
 
@@ -108,8 +107,7 @@ public final class Layouts {
     }
 
     public static <N extends Region> N setPrefSize(N region, double value) {
-        region.setPrefWidth(value);
-        region.setPrefHeight(value);
+        region.setPrefSize(value, value);
         return region;
     }
 
@@ -122,8 +120,7 @@ public final class Layouts {
     }
 
     private static <N extends Region> N setMaxSize(N region, double value) {
-        region.setMaxWidth(value);
-        region.setMaxHeight(value);
+        region.setMaxSize(value, value);
         return region;
     }
 
@@ -150,6 +147,13 @@ public final class Layouts {
     public static <N extends Region> N setMinMaxWidthToPref(N region) {
         setMinWidthToPref(region);
         setMaxWidthToPref(region);
+        return region;
+    }
+
+    public static <N extends Region> N setFixedWidth(N region, double value) {
+        region.setMinWidth(value);
+        region.setPrefWidth(value);
+        region.setMaxWidth(value);
         return region;
     }
 
@@ -189,6 +193,13 @@ public final class Layouts {
     public static <N extends Region> N setMinMaxSizeToPref(N region) {
         setMinMaxWidthToPref(region);
         setMinMaxHeightToPref(region);
+        return region;
+    }
+
+    public static <N extends Region> N setFixedHeight(N region, double value) {
+        region.setMinHeight(value);
+        region.setPrefHeight(value);
+        region.setMaxHeight(value);
         return region;
     }
 

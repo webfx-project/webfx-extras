@@ -1,0 +1,26 @@
+* {
+    -webfx-aria-toggle-button-border: transparent;
+    -webfx-aria-toggle-button-background: white;
+    -webfx-aria-toggle-button-background-focused: lightgray;
+    -webfx-aria-toggle-button-background-hover: -webfx-aria-toggle-button-background-focused;
+    -webfx-aria-toggle-button-background-fired: blue;
+    -webfx-aria-toggle-button-text-fill-fired: white;
+}
+
+ToggleButton.aria-toggle {
+    -fx-border-color: -webfx-aria-toggle-button-border;
+    -fx-background-color: -webfx-aria-toggle-button-background;
+}
+
+ToggleButton.aria-toggle:hover {
+    -fx-background-color: -webfx-aria-toggle-button-background-hover;
+}
+
+ToggleButton.aria-toggle:selected {
+    -fx-background-color: -webfx-aria-toggle-button-background-focused;
+}
+
+ToggleButton.aria-toggle.fired {
+    -fx-background-color: -webfx-aria-toggle-button-background-fired;
+    -fx-text-fill: -webfx-aria-toggle-button-text-fill-fired;
+}

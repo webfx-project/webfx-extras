@@ -45,6 +45,7 @@
     <packaging>pom</packaging>
 
     <modules>
+        <module>webfx-extras-aria</module>
         <module>webfx-extras-canvas</module>
         <module>webfx-extras-canvas-bar</module>
         <module>webfx-extras-canvas-blob</module>

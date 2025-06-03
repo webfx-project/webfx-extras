@@ -76,6 +76,7 @@
         <module>webfx-extras-player-video-javafxmedia</module>
         <module>webfx-extras-player-video-web</module>
         <module>webfx-extras-player-video-web-castr</module>
+        <module>webfx-extras-player-video-web-videojs</module>
         <module>webfx-extras-player-video-web-wistia</module>
         <module>webfx-extras-player-video-web-youtube</module>
         <module>webfx-extras-responsive</module>

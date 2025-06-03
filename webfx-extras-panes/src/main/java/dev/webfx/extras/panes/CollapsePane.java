@@ -34,7 +34,10 @@ public class CollapsePane extends MonoClipPane {
             doCollapse();
         else
             doExpand();
-        Aria.setAriaExpanded(this, isExpanded());
+        // We make this pane disabled when collapsed so that none of its children can get the focus through the tab
+        // keyboard navigation, until expanded again.
+        setDisable(collapsed);
+        Aria.setAriaExpanded(this, !collapsed);
     });
 
     private final BooleanProperty animateProperty = new SimpleBooleanProperty(true);

@@ -339,6 +339,8 @@ public final class ColumnsPane extends LayoutPane {
         boolean multipleRowsEnabled = isMultipleRowsEnabled();
         int fixedColumnCount = getFixedColumnCount(), colIndex = 0;
         double fixedColumnWidth = getFixedColumnWidth();
+        double minColumnWidth = getMinColumnWidth();
+        double maxColumnWidth = getMaxColumnWidth();
         double minPrefMaxWidth = 0, rowMinPrefMaxWidth = 0;
         for (Node child : getManagedChildren()) {
             if (rowMinPrefMaxWidth > 0) {
@@ -347,7 +349,10 @@ public final class ColumnsPane extends LayoutPane {
             if (fixedColumnWidth > 0)
                 rowMinPrefMaxWidth += fixedColumnWidth;
             else {
-                rowMinPrefMaxWidth += minPrefMaxWidthFunction.apply(child, height);
+                Double computedCellWidth = minPrefMaxWidthFunction.apply(child, height);
+                if (maxColumnWidth > 0 && computedCellWidth > maxColumnWidth)
+                    computedCellWidth = maxColumnWidth;
+                rowMinPrefMaxWidth += computedCellWidth;
                 if (multipleRowsEnabled) {
                     if (fixedColumnCount <= 0 /* min = 1 column */ || ++colIndex >= fixedColumnCount) {
                         minPrefMaxWidth = Math.max(rowMinPrefMaxWidth, minPrefMaxWidth);
@@ -358,7 +363,6 @@ public final class ColumnsPane extends LayoutPane {
         }
         minPrefMaxWidth = Math.max(rowMinPrefMaxWidth, minPrefMaxWidth);
         // Checking that we get at least minColumnWidth (if set)
-        double minColumnWidth = getMinColumnWidth();
         if (minColumnWidth > 0 && minPrefMaxWidth < minColumnWidth)
             minPrefMaxWidth = minColumnWidth;
         // Adding insets width

@@ -18,11 +18,11 @@
 }
 
 .webfx-datepicker .date-selected {
-    --fx-background: var(--webfx-time-pickers-selected-date-background-color);
+    --fx-background-color: var(--webfx-time-pickers-selected-date-background-color);
 }
 
 .webfx-datepicker .date-unselectable {
-    --fx-background: var(--webfx-time-pickers-unselectable-date-background-color);
+    --fx-background-color: var(--webfx-time-pickers-unselectable-date-background-color);
 }
 
 .webfx-datepicker .date-secondary {
@@ -39,6 +39,6 @@
 }
 
 .webfx-datepicker {
-    --fx-background: var(--webfx-time-pickers-background-color);
+    --fx-background-color: var(--webfx-time-pickers-background-color);
     --fx-border-radius: 10px;
 }

@@ -5,13 +5,13 @@
 }
 
 fx-switch.webfx-switch {
-    --fx-background: var(--webfx-switch-unselected-background-color);
-    --fx-border-radius: 10px;
+    --fx-background-color: var(--webfx-switch-unselected-background-color);
+    --fx-background-radius: 10px;
     transition-duration: 200ms;
 }
 
 fx-switch.webfx-switch.selected {
-    --fx-background: var(--webfx-switch-selected-background-color);
+    --fx-background-color: var(--webfx-switch-selected-background-color);
     transition-duration: 200ms;
 }
 

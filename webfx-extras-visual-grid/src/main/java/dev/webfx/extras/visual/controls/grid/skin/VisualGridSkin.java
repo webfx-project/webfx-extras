@@ -6,6 +6,7 @@ import dev.webfx.extras.panes.MonoPane;
 import dev.webfx.extras.util.control.Controls;
 import dev.webfx.extras.visual.VisualColumn;
 import dev.webfx.extras.visual.VisualStyle;
+import dev.webfx.extras.visual.controls.SelectableVisualResultControlSkinBase;
 import dev.webfx.extras.visual.controls.grid.VisualGrid;
 import dev.webfx.kit.util.properties.FXProperties;
 import dev.webfx.platform.console.Console;
@@ -33,7 +34,7 @@ import java.util.List;
 /**
  * @author Bruno Salmon
  */
-public final class VisualGridSkin extends dev.webfx.extras.visual.controls.SelectableVisualResultControlSkinBase<VisualGrid, Pane, Pane> {
+public final class VisualGridSkin extends SelectableVisualResultControlSkinBase<VisualGrid, Pane, Pane> {
 
     private static final boolean LOG_TIMING = false;
 

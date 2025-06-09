@@ -1,20 +1,14 @@
 :root {
-    --webfx-aria-toggle-button-border-color: black;
-    --webfx-aria-toggle-button-background-color: white;
     --webfx-aria-toggle-button-background-color-focused: lightgray;
     --webfx-aria-toggle-button-background-color-hover: var(--webfx-aria-toggle-button-background-color-focused);
-    --webfx-aria-toggle-button-background-color-fired: blue;
+    --webfx-aria-toggle-button-background-color-fired: #0096D6;
     --webfx-aria-toggle-button-text-fill-fired: white;
 }
 
-fx-togglebutton.aria-toggle {
-    --fx-button-border-color: var(--webfx-aria-toggle-button-border-color);
-    --fx-button-background-color: var(--webfx-aria-toggle-button-background-color);
-    --fx-button-background-color-selected: var(--webfx-aria-toggle-button-background-color-focused);
-}
 
-fx-togglebutton.aria-toggle:hover {
-    --fx-button-background-color: var(--webfx-aria-toggle-button-background-color-hover);
+fx-togglebutton.aria-toggle {
+    --fx-togglebutton-background-color-selected: var(--webfx-aria-toggle-button-background-color-focused);
+    --fx-togglebutton-background-color-hover: var(--webfx-aria-toggle-button-background-color-hover);
 }
 
 fx-togglebutton.aria-toggle.fired {

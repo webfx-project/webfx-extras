@@ -5,6 +5,7 @@ module webfx.extras.aria {
     // Direct dependencies modules
     requires javafx.base;
     requires javafx.controls;
+    requires javafx.graphics;
     requires webfx.kit.util;
     requires webfx.kit.util.aria;
     requires webfx.platform.util;

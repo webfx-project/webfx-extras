@@ -61,7 +61,7 @@ public class AudioMediaView {
         FXProperties.runOnPropertyChange(this::playNewMedia, player.mediaProperty());
         Label title = new Label();
         title.textProperty().bind(titleProperty);
-        titleProperty.set(I18n.getI18nText(JavaFXMediaI18nKeys.ChooseAnAudioTrackForBehind));
+        titleProperty.bind(I18n.i18nTextProperty(JavaFXMediaI18nKeys.ChooseAnAudioTrackForBehind));
         title.setTextFill(Color.WHITE);
         title.getStyleClass().add(Bootstrap.H4);
         title.setMaxWidth(450);
@@ -125,6 +125,7 @@ public class AudioMediaView {
         player.setOnEndOfPlaying(player::stop); // Forcing stop status (sometimes this doesn't happen automatically for any reason)
         seekX(0);
         MediaMetadata metadata = player.getMedia().getMetadata();
+        titleProperty.unbind();
         titleProperty.set(MetadataUtil.getTitle(metadata));
         if (metadata != null)
             durationProperty.set(MetadataUtil.getDurationMillis(metadata));

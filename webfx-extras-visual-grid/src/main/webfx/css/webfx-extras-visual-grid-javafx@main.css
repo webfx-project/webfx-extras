@@ -2,7 +2,7 @@ VisualGrid {
     -fx-skin: "dev.webfx.kit.mapper.peers.javafxcontrols.openjfx.skin.FxControlPeerSkin";
 }
 
-* {
+.root {
     -webfx-visualgrid-row-border-color: #D3D3D3;
     -webfx-visualgrid-col-border-color: #D3D3D3;
     -webfx-visualgrid-selection-color: #AED6F1;

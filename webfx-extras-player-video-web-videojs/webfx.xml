@@ -1,10 +1,20 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project>
 
+    <target-tags>
+        <!-- in this context web doesn't refer to the webfx platform target -->
+        <ignore-tag>web</ignore-tag>
+    </target-tags>
+
     <exported-packages>
         <source-packages/>
         <resource-packages/>
     </exported-packages>
+
+    <embed-resources>
+        <resource>dev/webfx/extras/player/video/web/videojs/videojs.js</resource>
+    </embed-resources>
+
 
     <dependencies>
         <used-by-source-modules>

@@ -6,7 +6,6 @@ import dev.webfx.kit.util.properties.Unregisterable;
 import dev.webfx.platform.console.Console;
 import dev.webfx.platform.resource.Resource;
 import dev.webfx.platform.scheduler.Scheduled;
-import dev.webfx.platform.scheduler.Scheduler;
 import dev.webfx.platform.uischeduler.UiScheduler;
 import dev.webfx.platform.useragent.UserAgent;
 import javafx.application.Platform;
@@ -450,7 +449,7 @@ public class WebViewPane extends MonoPane {
                                     notifyLoadFailure(e.getMessage());
                                 }
                             } else {
-                                Scheduler.scheduleDelay(100, this::processWebEngineState);
+                                UiScheduler.scheduleDelay(100, this::processWebEngineState);
                             }
                         }
                     }

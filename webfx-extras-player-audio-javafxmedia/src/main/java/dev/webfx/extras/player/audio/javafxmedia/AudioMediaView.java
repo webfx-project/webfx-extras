@@ -74,7 +74,9 @@ public class AudioMediaView {
         durationLabel.getStyleClass().add("time");
         bindMediaPlayer();
         durationLabel.textProperty().bind(FXProperties.compute(durationProperty, duration -> formatDuration(duration.longValue())));
-
+        FXProperties.runOnPropertyChange(()->
+            Console.log("DurationPropertyChange:" + durationProperty.get())
+            , durationProperty);
         HBox progressBarContainer = new HBox();
         progressBarContainer.setSpacing(10);
         progressBar.setPrefWidth(300);
@@ -127,9 +129,10 @@ public class AudioMediaView {
         seekX(0);
         MediaMetadata metadata = player.getMedia().getMetadata();
         titleProperty.unbind();
-        titleProperty.set(MetadataUtil.getTitle(metadata));
-        if (metadata != null)
+        if (metadata != null) {
+            titleProperty.set(MetadataUtil.getTitle(metadata));
             durationProperty.set(MetadataUtil.getDurationMillis(metadata));
+        }
     }
 
     public Node getContainer() {
@@ -244,7 +247,7 @@ public class AudioMediaView {
         long hours = durationMillis / (1000 * 60 * 60); // Calculate hours
         long minutes = (durationMillis / (1000 * 60)) % 60; // Calculate minutes
         long seconds = (durationMillis / 1000) % 60; // Calculate seconds
-        Console.log("AudioMediaView::formatDuration: " + hours + "h " + minutes + "m "  + seconds + "s ");
+     //   Console.log("AudioMediaView::formatDuration: " + hours + "h " + minutes + "m "  + seconds + "s ");
         return (hours < 10 ? "0" : "") + hours + ":" + (minutes < 10 ? "0" : "") + minutes + ":" + (seconds < 10 ? "0" : "") + seconds;
     }
 

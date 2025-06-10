@@ -8,6 +8,7 @@ import dev.webfx.extras.player.Status;
 import dev.webfx.extras.styles.bootstrap.Bootstrap;
 import dev.webfx.kit.util.properties.FXProperties;
 import dev.webfx.kit.util.properties.Unregisterable;
+import dev.webfx.platform.console.Console;
 import dev.webfx.platform.util.Objects;
 import dev.webfx.stack.i18n.I18n;
 import dev.webfx.stack.i18n.controls.I18nControls;
@@ -243,7 +244,7 @@ public class AudioMediaView {
         long hours = durationMillis / (1000 * 60 * 60); // Calculate hours
         long minutes = (durationMillis / (1000 * 60)) % 60; // Calculate minutes
         long seconds = (durationMillis / 1000) % 60; // Calculate seconds
-
+        Console.log("AudioMediaView::formatDuration: " + hours + "h " + minutes + "m "  + seconds + "s ");
         return (hours < 10 ? "0" : "") + hours + ":" + (minutes < 10 ? "0" : "") + minutes + ":" + (seconds < 10 ? "0" : "") + seconds;
     }
 

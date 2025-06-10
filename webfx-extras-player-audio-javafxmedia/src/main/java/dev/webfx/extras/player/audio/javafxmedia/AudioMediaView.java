@@ -8,7 +8,6 @@ import dev.webfx.extras.player.Status;
 import dev.webfx.extras.styles.bootstrap.Bootstrap;
 import dev.webfx.kit.util.properties.FXProperties;
 import dev.webfx.kit.util.properties.Unregisterable;
-import dev.webfx.platform.console.Console;
 import dev.webfx.platform.util.Objects;
 import dev.webfx.stack.i18n.I18n;
 import dev.webfx.stack.i18n.controls.I18nControls;
@@ -74,9 +73,6 @@ public class AudioMediaView {
         durationLabel.getStyleClass().add("time");
         bindMediaPlayer();
         durationLabel.textProperty().bind(FXProperties.compute(durationProperty, duration -> formatDuration(duration.longValue())));
-        FXProperties.runOnPropertyChange(()->
-            Console.log("DurationPropertyChange:" + durationProperty.get())
-            , durationProperty);
         HBox progressBarContainer = new HBox();
         progressBarContainer.setSpacing(10);
         progressBar.setPrefWidth(300);

@@ -232,6 +232,9 @@ public class ScalePane extends MonoPane {
                 region.setPrefHeight(h);
             }
         }
+        double areaX = (innerWidth - w) / 2;
+        if (getAlignment().getHpos() == HPos.LEFT)
+            areaX = Math.min(0, areaX);
         double areaY;
         if (vAlignment == VPos.TOP) {
             double unscaledHeight = content.prefHeight(innerWidth);
@@ -245,7 +248,7 @@ public class ScalePane extends MonoPane {
         } else {
             areaY = (innerHeight - h) / 2;
         }
-        layoutInArea(content, paddingLeft + (innerWidth - w) / 2, paddingTop + areaY, w, h, 0, Insets.EMPTY, fillWidth, fillHeight, hAlignment, vAlignment);
+        layoutInArea(content, paddingLeft + areaX, paddingTop + areaY, w, h, 0, Insets.EMPTY, fillWidth, fillHeight, hAlignment, vAlignment);
         if (stretchWidth && region != null) {
             region.setPrefWidth(memorisedPrefWidth);
         }

@@ -118,6 +118,10 @@ public class AudioMediaView {
         buttonsHBox.getChildren().addAll(backwardButton, minus15sLabel, playPauseStackPane, plus15sLabel, forwardButton);
         container.getStyleClass().add("audio-player");
         container.getChildren().addAll(buttonsHBox, titleAndProgressBarVBox);
+        // This is necessary for WebFX (to prevent focus scrolling back to play button issue), but not in OpenJFX
+        container.setFocusTraversable(true);
+        progressBar.setFocusTraversable(true);
+        // TODO: Remove once WebFX behaves the same as OpenJFX
     }
 
     private void playNewMedia() {

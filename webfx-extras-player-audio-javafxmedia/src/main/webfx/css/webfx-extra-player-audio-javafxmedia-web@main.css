@@ -1,6 +1,7 @@
 .audio-player {
-     --fx-background-color: #838788;  /* Background color */
-     --fx-background-radius: 30px;
+    --fx-background-color: #838788;  /* Background color */
+    --fx-background-radius: 30px;
+    --fx-border-color-focus: transparent;
 }
 
 .audio-player .h4 {

@@ -68,7 +68,11 @@ public final class Layouts {
     }
 
     public static Region createHGrowable() {
-        return setHGrowable(setMaxWidthToInfinite(new Region()));
+        return createHGrowable(Double.MAX_VALUE);
+    }
+
+    public static Region createHGrowable(double maxWidth) {
+        return setHGrowable(setMaxWidth(new Region(),  maxWidth));
     }
 
     public static <N extends Node> N setHGrowable(N node) {
@@ -211,6 +215,11 @@ public final class Layouts {
     public static <N extends Region> N setMaxHeight(N region, double value) {
         region.setMaxHeight(value);
         return region;
+    }
+
+    public static <N extends Region> N setFixedSize(N region, double width, double height) {
+        setFixedWidth(region, width);
+        return setFixedHeight(region, height);
     }
 
     public static <N extends Node> N setManagedAndVisibleProperties(N node, boolean value) {

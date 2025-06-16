@@ -44,14 +44,12 @@ public final class AriaToggleGroup<T> {
     private static final String FIRST_CHILD_STYLE_CLASS = "first-child";
     private static final String LAST_CHILD_STYLE_CLASS = "last-child";
     private static final Object ITEM_PROPERTY_KEY = "webfx-item";
-    private static int GROUP_SEQ;
     private static int BUTTON_SEQ;
 
     private final AriaRole buttonRole;
     private final ToggleGroup focusGroup = new ToggleGroup();
     private final ObservableList<ToggleButton> toggleButtons = ObservableLists.map(focusGroup.getToggles(), toggle -> (ToggleButton) toggle);
     private final ObjectProperty<T> firedItemProperty = FXProperties.newObjectProperty(this::onFiredItemChanged);
-    private final int groupId = ++GROUP_SEQ;
 
     public AriaToggleGroup() {
         this(null);
@@ -101,6 +99,10 @@ public final class AriaToggleGroup<T> {
         return toggleButton;
     }
 
+    public T getButtonItem(ToggleButton toggleButton) {
+        return toggleButton == null ? null : (T) toggleButton.getProperties().get(ITEM_PROPERTY_KEY);
+    }
+
     public void setFiredItem(T item) {
         firedItemProperty.setValue(item);
     }
@@ -128,7 +130,7 @@ public final class AriaToggleGroup<T> {
         ToggleButton firstButton = Collections.first(toggleButtons);
         ToggleButton lastButton = Collections.last(toggleButtons);
         toggleButtons.forEach(toggleButton -> {
-            T buttonItem = (T) toggleButton.getProperties().get(ITEM_PROPERTY_KEY);
+            T buttonItem = getButtonItem(toggleButton);
             ObservableList<String> styleClass = toggleButton.getStyleClass();
             Collections.addIfNotContainsOrRemove(styleClass, toggleButton == firstButton, FIRST_CHILD_STYLE_CLASS);
             Collections.addIfNotContainsOrRemove(styleClass, toggleButton == lastButton, LAST_CHILD_STYLE_CLASS);

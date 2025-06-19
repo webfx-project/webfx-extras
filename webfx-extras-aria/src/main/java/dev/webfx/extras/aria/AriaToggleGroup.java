@@ -6,6 +6,8 @@ import dev.webfx.kit.util.properties.FXProperties;
 import dev.webfx.kit.util.properties.ObservableLists;
 import dev.webfx.platform.util.collection.Collections;
 import javafx.beans.property.ObjectProperty;
+import javafx.beans.property.SimpleObjectProperty;
+import javafx.beans.value.ObservableValue;
 import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
@@ -50,6 +52,7 @@ public final class AriaToggleGroup<T> {
     private final ToggleGroup focusGroup = new ToggleGroup();
     private final ObservableList<ToggleButton> toggleButtons = ObservableLists.map(focusGroup.getToggles(), toggle -> (ToggleButton) toggle);
     private final ObjectProperty<T> firedItemProperty = FXProperties.newObjectProperty(this::onFiredItemChanged);
+    private final ObjectProperty<ToggleButton> firedToggleButtonProperty = new SimpleObjectProperty<>();
 
     public AriaToggleGroup() {
         this(null);
@@ -117,11 +120,21 @@ public final class AriaToggleGroup<T> {
 
     private void onFiredItemChanged(T newValue) {
         //Console.log("👉👉👉👉👉 onFiredItemChanged -> " + newValue + " for group " + groupId);
+        T firedItem = getFiredItem();
+        firedToggleButtonProperty.set(Collections.findFirst(toggleButtons, toggleButton -> getButtonItem(toggleButton) == firedItem));
         updateButtonsFiredStyleClass();
     }
 
     public ObservableList<ToggleButton> getToggleButtons() {
         return toggleButtons;
+    }
+
+    public ToggleButton getFiredToggleButton() {
+        return firedToggleButtonProperty.getValue();
+    }
+
+    public ObservableValue<ToggleButton> firedToggleButtonProperty() {
+        return firedToggleButtonProperty;
     }
 
     public void updateButtonsFiredStyleClass() {

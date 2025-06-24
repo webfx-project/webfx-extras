@@ -16,6 +16,8 @@ import javafx.scene.layout.Region;
 import javafx.scene.web.WebView;
 import javafx.util.Duration;
 
+import java.util.Objects;
+
 /**
  * @author Bruno Salmon
  */
@@ -24,6 +26,8 @@ public abstract class WebVideoPlayerBase extends VideoPlayerBase {
     protected static final boolean IS_BROWSER = WebViewPane.isBrowser();
 
     protected final WebViewPane webViewPane = new WebViewPane();
+
+    private String lastUrl = "";
 
     public WebVideoPlayerBase() {
         this(IntegrationMode.EMBEDDED);
@@ -93,9 +97,13 @@ public abstract class WebVideoPlayerBase extends VideoPlayerBase {
             stop();
         else {
             String url = generateMediaEmbedFullUrl(onLoadSuccessStatus == Status.PLAYING);
-            webViewPane.loadFromUrl(url, new LoadOptions().setOnLoadSuccess(() ->
-                setStatus(onLoadSuccessStatus))
-                , null);
+            if (!Objects.equals(lastUrl, url)) {
+
+                webViewPane.loadFromUrl(url, new LoadOptions().setOnLoadSuccess(() ->
+                        setStatus(onLoadSuccessStatus))
+                    , null);
+            }
+            lastUrl = url;
         }
     }
 

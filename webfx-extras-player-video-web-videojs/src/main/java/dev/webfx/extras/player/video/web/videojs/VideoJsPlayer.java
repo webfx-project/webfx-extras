@@ -7,13 +7,16 @@ import dev.webfx.extras.player.StartOptionsBuilder;
 import dev.webfx.extras.player.Status;
 import dev.webfx.extras.player.video.web.WebVideoPlayerBase;
 import dev.webfx.extras.webview.pane.LoadOptions;
+import dev.webfx.extras.webview.pane.WebViewPane;
 import dev.webfx.kit.util.properties.FXProperties;
 import dev.webfx.platform.resource.Resource;
 import dev.webfx.platform.util.Booleans;
 import javafx.scene.paint.Color;
 
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
+import java.net.URLDecoder;
+import java.nio.charset.StandardCharsets;
+import java.util.HashMap;
+import java.util.Map;
 
 /**
  * @author David Hello
@@ -24,39 +27,49 @@ public final class VideoJsPlayer extends WebVideoPlayerBase {
     private static final String BUNNY_PLAYER="bunny";
     private String clientId = "";
     private String videoId = "";
+    private String tracksParam = "";
 
     public VideoJsPlayer() {
         FXProperties.runOnPropertyChange(status -> {
+            webViewPane.setRedirectConsole(true);
             if (status == Status.READY) {
-                String script = Resource.getText(Resource.toUrl("videojs.js", getClass()));
-                script = script.replace("$player$", playerType).replace("$hlsId$", videoId).replace("$clientId$", clientId).replace("$tracksParam$", "French");
-                webViewPane.loadFromScript(script, new LoadOptions(), false);
+                WebViewPane webViewPane1 = webViewPane;
+                javafx.scene.web.WebEngine webEngine = webViewPane1.getWebEngine();
+                webViewPane.loadFromScript("safeOnLoad(() => {loadVideo('"+playerType+"', '"+videoId+"', '"+clientId+"','"+ tracksParam+"');});",new LoadOptions(), false);
             }
         }, statusProperty());
     }
 
     @Override
     public Media acceptMedia(String mediaSource, MediaMetadata mediaMetadata) {
-        String videoIdAndParams = matchPrefix(mediaSource,"https://*.b-cdn.net/");
 
+        //For now, we just manage Bunny hosted video
+        //Their URL is in the form: https://vz-eb594b94-203.b-cdn.net/febd54a8-3491-4e20-bec5-96b31c31636a/playlist.m3u8?tracks=English,Espanol ...
+        //The URL should be in the format bunny:videoId=ebd54a8-3491-4e20-bec5-96b31c31636a&zoneId=vz-eb594b94-203&tracks=English,Espanol
+        String prefix = "bunny:";
 
-        //First case: the video comes from bunny
-        Pattern pattern = Pattern.compile("https://([\\w-]+)\\.b-cdn\\.net/([\\w-]+)/");
-        Matcher matcher = pattern.matcher(mediaSource);
+        if (mediaSource.startsWith(prefix)) {
+            String query = mediaSource.substring(prefix.length());
 
-        if (matcher.find()) {
-            clientId = matcher.group(1);
-            videoId = matcher.group(2);
+            Map<String, String> paramMap = new HashMap<>();
+            String[] pairs = query.split("&");
+            for (String pair : pairs) {
+                int idx = pair.indexOf('=');
+                if (idx > 0 && idx < pair.length() - 1) {
+                    String key = URLDecoder.decode(pair.substring(0, idx), StandardCharsets.UTF_8);
+                    String value = URLDecoder.decode(pair.substring(idx + 1), StandardCharsets.UTF_8);
+                    paramMap.put(key, value);
+                }
+            }
+
+            videoId = paramMap.get("videoId");
+            clientId = paramMap.get("zoneId");
+            tracksParam = paramMap.get("tracks");
             playerType = BUNNY_PLAYER;
         }
 
-
         return acceptMedia(mediaSource, mediaMetadata,
-            "bunny:",
-            "https://*.b-cdn.net/",
-            "castr:",
-            "https://stream.castr.net/"
-        );
+            prefix);
     }
 
     @Override
@@ -86,58 +99,22 @@ public final class VideoJsPlayer extends WebVideoPlayerBase {
             sb.append("&autoplay=true");
         }
 
- //       String playerType = so.getCustomProperty("playerType");
-        if (playerType != null) {
+//        if (playerType != null) {
 //            sb.append("&player_type=").append(playerType);
 //        }
 //
-//        String clientId = so.getCustomProperty("clientId");
-//        if (clientId != null) {
-//            sb.append("&client_id=").append(clientId);
+//       if (clientId != null) {
+//           sb.append("&client_id=").append(clientId);
 //        }
 //
-//        String hlsId = so.getCustomProperty("hlsId");
-//        if (hlsId != null) {
-//            sb.append("&hls_id=").append(hlsId);
+//        if (videoId != null) {
+//           sb.append("&hls_id=").append(videoId);
 //        }
-//
+////
 //        String tracks = so.getCustomProperty("tracks");
 //        if (tracks != null) {
 //            sb.append("&tracks=").append(tracks);
 //        }
 
-    }
-        }
-
-
-
-
-    private String buildVideoUrl(String mediaSource) {
-        if (mediaSource.startsWith("bunny:")) {
-            String[] parts = mediaSource.substring(6).split("/");
-            if (parts.length >= 2) {
-                return "https://" + parts[0] + ".b-cdn.net/" + parts[1] + "/playlist.m3u8";
-            }
-        } else if (mediaSource.startsWith("castr:")) {
-            String[] parts = mediaSource.substring(6).split("/");
-            if (parts.length >= 2) {
-                return "https://stream.castr.net/" + parts[0] + "/live_" + parts[1] + "/index.m3u8";
-            }
-        } else if (mediaSource.startsWith("hls:")) {
-            return mediaSource.substring(4);
-        } else if (mediaSource.endsWith(".m3u8") || mediaSource.contains(".b-cdn.net/") || mediaSource.contains("stream.castr.net/")) {
-            return mediaSource;
-        }
-        return mediaSource;
-    }
-
-
-    private static String toWebColor(Color c) {
-        return c == null ? null : toHex2(c.getRed()) + toHex2(c.getGreen()) + toHex2(c.getBlue());
-    }
-
-    private static String toHex2(double colorComponent) {
-        String s = Integer.toHexString((int) (colorComponent * 255)).toUpperCase();
-        return s.length() == 1 ? "0" + s : s;
     }
 }

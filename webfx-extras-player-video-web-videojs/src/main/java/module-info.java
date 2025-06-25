@@ -12,7 +12,6 @@ module webfx.extras.player.video.web.videojs {
     requires webfx.extras.player.video.web;
     requires webfx.extras.webview.pane;
     requires webfx.kit.util;
-    requires webfx.platform.console;
     requires webfx.platform.resource;
     requires webfx.platform.util;
 

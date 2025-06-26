@@ -80,6 +80,18 @@ public final class Layouts {
         return node;
     }
 
+    public static Region createVSpace(double height) {
+        return setMinHeight(new Region(), height);
+    }
+
+    public static Region createVGrowable() {
+        return createVGrowable(Double.MAX_VALUE);
+    }
+
+    public static Region createVGrowable(double maxHeight) {
+        return setVGrowable(setMaxHeight(new Region(),  maxHeight));
+    }
+
     public static <N extends Node> N setVGrowable(N node) {
         VBox.setVgrow(node, Priority.ALWAYS);
         return node;

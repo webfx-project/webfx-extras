@@ -54,7 +54,7 @@ public final class Layouts {
                     return (gpHeight.doubleValue() - cHeight.doubleValue()) / 2.61;
                 }));
         if (percentageWidth != 0)
-            child.prefWidthProperty().bind(FXProperties.compute(goldPane.widthProperty(), gpWidth -> gpWidth.doubleValue() * percentageWidth));
+            child.prefWidthProperty().bind(goldPane.widthProperty().map(gpWidth -> gpWidth.doubleValue() * percentageWidth));
         goldPane.add(setMaxSizeToPref(child), 0, 1);
         if (background != null)
             goldPane.setBackground(background);

@@ -72,7 +72,7 @@ public class AudioMediaView {
         Label durationLabel = new Label("00:00:00");
         durationLabel.getStyleClass().add("time");
         bindMediaPlayer();
-        durationLabel.textProperty().bind(FXProperties.compute(durationProperty, duration -> formatDuration(duration.longValue())));
+        durationLabel.textProperty().bind(durationProperty.map(duration -> formatDuration(duration.longValue())));
         HBox progressBarContainer = new HBox();
         progressBarContainer.setSpacing(10);
         progressBar.setPrefWidth(300);

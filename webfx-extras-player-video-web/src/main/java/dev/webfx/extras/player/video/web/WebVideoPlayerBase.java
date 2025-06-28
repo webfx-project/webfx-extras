@@ -189,7 +189,7 @@ public abstract class WebVideoPlayerBase extends VideoPlayerBase {
             url = url + "?" + Strings.removePrefix(sb.toString(), "&");
         Double aspectRatio = playingStartingOption.aspectRatio();
         if (aspectRatio != null) {
-            webViewPane.prefHeightProperty().bind(FXProperties.computeDeferred(webViewPane.widthProperty(), w -> w.doubleValue() / aspectRatio));
+            webViewPane.prefHeightProperty().bind(FXProperties.deferredProperty(webViewPane.widthProperty()).map(w -> w.doubleValue() / aspectRatio));
             webViewPane.setMinSize(Region.USE_PREF_SIZE, Region.USE_PREF_SIZE);
         } else {
             webViewPane.prefHeightProperty().unbind();

@@ -31,7 +31,8 @@ public final class VideoJsPlayer extends WebVideoPlayerBase {
 
     public VideoJsPlayer() {
         FXProperties.runOnPropertyChange(status -> {
-            webViewPane.setRedirectConsole(true);
+            //Use setRedirectConsole only for debug. It can cause some infinite loop in some cases.
+            //webViewPane.setRedirectConsole(true);
             if (status == Status.READY) {
                 WebViewPane webViewPane1 = webViewPane;
                 javafx.scene.web.WebEngine webEngine = webViewPane1.getWebEngine();

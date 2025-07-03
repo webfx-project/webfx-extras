@@ -69,7 +69,7 @@ public abstract class LayoutPane extends Pane {
 
     // Same implementation as Region.boundedNodeSizeWithBias() which unfortunately is not public
 
-    protected static double boundedNodeWidthWithBias(Node node, double areaWidth, double areaHeight,
+    public static double boundedNodeWidthWithBias(Node node, double areaWidth, double areaHeight,
                                          boolean fillWidth, boolean fillHeight) {
         Orientation bias = node.getContentBias();
 
@@ -99,7 +99,7 @@ public abstract class LayoutPane extends Pane {
         return childWidth;
     }
 
-    protected static double boundedNodeHeightWithBias(Node node, double areaWidth, double areaHeight,
+    public static double boundedNodeHeightWithBias(Node node, double areaWidth, double areaHeight,
                                                      boolean fillWidth, boolean fillHeight) {
         Orientation bias = node.getContentBias();
 
@@ -130,7 +130,7 @@ public abstract class LayoutPane extends Pane {
         return childHeight;
     }
 
-    protected static double boundedSize(double min, double pref, double max) {
+    public static double boundedSize(double min, double pref, double max) {
         double a = Math.max(pref, min);
         double b = Math.max(min, max);
         return Math.min(a, b);

@@ -28,6 +28,8 @@ public final class ColumnsPane extends LayoutPane {
 
     private final IntegerProperty fixedColumnCountProperty = newLayoutIntegerProperty();
 
+    private final DoubleProperty maxColumnWidthProperty = newLayoutDoubleProperty();
+
     private final IntegerProperty maxColumnCountProperty = newLayoutIntegerProperty();
 
     private final DoubleProperty minRowHeightProperty = newLayoutDoubleProperty();
@@ -144,6 +146,18 @@ public final class ColumnsPane extends LayoutPane {
         minColumnWidthProperty.set(minColumnWidth);
     }
 
+    public double getMaxColumnWidth() {
+        return maxColumnWidthProperty.get();
+    }
+
+    public DoubleProperty maxColumnWidthProperty() {
+        return maxColumnWidthProperty;
+    }
+
+    public void setMaxColumnWidth(double MaxColumnWidth) {
+        maxColumnWidthProperty.set(MaxColumnWidth);
+    }
+
     public int getFixedColumnCount() {
         return fixedColumnCountProperty.get();
     }
@@ -223,12 +237,13 @@ public final class ColumnsPane extends LayoutPane {
         double x = insets.getLeft(), y = insets.getTop();
         HPos hpos = getAlignment().getHpos();
         VPos vpos = getAlignment().getVpos();
-        for (int i = 0; i < n; i++) {
+        for (int i = 0, rowChildIndex = 0; i < n; i++) {
             Node child = children.get(i);
             if (multiRows && i % colCount == 0) { // Detecting new row (including the first one)
                 x = insets.getLeft();
                 y += h + vgap;
-                h = computeRowHeight(children, 0, colCount, w, Node::prefHeight);
+                h = computeRowHeight(children, rowChildIndex, colCount, w, Node::prefHeight);
+                rowChildIndex += colCount;
             }
             layoutInArea(child, x, y, w, h, 0, hpos, vpos);
             x += w + hgap;
@@ -266,10 +281,11 @@ public final class ColumnsPane extends LayoutPane {
             return Math.min(n, nmax);
         }
         double minColumnWidth = getMinColumnWidth();
-        while (minColumnWidth > 0 && n > 1) {
+        double maxColumnWidth = getMaxColumnWidth();
+        while ((minColumnWidth > 0 || maxColumnWidth > 0) && n > 1) {
             double widthNoGap = width - insetsWidth() - getHgap() * (n - 1);
             double w = getColWidth(widthNoGap, n);
-            if (w >= minColumnWidth)
+            if ((minColumnWidth <= 0 || w >= minColumnWidth) && (maxColumnWidth <= 0 || w <= maxColumnWidth))
                 break;
             if (isAllOrOneColumn())
                 return 1;
@@ -282,7 +298,7 @@ public final class ColumnsPane extends LayoutPane {
     }
 
     private boolean isMultipleRowsEnabled() {
-        return getFixedColumnCount() > 0 ||  getMaxColumnCount() > 0 || getMinColumnWidth() > 0 || getFixedColumnWidth() > 0;
+        return getFixedColumnCount() > 0 ||  getMaxColumnCount() > 0 || getMinColumnWidth() > 0 || getMaxColumnWidth() > 0 || getFixedColumnWidth() > 0;
     }
 
     private double computeRowHeight(List<Node> children, int rowFirstChildIndex, int colCount, double colWidth, BiFunction<Node, Double, Double> cellHeightFunction) {
@@ -323,6 +339,8 @@ public final class ColumnsPane extends LayoutPane {
         boolean multipleRowsEnabled = isMultipleRowsEnabled();
         int fixedColumnCount = getFixedColumnCount(), colIndex = 0;
         double fixedColumnWidth = getFixedColumnWidth();
+        double minColumnWidth = getMinColumnWidth();
+        double maxColumnWidth = getMaxColumnWidth();
         double minPrefMaxWidth = 0, rowMinPrefMaxWidth = 0;
         for (Node child : getManagedChildren()) {
             if (rowMinPrefMaxWidth > 0) {
@@ -331,7 +349,10 @@ public final class ColumnsPane extends LayoutPane {
             if (fixedColumnWidth > 0)
                 rowMinPrefMaxWidth += fixedColumnWidth;
             else {
-                rowMinPrefMaxWidth += minPrefMaxWidthFunction.apply(child, height);
+                Double computedCellWidth = minPrefMaxWidthFunction.apply(child, height);
+                if (maxColumnWidth > 0 && computedCellWidth > maxColumnWidth)
+                    computedCellWidth = maxColumnWidth;
+                rowMinPrefMaxWidth += computedCellWidth;
                 if (multipleRowsEnabled) {
                     if (fixedColumnCount <= 0 /* min = 1 column */ || ++colIndex >= fixedColumnCount) {
                         minPrefMaxWidth = Math.max(rowMinPrefMaxWidth, minPrefMaxWidth);
@@ -342,7 +363,6 @@ public final class ColumnsPane extends LayoutPane {
         }
         minPrefMaxWidth = Math.max(rowMinPrefMaxWidth, minPrefMaxWidth);
         // Checking that we get at least minColumnWidth (if set)
-        double minColumnWidth = getMinColumnWidth();
         if (minColumnWidth > 0 && minPrefMaxWidth < minColumnWidth)
             minPrefMaxWidth = minColumnWidth;
         // Adding insets width
@@ -351,7 +371,7 @@ public final class ColumnsPane extends LayoutPane {
 
     @Override
     protected double computeMinHeight(double width) {
-        return computeHeight(width, Node::prefHeight);
+        return computeHeight(width, Node::minHeight);
     }
 
     protected double computePrefHeight(double width) {
@@ -359,7 +379,7 @@ public final class ColumnsPane extends LayoutPane {
     }
 
     protected double computeMaxHeight(double width) {
-        return computeHeight(width, Node::prefHeight);
+        return computeHeight(width, Node::maxHeight);
     }
 
     private double computeHeight(double width, BiFunction<Node, Double, Double> heightFunction) {

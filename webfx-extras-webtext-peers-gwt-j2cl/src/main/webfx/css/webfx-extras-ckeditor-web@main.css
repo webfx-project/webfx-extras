@@ -1,3 +1,12 @@
+/* Applying same user-select setting as fx-text to fx-htmltext */
+fx-htmltext {
+    color: var(--fx-text-fill);
+    -webkit-user-select: var(--text-user-select);
+    -moz-user-select: var(--text-user-select);
+    -ms-user-select: var(--text-user-select);
+    user-select: var(--text-user-select);
+}
+
 /* Hiding the warning message from CKEditor 4.22.1 */
 .cke_notifications_area {
     display: none;

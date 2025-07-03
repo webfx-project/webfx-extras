@@ -18,7 +18,6 @@ public final class GenericValueRendererFactory implements ValueRendererFactory {
     public ValueRenderer createValueRenderer(Type type) {
         if (Types.isImageType(type)) // Case: image type
             return ImageRenderer.SINGLETON;
-        // TODO: See if we can use a SPI instead to remove the dependency between this module and webfx-extras-webtext-controls
         if (Types.isHtmlType(type)) // Case: html type
             return HtmlTextRenderer.SINGLETON;
         if (Types.isArrayType(type)) { // Case: any array type (including image & text)

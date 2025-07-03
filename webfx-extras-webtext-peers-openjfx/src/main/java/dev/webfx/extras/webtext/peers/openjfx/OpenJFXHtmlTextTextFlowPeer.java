@@ -1,9 +1,9 @@
 package dev.webfx.extras.webtext.peers.openjfx;
 
 import dev.webfx.extras.webtext.HtmlText;
-import dev.webfx.extras.webtext.util.WebTextUtil;
 import dev.webfx.extras.webtext.peers.base.HtmlTextPeerBase;
 import dev.webfx.extras.webtext.peers.base.HtmlTextPeerMixin;
+import dev.webfx.extras.webtext.util.WebTextUtil;
 import dev.webfx.kit.mapper.peers.javafxgraphics.SceneRequester;
 import dev.webfx.kit.mapper.peers.javafxgraphics.openjfx.FxLayoutMeasurable;
 import dev.webfx.kit.mapper.peers.javafxgraphics.openjfx.FxNodePeer;
@@ -152,9 +152,8 @@ public class OpenJFXHtmlTextTextFlowPeer
                 pairs.stream()
                         .map(pair -> createStyledText(pair.getKey(), pair.getValue()))
                         .collect(Collectors.toList()));
-        if (textFlow.getChildren().size() >= 1)
+        if (!textFlow.getChildren().isEmpty())
             textFlow.setTextAlignment(((Text)textFlow.getChildren().get(0)).getTextAlignment());
-        //textFlow.setBackground(new Background(new BackgroundFill(Color.BLACK, null, null)));
     }
 
     private static List<Pair<String, HtmlStyle>> chopHtml(String html, Font font, Paint fill) {
@@ -171,13 +170,21 @@ public class OpenJFXHtmlTextTextFlowPeer
         if (html.isEmpty())
             return list;
         int pos = 0;
+        Pair<String, HtmlStyle> lineBreakPairBeforeNextText = null;
         while (true) {
             int openingPos = html.indexOf("<", pos);
             if (openingPos == -1) {
                 // Adding the remaining text at the end with the style unchanged
-                if (pos < html.length())
+                if (pos < html.length()) {
+                    if (lineBreakPairBeforeNextText != null)
+                        list.add(lineBreakPairBeforeNextText);
                     list.add(new Pair<>(html.substring(pos), parentStyle));
+                }
                 break;
+            }
+            if (lineBreakPairBeforeNextText != null) {
+                list.add(lineBreakPairBeforeNextText);
+                lineBreakPairBeforeNextText = null;
             }
             // Adding the text before the tag with the style unchanged
             if (openingPos > pos)
@@ -187,7 +194,7 @@ public class OpenJFXHtmlTextTextFlowPeer
             while (Character.isLetterOrDigit(html.charAt(pos)))
                 pos++;
             String tag = html.substring(openingPos + 1, pos);
-            // Searching the end of tag
+            // Searching the end of the tag
             pos = Math.max(pos, html.indexOf('>', pos));
             String closingTag = "</" + tag + ">";
             int closingPos;
@@ -204,9 +211,9 @@ public class OpenJFXHtmlTextTextFlowPeer
             // Deriving the style in dependence of the tag
             HtmlStyle derivedStyle = new HtmlStyle(parentStyle);
             String tagWithAttributes = html.substring(openingPos, pos);
-            // Capturing css class
+            // Capturing CSS class
             String cssClass = captureAttribute("class", tagWithAttributes);
-            // Marking the derived style in order to render the expected visual effect of the HTML tag
+            // Marking the derived style to render the expected visual effect of the HTML tag
             switch (tag.toLowerCase()) {
                 case "a":
                     derivedStyle.setHref(captureAttribute("href", tagWithAttributes));
@@ -252,13 +259,14 @@ public class OpenJFXHtmlTextTextFlowPeer
             if (color != null)
                 derivedStyle.setFill(color.equalsIgnoreCase("inherit") ? null : Color.web(color));
             derivedStyle.setCssClass(cssClass);
-            // Chopping the html text inside the tags (between the opening and closing tag) with the derived style
+            // Chopping the HTML text inside the tags (between the opening and closing tag) with the derived style
             String insideTagText = html.substring(pos + 1, closingPos);
             if (!insideTagText.isEmpty())
                 list.addAll(chopHtml(insideTagText, derivedStyle));
-            if (derivedStyle.hasLineBreak())
-                list.add(new Pair<>("\n", derivedStyle));
-            // Moving forward after the closing tag for next iteration
+            if (derivedStyle.hasLineBreak()) {
+                lineBreakPairBeforeNextText = new Pair<>("\n", derivedStyle);
+            }
+            // Moving forward after the closing tag for the next iteration
             pos = closingPos + closingTag.length();
         }
         return list;

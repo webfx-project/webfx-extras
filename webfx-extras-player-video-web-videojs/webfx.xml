@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project>
+
+    <target-tags>
+        <!-- in this context web doesn't refer to the webfx platform target -->
+        <ignore-tag>web</ignore-tag>
+    </target-tags>
+
+    <exported-packages>
+        <source-packages/>
+        <resource-packages/>
+    </exported-packages>
+
+    <embed-resources>
+        <resource>dev/webfx/extras/player/video/web/videojs/videojs.js</resource>
+    </embed-resources>
+
+
+    <dependencies>
+        <used-by-source-modules>
+            <module transitive="true">webfx-extras-player-video</module>
+            <module transitive="true">webfx-kit-javafxbase-emul</module> <!-- TODO fix double javafx.base imports in module-info.java if javafx-base is specified here -->
+            <undetected-module>javafx-graphics</undetected-module>
+        </used-by-source-modules>
+    </dependencies>
+
+</project>

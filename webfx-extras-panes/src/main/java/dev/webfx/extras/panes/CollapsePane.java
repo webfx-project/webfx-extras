@@ -2,12 +2,11 @@ package dev.webfx.extras.panes;
 
 import dev.webfx.extras.util.animation.Animations;
 import dev.webfx.extras.util.layout.Layouts;
+import dev.webfx.kit.util.aria.AriaRole;
+import dev.webfx.kit.util.aria.Aria;
 import dev.webfx.kit.util.properties.FXProperties;
 import javafx.animation.Timeline;
-import javafx.beans.property.BooleanProperty;
-import javafx.beans.property.ObjectProperty;
-import javafx.beans.property.SimpleBooleanProperty;
-import javafx.beans.property.SimpleObjectProperty;
+import javafx.beans.property.*;
 import javafx.geometry.Pos;
 import javafx.geometry.Side;
 import javafx.scene.Cursor;
@@ -21,8 +20,8 @@ import javafx.scene.shape.StrokeLineCap;
 import javafx.scene.shape.StrokeLineJoin;
 
 /**
- * A Pane that can be collapsed (and then expanded) programmatically, or through user interaction (see static methods).
- * This is a first version where collapse works correctly only for bottom and right slides. Other sides will be added later.
+ * A Pane that can be collapsed (and then expanded) programmatically or through user interaction (see static methods).
+ * This is the first version where collapse works correctly only for bottom and right slides. Other sides will be added later.
  *
  * @author Bruno Salmon
  */
@@ -35,13 +34,23 @@ public class CollapsePane extends MonoClipPane {
             doCollapse();
         else
             doExpand();
+        // We make this pane disabled when collapsed so that none of its children can get the focus through the tab
+        // keyboard navigation, until expanded again.
+        setDisable(collapsed);
+        Aria.setAriaExpanded(this, !collapsed);
     });
 
     private final BooleanProperty animateProperty = new SimpleBooleanProperty(true);
+    private final BooleanProperty transitingProperty = new SimpleBooleanProperty();
 
     private Timeline timeline;
     private double expandedWidthOrHeight;
     private double widthOrHeightDuringCollapseAnimation;
+
+    {
+        Aria.setAriaRole(this, AriaRole.DISCLOSURE);
+        Aria.setAriaExpanded(this, isExpanded());
+    }
 
     public CollapsePane() {
     }
@@ -136,6 +145,14 @@ public class CollapsePane extends MonoClipPane {
         animateProperty.set(animate);
     }
 
+    public boolean isTransiting() {
+        return transitingProperty.get();
+    }
+
+    public ReadOnlyBooleanProperty transitingProperty() {
+        return transitingProperty;
+    }
+
     private void doCollapse() {
         boolean isHorizontal = isHorizontal();
         if (timeline == null) {
@@ -151,9 +168,10 @@ public class CollapsePane extends MonoClipPane {
 
     private void doExpand() {
         setWidthOrHeightComputationMode(USE_COMPUTED_SIZE);
-        double minHeight = minHeight(getWidth());
-        double prefHeight = prefHeight(getWidth());
-        double maxHeight = maxHeight(getWidth());
+        double width = getWidth();
+        double minHeight = minHeight(width);
+        double prefHeight = prefHeight(width);
+        double maxHeight = maxHeight(width);
         expandedWidthOrHeight = Layouts.boundedSize(minHeight, prefHeight, maxHeight);
         widthOrHeightDuringCollapseAnimation = expandedWidthOrHeight;
         if (expandedWidthOrHeight > 0) {
@@ -179,12 +197,14 @@ public class CollapsePane extends MonoClipPane {
         if (timeline != null)
             timeline.stop();
         setWidthOrHeightComputationMode(USE_PREF_SIZE);
+        transitingProperty.set(true);
         timeline = Animations.animateProperty(isHorizontal() ? prefWidthProperty() : prefHeightProperty(), finalValue, isAnimate());
         Animations.setOrCallOnTimelineFinished(timeline, e -> {
             if (finalValue > 0) {
                 setWidthOrHeightComputationMode(USE_COMPUTED_SIZE);
             }
             timeline = null;
+            transitingProperty.set(false);
         });
     }
 
@@ -230,11 +250,12 @@ public class CollapsePane extends MonoClipPane {
         // User interaction management: collapse/expand on circle click
         chevron.setOnMouseClicked(e -> FXProperties.toggleProperty(collapsedProperty));
         chevron.setCursor(Cursor.HAND); // Note that in OpenJFX, only the part inside the StackPane is showing the hand cursor
-        // Rotation animation of the chevron while collapsing or expanding
-        FXProperties.runOnPropertyChange(collapsed ->
+        // Rotation of the chevron depending on the collapsed state
+        chevron.setRotate(collapsedProperty.get() ? 180 : 0); // initial state (no animation)
+        FXProperties.runOnPropertyChange(collapsed -> // animating subsequent changes
                 Animations.animateProperty(chevron.rotateProperty(), collapsed ? 180 : 0)
             , collapsedProperty);
-        // Hiding the circle & chevron on mouse exit if requested
+        // Hiding the circle and chevron on mouse exit if requested
         if (hideChevronOnMouseExitNode != null) {
             hideChevronOnMouseExitNode.setOnMouseEntered(e -> { // Note: works also on touch devices!
                 chevron.setVisible(true);
@@ -250,7 +271,7 @@ public class CollapsePane extends MonoClipPane {
     public static StackPane decorateCollapsePane(CollapsePane collapsePane, boolean hideDecorationOnMouseExit) {
         Node chevronNode = createCircledChevron();
         StackPane stackPane = new StackPane(collapsePane, chevronNode);
-        // Drawing a 1px borderline at the bottom.
+        // Drawing a 1 px borderline at the bottom.
         stackPane.setBorder(new Border(new BorderStroke(Color.LIGHTGRAY, BorderStrokeStyle.SOLID, null, new BorderWidths(0, 0, 1, 0))));
         StackPane.setAlignment(collapsePane, Pos.TOP_CENTER);
         // Because the circle and chevron will be half outside of the stackPane, we ask stackPane to not manage them
@@ -259,7 +280,7 @@ public class CollapsePane extends MonoClipPane {
         // We now manage their position ourselves to be in the middle of the bottom line
         FXProperties.runOnPropertiesChange(() -> {
             chevronNode.relocate(stackPane.getWidth() / 2 - chevronNode.getLayoutBounds().getWidth() / 2, stackPane.getHeight() - chevronNode.getLayoutBounds().getHeight() / 2);
-            // Note: works perfectly in the browser, but the chevron is shifted 1px to left in OpenJFX (don't know why)
+            // Note: works perfectly in the browser, but the chevron is shifted 1 px to left in OpenJFX (don't know why)
         }, stackPane.widthProperty(), stackPane.heightProperty());
         // User interaction management: collapse/expand on circle click
         armChevron(chevronNode, collapsePane, hideDecorationOnMouseExit ? stackPane : null);

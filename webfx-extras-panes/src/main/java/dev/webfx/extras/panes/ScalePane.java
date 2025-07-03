@@ -158,8 +158,8 @@ public class ScalePane extends MonoPane {
 
     @Override
     public Orientation getContentBias() {
-        // Necessary to return Orientation.VERTICAL in FIT_HEIGHT mode to have correct prefWidth computation (ex: Modality web menu)
-        // Necessary to return Orientation.HORIZONTAL in FIT_WIDTH mode to have correct prefHeight computation
+        // Necessary to return Orientation.VERTICAL in FIT_HEIGHT mode to have the correct prefWidth computation (ex: Modality web menu)
+        // Necessary to return Orientation.HORIZONTAL in FIT_WIDTH mode to have the correct prefHeight computation
         return scaleMode == ScaleMode.FIT_HEIGHT ? Orientation.VERTICAL : Orientation.HORIZONTAL;
         // TODO: investigate if we should return different content bias in some other cases
         // Note: putting a child with HORIZONTAL content bias in a GridPane (ex: Modality Kitchen activity) creates an infinite layout loop in OpenJFX 18, 19 & 20, but this is fixed in OpenJFX 21.
@@ -179,7 +179,7 @@ public class ScalePane extends MonoPane {
                             (contentWidth, contentHeight) -> ScalePane.this.computeScale(scalePaneInnerWidth, scalePaneInnerHeight, contentWidth, contentHeight));
                 }
                 unscaledContentWidth = boundedNodeWidthWithBias(content, scalePaneInnerWidth, scalePaneInnerHeight, fillWidth, fillHeight);
-                unscaledContentHeight = content.prefHeight(unscaledContentWidth);
+                unscaledContentHeight = boundedSize(content.minHeight(unscaledContentWidth), content.prefHeight(unscaledContentWidth), content.maxHeight(unscaledContentWidth));
                 scale = computeScale(scalePaneInnerWidth, scalePaneInnerHeight, unscaledContentWidth, unscaledContentHeight);
                 if (!canShrink && scale < 1 || !canGrow && scale > 1)
                     scale = 1;
@@ -216,7 +216,7 @@ public class ScalePane extends MonoPane {
         content.setScaleY(scaleY);
         boolean stretch = stretchWidth || stretchHeight;
         // With OpenJFX, we can use w = width / scaleX & h = height / scaleY even when stretch = false, but not with
-        // WebFX due to scale origin mapping issue (ex: "Java full-stack" card of the WebFX website).
+        // WebFX due to the scale origin mapping issue (ex: "Java full-stack" card of the WebFX website).
         double w = stretchWidth ?  innerWidth / scaleX  : unscaledContentWidth;
         double h = stretchHeight ? innerHeight / scaleY : unscaledContentHeight;
         double memorisedPrefWidth = -1, memorisedPrefHeight = -1;
@@ -232,6 +232,9 @@ public class ScalePane extends MonoPane {
                 region.setPrefHeight(h);
             }
         }
+        double areaX = (innerWidth - w) / 2;
+        if (getAlignment().getHpos() == HPos.LEFT)
+            areaX = Math.min(0, areaX);
         double areaY;
         if (vAlignment == VPos.TOP) {
             double unscaledHeight = content.prefHeight(innerWidth);
@@ -245,7 +248,7 @@ public class ScalePane extends MonoPane {
         } else {
             areaY = (innerHeight - h) / 2;
         }
-        layoutInArea(content, paddingLeft + (innerWidth - w) / 2, paddingTop + areaY, w, h, 0, Insets.EMPTY, fillWidth, fillHeight, hAlignment, vAlignment);
+        layoutInArea(content, paddingLeft + areaX, paddingTop + areaY, w, h, 0, Insets.EMPTY, fillWidth, fillHeight, hAlignment, vAlignment);
         if (stretchWidth && region != null) {
             region.setPrefWidth(memorisedPrefWidth);
         }

@@ -17,7 +17,7 @@
     <repositories>
         <repository>
             <id>webfx-snapshots</id>
-            <url>https://oss.sonatype.org/content/repositories/snapshots/</url>
+            <url>https://central.sonatype.com/repository/maven-snapshots/</url>
             <releases>
                 <enabled>false</enabled>
             </releases>
@@ -45,6 +45,7 @@
     <packaging>pom</packaging>
 
     <modules>
+        <module>webfx-extras-aria</module>
         <module>webfx-extras-canvas</module>
         <module>webfx-extras-canvas-bar</module>
         <module>webfx-extras-canvas-blob</module>
@@ -57,7 +58,6 @@
         <module>webfx-extras-filepicker</module>
         <module>webfx-extras-filepicker-gwt-j2cl</module>
         <module>webfx-extras-filepicker-openjfx</module>
-        <module>webfx-extras-flextable</module>
         <module>webfx-extras-fonticons</module>
         <module>webfx-extras-fonticons-feather</module>
         <module>webfx-extras-fonticons-material</module>
@@ -77,8 +77,10 @@
         <module>webfx-extras-player-video-javafxmedia</module>
         <module>webfx-extras-player-video-web</module>
         <module>webfx-extras-player-video-web-castr</module>
+        <module>webfx-extras-player-video-web-videojs</module>
         <module>webfx-extras-player-video-web-wistia</module>
         <module>webfx-extras-player-video-web-youtube</module>
+        <module>webfx-extras-responsive</module>
         <module>webfx-extras-styles-bootstrap</module>
         <module>webfx-extras-styles-materialdesign</module>
         <module>webfx-extras-switches</module>

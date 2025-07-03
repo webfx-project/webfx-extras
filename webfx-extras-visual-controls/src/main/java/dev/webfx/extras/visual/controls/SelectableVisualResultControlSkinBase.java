@@ -1,5 +1,6 @@
 package dev.webfx.extras.visual.controls;
 
+import dev.webfx.extras.visual.SelectionMode;
 import dev.webfx.kit.util.properties.FXProperties;
 import javafx.scene.Node;
 import dev.webfx.extras.visual.VisualResult;
@@ -9,18 +10,20 @@ import dev.webfx.extras.visual.VisualSelection;
  * @author Bruno Salmon
  */
 public abstract class SelectableVisualResultControlSkinBase<C extends SelectableVisualResultControl, ROW extends Node, CELL extends Node>
-        extends VisualResultControlSkinBase<C, ROW, CELL> {
+    extends VisualResultControlSkinBase<C, ROW, CELL> {
 
     public SelectableVisualResultControlSkinBase(C control, boolean hasSpecialRenderingForImageAndText) {
         super(control, hasSpecialRenderingForImageAndText);
     }
 
     @Override
-    protected void start() {
-        super.start();
-        updateVisualSelection(getSkinnable().getVisualSelection(), null);
-        FXProperties.runOnPropertyChange((o, oldValue, newValue) -> updateVisualSelection(newValue, oldValue)
-            , getSkinnable().visualSelectionProperty());
+    public void install() {
+        super.install();
+        unregisterOnDispose(
+            FXProperties.runNowAndOnPropertyChange((o, oldValue, newValue)
+                    -> updateVisualSelection(newValue, oldValue)
+                , visualControl.visualSelectionProperty())
+        );
     }
 
     private void updateVisualSelection(VisualSelection selection, VisualSelection oldSelection) {
@@ -32,7 +35,7 @@ public abstract class SelectableVisualResultControlSkinBase<C extends Selectable
 
     @Override
     protected void updateResult(VisualResult rs) {
-        getSkinnable().setVisualSelection(null);
+        visualControl.setVisualSelection(null);
         super.updateResult(rs);
     }
 
@@ -40,13 +43,14 @@ public abstract class SelectableVisualResultControlSkinBase<C extends Selectable
     protected void setUpBodyRow(ROW bodyRow, int rowIndex) {
         super.setUpBodyRow(bodyRow, rowIndex);
         bodyRow.setOnMouseClicked(e -> {
-            C control = getSkinnable();
-            VisualSelection visualSelection = control.getVisualSelection();
-            if (visualSelection == null || visualSelection.getSelectedRow() != rowIndex)
-                visualSelection = VisualSelection.createSingleRowSelection(rowIndex);
-            else
-                visualSelection = null;
-            control.setVisualSelection(visualSelection);
+            if (visualControl.getSelectionMode() != SelectionMode.DISABLED) {
+                VisualSelection visualSelection = visualControl.getVisualSelection();
+                if (visualSelection == null || visualSelection.getSelectedRow() != rowIndex)
+                    visualSelection = VisualSelection.createSingleRowSelection(rowIndex);
+                else
+                    visualSelection = null;
+                visualControl.setVisualSelection(visualSelection);
+            }
         });
     }
 }

@@ -20,6 +20,7 @@ public class HtmlText extends Control {
 
     public HtmlText() {
         setMaxHeight(USE_PREF_SIZE);
+        setFocusTraversable(false);
     }
 
     public HtmlText(String text) {

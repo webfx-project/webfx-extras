@@ -7,12 +7,22 @@ import dev.webfx.extras.visual.impl.VisualStyleImpl;
  */
 public interface VisualStyle {
 
+    Double getMinWidth();
+
     Double getPrefWidth();
+
+    Double getMaxWidth();
+
+    Boolean getHGrow();
+
+    Boolean getHShrink();
 
     String getTextAlign();
 
+    String getStyleClass();
+
     VisualStyle NO_STYLE = new VisualStyleImpl();
-    VisualStyle CENTER_STYLE = new VisualStyleImpl(null, "center");
-    VisualStyle RIGHT_STYLE = new VisualStyleImpl(null, "right");
+    VisualStyle CENTER_STYLE = new VisualStyleImpl(null, null, null, null, null, "center", null);
+    VisualStyle RIGHT_STYLE = new VisualStyleImpl(null, null, null, null, null, "right", null);
 
 }

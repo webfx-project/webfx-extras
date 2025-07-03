@@ -9,6 +9,8 @@ import dev.webfx.extras.styles.bootstrap.Bootstrap;
 import dev.webfx.kit.util.properties.FXProperties;
 import dev.webfx.kit.util.properties.Unregisterable;
 import dev.webfx.platform.util.Objects;
+import dev.webfx.stack.i18n.I18n;
+import dev.webfx.stack.i18n.controls.I18nControls;
 import javafx.beans.property.LongProperty;
 import javafx.beans.property.SimpleLongProperty;
 import javafx.beans.property.SimpleStringProperty;
@@ -59,7 +61,7 @@ public class AudioMediaView {
         FXProperties.runOnPropertyChange(this::playNewMedia, player.mediaProperty());
         Label title = new Label();
         title.textProperty().bind(titleProperty);
-        titleProperty.set("Choose an audio track to play");
+        titleProperty.bind(I18n.i18nTextProperty(JavaFXMediaI18nKeys.ChooseAnAudioTrackForBehind));
         title.setTextFill(Color.WHITE);
         title.getStyleClass().add(Bootstrap.H4);
         title.setMaxWidth(450);
@@ -70,8 +72,7 @@ public class AudioMediaView {
         Label durationLabel = new Label("00:00:00");
         durationLabel.getStyleClass().add("time");
         bindMediaPlayer();
-        durationLabel.textProperty().bind(FXProperties.compute(durationProperty, duration -> formatDuration(duration.longValue())));
-
+        durationLabel.textProperty().bind(durationProperty.map(duration -> formatDuration(duration.longValue())));
         HBox progressBarContainer = new HBox();
         progressBarContainer.setSpacing(10);
         progressBar.setPrefWidth(300);
@@ -106,26 +107,32 @@ public class AudioMediaView {
         buttonsHBox.setPadding(new Insets(0, 0, 0, 30));
         buttonsHBox.setSpacing(10);
         buttonsHBox.setAlignment(Pos.CENTER);
-        Label minus15sLabel = new Label("15s");
+        Label minus15sLabel = I18nControls.newLabel(JavaFXMediaI18nKeys.AbrSecond,15);
         minus15sLabel.setTextFill(Color.WHITE);
         minus15sLabel.setScaleX(0.8);
         minus15sLabel.setScaleY(0.8);
-        Label plus15sLabel = new Label("15s");
+        Label plus15sLabel = I18nControls.newLabel(JavaFXMediaI18nKeys.AbrSecond,15);
         plus15sLabel.setScaleX(0.8);
         plus15sLabel.setScaleY(0.8);
         plus15sLabel.setTextFill(Color.WHITE);
         buttonsHBox.getChildren().addAll(backwardButton, minus15sLabel, playPauseStackPane, plus15sLabel, forwardButton);
         container.getStyleClass().add("audio-player");
         container.getChildren().addAll(buttonsHBox, titleAndProgressBarVBox);
+        // This is necessary for WebFX (to prevent focus scrolling back to play button issue), but not in OpenJFX
+        container.setFocusTraversable(true);
+        progressBar.setFocusTraversable(true);
+        // TODO: Remove once WebFX behaves the same as OpenJFX
     }
 
     private void playNewMedia() {
         player.setOnEndOfPlaying(player::stop); // Forcing stop status (sometimes this doesn't happen automatically for any reason)
         seekX(0);
         MediaMetadata metadata = player.getMedia().getMetadata();
-        titleProperty.set(MetadataUtil.getTitle(metadata));
-        if (metadata != null)
+        titleProperty.unbind();
+        if (metadata != null) {
+            titleProperty.set(MetadataUtil.getTitle(metadata));
             durationProperty.set(MetadataUtil.getDurationMillis(metadata));
+        }
     }
 
     public Node getContainer() {
@@ -240,7 +247,7 @@ public class AudioMediaView {
         long hours = durationMillis / (1000 * 60 * 60); // Calculate hours
         long minutes = (durationMillis / (1000 * 60)) % 60; // Calculate minutes
         long seconds = (durationMillis / 1000) % 60; // Calculate seconds
-
+     //   Console.log("AudioMediaView::formatDuration: " + hours + "h " + minutes + "m "  + seconds + "s ");
         return (hours < 10 ? "0" : "") + hours + ":" + (minutes < 10 ? "0" : "") + minutes + ":" + (seconds < 10 ? "0" : "") + seconds;
     }
 

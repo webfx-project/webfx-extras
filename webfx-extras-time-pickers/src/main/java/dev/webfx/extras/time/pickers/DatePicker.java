@@ -50,7 +50,7 @@ public final class DatePicker {
     private Pane arrowPreviousMonthPane;
     private Pane arrowNextMonthPane;
 
-    //This variable is used to retrieve the graphic object Label associated to a date - the string is the CSS property
+    // This variable is used to retrieve the graphic object Label associated with a date - the string is the CSS class
     private final Map<LocalDate, Pair<Label, String>> dateLabelSelectedStyleClassMap = new HashMap<>();
 
     public DatePicker() {
@@ -218,10 +218,7 @@ public final class DatePicker {
     }
 
     public boolean isDateSelectableDefault(LocalDate localDate) {
-        if (!options.isPastDatesSelectionAllowed() && localDate.isBefore(LocalDate.now())) {
-            return false;
-        }
-        return true;
+        return options.isPastDatesSelectionAllowed() || !localDate.isBefore(LocalDate.now());
     }
 
     public String getDateStyleClassDefault(LocalDate localDate) {
@@ -231,8 +228,8 @@ public final class DatePicker {
     }
 
     private void onMonthChanged(YearMonth newMonth) {
-        // If a property is at null, it means, it's the first call and the object haven't been initialized because the function calling here
-        // happens before the initialisation of the objects, so we need to test first if the objects are initialized
+        // If a property is null, it means, it's the first call, and the object hasn't been initialized because the first
+        // time this method is called happens before objects are initialized.
         if (yearMonthCalendarLayout != null)
             yearMonthCalendarLayout.getChildren().setAll(newMonth);
         if (daysOfMonthLayout != null)
@@ -253,7 +250,7 @@ public final class DatePicker {
     }
 
     private static void bindDayOfWeekLabel(Label label, DayOfWeek dayOfWeek) {
-        // We display the first letter of the day of week name
+        // We display the first letter of the dayOfWeek name
         label.textProperty().bind(LocalizedTime.formatDayOfWeekProperty(dayOfWeek, TextStyle.NARROW_STANDALONE));
     }
 
@@ -302,12 +299,12 @@ public final class DatePicker {
 
     private void updateDatesStyles() {
         // We take the CalendarLayout Children that are a list of LocalDate element and the TimeGridPane children that
-        // are a list of Label, and the i element, of the children of both list are corresponding
-        List<LocalDate> localDateElements = daysOfMonthLayout.getChildren();
-        LocalDate currentDate;
-        for (LocalDate localDateElement : localDateElements) {
-            currentDate = localDateElement;
-            updateDateStyle(currentDate, selectedDates.contains(currentDate));
+        // are a list of Label, and the i element, of the children of both lists are corresponding
+        if (daysOfMonthLayout != null) {
+            List<LocalDate> localDateElements = daysOfMonthLayout.getChildren();
+            for (LocalDate localDateElement : localDateElements) {
+                updateDateStyle(localDateElement, selectedDates.contains(localDateElement));
+            }
         }
     }
 
@@ -324,7 +321,7 @@ public final class DatePicker {
 
     private void updateUnselectableDateStyle() {
         // We take the CalendarLayout Children that are a list of LocalDate element and the TimeGridPane children that
-        // are a list of Label, and the i element, of the children of both list are corresponding
+        // are a list of Label, and the i element, of the children of both lists are corresponding
         List<LocalDate> localDateElements = daysOfMonthLayout.getChildren();
         LocalDate currentDate;
         for (LocalDate localDateElement : localDateElements) {

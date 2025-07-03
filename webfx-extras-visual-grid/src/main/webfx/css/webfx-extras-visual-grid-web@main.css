@@ -1,11 +1,12 @@
 :root {
-    --webfx-visualgrid-border-color: #D3D3D3;
+    --webfx-visualgrid-row-border-color: #D3D3D3;
+    --webfx-visualgrid-col-border-color: #D3D3D3;
     --webfx-visualgrid-row-height: 28px;
     --webfx-visualgrid-selection-color: #AED6F1;
 }
 
 th, td {
-    border: 1px solid var(--webfx-visualgrid-border-color);
+    border: 1px solid var(--webfx-visualgrid-row-border-color);
     border-top-width: 0;
 }
 
@@ -27,7 +28,7 @@ thead {
 thead th {
     border-right-width: thin;
     border-right-style: solid;
-    border-right-color: var(--webfx-visualgrid-border-color);
+    border-right-color: var(--webfx-visualgrid-col-border-color);
     height: var(--webfx-visualgrid-row-height);
     font-weight: bold;
     text-align: center;
@@ -35,7 +36,7 @@ thead th {
 }
 
 tbody td {
-    border-bottom-color: var(--webfx-visualgrid-border-color);
+    border-bottom-color: var(--webfx-visualgrid-row-border-color);
 }
 
 tbody tr {
@@ -54,7 +55,7 @@ th:before { /* this rule is to prevent body appearing in 1px line above header w
     width: 100%;
     left: 0;
     top: -1px;
-    border-top: 1px solid var(--webfx-visualgrid-border-color);
+    border-top: 1px solid var(--webfx-visualgrid-row-border-color);
 }
 
 
@@ -72,16 +73,21 @@ th, tbody, td {
     background-color: transparent;
 }
 
-.grid-head, .grid-body, .grid-col, .grid-row {
+
+/**************************
+*** VisualGridTableSkin ***
+**************************/
+
+.grid, .grid-col, .grid-row {
     overflow: hidden;
 }
 
 .grid-head, .grid-row {
-    border-bottom: 1px solid var(--webfx-visualgrid-border-color);
+    border-bottom: 1px solid var(--webfx-visualgrid-row-border-color);
 }
 
 .grid-col {
-    border-right: 1px solid var(--webfx-visualgrid-border-color);
+    border-right: 1px solid var(--webfx-visualgrid-col-border-color);
 }
 
 tr.selected, .grid-row.selected {

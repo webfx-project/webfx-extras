@@ -14,7 +14,7 @@ import javafx.scene.Node;
 public final class AspectRatioPane extends MonoClipPane {
 
     private final DoubleProperty aspectRatioProperty = FXProperties.newDoubleProperty(1, this::requestLayout);
-    private final ObjectProperty<ScaleMode> fitModePropery = FXProperties.newObjectProperty(ScaleMode.FIT_WIDTH, this::requestLayout);
+    private final ObjectProperty<ScaleMode> fitModeProperty = FXProperties.newObjectProperty(ScaleMode.FIT_WIDTH, this::requestLayout);
 
     public AspectRatioPane() {
         this(null);
@@ -46,20 +46,20 @@ public final class AspectRatioPane extends MonoClipPane {
     }
 
     public ObjectProperty<ScaleMode> fitWidthProperty() {
-        return fitModePropery;
+        return fitModeProperty;
     }
 
     public ScaleMode getFitMode() {
-        return fitModePropery.get();
+        return fitModeProperty.get();
     }
 
     public void setFitMode(ScaleMode fitMode) {
-        fitModePropery.set(fitMode);
+        fitModeProperty.set(fitMode);
     }
 
     @Override
     public Orientation getContentBias() {
-        return getFitMode() != ScaleMode.FIT_HEIGHT ? Orientation.HORIZONTAL : Orientation.VERTICAL;
+        return getFitMode() == ScaleMode.FIT_HEIGHT ? Orientation.VERTICAL : Orientation.HORIZONTAL;
     }
 
     @Override

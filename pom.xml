@@ -45,6 +45,7 @@
     <packaging>pom</packaging>
 
     <modules>
+        <module>webfx-extras-action</module>
         <module>webfx-extras-aria</module>
         <module>webfx-extras-canvas</module>
         <module>webfx-extras-canvas-bar</module>
@@ -55,18 +56,28 @@
         <module>webfx-extras-canvas-pane</module>
         <module>webfx-extras-carousel</module>
         <module>webfx-extras-cell</module>
+        <module>webfx-extras-controlfactory</module>
+        <module>webfx-extras-exceptions</module>
         <module>webfx-extras-filepicker</module>
         <module>webfx-extras-filepicker-gwt-j2cl</module>
         <module>webfx-extras-filepicker-openjfx</module>
         <module>webfx-extras-fonticons</module>
         <module>webfx-extras-fonticons-feather</module>
         <module>webfx-extras-fonticons-material</module>
+        <module>webfx-extras-fxraiser</module>
+        <module>webfx-extras-fxraiser-json</module>
         <module>webfx-extras-geometry</module>
+        <module>webfx-extras-i18n</module>
+        <module>webfx-extras-i18n-ast</module>
+        <module>webfx-extras-i18n-controls</module>
         <module>webfx-extras-imagestore</module>
+        <module>webfx-extras-jsonimage</module>
         <module>webfx-extras-label</module>
         <module>webfx-extras-layer</module>
         <module>webfx-extras-led</module>
         <module>webfx-extras-media-metadata</module>
+        <module>webfx-extras-operation</module>
+        <module>webfx-extras-operation-action</module>
         <module>webfx-extras-panes</module>
         <module>webfx-extras-player</module>
         <module>webfx-extras-player-audio</module>
@@ -99,10 +110,12 @@
         <module>webfx-extras-util-border</module>
         <module>webfx-extras-util-color</module>
         <module>webfx-extras-util-control</module>
+        <module>webfx-extras-util-dialog</module>
         <module>webfx-extras-util-layout</module>
         <module>webfx-extras-util-masterslave</module>
         <module>webfx-extras-util-paint</module>
         <module>webfx-extras-util-scene</module>
+        <module>webfx-extras-validation</module>
         <module>webfx-extras-visual</module>
         <module>webfx-extras-visual-charts</module>
         <module>webfx-extras-visual-charts-peers-base</module>

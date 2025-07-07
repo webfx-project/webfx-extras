@@ -66,11 +66,11 @@ public final class TransitionPane extends MonoClipPane {
             }
             if (leavingNode != null) {
                 if (transition instanceof TranslateTransition) {
-                    // transition from right to left => leaving node is on the left
-                    if (((TranslateTransition) transition).getDirection() == HPos.LEFT) {
-                        layoutInArea(leavingNode, -width, 0, width, leavingHeight, pos);
-                    } else { // transition from left to right => leaving node is on the right
-                        layoutInArea(leavingNode,  width, 0, width, leavingHeight, pos);
+                    // The leaving node is on the left (and entering node on the right) when transiting to left (or reversing a transition to right)
+                    if (((TranslateTransition) transition).getDirection() == (reverse ? HPos.RIGHT :HPos.LEFT)) {
+                        layoutInArea(leavingNode, -width, 0, width, leavingHeight, pos); // leaving node on the left
+                    } else { // Otherwise the leaving node is on the right (and entering node on the left)
+                        layoutInArea(leavingNode,  width, 0, width, leavingHeight, pos); // leaving node on the right
                     }
                 } else {
                     layoutInArea(leavingNode, 0, 0, width, leavingHeight, pos);

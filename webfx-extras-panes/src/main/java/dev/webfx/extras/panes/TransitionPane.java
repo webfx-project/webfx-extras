@@ -8,10 +8,7 @@ import dev.webfx.extras.util.animation.Animations;
 import dev.webfx.kit.util.properties.FXProperties;
 import javafx.animation.Timeline;
 import javafx.application.Platform;
-import javafx.beans.property.BooleanProperty;
-import javafx.beans.property.ObjectProperty;
-import javafx.beans.property.ReadOnlyBooleanProperty;
-import javafx.beans.property.SimpleBooleanProperty;
+import javafx.beans.property.*;
 import javafx.collections.ObservableList;
 import javafx.geometry.HPos;
 import javafx.geometry.Orientation;
@@ -35,11 +32,13 @@ public final class TransitionPane extends MonoClipPane {
 
     private boolean animate = true;
     private boolean animateFirstContent = false;
+    private boolean animateHeight = true;
     private boolean reverse;
     private boolean keepsLeavingNodes = false;
     private boolean scrollToTop = false;
     private Timeline transitionTimeline;
     private Timeline scrollToTopTimeline;
+    private Timeline heightTimeline;
 
     private final Pane dualContainer = new LayoutPane() {
         //private double lastWidth, lastHeight;
@@ -57,7 +56,7 @@ public final class TransitionPane extends MonoClipPane {
             long t0 = System.currentTimeMillis();
 */
             double enteringHeight = enteringNode == null ? 0 : Math.min(height, enteringNode.prefHeight(width));
-            double leavingHeight = leavingNode == null ? 0 : Math.min(height, leavingNode.prefHeight(width));
+            double  leavingHeight =  leavingNode == null ? 0 : Math.min(height,  leavingNode.prefHeight(width));
             //long t1 = System.currentTimeMillis();
             // Temporary hack to make the account page correctly laid out with circle and fade transition
             Pos pos = transition instanceof CircleTransition || transition instanceof FadeTransition ? Pos.TOP_CENTER : getAlignment();
@@ -82,6 +81,16 @@ public final class TransitionPane extends MonoClipPane {
                     scrollToTopTimeline = Animations.scrollToTop(enteringNode, transition.shouldVerticalScrollBeAnimated())
                 );
             }
+            // Starting the height animation if required. It's done here to ensure that the final animation value -
+            // which is enteringHeight - is correctly computed at this point (the entering node was not yet laid out
+            // in doAnimate()).
+            if (animateHeight && heightTimeline == null && isTransiting()) {
+                DoubleProperty heightProperty = TransitionPane.this.prefHeightProperty(); // the property we actually animate
+                heightTimeline = Animations.animateProperty(heightProperty, enteringHeight); // starting the animation
+                // Restoring the normal value of USE_COMPUTED_SIZE for the pref height at the end of the animation
+                Animations.setOrCallOnTimelineFinished(heightTimeline, e -> heightProperty.setValue(USE_COMPUTED_SIZE));
+            }
+
 /*
             long t2 = System.currentTimeMillis();
             Console.log("👉 TransitionPane.layoutChildren() took " + (t2 - t0) + " ms (prefHeight: " + (t1 - t0) + ", layoutInArea: " + (t2 - t1) + ") " + this);
@@ -157,6 +166,10 @@ public final class TransitionPane extends MonoClipPane {
         // enabling the clip only during the transition
         clipEnabledProperty().bind(transitingProperty);
         transitToContent(initialContent);
+        // These settings are for the height animation (which is actually the prefHeight of this TransitionPane)
+        setMinHeight(USE_PREF_SIZE);  // So it doesn't interfere with the height animation
+        setMaxHeight(USE_PREF_SIZE);  // So it doesn't interfere with the height animation
+        setAlignment(Pos.TOP_CENTER); // So when the height is animated, the content is not moving (just clipped)
     }
 
     public void setUnmanagedDuringTransition() {
@@ -191,6 +204,14 @@ public final class TransitionPane extends MonoClipPane {
 
     public void setAnimateFirstContent(boolean animateFirstContent) {
         this.animateFirstContent = animateFirstContent;
+    }
+
+    public boolean isAnimateHeight() {
+        return animateHeight;
+    }
+
+    public void setAnimateHeight(boolean animateHeight) {
+        this.animateHeight = animateHeight;
     }
 
     public boolean isReverse() {
@@ -289,6 +310,19 @@ public final class TransitionPane extends MonoClipPane {
             oldRegion.setMaxHeight(getHeight());
         } else
             oldRegionMaxHeight = -1;
+        // Stoping the possibly running height timeline
+        Animations.forceTimelineToFinish(heightTimeline);
+        heightTimeline = null;
+        // Starting a new prefHeight timeline if requested
+        if (animateHeight && newRegion != null) {
+            // What we animate is actually the pref height of this TransitionPane, which is normally set to
+            // USE_COMPUTED_SIZE but when we start the animation, we set it to the current height, which is the
+            // initial value for the animation.
+            setPrefHeight(getHeight());
+            // The animation timeline is then started in dualContainer.layoutChildren(). The reason for this is that
+            // the final value of the animated height - which is the new content (i.e., entering node) pref height -
+            // can't be correctly computed at this point because it's not yet laid out.
+        }
         rescheduleScrollTopTimeline();
         transitionTimeline = transition.createAndStartTransitionTimeline(oldContent, newContent, oldRegion, newRegion, dualContainer, this::getWidth, this::getHeight, reverse);
         transitingProperty.set(true);

@@ -260,7 +260,7 @@ public class I18nProviderImpl implements I18nProvider {
                     String bracketToken = sToken.substring(i1 + 1, i2);
                     // Note: brackets such as [{0}] will be interpreted later by i18nFxValueRaiser, so we skip them here
                     if (!(bracketToken.startsWith("{") && bracketToken.endsWith("}"))) {
-                        Object resolvedValue = getDictionaryTokenValueImpl(new I18nSubKey(bracketToken, i18nKey), tokenKey, dictionary, false, originalDictionary, false, skipMessageLoading);
+                        Object resolvedValue = getDictionaryTokenValueImpl(new I18nSubKey(bracketToken, i18nKey), tokenKey, originalDictionary, false, dictionary, false, skipMessageLoading);
                         // If the bracket token has been resolved, we return it with the parts before and after the brackets
                         if (resolvedValue != null) {
                             if (i1 == 0 && i2 == sToken.length() - 1) // except if there are no parts before and after the brackets

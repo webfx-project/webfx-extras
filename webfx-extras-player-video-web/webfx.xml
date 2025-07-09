@@ -16,7 +16,7 @@
     </dependencies>
 
     <java-callbacks>
-        <callback-class name="dev.webfx.extras.player.video.web.SeamlessCapableWebVideoPlayer">
+        <callback-class name="dev.webfx.extras.player.video.web.WebVideoPlayerBase">
             <callback-method name="onReady"/>
             <callback-method name="onPlay"/>
             <callback-method name="onPause"/>

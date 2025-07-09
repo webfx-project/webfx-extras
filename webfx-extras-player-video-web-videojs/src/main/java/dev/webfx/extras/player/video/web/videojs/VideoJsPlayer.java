@@ -5,13 +5,14 @@ import dev.webfx.extras.player.Media;
 import dev.webfx.extras.player.StartOptions;
 import dev.webfx.extras.player.StartOptionsBuilder;
 import dev.webfx.extras.player.Status;
-import dev.webfx.extras.player.video.web.WebVideoPlayerBase;
+import dev.webfx.extras.player.video.web.SeamlessCapableWebVideoPlayer;
 import dev.webfx.extras.webview.pane.LoadOptions;
 import dev.webfx.extras.webview.pane.WebViewPane;
 import dev.webfx.kit.util.properties.FXProperties;
 import dev.webfx.platform.resource.Resource;
 import dev.webfx.platform.util.Booleans;
 import javafx.scene.paint.Color;
+import javafx.util.Duration;
 
 import java.net.URLDecoder;
 import java.nio.charset.StandardCharsets;
@@ -21,7 +22,55 @@ import java.util.Map;
 /**
  * @author David Hello
  */
-public final class VideoJsPlayer extends WebVideoPlayerBase {
+public final class VideoJsPlayer extends SeamlessCapableWebVideoPlayer {
+
+    static {
+
+        if (IS_SEAMLESS) {
+            String videoJsScriptUrl = Resource.toUrl("videojs.js", VideoJsPlayer.class);
+            String videoJsCssUrl = Resource.toUrl("videojs.css", VideoJsPlayer.class);
+            WebViewPane.executeSeamlessScriptInBrowser(
+                "const vjsCssLink = document.createElement('link');\n" +
+                "vjsCssLink.href = 'https://vjs.zencdn.net/8.12.0/video-js.css';\n" +
+                "vjsCssLink.rel = 'stylesheet';\n" +
+                "document.head.appendChild(vjsCssLink);\n" +
+
+                "const customCssLink = document.createElement('link');\n" +
+                "customCssLink.href = '" + videoJsCssUrl + "';\n" +
+                "customCssLink.rel = 'stylesheet';\n" +
+                "document.head.appendChild(customCssLink);\n" +
+
+                "window.webfx_extras_videojs_players = {};" +
+                "window.webfx_extras_videojs_functions = [];\n" +
+                "window.bindVideoJsPlayer = function(player, javaPlayer) {\n" +
+                "    player.on('play',  function() { javaPlayer.onPlay();  });\n" +
+                "    player.on('pause', function() { javaPlayer.onPause(); });\n" +
+                "    player.on('ended', function() { javaPlayer.onEnd();   });\n" +
+                "};" +
+                "const vjsScript = document.createElement('script');\n" +
+                "vjsScript.src = 'https://vjs.zencdn.net/8.12.0/video.min.js';\n" +
+                "vjsScript.onload = function() {\n" +
+                "    const qualitySelectorScript = document.createElement('script');\n" +
+                "    qualitySelectorScript.src = 'https://cdn.jsdelivr.net/npm/videojs-quality-selector-hls@1.1.1/dist/videojs-quality-selector-hls.min.js';\n" +
+                "    qualitySelectorScript.onload = function() {\n" +
+                "        const managerScript = document.createElement('script');\n" +
+                "        managerScript.src = '" + videoJsScriptUrl + "';\n" +
+                "        managerScript.onload = function() {\n" +
+                "            for (var i = 0; i < window.webfx_extras_videojs_functions.length; i++) {\n" +
+                "                window.webfx_extras_videojs_functions[i]();\n" +
+                "            }\n" +
+                "            window.webfx_extras_videojs_functions = [];\n" +
+                "        };\n" +
+                "        document.head.appendChild(managerScript);\n" +
+                "    };\n" +
+                "    document.head.appendChild(qualitySelectorScript);\n" +
+                "};\n" +
+                "document.head.appendChild(vjsScript);\n"
+            );
+        } else {
+
+        }
+    }
 
     private String playerType = "";
     private static final String BUNNY_PLAYER="bunny";
@@ -30,15 +79,17 @@ public final class VideoJsPlayer extends WebVideoPlayerBase {
     private String tracksParam = "";
 
     public VideoJsPlayer() {
-        FXProperties.runOnPropertyChange(status -> {
-            //Use setRedirectConsole only for debug. It can cause some infinite loop in some cases.
-            //webViewPane.setRedirectConsole(true);
-            if (status == Status.READY) {
-                WebViewPane webViewPane1 = webViewPane;
-                javafx.scene.web.WebEngine webEngine = webViewPane1.getWebEngine();
-                webViewPane.loadFromScript("safeOnLoad(() => {loadVideo('"+playerType+"', '"+videoId+"', '"+clientId+"','"+ tracksParam+"');});",new LoadOptions(), false);
-            }
-        }, statusProperty());
+        if (!IS_SEAMLESS) {
+            FXProperties.runOnPropertyChange(status -> {
+                //Use setRedirectConsole only for debug. It can cause some infinite loop in some cases.
+                //webViewPane.setRedirectConsole(true);
+                if (status == Status.READY) {
+                    WebViewPane webViewPane1 = webViewPane;
+                    javafx.scene.web.WebEngine webEngine = webViewPane1.getWebEngine();
+                    webViewPane.loadFromScript("safeOnLoad(() => {loadVideo('" + playerType + "', '" + videoId + "', '" + clientId + "','" + tracksParam + "','" +  playerId + "');});", new LoadOptions(), false);
+                }
+            }, statusProperty());
+        }
     }
 
     @Override
@@ -77,6 +128,7 @@ public final class VideoJsPlayer extends WebVideoPlayerBase {
     protected void queryParamToStartOption(String name, String value, StartOptionsBuilder sob) {
         switch (name) {
             case "autoplay": sob.setAutoplay(Booleans.isTrue(value)); break;
+            case "muted": sob.setMuted(Booleans.isTrue(value)); break;
             case "playerColor":
                 if (value != null) {
                     try {
@@ -105,7 +157,7 @@ public final class VideoJsPlayer extends WebVideoPlayerBase {
 //        }
 //
 //       if (clientId != null) {
-//           sb.append("&client_id=").append(clientId);
+//           sb.append("&client=").append(clientId);
 //        }
 //
 //        if (videoId != null) {
@@ -117,5 +169,158 @@ public final class VideoJsPlayer extends WebVideoPlayerBase {
 //            sb.append("&tracks=").append(tracks);
 //        }
 
+    }
+
+    private void seamless_call(String script) {
+        StartOptions so = playingStartingOption;
+        String autoplay = Booleans.isTrue(so.autoplay()) ? "true" : "false";
+        String muted = Booleans.isTrue(so.muted()) ? "true" : "false";
+
+        webViewPane.loadFromScript(
+            "const playerId = '" + playerId + "';\n" +
+                "var player = window.webfx_extras_videojs_players[playerId];\n" +
+                "if (player) {\n" +
+                "    " + script + ";\n" +
+                "} else {\n" +
+                "    var createPlayer = function() {\n" +
+                "        const javaPlayer = window[playerId];\n" +
+                "        const container = document.getElementById(playerId);\n" +
+                "        if (container) {\n" +
+                "            const videoElement = document.createElement('video-js');\n" +
+                "            videoElement.id = 'video_' + playerId;\n" +
+                "            videoElement.className = 'video-js';\n" +
+                "            videoElement.style.width = '100%';\n" +
+                "            videoElement.style.height = '100%';\n" +
+                "            container.appendChild(videoElement);\n" +
+                "            const sourceElement = document.createElement('source');\n" +
+                "            sourceElement.src = 'https://" + clientId + ".b-cdn.net/" + videoId + "/playlist.m3u8';\n" +
+                "            sourceElement.type = 'application/x-mpegURL';\n" +
+                "            videoElement.appendChild(sourceElement);\n" +
+                "            player = videojs(videoElement, { controls: true, preload: 'auto', autoplay: " + autoplay + ", muted: " + muted + " });\n" +
+                "            window.webfx_extras_videojs_players[playerId] = player;\n" +
+                "            window.bindVideoJsPlayer(player, javaPlayer);\n" +
+
+                // Language mapping and label parsing
+                "     const languageMap = {\n" +
+                "    'en': 'English',\n" +
+                "    'es': 'Español',\n" +
+                "    'fr': 'Français',\n" +
+                "    'pt': 'Português',\n" +
+                "    'de': 'Deutsch',\n" +
+                //We don't put chinese (zh, because videojs can't distinguish between Mandarin and Cantonese)
+                "    'it': 'Italiano',\n" +
+                "    'fi': 'Suomi',\n" +
+                "    'el': 'Ελληνικά',\n" +
+                "    'vi': 'Tiếng Việt'\n" +
+                "     };\n" +
+                "            let customLabels = [];\n" +
+                "            try {\n" +
+                "            if ('"+tracksParam+"' !== 'undefined') {\n" +
+                "                    const trackItems = '" + tracksParam + "'.split(',').map(code => code.trim());\n" +
+                "                    const isCodeList = trackItems.every(code => languageMap[code]);\n" +
+                "                    if (isCodeList) {\n" +
+                "                        customLabels = trackItems.map(code => languageMap[code]);\n" +
+                "                    } else {\n" +
+                "                        customLabels = trackItems;\n" +
+                "                    }\n" +
+                "                }\n" +
+                "            } catch (error) {\n" +
+                "                console.warn('Error parsing tracksParam, using default labels:', error);\n" +
+                "            }\n" +
+
+                // Audio tracks setup
+                "            player.on('loadedmetadata', function() {\n" +
+                "                try {\n" +
+                "                    const audioTracks = player.audioTracks();\n" +
+                "                    if (audioTracks && audioTracks.tracks_) {\n" +
+                "                        if (customLabels.length > 0) {\n" +
+                "                            audioTracks.tracks_.forEach((track, index) => {\n" +
+                "                                if (customLabels[index]) {\n" +
+                "                                    track.label = customLabels[index];\n" +
+                "                                }\n" +
+                "                            });\n" +
+                "                        } else {\n" +
+                "                            audioTracks.tracks_.forEach((track) => {\n" +
+                "                                const lang = track.language;\n" +
+                "                                if (languageMap[lang]) {\n" +
+                "                                    track.label = languageMap[lang];\n" +
+                "                                }\n" +
+                "                            });\n" +
+                "                        }\n" +
+                "                        if (player.controlBar.audioTrackButton) {\n" +
+                "                            player.controlBar.audioTrackButton.update();\n" +
+                "                        }\n" +
+                "                    }\n" +
+                "                } catch (error) {\n" +
+                "                    console.warn('Audio tracks setup failed:', error);\n" +
+                "                }\n" +
+                "            });\n" +
+
+                // Final ready callback
+                "            player.ready(function() {\n" +
+                "                javaPlayer.onReady();\n" +
+                "                " + script + "\n" +
+                "            });\n" +
+                "        }\n" +
+                "    };\n" +
+                "    if (window.videojs) createPlayer(); else window.webfx_extras_videojs_functions.push(createPlayer);\n" +
+                "}",
+
+            new LoadOptions()
+                .setSeamlessInBrowser(true)
+                .setSeamlessContainerId(playerId)
+                .setOnWebWindowReady(() -> webViewPane.setWindowMember(playerId, this)),
+            null
+        );
+
+    }
+
+    @Override
+    protected void seamless_displayVideo() {
+        seamless_call("");
+    }
+
+    @Override
+    public void resetToInitialState() {
+        if (IS_SEAMLESS) {
+            seamless_call("player.reset();");
+        } else {
+            super.resetToInitialState();
+        }
+    }
+
+    @Override
+    protected void seamless_play() {
+        seamless_call("player.play()");
+    }
+
+    @Override
+    protected void seamless_pause() {
+        seamless_call("player.pause()");
+    }
+
+    @Override
+    protected void seamless_stop() {
+        if (IS_SEAMLESS) {
+            seamless_call("player.pause(); player.currentTime(0);");
+            setStatus(Status.STOPPED);
+        }
+    }
+
+    @Override
+    public void seek(Duration seekTime) {
+        if (IS_SEAMLESS)
+            seamless_call("player.currentTime(" + seekTime.toSeconds() + ")");
+    }
+
+
+    @Override
+    protected void seamless_requestFullscreen() {
+        seamless_call("player.requestFullscreen()");
+    }
+
+    @Override
+    protected void seamless_cancelFullscreen() {
+        seamless_call("player.exitFullscreen()");
     }
 }

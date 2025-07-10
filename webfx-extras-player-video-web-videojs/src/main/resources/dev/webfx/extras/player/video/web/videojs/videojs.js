@@ -37,82 +37,62 @@
 
         // Main load video function - Primary entry point for loading and configuring video players
         loadVideo: function(config) {
-            console.log('enter loadVideo');
-            // Validate required parameters
-            if (!config.playerType || !config.hlsId || !config.clientId) {
-                throw new Error('Missing required parameters: playerType, hlsId, clientId');
-            }
+            return new Promise((resolve, reject) => {
+                // Merge config with defaults
+                const finalConfig = { ...this.defaultConfig, ...config };
 
-            // Merge config with defaults
-            const finalConfig = { ...this.defaultConfig, ...config };
-
-            try {
-                // Dispose any existing player to prevent memory leaks
-                this.disposeCurrentPlayer();
-
-                // Parse custom labels - This is where track labeling logic begins
-                // If tracksParam is provided, use those labels; otherwise fall back to metadata
-                const customLabels = this.parseCustomLabels(finalConfig.tracksParam);
-
-                // Build video URL based on player type (bunny for VOD, castr for live)
-                const videoConfig = this.buildVideoUrl(finalConfig.playerType, finalConfig.clientId, finalConfig.hlsId);
-                const videoUrl = videoConfig.url;
-                const isLiveStream = videoConfig.isLive;
-
-                console.log('Loading video:', videoUrl, 'Live:', isLiveStream);
-
-                // Get container element and validate it exists
-                const container = document.getElementById(finalConfig.containerId);
-                if (!container) {
-                    throw new Error(`Container element with ID '${finalConfig.containerId}' not found`);
+                // Validate required parameters
+                if (!finalConfig.playerType || !finalConfig.hlsId || !finalConfig.clientId) {
+                    return reject(new Error('Missing required parameters: playerType, hlsId, clientId'));
                 }
 
-                // Clear any existing error messages and create fresh video element
-                container.innerHTML = `<video id="${finalConfig.videojsPlayerId}" class="video-js vjs-default-skin" controls preload="auto" data-setup="{}"></video>`;
+                const initPlayer = (container) => {
+                    try {
+                        this.disposeCurrentPlayer();
+                        const customLabels = this.parseCustomLabels(finalConfig.tracksParam);
+                        const videoConfig = this.buildVideoUrl(finalConfig.playerType, finalConfig.clientId, finalConfig.hlsId);
+                        const videoUrl = videoConfig.url;
+                        const isLiveStream = videoConfig.isLive;
 
-                // Get player options based on stream type (live vs VOD)
-                const playerOptions = this.getPlayerOptions(isLiveStream, finalConfig.autoplay);
+                        console.log('Loading video:', videoUrl, 'Live:', isLiveStream);
+                        container.innerHTML = `<video id="${finalConfig.videojsPlayerId}" class="video-js vjs-default-skin" controls preload="auto" data-setup="{}"></video>`;
+                        const playerOptions = this.getPlayerOptions(isLiveStream, finalConfig.autoplay);
+                        const player = videojs(finalConfig.videojsPlayerId, playerOptions);
+                        this.currentPlayer = player;
 
-                // Initialize Video.js player
-                const player = videojs(finalConfig.videojsPlayerId, playerOptions);
-                this.currentPlayer = player;
+                        player.ready(() => {
+                            player.src({ src: videoUrl, type: 'application/x-mpegURL' });
+                            if (isLiveStream) this.setupDVRFunctionality(player, isLiveStream);
+                            this.setupQualitySelector(player);
+                            this.setupAudioTracks(player, customLabels);
+                            setTimeout(() => {
+                                this.setMenuClickOnly(player, '.vjs-quality-selector');
+                                this.setMenuClickOnly(player, '.vjs-audio-button');
+                            }, 500);
+                        });
 
-                // Set the source and setup features when player is ready
-                player.ready(() => {
-                    player.src({
-                        src: videoUrl,
-                        type: 'application/x-mpegURL'
-                    });
-
-                    // Setup additional features based on stream type
-                    if (isLiveStream) {
-                        this.setupDVRFunctionality(player, isLiveStream);
+                        this.setupErrorHandling(player, container);
+                        resolve(player);
+                    } catch (error) {
+                        console.error('Video loading error:', error);
+                        if (container) container.innerHTML = `<div class="error-message">${error.message}</div>`;
+                        reject(error);
                     }
-                    this.setupQualitySelector(player);
+                };
 
-                    // Setup audio tracks with custom labels - This is the key track labeling function
-                    this.setupAudioTracks(player, customLabels);
+                const waitForContainer = (retries = 10) => {
+                    const container = document.getElementById(finalConfig.containerId);
+                    if (container) {
+                        initPlayer(container);
+                    } else if (retries > 0) {
+                        setTimeout(() => waitForContainer(retries - 1), 50);
+                    } else {
+                        reject(new Error(`Container element with ID '${finalConfig.containerId}' not found after multiple retries`));
+                    }
+                };
 
-                    // Set menu click-only behavior after controls are rendered
-                    setTimeout(() => {
-                        this.setMenuClickOnly(player, '.vjs-quality-selector');
-                        this.setMenuClickOnly(player, '.vjs-audio-button');
-                    }, 500);
-                });
-
-                // Setup comprehensive error handling
-                this.setupErrorHandling(player, container);
-
-                return player;
-
-            } catch (error) {
-                console.error('Video loading error:', error);
-                const container = document.getElementById(finalConfig.containerId);
-                if (container) {
-                    container.innerHTML = `<div class="error-message">${error.message}</div>`;
-                }
-                throw error;
-            }
+                waitForContainer();
+            });
         },
 
         // Get player options based on stream type - Configures Video.js options for live vs VOD

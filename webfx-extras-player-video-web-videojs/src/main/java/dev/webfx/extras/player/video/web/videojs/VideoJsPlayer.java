@@ -190,13 +190,18 @@ public final class VideoJsPlayer extends SeamlessCapableWebVideoPlayer {
                 "            autoplay: " + autoplay + ",\n" +
                 "            muted: " + muted + "\n" +
                 "        };\n" +
-                "        const player = window.VideoPlayerManager.loadVideo(config);\n" +
-                "        window.webfx_extras_videojs_players[playerId] = player;\n" +
-                "        window.bindVideoJsPlayer(player, javaPlayer);\n" +
-                "        player.ready(function() {\n" +
-                "            javaPlayer.onReady();\n" +
-                "            " + script + ";\n" +
-                "        });\n" +
+                "        window.VideoPlayerManager.loadVideo(config)\n" +
+                "            .then(player => {\n" +
+                "                window.webfx_extras_videojs_players[playerId] = player;\n" +
+                "                window.bindVideoJsPlayer(player, javaPlayer);\n" +
+                "                player.ready(function() {\n" +
+                "                    javaPlayer.onReady();\n" +
+                "                    " + script + ";\n" +
+                "                });\n" +
+                "            })\n" +
+                "            .catch(error => {\n" +
+                "                console.error('Failed to load video player:', error);\n" +
+                "            });\n" +
                 "    };\n" +
                 "    if (window.VideoPlayerManager) createPlayer(); else window.webfx_extras_videojs_functions.push(createPlayer);\n" +
                 "}",

@@ -46,73 +46,79 @@
             // Merge config with defaults
             const finalConfig = { ...this.defaultConfig, ...config };
 
-            try {
-                // Dispose any existing player to prevent memory leaks
-                this.disposeCurrentPlayer();
+            const initPlayer = (container) => {
+                try {
+                    // Dispose any existing player to prevent memory leaks
+                    this.disposeCurrentPlayer();
 
-                // Parse custom labels - This is where track labeling logic begins
-                // If tracksParam is provided, use those labels; otherwise fall back to metadata
-                const customLabels = this.parseCustomLabels(finalConfig.tracksParam);
+                    // Parse custom labels
+                    const customLabels = this.parseCustomLabels(finalConfig.tracksParam);
 
-                // Build video URL based on player type (bunny for VOD, castr for live)
-                const videoConfig = this.buildVideoUrl(finalConfig.playerType, finalConfig.clientId, finalConfig.hlsId);
-                const videoUrl = videoConfig.url;
-                const isLiveStream = videoConfig.isLive;
+                    // Build video URL
+                    const videoConfig = this.buildVideoUrl(finalConfig.playerType, finalConfig.clientId, finalConfig.hlsId);
+                    const videoUrl = videoConfig.url;
+                    const isLiveStream = videoConfig.isLive;
 
-                console.log('Loading video:', videoUrl, 'Live:', isLiveStream);
+                    console.log('Loading video:', videoUrl, 'Live:', isLiveStream);
 
-                // Get container element and validate it exists
-                const container = document.getElementById(finalConfig.containerId);
-                if (!container) {
-                    throw new Error(`Container element with ID '${finalConfig.containerId}' not found`);
-                }
+                    // Clear container and create video element
+                    container.innerHTML = `<video id="${finalConfig.videojsPlayerId}" class="video-js vjs-default-skin" controls preload="auto" data-setup="{}"></video>`;
 
-                // Clear any existing error messages and create fresh video element
-                container.innerHTML = `<video id="${finalConfig.videojsPlayerId}" class="video-js vjs-default-skin" controls preload="auto" data-setup="{}"></video>`;
+                    // Get player options
+                    const playerOptions = this.getPlayerOptions(isLiveStream, finalConfig.autoplay);
 
-                // Get player options based on stream type (live vs VOD)
-                const playerOptions = this.getPlayerOptions(isLiveStream, finalConfig.autoplay);
+                    // Initialize Video.js player
+                    const player = videojs(finalConfig.videojsPlayerId, playerOptions);
+                    this.currentPlayer = player;
 
-                // Initialize Video.js player
-                const player = videojs(finalConfig.videojsPlayerId, playerOptions);
-                this.currentPlayer = player;
+                    // Setup player when ready
+                    player.ready(() => {
+                        player.src({
+                            src: videoUrl,
+                            type: 'application/x-mpegURL'
+                        });
 
-                // Set the source and setup features when player is ready
-                player.ready(() => {
-                    player.src({
-                        src: videoUrl,
-                        type: 'application/x-mpegURL'
+                        if (isLiveStream) {
+                            this.setupDVRFunctionality(player, isLiveStream);
+                        }
+                        this.setupQualitySelector(player);
+                        this.setupAudioTracks(player, customLabels);
+
+                        setTimeout(() => {
+                            this.setMenuClickOnly(player, '.vjs-quality-selector');
+                            this.setMenuClickOnly(player, '.vjs-audio-button');
+                        }, 500);
                     });
 
-                    // Setup additional features based on stream type
-                    if (isLiveStream) {
-                        this.setupDVRFunctionality(player, isLiveStream);
+                    // Setup error handling
+                    this.setupErrorHandling(player, container);
+
+                    return player;
+
+                } catch (error) {
+                    console.error('Video loading error:', error);
+                    if (container) {
+                        container.innerHTML = `<div class="error-message">${error.message}</div>`;
                     }
-                    this.setupQualitySelector(player);
+                    throw error;
+                }
+            };
 
-                    // Setup audio tracks with custom labels - This is the key track labeling function
-                    this.setupAudioTracks(player, customLabels);
-
-                    // Set menu click-only behavior after controls are rendered
-                    setTimeout(() => {
-                        this.setMenuClickOnly(player, '.vjs-quality-selector');
-                        this.setMenuClickOnly(player, '.vjs-audio-button');
-                    }, 500);
-                });
-
-                // Setup comprehensive error handling
-                this.setupErrorHandling(player, container);
-
-                return player;
-
-            } catch (error) {
-                console.error('Video loading error:', error);
+            const waitForContainer = (retries = 10) => {
                 const container = document.getElementById(finalConfig.containerId);
                 if (container) {
-                    container.innerHTML = `<div class="error-message">${error.message}</div>`;
+                    return initPlayer(container);
+                } else if (retries > 0) {
+                    setTimeout(() => waitForContainer(retries - 1), 50);
+                } else {
+                    const error = new Error(`Container element with ID '${finalConfig.containerId}' not found after multiple retries`);
+                    console.error('Video loading error:', error);
+                    // We can't display the error in the container because we couldn't find it.
+                    throw error;
                 }
-                throw error;
-            }
+            };
+
+            return waitForContainer();
         },
 
         // Get player options based on stream type - Configures Video.js options for live vs VOD

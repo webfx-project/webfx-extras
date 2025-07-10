@@ -10,6 +10,7 @@ import dev.webfx.kit.launcher.WebFxKitLauncher;
 import dev.webfx.kit.util.properties.FXProperties;
 import dev.webfx.platform.console.Console;
 import dev.webfx.platform.util.Arrays;
+import dev.webfx.platform.util.Booleans;
 import dev.webfx.platform.util.Strings;
 import javafx.scene.Node;
 import javafx.scene.layout.Region;
@@ -99,9 +100,11 @@ public abstract class WebVideoPlayerBase extends VideoPlayerBase {
             String url = generateMediaEmbedFullUrl(onLoadSuccessStatus == Status.PLAYING);
             if (!Objects.equals(lastUrl, url)) {
 
-                webViewPane.loadFromUrl(url, new LoadOptions().setOnLoadSuccess(() ->
-                        setStatus(onLoadSuccessStatus))
-                    , null);
+                webViewPane.loadFromUrl(url, new LoadOptions().setOnLoadSuccess(() -> {
+                    webViewPane.setWindowMember("playerId", playerId);
+                    webViewPane.setWindowMember(playerId, this);
+                        setStatus(onLoadSuccessStatus);
+                }), null);
             }
             lastUrl = url;
         }
@@ -201,5 +204,36 @@ public abstract class WebVideoPlayerBase extends VideoPlayerBase {
     protected abstract String generateMediaEmbedRawUrl();
 
     protected abstract void appendUrlParameters(StartOptions so, StringBuilder sb);
+
+    // Callback methods called by web player in seamless mode
+
+    public void onReady() {
+        //Console.log("onReady()");
+        setStatus(Status.READY);
+        /*if (Booleans.isTrue(playingStartingOption.autoplay()))
+            seamless_play();*/
+    }
+
+    public void onPlay() {
+        //Console.log("onPlay()");
+        setStatus(Status.PLAYING);
+    }
+
+    public void onPause() {
+        //Console.log("onPause()");
+        if (getStatus() != Status.STOPPED)
+            setStatus(Status.PAUSED);
+    }
+
+    public void onEnd() {
+        //Console.log("onEnd()");
+        setStatus(Status.STOPPED);
+        if (Booleans.isTrue(playingStartingOption.loop())) {
+            play();
+        } else {
+            callOnEndOfPlayingIfSet();
+        }
+    }
+
 
 }

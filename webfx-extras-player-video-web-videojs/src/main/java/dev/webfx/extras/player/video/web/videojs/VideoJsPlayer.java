@@ -170,8 +170,8 @@ public final class VideoJsPlayer extends SeamlessCapableWebVideoPlayer {
 
     private void seamless_call(String script) {
         StartOptions so = playingStartingOption;
-        String autoplay = Booleans.isTrue(so.autoplay()) ? "true" : "false";
-        String muted = Booleans.isTrue(so.muted()) ? "true" : "false";
+        boolean autoplay = so != null && Booleans.isTrue(so.autoplay());
+        boolean muted = so != null && Booleans.isTrue(so.muted());
 
         webViewPane.loadFromScript(
             "const playerId = '" + playerId + "';\n" +

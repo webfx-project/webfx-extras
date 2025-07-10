@@ -178,7 +178,9 @@ public final class VideoJsPlayer extends SeamlessCapableWebVideoPlayer {
                 "var player = window.webfx_extras_videojs_players[playerId];\n" +
                 "if (player && !player.isDisposed()) {\n" +
                 "    " + script + ";\n" +
-                "} else {\n" +
+                "} else if (!window.webfx_extras_videojs_creating || !window.webfx_extras_videojs_creating[playerId]) {\n" +
+                "    if (!window.webfx_extras_videojs_creating) window.webfx_extras_videojs_creating = {};\n" +
+                "    window.webfx_extras_videojs_creating[playerId] = true;\n" +
                 "    var createPlayer = function() {\n" +
                 "        const javaPlayer = window[playerId];\n" +
                 "        const config = {\n" +
@@ -193,6 +195,7 @@ public final class VideoJsPlayer extends SeamlessCapableWebVideoPlayer {
                 "        window.VideoPlayerManager.loadVideo(config)\n" +
                 "            .then(player => {\n" +
                 "                window.webfx_extras_videojs_players[playerId] = player;\n" +
+                "                window.webfx_extras_videojs_creating[playerId] = false;\n" +
                 "                window.bindVideoJsPlayer(player, javaPlayer);\n" +
                 "                player.ready(function() {\n" +
                 "                    javaPlayer.onReady();\n" +
@@ -200,6 +203,7 @@ public final class VideoJsPlayer extends SeamlessCapableWebVideoPlayer {
                 "                });\n" +
                 "            })\n" +
                 "            .catch(error => {\n" +
+                "                window.webfx_extras_videojs_creating[playerId] = false;\n" +
                 "                console.error('Failed to load video player:', error);\n" +
                 "            });\n" +
                 "    };\n" +
@@ -223,7 +227,15 @@ public final class VideoJsPlayer extends SeamlessCapableWebVideoPlayer {
     @Override
     public void resetToInitialState() {
         if (IS_SEAMLESS) {
-            seamless_call("player.reset();");
+            // Only reset if the player actually exists in the browser
+            webViewPane.loadFromScript(
+                "var player = window.webfx_extras_videojs_players['" + playerId + "'];\n" +
+                "if (player && !player.isDisposed()) {\n" +
+                "    player.reset();\n" +
+                "}",
+                new LoadOptions().setSeamlessInBrowser(true),
+                null
+            );
         } else {
             super.resetToInitialState();
         }

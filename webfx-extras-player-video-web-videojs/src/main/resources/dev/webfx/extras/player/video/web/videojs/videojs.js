@@ -85,6 +85,7 @@
                     if (container) {
                         initPlayer(container);
                     } else if (retries > 0) {
+                        //We wait a bit for the dom to be fully constructed
                         setTimeout(() => waitForContainer(retries - 1), 50);
                     } else {
                         reject(new Error(`Container element with ID '${finalConfig.containerId}' not found after multiple retries`));
@@ -555,28 +556,35 @@ function loadVideo(playerType, hlsId, clientId, tracksParam, playerId) {
         throw new Error('VideoPlayerManager not found. Please load the static initialization script first.');
     }
 
-    // Call the static manager with parameters
-    const player = window.VideoPlayerManager.loadVideo({
+    // Call the static manager and get the promise
+    const playerPromise = window.VideoPlayerManager.loadVideo({
         playerType: playerType,
         hlsId: hlsId,
         clientId: clientId,
-        tracksParam: tracksParam, // This parameter determines track labels
+        tracksParam: tracksParam,
         javaPlayerId: playerId
     });
 
-    // Add event listeners to notify Java side (for embedded applications)
-    if (player) {
-        const javaPlayer = window[window.playerId];
-        if (javaPlayer) {
-            player.ready(function() {
-                javaPlayer.onReady();
-            });
-            player.on('play', function() { javaPlayer.onPlay(); });
-            player.on('pause', function() { javaPlayer.onPause(); });
-            player.on('ended', function() { javaPlayer.onEnd(); });
+    // Handle the promise to get the actual player object
+    playerPromise.then(player => {
+        // Add event listeners to notify Java side (for embedded applications)
+        if (player) {
+            const javaPlayer = window[playerId]; // Correctly reference the javaPlayer using the passed playerId
+            if (javaPlayer) {
+                player.ready(function() {
+                    javaPlayer.onReady();
+                });
+                player.on('play', function() { javaPlayer.onPlay(); });
+                player.on('pause', function() { javaPlayer.onPause(); });
+                player.on('ended', function() { javaPlayer.onEnd(); });
+            }
         }
-    }
-    return player;
+    }).catch(error => {
+        console.error("Failed to load video in legacy loadVideo function:", error);
+    });
+
+    // Return the promise for any downstream code that might use it
+    return playerPromise;
 }
 
 // Alternative function with object parameter for backward compatibility

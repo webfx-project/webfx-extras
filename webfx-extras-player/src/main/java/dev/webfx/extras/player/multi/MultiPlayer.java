@@ -172,4 +172,10 @@ public final class MultiPlayer extends PlayerBase {
             selectedPlayer.setOnEndOfPlaying(onEndOfPlaying);
     }
 
+    @Override
+    public String toString() {
+        return "MultiPlayer{" +
+            "selectedPlayer=" + selectedPlayer +
+            '}';
+    }
 }

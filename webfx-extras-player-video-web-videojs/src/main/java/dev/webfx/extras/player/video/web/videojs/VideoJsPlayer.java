@@ -275,4 +275,12 @@ public final class VideoJsPlayer extends SeamlessCapableWebVideoPlayer {
     protected void seamless_cancelFullscreen() {
         seamless_call("player.exitFullscreen()");
     }
+
+    @Override
+    public String toString() {
+        return "VideoJsPlayer{" +
+            "videoId='" + videoId + '\'' +
+            ", playerId='" + playerId + '\'' +
+            '}';
+    }
 }

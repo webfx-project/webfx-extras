@@ -34,6 +34,8 @@ public interface Bootstrap {
     String BTN_WARNING = "btn-warning";
     String BTN_DANGER = "btn-danger";
 
+    String BADGE = "badge";
+
     String TEXT = "txt"; // Note: txt is used instead of text to avoid conflict with javafx.scene.text.Text
 
     // TODO: remove text-xxx classes (use text & xxx combination instead)
@@ -119,6 +121,32 @@ public interface Bootstrap {
     static <N extends Node> N button(N button, double hPadding, double vPadding, String... styles) {
         return addButtonStyle(padding(button, hPadding, vPadding, styles));
     }
+
+    static <N extends Node> N badge(N badge, String... styles) {
+        return addBadgeStyle(padding(badge, styles));
+    }
+
+
+    static <N extends Node> N addBadgeStyle(N badge) {
+        return style(badge, BADGE);
+    }
+
+    static <N extends Node> N successBadge(N badge) {
+        return badge(badge, SUCCESS);
+    }
+
+    static <N extends Node> N primaryBadge(N badge) {
+        return badge(badge, PRIMARY);
+    }
+
+    static <N extends Node> N secondaryBadge(N badge) {
+        return badge(badge, SECONDARY);
+    }
+
+    static <N extends Node> N dangerBadge(N badge) {
+        return badge(badge, DANGER);
+    }
+
 
     static <N extends Node> N largeButton(N button, String... styles) {
         return addButtonStyle(largeResize(button, styles));

@@ -337,16 +337,7 @@
 }
 
 .badge {
-    display: inline-block;
-    font-size: 12px;
-    font-weight: bold;
-    line-height: 1;
-    text-align: center;
-    white-space: nowrap;
-    vertical-align: baseline;
     border-radius: 14px;
-    --fx-text-fill: var(color);
-    --fx-svg-path-fill: var(--fx-text-fill);
 }
 
 .badge.danger{

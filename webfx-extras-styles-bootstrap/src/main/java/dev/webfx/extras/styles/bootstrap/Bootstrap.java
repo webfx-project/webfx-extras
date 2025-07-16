@@ -147,6 +147,11 @@ public interface Bootstrap {
         return badge(badge, DANGER);
     }
 
+    static <N extends Node> N warningBadge(N badge) {
+        return badge(badge, WARNING);
+    }
+
+
 
     static <N extends Node> N largeButton(N button, String... styles) {
         return addButtonStyle(largeResize(button, styles));

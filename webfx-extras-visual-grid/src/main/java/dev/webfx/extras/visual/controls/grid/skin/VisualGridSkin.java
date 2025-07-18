@@ -108,6 +108,7 @@ public final class VisualGridSkin extends SelectableVisualResultControlSkinBase<
                         if (bodyScrollPane == null) {
                             bodyScrollPane = new ScrollPane();
                             bodyScrollPane.setHbarPolicy(ScrollPane.ScrollBarPolicy.NEVER);
+                            bodyScrollPane.setFitToWidth(true);
                             FXProperties.runOnPropertyChange(() -> {
                                 headOffset = Controls.computeScrollPaneHOffset(bodyScrollPane, false);
                                 gridTableHead.relocate(-headOffset, 0);

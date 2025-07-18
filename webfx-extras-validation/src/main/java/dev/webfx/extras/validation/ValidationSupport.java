@@ -269,13 +269,17 @@ public final class ValidationSupport {
         String emailPattern = "^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,6}$";
         Pattern pattern = Pattern.compile(emailPattern);
         // Create the validation rule
+        // Create the validation rule
         addValidationRule(
-                Bindings.createBooleanBinding(
-                        () -> pattern.matcher(emailInput.getText()).matches(),
-                        emailInput.textProperty()
-                ),
-                where,
-                errorMessage
+            Bindings.createBooleanBinding(
+                () -> {
+                    String text = emailInput.getText();
+                    return text != null && pattern.matcher(text).matches();
+                },
+                emailInput.textProperty()
+            ),
+            where,
+            errorMessage
         );
     }
 

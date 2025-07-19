@@ -35,7 +35,10 @@ public abstract class SelectableVisualResultControlSkinBase<C extends Selectable
 
     @Override
     protected void updateResult(VisualResult rs) {
-        visualControl.setVisualSelection(null);
+        // The default behavior is to reset the visual selection when the visual result changes, unless we are told
+        // not to do so (ex: ReactiveVisualMapper might want to control the selection in some cases).
+        if (!VisualSelection.isVisualSelectionResetPrevented())
+            visualControl.setVisualSelection(null);
         super.updateResult(rs);
     }
 

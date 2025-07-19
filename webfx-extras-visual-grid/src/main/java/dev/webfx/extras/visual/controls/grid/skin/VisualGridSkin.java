@@ -208,8 +208,7 @@ public final class VisualGridSkin extends SelectableVisualResultControlSkinBase<
 
     @Override
     protected Pane getOrAddBodyRow(int rowIndex) {
-        // Note: rowIndex is not passed because not used, as this method is always called to append a new body row at the tail
-        return gridBody.createBodyRow();
+        return gridBody.createBodyRow(rowIndex);
     }
 
     @Override

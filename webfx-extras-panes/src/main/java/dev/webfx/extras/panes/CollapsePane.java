@@ -77,8 +77,8 @@ public class CollapsePane extends MonoClipPane {
 
     @Override
     protected double getLayoutHeight() {
-        // During the collapse animation, the layout is performed with the captured height of the content in order to
-        // make the sliding effect (otherwise the layout would try to shrink the content to this CollapsePane height).
+        // During the collapse animation, the layout is performed with the captured height of the content to make the
+        // sliding effect (otherwise the layout would try to shrink the content to this CollapsePane height).
         // Even if the content height exceeds this CollapsePane height, it doesn't matter as it's clipped.
         if (timeline != null && isVertical())
             return widthOrHeightDuringCollapseAnimation;
@@ -86,7 +86,7 @@ public class CollapsePane extends MonoClipPane {
     }
 
     private boolean isHorizontal() { // refers to the collapse direction
-        return getCollapseSide().isVertical(); // refers to the rectangle side (ie. LEFT or RIGHT)
+        return getCollapseSide().isVertical(); // refers to the rectangle side (i.e., LEFT or RIGHT)
     }
 
     private boolean isVertical() {
@@ -212,7 +212,7 @@ public class CollapsePane extends MonoClipPane {
 
     public static Node createPlainChevron(Paint stroke) {
         SVGPath chevron = new SVGPath();
-        chevron.setContent("M 0,8 8,0 16,8");
+        chevron.setContent("M 0,0 8,8 16,0");
         chevron.setFill(Color.TRANSPARENT);
         chevron.setStroke(stroke);
         chevron.setStrokeWidth(2);
@@ -251,10 +251,7 @@ public class CollapsePane extends MonoClipPane {
         chevron.setOnMouseClicked(e -> FXProperties.toggleProperty(collapsedProperty));
         chevron.setCursor(Cursor.HAND); // Note that in OpenJFX, only the part inside the StackPane is showing the hand cursor
         // Rotation of the chevron depending on the collapsed state
-        chevron.setRotate(collapsedProperty.get() ? 180 : 0); // initial state (no animation)
-        FXProperties.runOnPropertyChange(collapsed -> // animating subsequent changes
-                Animations.animateProperty(chevron.rotateProperty(), collapsed ? 180 : 0)
-            , collapsedProperty);
+        animateChevron(chevron, collapsedProperty);
         // Hiding the circle and chevron on mouse exit if requested
         if (hideChevronOnMouseExitNode != null) {
             hideChevronOnMouseExitNode.setOnMouseEntered(e -> { // Note: works also on touch devices!
@@ -268,13 +265,26 @@ public class CollapsePane extends MonoClipPane {
         return chevron;
     }
 
+    public static <N extends Node> N animateChevron(N chevron, CollapsePane collapsePane) {
+        return animateChevron(chevron, collapsePane.collapsedProperty());
+    }
+
+    public static <N extends Node> N animateChevron(N chevron, BooleanProperty collapsedProperty) {
+        // Rotation of the chevron depending on the collapsed state
+        chevron.setRotate(collapsedProperty.get() ? 0 : 180); // initial state (no animation)
+        FXProperties.runOnPropertyChange(collapsed -> // animating subsequent changes
+                Animations.animateProperty(chevron.rotateProperty(), collapsed ? 0 : 180)
+            , collapsedProperty);
+        return chevron;
+    }
+
     public static StackPane decorateCollapsePane(CollapsePane collapsePane, boolean hideDecorationOnMouseExit) {
         Node chevronNode = createCircledChevron();
         StackPane stackPane = new StackPane(collapsePane, chevronNode);
         // Drawing a 1 px borderline at the bottom.
         stackPane.setBorder(new Border(new BorderStroke(Color.LIGHTGRAY, BorderStrokeStyle.SOLID, null, new BorderWidths(0, 0, 1, 0))));
         StackPane.setAlignment(collapsePane, Pos.TOP_CENTER);
-        // Because the circle and chevron will be half outside of the stackPane, we ask stackPane to not manage them
+        // Because the circle and chevron will be half outside the stackPane, we ask stackPane to not manage them
         // (otherwise stackPane will grow in height to include them inside).
         chevronNode.setManaged(false);
         // We now manage their position ourselves to be in the middle of the bottom line

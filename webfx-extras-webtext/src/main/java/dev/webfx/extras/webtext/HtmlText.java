@@ -20,7 +20,8 @@ public class HtmlText extends Control {
 
     public HtmlText() {
         setMaxHeight(USE_PREF_SIZE);
-        setFocusTraversable(false);
+        // Was false, but actually this prevents HTML hyperlinks to work.
+        setFocusTraversable(true);
     }
 
     public HtmlText(String text) {

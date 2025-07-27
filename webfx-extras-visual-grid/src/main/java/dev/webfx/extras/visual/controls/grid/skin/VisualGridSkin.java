@@ -261,7 +261,7 @@ public final class VisualGridSkin extends SelectableVisualResultControlSkinBase<
                         content = monoPane;
                     }
                 }
-                VBox.setMargin(content, visualControl.getCellMargin());
+                VBox.setMargin(content, visualControl.getMonoCellMargin());
                 cell.getChildren().add(content);
             }
         }

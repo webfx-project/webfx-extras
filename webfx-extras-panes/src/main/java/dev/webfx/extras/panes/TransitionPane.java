@@ -41,20 +41,19 @@ public final class TransitionPane extends MonoClipPane {
     private Timeline heightTimeline;
 
     private final Pane dualContainer = new LayoutPane() {
-        //private double lastWidth, lastHeight;
-        //private Node lastEnteringNode, lastLeavingNode;
+
+        private boolean layoutFrozenDuringTransition;
+
         @Override
         protected void layoutChildren(double width, double height) {
-/* Optimization commented for now, as this prevents the scroll pane to be in full height when switch pages in Modality front-office
-            if (width == lastWidth && height == lastHeight && lastEnteringNode == enteringNode && lastLeavingNode == leavingNode) {
-                return;
-            }
-            lastWidth = width;
-            lastHeight = height;
-            lastEnteringNode = enteringNode;
-            lastLeavingNode = leavingNode;
-            long t0 = System.currentTimeMillis();
-*/
+            boolean isTransiting = isTransiting();
+            if (isTransiting) {
+                if (layoutFrozenDuringTransition) {
+                    return;
+                }
+                layoutFrozenDuringTransition = true;
+            } else
+                layoutFrozenDuringTransition = false;
             double enteringHeight = enteringNode == null ? 0 : Math.min(height, enteringNode.prefHeight(width));
             double  leavingHeight =  leavingNode == null ? 0 : Math.min(height,  leavingNode.prefHeight(width));
             //long t1 = System.currentTimeMillis();

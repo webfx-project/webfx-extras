@@ -32,15 +32,15 @@ public class LargestFittingChildPane extends StackPane {
     }
 
     private void selectLargestFittingChild(double width, boolean apply) {
-        if (width <= 0)
-            return;
-        if (!layoutPass) { // New layout pass detection
-            layoutPass = true;
-            Platform.runLater(() -> layoutPass = false);
-        } else if (lastWidth == width) // Same width in same layout pass => no change
-            return;
+        if (width > 0) {
+            if (!layoutPass) { // New layout pass detection
+                layoutPass = true;
+                Platform.runLater(() -> layoutPass = false);
+            } else if (lastWidth == width) // Same width in same layout pass => no change
+                return;
+            lastWidth = width;
+        }
         //Console.log("width = " + width);
-        lastWidth = width;
         largestFittingChild = null;
         double largestFittingChildWidth = smallestChildWidth = largestChildWidth = 0; // in case the children are empty
         for (Node child : getChildren()) {

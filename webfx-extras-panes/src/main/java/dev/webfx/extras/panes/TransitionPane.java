@@ -5,6 +5,7 @@ import dev.webfx.extras.panes.transitions.FadeTransition;
 import dev.webfx.extras.panes.transitions.Transition;
 import dev.webfx.extras.panes.transitions.TranslateTransition;
 import dev.webfx.extras.util.animation.Animations;
+import dev.webfx.extras.util.layout.Layouts;
 import dev.webfx.kit.util.properties.FXProperties;
 import javafx.animation.Timeline;
 import javafx.application.Platform;
@@ -63,16 +64,16 @@ public final class TransitionPane extends MonoClipPane {
                 layoutInArea(enteringNode, 0, 0, width, enteringHeight, pos);
             }
             if (leavingNode != null) {
+                double areaX = 0;
                 if (transition instanceof TranslateTransition) {
                     // The leaving node is on the left (and entering node on the right) when transiting to left (or reversing a transition to right)
                     if (((TranslateTransition) transition).getDirection() == (reverse ? HPos.RIGHT :HPos.LEFT)) {
-                        layoutInArea(leavingNode, -width, 0, width, leavingHeight, pos); // leaving node on the left
+                        areaX = -width; // leaving node on the left
                     } else { // Otherwise the leaving node is on the right (and entering node on the left)
-                        layoutInArea(leavingNode,  width, 0, width, leavingHeight, pos); // leaving node on the right
+                        areaX = width; // leaving node on the right
                     }
-                } else {
-                    layoutInArea(leavingNode, 0, 0, width, leavingHeight, pos);
                 }
+                layoutInArea(leavingNode, areaX, 0, width, leavingHeight, pos);
             }
             if (scrollToTop && scrollToTopTimeline == null && enteringHeight > 0) {
                 // Postponing to ensure the layout bound is set on the possible target node for scrollTop
@@ -242,7 +243,11 @@ public final class TransitionPane extends MonoClipPane {
     }
 
     private boolean isTransitingHorizontally() {
-        return isTransiting() && transition instanceof TranslateTransition;
+        return isTransiting() && isHorizontalTranslation();
+    }
+
+    private boolean isHorizontalTranslation() {
+        return transition instanceof TranslateTransition;
     }
 
     public ReadOnlyBooleanProperty transitingProperty() {
@@ -297,6 +302,10 @@ public final class TransitionPane extends MonoClipPane {
                 doAnimate(newContent);
             }, widthProperty());
             return;
+        }
+        // Freezing the dual container width during horizontal transition
+        if (isHorizontalTranslation()) {
+            Layouts.setFixedWidth(dualContainer, dualContainer.getWidth());
         }
         Node oldContent = leavingNode;
         // Preventing the leaving node to increase in height if the entering node is bigger, as this breaks the
@@ -360,6 +369,10 @@ public final class TransitionPane extends MonoClipPane {
         if (enteringNode == newContent) {
             transitingProperty.set(false);
         }
+        // Restoring default values in case the dual container width was frozen during transition
+        dualContainer.setMinWidth(USE_COMPUTED_SIZE);
+        dualContainer.setPrefWidth(USE_COMPUTED_SIZE);
+        dualContainer.setMaxWidth(USE_COMPUTED_SIZE);
     }
 
 }

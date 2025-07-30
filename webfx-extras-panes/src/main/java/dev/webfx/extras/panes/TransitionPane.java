@@ -43,18 +43,8 @@ public final class TransitionPane extends MonoClipPane {
 
     private final Pane dualContainer = new LayoutPane() {
 
-        private boolean layoutFrozenDuringTransition;
-
         @Override
         protected void layoutChildren(double width, double height) {
-            boolean isTransiting = isTransiting();
-            if (isTransiting) {
-                if (layoutFrozenDuringTransition) {
-                    return;
-                }
-                layoutFrozenDuringTransition = true;
-            } else
-                layoutFrozenDuringTransition = false;
             double enteringHeight = enteringNode == null ? 0 : Math.min(height, enteringNode.prefHeight(width));
             double  leavingHeight =  leavingNode == null ? 0 : Math.min(height,  leavingNode.prefHeight(width));
             //long t1 = System.currentTimeMillis();

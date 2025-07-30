@@ -25,7 +25,7 @@ import java.util.function.Consumer;
  */
 public class WebViewPane extends MonoPane {
 
-    private static final boolean DEBUG = false;
+    private static final boolean DEBUG = true;
 
     private static final boolean IS_GLUON = UserAgent.isNative();
     private static final boolean IS_BROWSER = UserAgent.isBrowser();

@@ -307,19 +307,21 @@ public class WebViewPane extends MonoPane {
         }
     }
 
-    public Object callWindow(String name, Object... args) {
-        JSObject window = getWindow();
-        if (window != null) {
-            logDebug("Calling window." + name);
-            try {
-                return window.call(name, args);
-            } catch (Exception e) {
-                logDebug("Calling window." + name + " failed: " + e.getMessage());
-            }
-        } else {
-            logDebug("Can't call " + name + " as window is null");
+    public Object callWindowSilently(String name, Object... args) {
+        try {
+            return callWindow(name, args);
+        } catch (Exception e) {
+            logDebug("Calling window." + name + " failed: " + e.getMessage());
         }
         return null;
+    }
+
+    public Object callWindow(String name, Object... args) throws Exception {
+        logDebug("Calling window." + name);
+        JSObject window = getWindow();
+        if (window == null)
+            throw new IllegalStateException("Can't call " + name + " as window is null");
+        return window.call(name, args);
     }
 
     public boolean isRedirectConsole() {

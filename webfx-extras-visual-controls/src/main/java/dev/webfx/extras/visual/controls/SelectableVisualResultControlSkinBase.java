@@ -48,7 +48,9 @@ public abstract class SelectableVisualResultControlSkinBase<C extends Selectable
         bodyRow.setOnMouseClicked(e -> {
             if (visualControl.getSelectionMode() != SelectionMode.DISABLED) {
                 VisualSelection visualSelection = visualControl.getVisualSelection();
-                if (visualSelection == null || visualSelection.getSelectedRow() != rowIndex)
+                if (visualSelection == null ||
+                    // If the user clicks on the same row while holding the Ctrl key, we clear that row selection
+                    !(e.isControlDown() && visualSelection.getSelectedRow() != rowIndex))
                     visualSelection = VisualSelection.createSingleRowSelection(rowIndex);
                 else
                     visualSelection = null;

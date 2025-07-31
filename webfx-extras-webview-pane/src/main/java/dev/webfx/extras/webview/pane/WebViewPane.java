@@ -185,14 +185,14 @@ public class WebViewPane extends MonoPane {
                         if (window != null) {
                             try {
                                 // Evaluating the max height over the document and all possible iFrames
-                                Object heightEval = window.eval(
-                                        "var maxHeight = document.documentElement.scrollHeight;\n" +
-                                        "document.querySelectorAll('iframe').forEach(function(iframe) {\n" +
-                                        "    let style = window.getComputedStyle(iframe);\n" +
-                                        "    if (style.getPropertyValue('display') !== 'none' && style.getPropertyValue('visibility') !== 'hidden' && style.getPropertyValue('opacity') !== '0')\n" +
-                                        "       maxHeight = Math.max(maxHeight, iframe.scrollHeight);\n" +
-                                        "});\n" +
-                                        "maxHeight;");
+                                Object heightEval = window.eval("""
+                                        var maxHeight = document.documentElement.scrollHeight;
+                                        document.querySelectorAll('iframe').forEach(function(iframe) {
+                                            let style = window.getComputedStyle(iframe);
+                                            if (style.getPropertyValue('display') !== 'none' && style.getPropertyValue('visibility') !== 'hidden' && style.getPropertyValue('opacity') !== '0')
+                                               maxHeight = Math.max(maxHeight, iframe.scrollHeight);
+                                        });
+                                        maxHeight;""");
                                 if (heightEval instanceof Number)
                                     newHeight = ((Number) heightEval).doubleValue() + fitHeightExtra;
                             } catch (Exception e) {
@@ -233,8 +233,8 @@ public class WebViewPane extends MonoPane {
         unloading = false;
         if (isGluonLayoutStabilized != null)
             this.isGluonLayoutStabilized = isGluonLayoutStabilized;
-        loadedUrl = null; // to force reload even if url is identical
-        processWebEngineState(); // will do a reload even if web engine state is RUNNING (see method code).
+        loadedUrl = null; // to force reload even if the url is identical
+        processWebEngineState(); // will do a reload even if the web engine state is RUNNING (see method code).
     }
 
     public void unload() {
@@ -245,7 +245,7 @@ public class WebViewPane extends MonoPane {
         setContent(null);
         if (webView != null) {
             webView.getEngine().load(null);
-            // Recreating the web engine for possible next load, because Wistia player doesn't start if we reuse the same
+            // Recreating the web engine for the possible next load, because Wistia player doesn't start if we reuse the same
             webView = null; // TODO investigate why
         }
     }
@@ -263,7 +263,7 @@ public class WebViewPane extends MonoPane {
     }
 
     public JSObject getWindow() {
-        if (IS_GLUON && !isWebViewDisplayed()) // Calling webEngine on Gluon when webView causes a semi crash!
+        if (IS_GLUON && !isWebViewDisplayed()) // Calling webEngine on Gluon when webView causes a semi-crash!
             return null;
         if (isSeamless()) {
             webWindow = PARENT_BROWSER_WINDOW;
@@ -316,7 +316,7 @@ public class WebViewPane extends MonoPane {
         return null;
     }
 
-    public Object callWindow(String name, Object... args) throws Exception {
+    public Object callWindow(String name, Object... args) {
         logDebug("Calling window." + name);
         JSObject window = getWindow();
         if (window == null)
@@ -358,7 +358,7 @@ public class WebViewPane extends MonoPane {
             logDebug("Skipping (unloading)");
             return;
         }
-        // In general, there is nothing to do when state is RUNNING, except if this call happens after
+        // In general, there is nothing to do when the state is RUNNING, except if this call happens after
         // a call to setPendingLoad() which is an explicit request from the application code to reload the web view.
         boolean reloadRequested = pendingLoad != null && loadedUrl == null; // indicates the case explained above.
         if (reloadRequested)
@@ -430,7 +430,7 @@ public class WebViewPane extends MonoPane {
                                 // Postponing the script execution. The reason for this is that if we just created a
                                 // seamlessDiv, it's only in the JavaFX scene graph at this stage, it will be mapped
                                 // by webfx a bit later (in the next animation frame), but the script probably needs
-                                // access it straightaway (ex: seamless video player), so we postpone its execution
+                                // to access it straightaway (ex: seamless video player), so we postpone its execution
                                 // to ensure webfx inserted it in the DOM.
                                 UiScheduler.scheduleDeferred(() -> {
                                     try {
@@ -490,7 +490,7 @@ public class WebViewPane extends MonoPane {
                 gluonWidthListener = null;
                 // Now that the container has a stabilized size (which will be the size of the video player), we can
                 // move on and attach the webview (will be done in onGluonLayoutStabilized). But we postpone this call
-                // with runLater(), otherwise the webview can be displayed at the wrong place (centered on left top
+                // with runLater(), otherwise the webview can be displayed at the wrong place (centered on the left-top
                 // corner of this WebViewPane). This postpone ensures the layout is completely finished.
                 Platform.runLater(this::onGluonLayoutStabilized);
             });

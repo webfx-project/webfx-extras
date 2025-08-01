@@ -250,6 +250,12 @@ public final class Layouts {
         return bindManagedToVisibleProperty(node);
     }
 
+    public static void bindAllManagedAndVisiblePropertiesTo(ObservableValue<Boolean> visibleProperty, Node... nodes) {
+        for (Node node : nodes)
+            node.visibleProperty().bind(visibleProperty);
+        bindAllManagedToVisibleProperty(nodes);
+    }
+
     public static void bindAllManagedToVisibleProperty(Node... nodes) {
         Arrays.forEach(nodes, Layouts::bindManagedToVisibleProperty);
     }

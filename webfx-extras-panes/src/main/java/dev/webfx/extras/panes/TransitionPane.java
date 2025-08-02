@@ -40,6 +40,7 @@ public final class TransitionPane extends MonoClipPane {
     private Timeline transitionTimeline;
     private Timeline scrollToTopTimeline;
     private Timeline heightTimeline;
+    private Runnable onTransitionFinishedRunnable;
 
     private final Pane dualContainer = new LayoutPane() {
 
@@ -253,6 +254,11 @@ public final class TransitionPane extends MonoClipPane {
     }
 
     public void transitToContent(Node enteringNode) {
+        transitToContent(enteringNode, null);
+    }
+
+    public void transitToContent(Node enteringNode, Runnable onTransitionFinishedRunnable) {
+        this.onTransitionFinishedRunnable = onTransitionFinishedRunnable;
         requestedEnteringNodeProperty.set(enteringNode);
     }
 
@@ -359,10 +365,14 @@ public final class TransitionPane extends MonoClipPane {
         if (enteringNode == newContent) {
             transitingProperty.set(false);
         }
-        // Restoring default values in case the dual container width was frozen during transition
+        // Restoring default values in case the dual-container width was frozen during transition
         dualContainer.setMinWidth(USE_COMPUTED_SIZE);
         dualContainer.setPrefWidth(USE_COMPUTED_SIZE);
         dualContainer.setMaxWidth(USE_COMPUTED_SIZE);
+        if (onTransitionFinishedRunnable != null) {
+            onTransitionFinishedRunnable.run();
+            onTransitionFinishedRunnable = null;
+        }
     }
 
 }

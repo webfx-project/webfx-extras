@@ -156,7 +156,10 @@ public final class ValidationSupport {
             validationVisualizer.setDecoration(new GraphicValidationDecoration() {
                 @Override
                 protected Node createErrorNode() {
-                    return ImageStore.createImageView(ValidationIcons.validationErrorIcon16Url);
+                    // Commented because it overlaps the price text in the online Festival PaymentPage.
+                    // Also, do we really need this icon in addition to the red validation message?
+                    //return ImageStore.createImageView(ValidationIcons.validationErrorIcon16Url);
+                    return null;
                 }
 
                 @Override

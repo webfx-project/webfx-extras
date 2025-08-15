@@ -116,8 +116,9 @@ public class GraphicDecoration extends Decoration {
     }
 
     public GraphicDecoration(Node decorationNode, Pos position, double xOffset, double yOffset, double xDecorationRelativeOffset, double yDecorationRelativeOffset, double xTargetRelativeOffset, double yTargetRelativeOffset) {
+        if (decorationNode != null)
+            decorationNode.setManaged(false);
         this.decorationNode = decorationNode;
-        this.decorationNode.setManaged(false);
         this.pos = position;
         this.xOffset = xOffset;
         this.yOffset = yOffset;

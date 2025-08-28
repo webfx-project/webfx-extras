@@ -514,7 +514,7 @@ public final class ValidationSupport {
             return false;
         }
         // Contains at least one special character
-        if (!password.matches(".*[@#$%^&+=!().,*?-].*")) {
+        if (!password.matches(".*[@#$%^&+=!()/.,*?-].*")) {
             return false;
         }
         return true;

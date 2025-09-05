@@ -633,6 +633,7 @@ public final class LocalizedTime {
             .replace("25", "yy")
             .replace("11", "MM")
             .replace("28", "dd")
+            .replace(" de ", " 'de' ") // in Spanish and Portuguese
             ;
         return inferLocalDatePattern(pattern, ui);
     }

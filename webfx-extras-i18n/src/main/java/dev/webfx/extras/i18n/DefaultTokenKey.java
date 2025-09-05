@@ -8,7 +8,8 @@ public enum DefaultTokenKey implements TokenKey {
     PROMPT("prompt", String.class),
     GRAPHIC("graphic", Node.class),
     FILL("fill", Paint.class),
-    TEXT_FILL("textFill", Paint.class);
+    TEXT_FILL("textFill", Paint.class),
+    STYLE_CLASS("styleClass", String.class);
 
     private final String token;
     private final Class<?> expectedClass;

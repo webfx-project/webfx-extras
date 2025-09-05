@@ -23,6 +23,7 @@ public class VisualGrid extends SelectableVisualResultControl {
     private final DoubleProperty prefRowHeightProperty = new SimpleDoubleProperty(DEFAULT_ROW_HEIGHT);
     private final DoubleProperty maxRowHeightProperty = new SimpleDoubleProperty(USE_PREF_SIZE);
     private final ObjectProperty<Insets> cellMarginProperty = new SimpleObjectProperty<>(DEFAULT_CELL_MARGIN);
+    private final ObjectProperty<Insets> monoCellMarginProperty = new SimpleObjectProperty<>(DEFAULT_CELL_MARGIN);
 
     public VisualGrid() {
     }
@@ -105,6 +106,18 @@ public class VisualGrid extends SelectableVisualResultControl {
 
     public void setCellMargin(Insets cellMargin) {
         cellMarginProperty.set(cellMargin);
+    }
+
+    public Insets getMonoCellMargin() {
+        return monoCellMarginProperty.get();
+    }
+
+    public ObjectProperty<Insets> monoCellMarginProperty() {
+        return monoCellMarginProperty;
+    }
+
+    public void setMonoCellMargin(Insets cellMargin) {
+        monoCellMarginProperty.set(cellMargin);
     }
 
     public static VisualGrid createVisualGridWithTableLayoutSkin() {

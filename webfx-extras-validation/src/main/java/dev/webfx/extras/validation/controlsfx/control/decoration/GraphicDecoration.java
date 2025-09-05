@@ -116,8 +116,9 @@ public class GraphicDecoration extends Decoration {
     }
 
     public GraphicDecoration(Node decorationNode, Pos position, double xOffset, double yOffset, double xDecorationRelativeOffset, double yDecorationRelativeOffset, double xTargetRelativeOffset, double yTargetRelativeOffset) {
+        if (decorationNode != null)
+            decorationNode.setManaged(false);
         this.decorationNode = decorationNode;
-        this.decorationNode.setManaged(false);
         this.pos = position;
         this.xOffset = xOffset;
         this.yOffset = yOffset;
@@ -130,7 +131,7 @@ public class GraphicDecoration extends Decoration {
     /** {@inheritDoc} */
     @Override public Node applyDecoration(Node targetNode) {
         List<Node> targetNodeChildren = ImplUtils.getChildren((Parent)targetNode, true);
-        if (!targetNodeChildren.contains(decorationNode)) {
+        if (decorationNode != null && !targetNodeChildren.contains(decorationNode)) {
             targetNodeChildren.add(decorationNode);
         }
         updateGraphicPosition(targetNode);
@@ -147,8 +148,10 @@ public class GraphicDecoration extends Decoration {
     }
     
     private void updateGraphicPosition(Node targetNode) {
-        installDecorationListener(decorationNode, targetNode);
         installDecorationListener(targetNode, targetNode);
+        if (decorationNode == null)
+            return;
+        installDecorationListener(decorationNode, targetNode);
 
         final double decorationNodeWidth = decorationNode.prefWidth(-1);
         final double decorationNodeHeight = decorationNode.prefHeight(-1);

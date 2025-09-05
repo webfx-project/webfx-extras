@@ -108,8 +108,10 @@ final class GridBody extends Region {
         return groupCell;
     }
 
-    // Note: rowIndex is not passed because not used, as this method is always called to append a new body row at the tail
-    Pane createBodyRow() {
+    Pane createBodyRow(int rowIndex) {
+        int rowSize = bodyDataRows.size();
+        if (rowIndex < rowSize)
+            return bodyDataRows.get(rowIndex);
         Pane bodyRow;
         if (visualGridSkin.isMonoColumnLayout()) {
             // In mono column layout, the body row is a VBox that will contain all the data cells of that row
@@ -124,7 +126,7 @@ final class GridBody extends Region {
             bodyRow = new Pane();
         }
         bodyRow.getStyleClass().add("grid-row");
-        globalRowsIndexes.add(bodyDataRows.size());
+        globalRowsIndexes.add(rowSize);
         bodyDataRows.add(bodyRow);
         return bodyRow;
     }

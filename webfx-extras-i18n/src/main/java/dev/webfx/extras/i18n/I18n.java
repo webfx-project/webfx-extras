@@ -7,6 +7,7 @@ import javafx.beans.property.ObjectProperty;
 import javafx.beans.property.Property;
 import javafx.beans.value.ObservableObjectValue;
 import javafx.beans.value.ObservableStringValue;
+import javafx.collections.ObservableList;
 import javafx.scene.Node;
 import javafx.scene.paint.Paint;
 import javafx.scene.text.Text;
@@ -167,14 +168,38 @@ public final class I18n {
         bindI18nObjectProperty(textFillProperty, i18nKey, DefaultTokenKey.TEXT_FILL, args);
     }
 
+    // StyleClass token API (initial draft version with only a String property) TODO: replace this with an ObservableList
+
+    public static ObservableStringValue i18nStyleClassProperty(Object i18nKey, Object... args) {
+        return getStringTokenProperty(i18nKey, DefaultTokenKey.STYLE_CLASS, args);
+    }
+
+    public static void bindI18nStyleClass(ObservableList<String> styleClass, Object i18nKey, Object... args) {
+        // Lazy conditional binding (same explanation as bindI18nStringProperty()).
+        ObservableStringValue styleClassProperty = getStringTokenProperty(i18nKey, DefaultTokenKey.STYLE_CLASS, args);
+        FXProperties.runNowAndOnPropertyChange((o, oldValue, newValue) -> {
+            if (oldValue != null)
+                styleClass.remove(oldValue);
+            if (newValue != null)
+                styleClass.add(newValue);
+        }, styleClassProperty);
+    }
+
+    // Refresh API
 
     public static void refreshMessageTokenProperties(Object i18nKey) {
         getProvider().refreshMessageTokenProperties(i18nKey);
     }
 
-    // Controls API
+    // Node API
+
+    public static <N extends Node> N bindI18nProperties(N node, Object i18nKey, Object... args) {
+        bindI18nStyleClass(node.getStyleClass(), i18nKey, args);
+        return node;
+    }
 
     public static <T extends Text> T bindI18nProperties(T text, Object i18nKey, Object... args) {
+        bindI18nProperties((Node) text, i18nKey, args);
         bindI18nTextProperty(text.textProperty(), i18nKey, args);
         return text;
     }

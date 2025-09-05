@@ -156,7 +156,10 @@ public final class ValidationSupport {
             validationVisualizer.setDecoration(new GraphicValidationDecoration() {
                 @Override
                 protected Node createErrorNode() {
-                    return ImageStore.createImageView(ValidationIcons.validationErrorIcon16Url);
+                    // Commented because it overlaps the price text in the online Festival PaymentPage.
+                    // Also, do we really need this icon in addition to the red validation message?
+                    //return ImageStore.createImageView(ValidationIcons.validationErrorIcon16Url);
+                    return null;
                 }
 
                 @Override
@@ -269,13 +272,17 @@ public final class ValidationSupport {
         String emailPattern = "^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,6}$";
         Pattern pattern = Pattern.compile(emailPattern);
         // Create the validation rule
+        // Create the validation rule
         addValidationRule(
-                Bindings.createBooleanBinding(
-                        () -> pattern.matcher(emailInput.getText()).matches(),
-                        emailInput.textProperty()
-                ),
-                where,
-                errorMessage
+            Bindings.createBooleanBinding(
+                () -> {
+                    String text = emailInput.getText();
+                    return text != null && pattern.matcher(text).matches();
+                },
+                emailInput.textProperty()
+            ),
+            where,
+            errorMessage
         );
     }
 
@@ -507,7 +514,7 @@ public final class ValidationSupport {
             return false;
         }
         // Contains at least one special character
-        if (!password.matches(".*[@#$%^&+=!().,*?-].*")) {
+        if (!password.matches(".*[@#$%^&+=!()/.,*?-].*")) {
             return false;
         }
         return true;

@@ -1,11 +1,9 @@
 package dev.webfx.extras.controlfactory.button;
 
-import dev.webfx.extras.util.background.BackgroundFactory;
-import dev.webfx.extras.util.border.BorderFactory;
-import dev.webfx.extras.util.control.Controls;
-import dev.webfx.kit.util.properties.FXProperties;
 import dev.webfx.extras.action.Action;
+import dev.webfx.extras.util.control.Controls;
 import dev.webfx.extras.validation.controlsfx.control.decoration.GraphicDecoration;
+import dev.webfx.kit.util.properties.FXProperties;
 import javafx.application.Platform;
 import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
@@ -13,7 +11,6 @@ import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.Node;
 import javafx.scene.control.Button;
-import javafx.scene.paint.Color;
 import javafx.scene.shape.Rectangle;
 import javafx.scene.shape.SVGPath;
 
@@ -48,28 +45,27 @@ public final class ButtonFactory {
 
     public static Button newDropDownButton() {
         Button button = new Button();
-        int radius = 6;
-        button.setBorder(BorderFactory.newBorder(Color.LIGHTGRAY, radius, 1));
-        //button.setBackground(BackgroundFactory.newVerticalLinearGradientBackground("white", "#E0E0E0", radius));
-        button.setBackground(BackgroundFactory.newBackground(Color.WHITE, radius));
+        button.getStyleClass().add("drop-down-button");
         return decorateButtonWithDropDownArrow(button);
     }
 
     public static Button decorateButtonWithDropDownArrow(Button button) {
         SVGPath downArrow = new SVGPath();
-        downArrow.setStroke(Color.web("#838788"));
         downArrow.setStrokeWidth(0.71);
         downArrow.setFill(null);
         downArrow.setContent("M1 1.22998L6.325 6.55499L11.65 1.22998");
-        GraphicDecoration dropDownArrowDecoration = new GraphicDecoration(downArrow, Pos.CENTER_RIGHT, 0, 0, -1, 0);
+        GraphicDecoration dropDownArrowDecoration = new GraphicDecoration(downArrow, Pos.CENTER_RIGHT, 0, 0, -1.4, 0);
         FXProperties.runNowAndOnPropertyChange(() -> Platform.runLater(() ->
             Controls.onSkinReady(button, () -> dropDownArrowDecoration.applyDecoration(button))
         ), button.graphicProperty());
         // Code to clip the content before the down arrow
         FXProperties.runNowAndOnPropertiesChange(() -> {
+            // Adding padding for the extra right icon decoration (adding the icon width 16px + repeating the 6px standard padding)
+            double rightDecorationWidth = button.getHeight();
+            //button.setPadding(new Insets(3, 6 + rightDecorationWidth + 6, 3, 6));
             Node graphic = button.getGraphic();
             if (graphic != null) {
-                graphic.setClip(new Rectangle(0, 0, downArrow.getLayoutX() - graphic.getLayoutX(), button.getHeight()));
+                graphic.setClip(new Rectangle(0, 0, button.getWidth() - rightDecorationWidth, button.getHeight()));
             }
         }, downArrow.layoutXProperty(), button.graphicProperty(), button.heightProperty());
         button.setMinWidth(0d);

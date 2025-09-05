@@ -35,7 +35,10 @@ public abstract class SelectableVisualResultControlSkinBase<C extends Selectable
 
     @Override
     protected void updateResult(VisualResult rs) {
-        visualControl.setVisualSelection(null);
+        // The default behavior is to reset the visual selection when the visual result changes, unless we are told
+        // not to do so (ex: ReactiveVisualMapper might want to control the selection in some cases).
+        if (!VisualSelection.isVisualSelectionResetPrevented())
+            visualControl.setVisualSelection(null);
         super.updateResult(rs);
     }
 
@@ -45,7 +48,9 @@ public abstract class SelectableVisualResultControlSkinBase<C extends Selectable
         bodyRow.setOnMouseClicked(e -> {
             if (visualControl.getSelectionMode() != SelectionMode.DISABLED) {
                 VisualSelection visualSelection = visualControl.getVisualSelection();
-                if (visualSelection == null || visualSelection.getSelectedRow() != rowIndex)
+                if (visualSelection == null ||
+                    // If the user clicks on the same row while holding the Ctrl key, we clear that row selection
+                    !(e.isControlDown() && visualSelection.getSelectedRow() != rowIndex))
                     visualSelection = VisualSelection.createSingleRowSelection(rowIndex);
                 else
                     visualSelection = null;

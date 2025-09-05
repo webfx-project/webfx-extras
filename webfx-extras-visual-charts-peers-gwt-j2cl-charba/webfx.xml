@@ -17,7 +17,15 @@
     </dependencies>
 
     <required-libraries>
-        <library artifact="org.pepstock:charba:6.4"/>
+        <library artifact="org.pepstock:charba:6.4">
+            <exported-packages> <!-- Explicit list of packages (automatic discovery was not working on the staging server) -->
+                <package>org.pepstock.charba.client</package>
+                <package>org.pepstock.charba.client.configuration</package>
+                <package>org.pepstock.charba.client.callbacks</package>
+                <package>org.pepstock.charba.client.data</package>
+                <package>org.pepstock.charba.client.enums</package>
+            </exported-packages>
+        </library>
     </required-libraries>
 
 </project>

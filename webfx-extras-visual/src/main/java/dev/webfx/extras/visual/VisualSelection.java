@@ -231,4 +231,13 @@ public final class VisualSelection {
         };
     }
 
+    private static boolean VISUAL_SELECTION_RESET_PREVENTED;
+
+    public static boolean isVisualSelectionResetPrevented() {
+        return VISUAL_SELECTION_RESET_PREVENTED;
+    }
+
+    public static void setVisualSelectionResetPrevented(boolean visualSelectionResetPrevented) {
+        VISUAL_SELECTION_RESET_PREVENTED = visualSelectionResetPrevented;
+    }
 }

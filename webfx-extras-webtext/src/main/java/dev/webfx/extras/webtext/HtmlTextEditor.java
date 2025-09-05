@@ -11,6 +11,13 @@ public final class HtmlTextEditor extends HtmlText {
 
     public enum Mode { BASIC, STANDARD, FULL }
 
+    {
+        // Tell JavaFX that it can accept focus
+        setFocusTraversable(true);
+        // Note: this is the responsibility of the peer to actually set the JavaFX scene focus owner to this node when
+        // it actually gains the focus.
+    }
+
     private final ObjectProperty<Mode> modeProperty = new SimpleObjectProperty<>(Mode.FULL);
 
     public Mode getMode() {

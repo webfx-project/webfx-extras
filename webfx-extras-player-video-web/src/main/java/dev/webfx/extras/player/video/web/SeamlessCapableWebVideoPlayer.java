@@ -4,7 +4,6 @@ import dev.webfx.extras.player.FeatureSupport;
 import dev.webfx.extras.player.IntegrationMode;
 import dev.webfx.extras.player.Status;
 import dev.webfx.kit.util.properties.FXProperties;
-import dev.webfx.platform.util.Booleans;
 
 /**
  * @author Bruno Salmon
@@ -112,35 +111,5 @@ public abstract class SeamlessCapableWebVideoPlayer extends WebVideoPlayerBase {
     }
 
     protected abstract void seamless_cancelFullscreen();
-
-    // Callback methods called by web player in seamless mode
-
-    public void onReady() {
-        //Console.log("onReady()");
-        setStatus(Status.READY);
-        /*if (Booleans.isTrue(playingStartingOption.autoplay()))
-            seamless_play();*/
-    }
-
-    public void onPlay() {
-        //Console.log("onPlay()");
-        setStatus(Status.PLAYING);
-    }
-
-    public void onPause() {
-        //Console.log("onPause()");
-        if (getStatus() != Status.STOPPED)
-            setStatus(Status.PAUSED);
-    }
-
-    public void onEnd() {
-        //Console.log("onEnd()");
-        setStatus(Status.STOPPED);
-        if (Booleans.isTrue(playingStartingOption.loop())) {
-            seamless_play();
-        } else {
-            callOnEndOfPlayingIfSet();
-        }
-    }
 
 }

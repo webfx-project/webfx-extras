@@ -42,18 +42,19 @@ public final class OperationAction<Rq, Rs> extends WritableAction {
             long t0 = System.currentTimeMillis();
             me[0].startShowingActionAsExecuting(operationRequest);
             OperationUtil.executeOperation(operationRequest, topOperationExecutor)
-                    .onComplete(ar -> {
-                        if (ar.succeeded()) {
-                            Console.log("Executed " + operationRequest + " in " + (System.currentTimeMillis() - t0) + "ms");
+                .inUiThread()
+                .onComplete(ar -> {
+                    if (ar.succeeded()) {
+                        Console.log("Executed " + operationRequest + " in " + (System.currentTimeMillis() - t0) + "ms");
+                    } else {
+                        if (ar.cause() instanceof UserCancellationException) {
+                            Console.log("User cancelled execution of " + operationRequest);
                         } else {
-                            if (ar.cause() instanceof UserCancellationException) {
-                                Console.log("User cancelled execution of " + operationRequest);
-                            } else {
-                                Console.log("An error occurred while executing " + operationRequest, ar.cause());
-                            }
+                            Console.log("An error occurred while executing " + operationRequest, ar.cause());
                         }
-                        UiScheduler.runInUiThread(() -> me[0].stopShowingActionAsExecuting(operationRequest, ar.cause()));
-                    });
+                    }
+                    me[0].stopShowingActionAsExecuting(operationRequest, ar.cause());
+                });
         });
         me[0] = this;
         this.operationRequestFactory = operationRequestFactory;

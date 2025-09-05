@@ -15,6 +15,10 @@ public final class OperationUtil {
 
     private static final String BUTTON_GRAPHIC_MEMO_PROPERTIES_KEY = "webfx-operation-util-graphic";
 
+    public static <Rq extends HasOperationExecutor, Rs> Future<Rs> executeOperation(Rq operationRequest) {
+        return executeOperation(operationRequest, null);
+    }
+
     public static <Rq, Rs> Future<Rs> executeOperation(Rq operationRequest, AsyncFunction<Rq, Rs> operationExecutor) {
         if (operationExecutor == null && operationRequest instanceof HasOperationExecutor)
             //noinspection unchecked

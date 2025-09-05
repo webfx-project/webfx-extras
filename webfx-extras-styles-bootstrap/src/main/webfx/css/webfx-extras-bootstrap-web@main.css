@@ -43,6 +43,21 @@
     --bootstrap-red5: #761c19 ;
     --bootstrap-red6: #a94442 ;
 
+    --badge-default-bg: var(--bootstrap-white);
+    --badge-default-txt: var(--bootstrap-grey7);
+    --badge-primary-bg: var(--bootstrap-blue5);
+    --badge-primary-txt: var(--bootstrap-white);
+    --badge-success-bg: var(--bootstrap-green1);
+    --badge-success-txt: var(--bootstrap-white);
+    --badge-info-bg: var(--bootstrap-blue1);
+    --badge-info-txt: var(--bootstrap-white);
+    --badge-warning-bg: var(--bootstrap-orange1);
+    --badge-warning-txt: var(--bootstrap-white);
+    --badge-danger-bg: var(--bootstrap-red1);
+    --badge-danger-txt: var(--bootstrap-white);
+    --badge-secondary-bg: var(--bootstrap-grey4);
+    --badge-secondary-txt: var(--bootstrap-white);
+
     --bootstrap-font-size: 14px; /* default value for buttons */
 }
 
@@ -69,6 +84,9 @@
     text-align: center;
     font-size: var(--bootstrap-font-size);
     --fx-svg-path-fill: var(--fx-text-fill);
+
+    /* Using the same color as text for the possible progress indicator inside bootstrap buttons */
+    --fx-progress-indicator-color: var(--fx-text-fill);
 }
 
 /*.btn:hover:not(.disabled) {
@@ -319,4 +337,43 @@
 .txt-danger, .txt.danger, .danger .txt {
     --fx-text-fill: var(--bootstrap-red6);
     --fx-svg-path-fill: var(--fx-text-fill);
+}
+
+.badge {
+    border-radius: 14px;
+}
+
+.badge.danger{
+    --fx-text-fill: var(--badge-danger-txt);
+    background-color: var(--badge-danger-bg);
+}
+
+.badge.success{
+    --fx-text-fill: var(--badge-success-txt);
+    background-color: var(--badge-success-bg);
+}
+
+.badge.warning{
+    --fx-text-fill: var(--badge-warning-txt);
+    background-color: var(--badge-warning-bg);
+}
+
+.badge.info{
+    --fx-text-fill: var(--badge-info-txt);
+    background-color: var(--badge-info-bg);
+}
+
+.badge.secondary{
+    --fx-text-fill: var(--badge-secondary-txt);
+    background-color: var(--badge-secondary-bg);
+}
+
+.badge.primary{
+    --fx-text-fill: var(--badge-primary-txt);
+    background-color: var(--badge-primary-bg);
+}
+
+.badge.default{
+    --fx-text-fill: var(--badge-default-txt);
+    background-color: var(--badge-default-bg);
 }

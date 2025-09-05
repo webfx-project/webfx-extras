@@ -108,6 +108,7 @@ public final class VisualGridSkin extends SelectableVisualResultControlSkinBase<
                         if (bodyScrollPane == null) {
                             bodyScrollPane = new ScrollPane();
                             bodyScrollPane.setHbarPolicy(ScrollPane.ScrollBarPolicy.NEVER);
+                            bodyScrollPane.setFitToWidth(true);
                             FXProperties.runOnPropertyChange(() -> {
                                 headOffset = Controls.computeScrollPaneHOffset(bodyScrollPane, false);
                                 gridTableHead.relocate(-headOffset, 0);
@@ -207,8 +208,7 @@ public final class VisualGridSkin extends SelectableVisualResultControlSkinBase<
 
     @Override
     protected Pane getOrAddBodyRow(int rowIndex) {
-        // Note: rowIndex is not passed because not used, as this method is always called to append a new body row at the tail
-        return gridBody.createBodyRow();
+        return gridBody.createBodyRow(rowIndex);
     }
 
     @Override
@@ -261,7 +261,7 @@ public final class VisualGridSkin extends SelectableVisualResultControlSkinBase<
                         content = monoPane;
                     }
                 }
-                VBox.setMargin(content, visualControl.getCellMargin());
+                VBox.setMargin(content, visualControl.getMonoCellMargin());
                 cell.getChildren().add(content);
             }
         }

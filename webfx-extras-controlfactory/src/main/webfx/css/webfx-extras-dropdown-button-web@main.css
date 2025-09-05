@@ -1,0 +1,8 @@
+.drop-down-button {
+    --fx-button-border-color: lightgray;
+    --fx-button-border-width: 1px;
+    --fx-button-border-radius: 6px;
+    --fx-button-background-color: white;
+    --fx-svg-path-fill: transparent;
+    --fx-svg-path-stroke: lightgray;
+}

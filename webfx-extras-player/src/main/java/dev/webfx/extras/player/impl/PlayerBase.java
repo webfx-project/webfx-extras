@@ -102,11 +102,11 @@ public abstract class PlayerBase implements Player {
     }
 
     protected void notifyPlayerGroup() {
-        // Notifying associated player group
+        // Notifying the associated player group
         PlayerGroup playerGroup = getPlayerGroup();
         if (playerGroup != null)
             playerGroup.onPlayerStateChange(this);
-        // Notifying global player group (if different)
+        // Notifying the global player group (if different)
         PlayerGroup globalPlayerGroup = Players.getGlobalPlayerGroup();
         if (globalPlayerGroup != playerGroup)
             globalPlayerGroup.onPlayerStateChange(this);

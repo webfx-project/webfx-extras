@@ -3,6 +3,7 @@ package dev.webfx.extras.player.video.web;
 import dev.webfx.extras.media.metadata.MediaMetadata;
 import dev.webfx.extras.player.*;
 import dev.webfx.extras.player.impl.MediaBase;
+import dev.webfx.extras.player.impl.MediaViewWithOverlay;
 import dev.webfx.extras.player.video.impl.VideoPlayerBase;
 import dev.webfx.extras.webview.pane.LoadOptions;
 import dev.webfx.extras.webview.pane.WebViewPane;
@@ -13,8 +14,8 @@ import dev.webfx.platform.util.Arrays;
 import dev.webfx.platform.util.Booleans;
 import dev.webfx.platform.util.Strings;
 import javafx.scene.Node;
+import javafx.scene.layout.Pane;
 import javafx.scene.layout.Region;
-import javafx.scene.web.WebView;
 import javafx.util.Duration;
 
 import java.util.Objects;
@@ -27,6 +28,7 @@ public abstract class WebVideoPlayerBase extends VideoPlayerBase {
     protected static final boolean IS_BROWSER = WebViewPane.isBrowser();
 
     protected final WebViewPane webViewPane = new WebViewPane();
+    private final MediaViewWithOverlay mediaViewWithOverlay = new MediaViewWithOverlay(webViewPane);
 
     private String lastUrl = "";
 
@@ -85,7 +87,12 @@ public abstract class WebVideoPlayerBase extends VideoPlayerBase {
 
     @Override
     public Node getMediaView() {
-        return webViewPane;
+        return mediaViewWithOverlay.getContainer();
+    }
+
+    @Override
+    public Pane getMediaViewOverlay() {
+        return mediaViewWithOverlay.getOverlay();
     }
 
     @Override
@@ -99,7 +106,6 @@ public abstract class WebVideoPlayerBase extends VideoPlayerBase {
         else {
             String url = generateMediaEmbedFullUrl(onLoadSuccessStatus == Status.PLAYING);
             if (!Objects.equals(lastUrl, url)) {
-
                 webViewPane.loadFromUrl(url, new LoadOptions().setOnLoadSuccess(() -> {
                     webViewPane.setWindowMember("playerId", playerId);
                     webViewPane.setWindowMember(playerId, this);
@@ -145,13 +151,13 @@ public abstract class WebVideoPlayerBase extends VideoPlayerBase {
 
     @Override
     public void requestFullscreen() {
-        WebView webView = webViewPane.getWebView();
-        WebFxKitLauncher.requestNodeFullscreen(webView);
+        setFullscreen(mediaViewWithOverlay.requestFullscreen());
     }
 
     @Override
     public void cancelFullscreen() {
-        WebFxKitLauncher.exitFullscreen();
+        if (mediaViewWithOverlay.exitFullscreen())
+            setFullscreen(false);
     }
 
     @Override

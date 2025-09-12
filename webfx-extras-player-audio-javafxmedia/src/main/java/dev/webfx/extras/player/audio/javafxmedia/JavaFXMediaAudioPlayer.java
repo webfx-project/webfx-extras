@@ -7,6 +7,7 @@ import dev.webfx.extras.player.impl.PlayerBase;
 import dev.webfx.kit.util.properties.FXProperties;
 import dev.webfx.kit.util.properties.Unregisterable;
 import javafx.scene.Node;
+import javafx.scene.layout.Pane;
 import javafx.scene.media.Media;
 import javafx.scene.media.MediaPlayer;
 import javafx.util.Duration;
@@ -32,8 +33,9 @@ public class JavaFXMediaAudioPlayer extends PlayerBase {
         return audioMediaView.getContainer();
     }
 
-    public AudioMediaView getAudioMediaView() {
-        return audioMediaView;
+    @Override
+    public Pane getMediaViewOverlay() {
+        return null; // Not used so far. TODO: Implement if needed.
     }
 
     @Override

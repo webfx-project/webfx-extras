@@ -1,10 +1,12 @@
 package dev.webfx.extras.player.multi;
 
 import dev.webfx.extras.player.*;
+import dev.webfx.extras.player.impl.MediaViewWithOverlay;
 import dev.webfx.extras.player.impl.PlayerBase;
 import dev.webfx.extras.media.metadata.MediaMetadata;
 import dev.webfx.platform.util.Arrays;
 import javafx.scene.Node;
+import javafx.scene.layout.Pane;
 import javafx.scene.layout.StackPane;
 import javafx.util.Duration;
 
@@ -18,6 +20,7 @@ public final class MultiPlayer extends PlayerBase {
 
     private final List<Player> registeredPlayers = new ArrayList<>();
     private final StackPane multiMediaView = new StackPane();
+    private final MediaViewWithOverlay mediaViewWithOverlay = new MediaViewWithOverlay(multiMediaView);
     private Player selectedPlayer;
 
     public MultiPlayer() {
@@ -77,7 +80,12 @@ public final class MultiPlayer extends PlayerBase {
 
     @Override
     public Node getMediaView() {
-        return multiMediaView;
+        return mediaViewWithOverlay.getContainer();
+    }
+
+    @Override
+    public Pane getMediaViewOverlay() {
+        return mediaViewWithOverlay.getOverlay();
     }
 
     @Override
@@ -138,13 +146,18 @@ public final class MultiPlayer extends PlayerBase {
 
     @Override
     public void requestFullscreen() {
-        if (selectedPlayer != null)
+        if (mediaViewWithOverlay.hasOverlay())
+            setFullscreen(mediaViewWithOverlay.requestFullscreen());
+        else if (selectedPlayer != null)
             selectedPlayer.requestFullscreen();
     }
 
     @Override
     public void cancelFullscreen() {
-        if (selectedPlayer != null)
+        if (mediaViewWithOverlay.isFullscreen()) {
+            if (mediaViewWithOverlay.exitFullscreen())
+                setFullscreen(false);
+        } else if (selectedPlayer != null)
             selectedPlayer.cancelFullscreen();
     }
 

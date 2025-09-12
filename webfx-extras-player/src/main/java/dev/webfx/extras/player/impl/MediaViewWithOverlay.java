@@ -2,8 +2,6 @@ package dev.webfx.extras.player.impl;
 
 import dev.webfx.extras.panes.MonoPane;
 import dev.webfx.kit.launcher.WebFxKitLauncher;
-import javafx.geometry.HPos;
-import javafx.geometry.VPos;
 import javafx.scene.Node;
 import javafx.scene.layout.Pane;
 
@@ -18,12 +16,11 @@ public final class MediaViewWithOverlay {
     private final Pane container = new Pane() {
         @Override
         protected void layoutChildren() {
-            double width = getWidth();
-            double height = getHeight();
+            double width = getWidth(), height = getHeight();
             if (mediaView != null)
-                layoutInArea(mediaView, 0, 0, width, height, 0, HPos.LEFT, VPos.TOP);
+                mediaView.resizeRelocate(0, 0, width, height);
             if (overlay != null)
-                layoutInArea(overlay, 0, 0, width, height, 0, HPos.LEFT, VPos.TOP);
+                overlay.resizeRelocate(0, 0, width, height);
         }
     };
 

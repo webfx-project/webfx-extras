@@ -1,6 +1,7 @@
 package dev.webfx.extras.player.video.web;
 
 import dev.webfx.extras.media.metadata.MediaMetadata;
+import dev.webfx.extras.panes.MonoPane;
 import dev.webfx.extras.player.*;
 import dev.webfx.extras.player.impl.MediaBase;
 import dev.webfx.extras.player.impl.MediaViewWithOverlay;
@@ -14,7 +15,6 @@ import dev.webfx.platform.util.Arrays;
 import dev.webfx.platform.util.Booleans;
 import dev.webfx.platform.util.Strings;
 import javafx.scene.Node;
-import javafx.scene.layout.Pane;
 import javafx.scene.layout.Region;
 import javafx.util.Duration;
 
@@ -91,7 +91,7 @@ public abstract class WebVideoPlayerBase extends VideoPlayerBase {
     }
 
     @Override
-    public Pane getMediaViewOverlay() {
+    public MonoPane getMediaViewOverlay() {
         return mediaViewWithOverlay.getOverlay();
     }
 

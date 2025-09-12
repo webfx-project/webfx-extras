@@ -1,12 +1,15 @@
 package dev.webfx.extras.player.multi;
 
-import dev.webfx.extras.player.*;
+import dev.webfx.extras.media.metadata.MediaMetadata;
+import dev.webfx.extras.panes.MonoPane;
+import dev.webfx.extras.player.FeatureSupport;
+import dev.webfx.extras.player.IntegrationMode;
+import dev.webfx.extras.player.Media;
+import dev.webfx.extras.player.Player;
 import dev.webfx.extras.player.impl.MediaViewWithOverlay;
 import dev.webfx.extras.player.impl.PlayerBase;
-import dev.webfx.extras.media.metadata.MediaMetadata;
 import dev.webfx.platform.util.Arrays;
 import javafx.scene.Node;
-import javafx.scene.layout.Pane;
 import javafx.scene.layout.StackPane;
 import javafx.util.Duration;
 
@@ -84,7 +87,7 @@ public final class MultiPlayer extends PlayerBase {
     }
 
     @Override
-    public Pane getMediaViewOverlay() {
+    public MonoPane getMediaViewOverlay() {
         return mediaViewWithOverlay.getOverlay();
     }
 

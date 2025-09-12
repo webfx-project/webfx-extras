@@ -2,12 +2,12 @@ package dev.webfx.extras.player;
 
 import dev.webfx.extras.media.metadata.MediaMetadata;
 import dev.webfx.extras.media.metadata.MetadataUtil;
+import dev.webfx.extras.panes.MonoPane;
 import dev.webfx.kit.util.properties.FXProperties;
 import javafx.beans.property.ObjectProperty;
 import javafx.beans.property.ReadOnlyBooleanProperty;
 import javafx.beans.property.ReadOnlyObjectProperty;
 import javafx.scene.Node;
-import javafx.scene.layout.Pane;
 import javafx.util.Duration;
 
 /**
@@ -61,7 +61,7 @@ public interface Player {
 
     Node getMediaView();
 
-    Pane getMediaViewOverlay();
+    MonoPane getMediaViewOverlay();
 
     default boolean hasMediaAudio() {
         Media media = getMedia();

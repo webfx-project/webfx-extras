@@ -1,13 +1,13 @@
 package dev.webfx.extras.player.audio.javafxmedia;
 
 import dev.webfx.extras.media.metadata.MediaMetadata;
+import dev.webfx.extras.panes.MonoPane;
 import dev.webfx.extras.player.FeatureSupport;
 import dev.webfx.extras.player.Status;
 import dev.webfx.extras.player.impl.PlayerBase;
 import dev.webfx.kit.util.properties.FXProperties;
 import dev.webfx.kit.util.properties.Unregisterable;
 import javafx.scene.Node;
-import javafx.scene.layout.Pane;
 import javafx.scene.media.Media;
 import javafx.scene.media.MediaPlayer;
 import javafx.util.Duration;
@@ -34,7 +34,7 @@ public class JavaFXMediaAudioPlayer extends PlayerBase {
     }
 
     @Override
-    public Pane getMediaViewOverlay() {
+    public MonoPane getMediaViewOverlay() {
         return null; // Not used so far. TODO: Implement if needed.
     }
 

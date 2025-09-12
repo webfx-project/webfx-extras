@@ -1,5 +1,6 @@
 package dev.webfx.extras.player.impl;
 
+import dev.webfx.extras.panes.MonoPane;
 import dev.webfx.kit.launcher.WebFxKitLauncher;
 import javafx.geometry.HPos;
 import javafx.geometry.VPos;
@@ -12,7 +13,7 @@ import javafx.scene.layout.Pane;
 public final class MediaViewWithOverlay {
 
     private Node mediaView;
-    private Pane overlay;
+    private MonoPane overlay;
     private boolean fullscreen;
     private final Pane container = new Pane() {
         @Override
@@ -47,9 +48,9 @@ public final class MediaViewWithOverlay {
         return container;
     }
 
-    public Pane getOverlay() {
+    public MonoPane getOverlay() {
         if (overlay == null) {
-            overlay = new Pane();
+            overlay = new MonoPane();
             overlay.setMouseTransparent(true);
             overlay.getStyleClass().add("overlay");
             container.getChildren().add(overlay);

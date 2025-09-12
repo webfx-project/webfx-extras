@@ -6,6 +6,7 @@ module webfx.extras.player {
     requires javafx.base;
     requires javafx.graphics;
     requires webfx.extras.media.metadata;
+    requires webfx.extras.panes;
     requires webfx.kit.launcher;
     requires webfx.kit.util;
     requires webfx.platform.console;

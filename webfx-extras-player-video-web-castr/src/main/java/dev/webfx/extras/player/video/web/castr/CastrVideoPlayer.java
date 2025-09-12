@@ -34,7 +34,7 @@ pp: true | false - The player will start only when focused if this flag is set t
 pip: on | off - Determines the visibility of PiP option.
 cast: on | off - Control Google Cast detection
 airplay: on | off - Set whether or not in-player AirPlay support should be activated on eligible devices.
-fullscreen: on | off - Determines the visibility of fullsceen option.
+fullscreen: on | off - Determines the visibility of fullscreen option.
 click: on | off - Disables click-to-pause functionality and keyboard controls when set to 'off'.
 h265: true | false - Enables H265 playback capability in the player.
 speed: true | false - Enables playback speed control capability in the player.
@@ -71,6 +71,8 @@ ex: ?range=1722671889-3724&abr=false&namedHls=true
     protected void appendUrlParameters(StartOptions so, StringBuilder sb) {
         if (Booleans.isTrue(so.autoplay()))
             sb.append("&autoplay=on");
+        if (Booleans.isFalse(so.fullscreen()))
+            sb.append("&fullscreen=off");
         if (so.startDateTime() != null && so.endDateTime() != null) {
             sb.append("&range=").append(so.startDateTime().toEpochSecond(ZoneOffset.UTC)).append('-').append(java.time.Duration.between(so.startDateTime(), so.endDateTime()).getSeconds())
                 .append("&abr=false&namedHls=true");

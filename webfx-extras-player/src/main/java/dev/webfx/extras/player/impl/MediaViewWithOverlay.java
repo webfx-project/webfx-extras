@@ -1,9 +1,11 @@
 package dev.webfx.extras.player.impl;
 
-import dev.webfx.extras.panes.MonoPane;
 import dev.webfx.kit.launcher.WebFxKitLauncher;
+import dev.webfx.kit.util.properties.ObservableLists;
+import javafx.collections.ObservableList;
 import javafx.scene.Node;
-import javafx.scene.layout.Pane;
+import javafx.scene.layout.Region;
+import javafx.scene.layout.StackPane;
 
 /**
  * @author Bruno Salmon
@@ -11,16 +13,15 @@ import javafx.scene.layout.Pane;
 public final class MediaViewWithOverlay {
 
     private Node mediaView;
-    private MonoPane overlay;
     private boolean fullscreen;
-    private final Pane container = new Pane() {
+    private ObservableList<Node> overlayChildren; // lazy instantiation (for appRequestedOverlayChildren() test)
+    private final StackPane container = new StackPane() {
         @Override
         protected void layoutChildren() {
-            double width = getWidth(), height = getHeight();
+            // The media view should always fill the whole container
             if (mediaView != null)
-                mediaView.resizeRelocate(0, 0, width, height);
-            if (overlay != null)
-                overlay.resizeRelocate(0, 0, width, height);
+                mediaView.resizeRelocate(0, 0, getWidth(), getHeight());
+            super.layoutChildren(); // for possible overlay children (won't touch mediaView because unmanaged)
         }
     };
 
@@ -35,28 +36,33 @@ public final class MediaViewWithOverlay {
         if (this.mediaView != mediaView) {
             if (this.mediaView != null)
                 container.getChildren().remove(this.mediaView);
-            if (mediaView != null)
+            if (mediaView != null) {
+                mediaView.setManaged(false); // this is to be ignored in the overlay children layout
                 container.getChildren().add(0, mediaView);
+            }
             this.mediaView = mediaView;
         }
     }
 
-    public Node getContainer() {
+    public Region getContainer() {
         return container;
     }
 
-    public MonoPane getOverlay() {
-        if (overlay == null) {
-            overlay = new MonoPane();
-            overlay.setMouseTransparent(true);
-            overlay.getStyleClass().add("overlay");
-            container.getChildren().add(overlay);
+    public ObservableList<Node> getOverlayChildren() {
+        if (overlayChildren == null) {
+            overlayChildren = ObservableLists.newObservableListWithListener(change -> {
+                // Reflecting changes made on overlayChildren to the container
+                while (change.next()) {
+                    container.getChildren().removeAll(change.getRemoved());
+                    container.getChildren().addAll(change.getAddedSubList());
+                }
+            });
         }
-        return overlay;
+        return overlayChildren;
     }
 
-    public boolean hasOverlay() {
-        return overlay != null;
+    public boolean appRequestedOverlayChildren() {
+        return overlayChildren != null;
     }
 
     public boolean requestFullscreen() {

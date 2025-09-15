@@ -1,7 +1,6 @@
 package dev.webfx.extras.player.multi;
 
 import dev.webfx.extras.media.metadata.MediaMetadata;
-import dev.webfx.extras.panes.MonoPane;
 import dev.webfx.extras.player.FeatureSupport;
 import dev.webfx.extras.player.IntegrationMode;
 import dev.webfx.extras.player.Media;
@@ -9,7 +8,9 @@ import dev.webfx.extras.player.Player;
 import dev.webfx.extras.player.impl.MediaViewWithOverlay;
 import dev.webfx.extras.player.impl.PlayerBase;
 import dev.webfx.platform.util.Arrays;
+import javafx.collections.ObservableList;
 import javafx.scene.Node;
+import javafx.scene.layout.Region;
 import javafx.scene.layout.StackPane;
 import javafx.util.Duration;
 
@@ -82,13 +83,13 @@ public final class MultiPlayer extends PlayerBase {
     }
 
     @Override
-    public Node getMediaView() {
+    public Region getMediaView() {
         return mediaViewWithOverlay.getContainer();
     }
 
     @Override
-    public MonoPane getMediaViewOverlay() {
-        return mediaViewWithOverlay.getOverlay();
+    public ObservableList<Node> getOverlayChildren() {
+        return mediaViewWithOverlay.getOverlayChildren();
     }
 
     @Override
@@ -149,7 +150,7 @@ public final class MultiPlayer extends PlayerBase {
 
     @Override
     public void requestFullscreen() {
-        if (mediaViewWithOverlay.hasOverlay())
+        if (mediaViewWithOverlay.appRequestedOverlayChildren())
             setFullscreen(mediaViewWithOverlay.requestFullscreen());
         else if (selectedPlayer != null)
             selectedPlayer.requestFullscreen();

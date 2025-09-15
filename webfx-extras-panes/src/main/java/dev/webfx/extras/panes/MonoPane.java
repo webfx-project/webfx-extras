@@ -86,10 +86,14 @@ public class MonoPane extends LayoutPane {
     }
 
     @Override
+    protected void layoutChildren() {
+        if (content != null && content.isManaged())
+            super.layoutChildren();
+    }
+
+    @Override
     protected void layoutChildren(double paddingLeft, double paddingTop, double innerWidth, double innerHeight) {
-        if (content != null) {
-            layoutInArea(content, paddingLeft, paddingTop, innerWidth, innerHeight, getAlignment());
-        }
+        layoutInArea(content, paddingLeft, paddingTop, innerWidth, innerHeight, getAlignment());
     }
 
     @Override

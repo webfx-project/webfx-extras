@@ -205,8 +205,6 @@ public class ScalePane extends MonoPane {
 
     @Override
     protected void layoutChildren(double paddingLeft, double paddingTop, double innerWidth, double innerHeight) {
-        if (content == null)
-            return;
         /*if (log)
             Console.log("ScalePane.layoutChildren(" + innerWidth + ", " + innerHeight + ")");*/
         innerWidth = fixedWidth != -1 ? fixedWidth - insetsWidth() : innerWidth;

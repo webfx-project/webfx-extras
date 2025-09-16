@@ -139,7 +139,8 @@ public abstract class PlayerBase implements Player {
         currentTimeProperty.bind(player.currentTimeProperty());
         statusProperty.bind(player.statusProperty());
         bindMutedPropertyTo(player.mutedProperty());
-        fullscreenProperty.bind(player.fullscreenProperty());
+        // TODO: See if we can remove that cast
+        fullscreenProperty.bindBidirectional(((PlayerBase) player).fullscreenProperty);
     }
 
     protected void unbindMultiPlayerFromPlayer() {

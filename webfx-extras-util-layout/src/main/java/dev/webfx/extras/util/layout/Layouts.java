@@ -265,6 +265,19 @@ public final class Layouts {
         bindAllManagedToVisibleProperty(nodes);
     }
 
+    public static void bindManagedPropertyLike(Node node, Node template) {
+        node.managedProperty().bind(template.managedProperty());
+    }
+
+    public static void bindVisiblePropertyLike(Node node, Node template) {
+        node.visibleProperty().bind(template.visibleProperty());
+    }
+
+    public static void bindManagedAndVisiblePropertiesLike(Node node, Node template) {
+        bindManagedPropertyLike(node, template);
+        bindVisiblePropertyLike(node, template);
+    }
+
     public static <N extends Region> N setPadding(N content, double top, double right, double bottom, double left) {
         content.setPadding(new Insets(top, right, bottom, left));
         return content;

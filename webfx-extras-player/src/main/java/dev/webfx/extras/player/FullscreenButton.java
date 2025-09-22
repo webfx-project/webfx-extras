@@ -31,6 +31,22 @@ public final class FullscreenButton {
         FULLSCREEN_BUTTON_ENABLED = fullscreenButtonEnabled;
     }
 
+    public static Player getSuitableFullscreenPlayingPlayer() {
+        // If the playing player is in a multi-player with an overlay, the suitable player to call requestFullscreen()
+        // on is actually this parent multi-player rather than the playing player itself. Indeed, if the application
+        // requested an overlay on this parent, this probably means it added some overlay controls (which may include
+        // the fullscreen button), or it wants to display messages later on top of the video. If we were to call
+        // requestFullscreen() on the playing player, these overlay controls or messages wouldn't be included in the
+        // fullscreen mode.
+        Player playingPlayer = Players.getGlobalPlayerGroup().getPlayingPlayer();
+        if (playingPlayer != null) {
+            MultiPlayer parentMultiPlayer = playingPlayer.getParentMultiPlayer();
+            if (parentMultiPlayer != null && parentMultiPlayer.appRequestedOverlayChildren())
+                return parentMultiPlayer;
+        }
+        return playingPlayer;
+    }
+
     static {
         FXProperties.runNowAndOnPropertyChange((observable, oldPlayer, newPlayer) -> {
             hideFullscreenButton();
@@ -60,14 +76,9 @@ public final class FullscreenButton {
         if (FULLSCREEN_BUTTON_SHOWER != null) {
             FULLSCREEN_BUTTON = FULLSCREEN_BUTTON_SHOWER.get();
             FULLSCREEN_BUTTON.setOnMouseClicked(e -> {
-                Player playingPlayer = Players.getGlobalPlayerGroup().getPlayingPlayer();
-                if (playingPlayer != null) {
-                    MultiPlayer parentMultiPlayer = playingPlayer.getParentMultiPlayer();
-                    if (parentMultiPlayer != null && parentMultiPlayer.appRequestedOverlayChildren())
-                        parentMultiPlayer.requestFullscreen();
-                    else
-                        playingPlayer.requestFullscreen();
-                }
+                Player playingPlayer = getSuitableFullscreenPlayingPlayer();
+                if (playingPlayer != null)
+                    playingPlayer.toggleFullscreen();
             });
             // Continue to animate it every 30s as long as the video is played
             Player playingPlayer = Players.getGlobalPlayerGroup().getPlayingPlayer();

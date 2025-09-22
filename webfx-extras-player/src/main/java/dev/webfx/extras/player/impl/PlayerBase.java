@@ -24,7 +24,7 @@ public abstract class PlayerBase implements Player {
     private final BooleanProperty mutedProperty = FXProperties.newBooleanProperty(this::onMutedChange);
     private final BooleanProperty fullscreenProperty = FXProperties.newBooleanProperty(this::onFullscreenChange);
     protected StartOptions playingStartingOption;
-    protected boolean isInMultiPlayer;
+    protected MultiPlayer parentMultiPlayer;
 
     protected Runnable onEndOfPlaying;
 
@@ -121,8 +121,13 @@ public abstract class PlayerBase implements Player {
             onEndOfPlaying.run();
     }
 
-    public void setInMultiPlayer(boolean inMultiPlayer) {
-        isInMultiPlayer = inMultiPlayer;
+    @Override
+    public MultiPlayer getParentMultiPlayer() {
+        return parentMultiPlayer;
+    }
+
+    public void setParentMultiPlayer(MultiPlayer parentMultiPlayer) {
+        this.parentMultiPlayer = parentMultiPlayer;
     }
 
     public void bindPlayerToMultiPlayer(MultiPlayer multiPlayer) {

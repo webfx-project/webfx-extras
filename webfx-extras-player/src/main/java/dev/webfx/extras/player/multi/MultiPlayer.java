@@ -36,7 +36,7 @@ public final class MultiPlayer extends PlayerBase {
 
     public void registerPlayer(Player player) {
         registeredPlayers.add(player);
-        ((PlayerBase) player).setInMultiPlayer(true);
+        ((PlayerBase) player).setParentMultiPlayer(this);
     }
 
     public Player getSelectedPlayer() {
@@ -90,6 +90,11 @@ public final class MultiPlayer extends PlayerBase {
     @Override
     public ObservableList<Node> getOverlayChildren() {
         return mediaViewWithOverlay.getOverlayChildren();
+    }
+
+    @Override
+    public boolean appRequestedOverlayChildren() {
+        return mediaViewWithOverlay.appRequestedOverlayChildren();
     }
 
     @Override

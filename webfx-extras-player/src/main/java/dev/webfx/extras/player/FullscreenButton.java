@@ -1,5 +1,6 @@
 package dev.webfx.extras.player;
 
+import dev.webfx.extras.player.multi.MultiPlayer;
 import dev.webfx.kit.util.properties.FXProperties;
 import dev.webfx.kit.util.properties.Unregisterable;
 import dev.webfx.platform.uischeduler.UiScheduler;
@@ -61,7 +62,11 @@ public final class FullscreenButton {
             FULLSCREEN_BUTTON.setOnMouseClicked(e -> {
                 Player playingPlayer = Players.getGlobalPlayerGroup().getPlayingPlayer();
                 if (playingPlayer != null) {
-                    playingPlayer.requestFullscreen();
+                    MultiPlayer parentMultiPlayer = playingPlayer.getParentMultiPlayer();
+                    if (parentMultiPlayer != null && parentMultiPlayer.appRequestedOverlayChildren())
+                        parentMultiPlayer.requestFullscreen();
+                    else
+                        playingPlayer.requestFullscreen();
                 }
             });
             // Continue to animate it every 30s as long as the video is played

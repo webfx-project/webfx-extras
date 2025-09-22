@@ -2,6 +2,7 @@ package dev.webfx.extras.player;
 
 import dev.webfx.extras.media.metadata.MediaMetadata;
 import dev.webfx.extras.media.metadata.MetadataUtil;
+import dev.webfx.extras.player.multi.MultiPlayer;
 import dev.webfx.kit.util.properties.FXProperties;
 import javafx.beans.property.ObjectProperty;
 import javafx.beans.property.ReadOnlyBooleanProperty;
@@ -63,6 +64,8 @@ public interface Player {
     Region getMediaView();
 
     ObservableList<Node> getOverlayChildren();
+
+    boolean appRequestedOverlayChildren();
 
     default boolean hasMediaAudio() {
         Media media = getMedia();
@@ -143,5 +146,13 @@ public interface Player {
     default void cancelFullscreen() { }
 
     void setOnEndOfPlaying(Runnable onEndOfPlaying);
+
+    default MultiPlayer getParentMultiPlayer() {
+        return null;
+    }
+
+    default boolean isInMultiPlayer() {
+        return getParentMultiPlayer() != null;
+    }
 
 }

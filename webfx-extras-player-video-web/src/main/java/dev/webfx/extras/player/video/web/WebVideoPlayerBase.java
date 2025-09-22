@@ -96,6 +96,11 @@ public abstract class WebVideoPlayerBase extends VideoPlayerBase {
     }
 
     @Override
+    public boolean appRequestedOverlayChildren() {
+        return mediaViewWithOverlay.appRequestedOverlayChildren();
+    }
+
+    @Override
     public void displayVideo() {
         display(Status.READY);
     }

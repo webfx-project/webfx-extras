@@ -40,6 +40,11 @@ public class JavaFXMediaAudioPlayer extends PlayerBase {
     }
 
     @Override
+    public boolean appRequestedOverlayChildren() {
+        return false;
+    }
+
+    @Override
     public FeatureSupport getFullscreenSupport() {
         return FeatureSupport.NO_SUPPORT;
     }

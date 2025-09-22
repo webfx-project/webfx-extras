@@ -145,6 +145,13 @@ public interface Player {
 
     default void cancelFullscreen() { }
 
+    default void toggleFullscreen() {
+        if (isFullscreen())
+            cancelFullscreen();
+        else
+            requestFullscreen();
+    }
+
     void setOnEndOfPlaying(Runnable onEndOfPlaying);
 
     default MultiPlayer getParentMultiPlayer() {

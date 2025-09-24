@@ -3,9 +3,11 @@ package dev.webfx.extras.player.impl;
 import dev.webfx.extras.player.*;
 import dev.webfx.extras.player.multi.MultiPlayer;
 import dev.webfx.kit.util.properties.FXProperties;
+import dev.webfx.kit.util.properties.Unregisterable;
 import javafx.beans.property.*;
 import javafx.beans.value.ObservableValue;
 import javafx.scene.paint.Color;
+import javafx.stage.Stage;
 import javafx.util.Duration;
 
 import java.util.regex.Matcher;
@@ -99,6 +101,17 @@ public abstract class PlayerBase implements Player {
     }
 
     protected void onFullscreenChange() {
+        // If the player moved to fullscreen, we need to detect when it's leaving it, which is not necessary through a
+        // programmatic call to cancelFullscreen(), it can also be done through other means such as ESC key.
+        if (isFullscreen() && getMediaView().getScene().getWindow() instanceof Stage stage) {
+            Unregisterable[] unregisterable = { null };
+            unregisterable[0] = FXProperties.runOnPropertyChange(() -> {
+                if (!stage.isFullScreen()) {
+                    setFullscreen(false);
+                    unregisterable[0].unregister();
+                }
+            }, stage.fullScreenProperty());
+        }
     }
 
     protected void notifyPlayerGroup() {

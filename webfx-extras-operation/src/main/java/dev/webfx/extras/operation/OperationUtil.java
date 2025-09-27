@@ -4,7 +4,6 @@ import dev.webfx.extras.util.control.Controls;
 import dev.webfx.kit.util.properties.FXProperties;
 import dev.webfx.platform.async.AsyncFunction;
 import dev.webfx.platform.async.Future;
-import dev.webfx.platform.uischeduler.UiScheduler;
 import javafx.scene.Node;
 import javafx.scene.control.Labeled;
 
@@ -38,7 +37,9 @@ public final class OperationUtil {
 
     public static void turnOnButtonsWaitModeDuringExecution(Future<?> future, Labeled... buttons) {
         turnOnButtonsWaitMode(buttons);
-        future.onComplete(x -> UiScheduler.runInUiThread(() -> turnOffButtonsWaitMode(buttons)));
+        future
+            .inUiThread()
+            .onComplete(ignored -> turnOffButtonsWaitMode(buttons));
     }
 
     public static void turnOnButtonsWaitMode(Labeled... buttons) {

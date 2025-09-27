@@ -8,7 +8,6 @@ module webfx.extras.operation {
     requires webfx.extras.util.control;
     requires webfx.kit.util;
     requires webfx.platform.async;
-    requires webfx.platform.uischeduler;
 
     // Exported packages
     exports dev.webfx.extras.operation;

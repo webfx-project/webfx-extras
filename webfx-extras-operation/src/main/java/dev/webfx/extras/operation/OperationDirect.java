@@ -6,7 +6,7 @@ import dev.webfx.platform.async.Future;
 /**
  * @author Bruno Salmon
  */
-public final class OperationUtil {
+public final class OperationDirect {
 
     public static <Rq extends HasOperationExecutor, Rs> Future<Rs> executeOperation(Rq operationRequest) {
         return executeOperation(operationRequest, null);

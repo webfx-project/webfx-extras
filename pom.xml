@@ -47,6 +47,7 @@
     <modules>
         <module>webfx-extras-action</module>
         <module>webfx-extras-aria</module>
+        <module>webfx-extras-async</module>
         <module>webfx-extras-canvas</module>
         <module>webfx-extras-canvas-bar</module>
         <module>webfx-extras-canvas-blob</module>

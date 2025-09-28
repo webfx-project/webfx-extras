@@ -5,9 +5,12 @@ module webfx.extras.async {
     // Direct dependencies modules
     requires javafx.controls;
     requires javafx.graphics;
+    requires webfx.extras.exceptions;
     requires webfx.extras.util.control;
+    requires webfx.extras.util.dialog;
     requires webfx.kit.util;
     requires webfx.platform.async;
+    requires webfx.platform.uischeduler;
 
     // Exported packages
     exports dev.webfx.extras.async;

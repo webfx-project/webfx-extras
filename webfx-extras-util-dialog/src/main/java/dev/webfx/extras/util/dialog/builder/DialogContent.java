@@ -19,12 +19,12 @@ public final class DialogContent implements DialogBuilder {
     private String title;
     private String headerText;
     private String contentText;
-    private String primaryButtonText = "Ok";
-    private String secondaryButtonText = "Cancel";
+    private String primaryButtonText;
+    private String secondaryButtonText;
 
     private Node content;
-    private Button primaryButton = new Button(); { setPrimaryButton(primaryButton); }
-    private Button secondaryButton = new Button(); { setSecondaryButton(secondaryButton); }
+    private Button primaryButton;
+    private Button secondaryButton;
 
     private DialogCallback dialogCallback;
 
@@ -34,6 +34,13 @@ public final class DialogContent implements DialogBuilder {
 
     public static DialogContent createConfirmationDialog(String title, String headerText, String contentText) {
         return new DialogContent().setTitle(title).setHeaderText(headerText).setContentText(contentText).setYesNo();
+    }
+
+    public DialogContent() {
+        // Default settings
+        setPrimaryButton(new Button());
+        setSecondaryButton(new Button());
+        setOkCancel();
     }
 
     @Override
@@ -66,15 +73,29 @@ public final class DialogContent implements DialogBuilder {
         return this;
     }
 
+    // TODO: Move to i18n
+
     public DialogContent setYesNo() {
         primaryButtonText = "Yes";
         secondaryButtonText = "No";
         return this;
     }
 
+    public DialogContent setSaveCancel() {
+        primaryButtonText = "Save";
+        secondaryButtonText = "Cancel";
+        return this;
+    }
+
     public DialogContent setOk() {
         primaryButtonText = "Ok";
         secondaryButton.setManaged(false);
+        return this;
+    }
+
+    public DialogContent setOkCancel() {
+        primaryButtonText = "Ok";
+        secondaryButtonText = "Cancel";
         return this;
     }
 

@@ -1,7 +1,10 @@
 package dev.webfx.extras.player.video.web.castr;
 
 import dev.webfx.extras.media.metadata.MediaMetadata;
-import dev.webfx.extras.player.*;
+import dev.webfx.extras.player.IntegrationMode;
+import dev.webfx.extras.player.Media;
+import dev.webfx.extras.player.StartOptions;
+import dev.webfx.extras.player.StartOptionsBuilder;
 import dev.webfx.extras.player.video.web.WebVideoPlayerBase;
 import dev.webfx.platform.util.Booleans;
 
@@ -58,6 +61,9 @@ ex: ?range=1722671889-3724&abr=false&namedHls=true
                 sob.setStartDateTime(LocalDateTime.ofEpochSecond(Long.parseLong(range[0]), 0, ZoneOffset.UTC));
                 sob.setEndDateTime(sob.getStartDateTime().plusSeconds(Long.parseLong(range[1])));
                 break;
+            case "tracks":
+                sob.setTracks(value);
+                break;
         }
     }
 
@@ -77,6 +83,8 @@ ex: ?range=1722671889-3724&abr=false&namedHls=true
             sb.append("&range=").append(so.startDateTime().toEpochSecond(ZoneOffset.UTC)).append('-').append(java.time.Duration.between(so.startDateTime(), so.endDateTime()).getSeconds())
                 .append("&abr=false&namedHls=true");
         }
+        if (so.getTracks() != null)
+            sb.append("&tracks=").append(so.getTracks());
     }
 
     private static boolean isTrue(String paramValue) {

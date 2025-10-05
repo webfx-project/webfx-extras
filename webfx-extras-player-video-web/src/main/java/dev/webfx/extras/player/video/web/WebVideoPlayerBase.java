@@ -111,14 +111,18 @@ public abstract class WebVideoPlayerBase extends VideoPlayerBase {
         else {
             String url = generateMediaEmbedFullUrl(onLoadSuccessStatus == Status.PLAYING);
             if (!Objects.equals(lastUrl, url)) {
-                webViewPane.loadFromUrl(url, new LoadOptions().setOnLoadSuccess(() -> {
-                    webViewPane.setWindowMember("playerId", playerId);
-                    webViewPane.setWindowMember(playerId, this);
-                        setStatus(onLoadSuccessStatus);
-                }), null);
+                loadWebView(url, onLoadSuccessStatus);
             }
-            lastUrl = url;
         }
+    }
+
+    private void loadWebView(String url, Status onLoadSuccessStatus) {
+        webViewPane.loadFromUrl(url, new LoadOptions().setOnLoadSuccess(() -> {
+            webViewPane.setWindowMember("playerId", playerId);
+            webViewPane.setWindowMember(playerId, this);
+            setStatus(onLoadSuccessStatus);
+        }), null);
+        lastUrl = url;
     }
 
     @Override
@@ -163,6 +167,11 @@ public abstract class WebVideoPlayerBase extends VideoPlayerBase {
     public void cancelFullscreen() {
         if (mediaViewWithOverlay.exitFullscreen())
             setFullscreen(false);
+    }
+
+    @Override
+    public void reload() {
+        loadWebView(lastUrl, Status.READY);
     }
 
     @Override

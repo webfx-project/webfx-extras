@@ -101,6 +101,10 @@ public interface Player {
         seek(Duration.ZERO);
     }
 
+    default void reload() {
+        resetToInitialState();
+    }
+
     default Duration getCurrentTime() {
         return currentTimeProperty().getValue();
     }

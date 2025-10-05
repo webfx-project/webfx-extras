@@ -133,6 +133,12 @@ public final class MultiPlayer extends PlayerBase {
     }
 
     @Override
+    public void reload() {
+        if (selectedPlayer != null)
+            selectedPlayer.reload();
+    }
+
+    @Override
     public boolean isMediaVideo() {
         return selectedPlayer != null && selectedPlayer.isMediaVideo();
     }

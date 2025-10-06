@@ -28,49 +28,50 @@ public final class VideoJsPlayer extends SeamlessCapableWebVideoPlayer {
         if (IS_SEAMLESS) {
             String videoJsScriptUrl = Resource.toUrl("videojs.js", VideoJsPlayer.class);
             String videoJsCssUrl = Resource.toUrl("videojs.css", VideoJsPlayer.class);
-            WebViewPane.executeSeamlessScriptInBrowser(
-                "const vjsCssLink = document.createElement('link');\n" +
-                    "vjsCssLink.href = 'https://vjs.zencdn.net/8.12.0/video-js.css';\n" +
-                    "vjsCssLink.rel = 'stylesheet';\n" +
-                    "document.head.appendChild(vjsCssLink);\n" +
-
-                    "const customCssLink = document.createElement('link');\n" +
-                    "customCssLink.href = '" + videoJsCssUrl + "';\n" +
-                    "customCssLink.rel = 'stylesheet';\n" +
-                    "document.head.appendChild(customCssLink);\n" +
-
-                    "window.webfx_extras_videojs_players = {};" +
-                    "window.webfx_extras_videojs_functions = [];\n" +
-                    "window.bindVideoJsPlayer = function(player, javaPlayer) {\n" +
-                    "    player.on('play',  function() { javaPlayer.onPlay();  });\n" +
-                    "    player.on('pause', function() { javaPlayer.onPause(); });\n" +
-                    "    player.on('ended', function() { javaPlayer.onEnd();   });\n" +
-                    "};" +
-                    "const vjsScript = document.createElement('script');\n" +
-                    "vjsScript.src = 'https://vjs.zencdn.net/8.12.0/video.min.js';\n" +
-                    "vjsScript.onload = function() {\n" +
-                    "    const qualitySelectorScript = document.createElement('script');\n" +
-                    "    qualitySelectorScript.src = 'https://cdn.jsdelivr.net/npm/videojs-quality-selector-hls@1.1.1/dist/videojs-quality-selector-hls.min.js';\n" +
-                    "    qualitySelectorScript.onload = function() {\n" +
-                    "        const managerScript = document.createElement('script');\n" +
-                    "        managerScript.src = '" + videoJsScriptUrl + "';\n" +
-                    "        managerScript.onload = function() {\n" +
-                    "            for (var i = 0; i < window.webfx_extras_videojs_functions.length; i++) {\n" +
-                    "                window.webfx_extras_videojs_functions[i]();\n" +
-                    "            }\n" +
-                    "            window.webfx_extras_videojs_functions = [];\n" +
-                    "        };\n" +
-                    "        document.head.appendChild(managerScript);\n" +
-                    "    };\n" +
-                    "    document.head.appendChild(qualitySelectorScript);\n" +
-                    "};\n" +
-                    "document.head.appendChild(vjsScript);\n"
+            WebViewPane.executeSeamlessScriptInBrowser("""
+                 const vjsCssLink = document.createElement('link');
+                 vjsCssLink.href = 'https://vjs.zencdn.net/8.12.0/video-js.css';
+                 vjsCssLink.rel = 'stylesheet';
+                 document.head.appendChild(vjsCssLink);
+                 const customCssLink = document.createElement('link');
+                 customCssLink.href = '%videoJsCssUrl%';
+                 customCssLink.rel = 'stylesheet';
+                 document.head.appendChild(customCssLink);
+                 window.webfx_extras_videojs_players = {};
+                 window.webfx_extras_videojs_functions = [];
+                 window.bindVideoJsPlayer = function(player, javaPlayer) {
+                     player.on('play',  function() { javaPlayer.onPlay();  });
+                     player.on('pause', function() { javaPlayer.onPause(); });
+                     player.on('ended', function() { javaPlayer.onEnd();   });
+                 };
+                 const vjsScript = document.createElement('script');
+                 vjsScript.src = 'https://vjs.zencdn.net/8.12.0/video.min.js';
+                 vjsScript.onload = function() {
+                     const qualitySelectorScript = document.createElement('script');
+                     qualitySelectorScript.src = 'https://cdn.jsdelivr.net/npm/videojs-quality-selector-hls@1.1.1/dist/videojs-quality-selector-hls.min.js';
+                     qualitySelectorScript.onload = function() {
+                         const managerScript = document.createElement('script');
+                         managerScript.src = '%videoJsScriptUrl%';
+                         managerScript.onload = function() {
+                             for (var i = 0; i < window.webfx_extras_videojs_functions.length; i++) {
+                                 window.webfx_extras_videojs_functions[i]();
+                             }
+                             window.webfx_extras_videojs_functions = [];
+                         };
+                         document.head.appendChild(managerScript);
+                     };
+                     document.head.appendChild(qualitySelectorScript);
+                 };
+                 document.head.appendChild(vjsScript);
+                """
+                .replace("%videoJsScriptUrl%", videoJsScriptUrl)
+                .replace("%videoJsCssUrl%", videoJsCssUrl)
             );
         }
     }
 
     private String playerType = "";
-    private static final String BUNNY_PLAYER="bunny";
+    private static final String BUNNY_PLAYER = "bunny";
     private String clientId = "";
     private String videoId = "";
     private String tracksParam = "";
@@ -81,9 +82,7 @@ public final class VideoJsPlayer extends SeamlessCapableWebVideoPlayer {
                 //Use setRedirectConsole only for debug. It can cause some infinite loop in some cases.
                 //webViewPane.setRedirectConsole(true);
                 if (status == Status.READY) {
-                    WebViewPane webViewPane1 = webViewPane;
-                    javafx.scene.web.WebEngine webEngine = webViewPane1.getWebEngine();
-                    webViewPane.loadFromScript("safeOnLoad(() => {loadVideo('" + playerType + "', '" + videoId + "', '" + clientId + "','" + tracksParam + "','" +  playerId + "');});", new LoadOptions(), false);
+                    webViewPane.loadFromScript("safeOnLoad(() => {loadVideo('" + playerType + "', '" + videoId + "', '" + clientId + "','" + tracksParam + "','" + playerId + "');});", new LoadOptions(), false);
                 }
             }, statusProperty());
         }
@@ -173,46 +172,55 @@ public final class VideoJsPlayer extends SeamlessCapableWebVideoPlayer {
         boolean autoplay = so != null && Booleans.isTrue(so.autoplay());
         boolean muted = so != null && Booleans.isTrue(so.muted());
 
-        webViewPane.loadFromScript(
-            "const playerId = '" + playerId + "';\n" +
-                "var player = window.webfx_extras_videojs_players[playerId];\n" +
-                "if (player && !player.isDisposed()) {\n" +
-                "    " + script + ";\n" +
-                "} else if (!window.webfx_extras_videojs_creating || !window.webfx_extras_videojs_creating[playerId]) {\n" +
-                "    if (!window.webfx_extras_videojs_creating) window.webfx_extras_videojs_creating = {};\n" +
-                "    window.webfx_extras_videojs_creating[playerId] = true;\n" +
-                "    var createPlayer = function() {\n" +
-                "        const javaPlayer = window[playerId];\n" +
-                "        const config = {\n" +
-                "            containerId: playerId,\n" +
-                "            playerType: '" + playerType + "',\n" +
-                "            hlsId: '" + videoId + "',\n" +
-                "            clientId: '" + clientId + "',\n" +
-                "            tracksParam: '" + tracksParam + "',\n" +
-                "            autoplay: " + autoplay + ",\n" +
-                "            muted: " + muted + "\n" +
-                "        };\n" +
-                "        window.VideoPlayerManager.loadVideo(config)\n" +
-                "            .then(player => {\n" +
-                "                window.webfx_extras_videojs_players[playerId] = player;\n" +
-                "                window.webfx_extras_videojs_creating[playerId] = false;\n" +
-                "                window.bindVideoJsPlayer(player, javaPlayer);\n" +
-                "                player.ready(function() {\n" +
-                "                    javaPlayer.onReady();\n" +
-                "                    " + script + ";\n" +
-                "                });\n" +
-                "            })\n" +
-                "            .catch(error => {\n" +
-                "                window.webfx_extras_videojs_creating[playerId] = false;\n" +
-                "                console.error('Failed to load video player:', error);\n" +
-                "            });\n" +
-                "    };\n" +
-                "    if (window.VideoPlayerManager) createPlayer(); else window.webfx_extras_videojs_functions.push(createPlayer);\n" +
-                "}",
-
-            new LoadOptions()
+        webViewPane.loadFromScript("""
+                const playerId = '%playerId%';
+                var player = window.webfx_extras_videojs_players[playerId];
+                if (player && !player.isDisposed()) {
+                    %script%;
+                } else if (!window.webfx_extras_videojs_creating || !window.webfx_extras_videojs_creating[playerId]) {
+                    if (!window.webfx_extras_videojs_creating) window.webfx_extras_videojs_creating = {};
+                    window.webfx_extras_videojs_creating[playerId] = true;
+                    var createPlayer = function() {
+                        const javaPlayer = window[playerId];
+                        const config = {
+                            containerId: playerId,
+                            playerType: '%playerType%',
+                            hlsId: '%videoId%',
+                            clientId: '%clientId%',
+                            tracksParam: '%tracksParam%',
+                            autoplay: %autoplay%,
+                            muted: %muted%
+                        };
+                        window.VideoPlayerManager.loadVideo(config)
+                            .then(player => {
+                                window.webfx_extras_videojs_players[playerId] = player;
+                                window.webfx_extras_videojs_creating[playerId] = false;
+                                window.bindVideoJsPlayer(player, javaPlayer);
+                                player.ready(function() {
+                                    javaPlayer.onReady();
+                                    %script%;
+                                });
+                            })
+                            .catch(error => {
+                                window.webfx_extras_videojs_creating[playerId] = false;
+                                console.error('Failed to load video player:', error);
+                            });
+                    };
+                    if (window.VideoPlayerManager) createPlayer(); else window.webfx_extras_videojs_functions.push(createPlayer);
+                }
+                """
+                .replace("%playerId%", playerId)
+                .replace("%playerType%", playerType)
+                .replace("%videoId%", videoId)
+                .replace("%clientId%", clientId)
+                .replace("%tracksParam%", tracksParam)
+                .replace("%script%", script)
+                .replace("%autoplay%", String.valueOf(autoplay))
+                .replace("%muted%", String.valueOf(muted))
+            , new LoadOptions()
                 .setSeamlessInBrowser(true)
                 .setSeamlessContainerId(playerId)
+                .setSeamlessStyleClass("webfx-videojs-container")
                 .setOnWebWindowReady(() -> webViewPane.setWindowMember(playerId, this)),
             null
         );
@@ -228,13 +236,14 @@ public final class VideoJsPlayer extends SeamlessCapableWebVideoPlayer {
     public void resetToInitialState() {
         if (IS_SEAMLESS) {
             // Only reset if the player actually exists in the browser
-            webViewPane.loadFromScript(
-                "var player = window.webfx_extras_videojs_players['" + playerId + "'];\n" +
-                "if (player && !player.isDisposed()) {\n" +
-                "    player.reset();\n" +
-                "}",
-                new LoadOptions().setSeamlessInBrowser(true),
-                null
+            webViewPane.loadFromScript("""
+                    var player = window.webfx_extras_videojs_players['%playerId%'];
+                    if (player && !player.isDisposed()) {
+                        player.reset();
+                    }"""
+                    .replace("%playerId%", playerId)
+                , new LoadOptions().setSeamlessInBrowser(true)
+                , null
             );
         } else {
             super.resetToInitialState();
@@ -279,8 +288,8 @@ public final class VideoJsPlayer extends SeamlessCapableWebVideoPlayer {
     @Override
     public String toString() {
         return "VideoJsPlayer{" +
-            "videoId='" + videoId + '\'' +
-            ", playerId='" + playerId + '\'' +
-            '}';
+               "videoId='" + videoId + '\'' +
+               ", playerId='" + playerId + '\'' +
+               '}';
     }
 }

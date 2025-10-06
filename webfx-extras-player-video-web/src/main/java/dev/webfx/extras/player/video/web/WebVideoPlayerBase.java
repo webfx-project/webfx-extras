@@ -39,7 +39,7 @@ public abstract class WebVideoPlayerBase extends VideoPlayerBase {
     public WebVideoPlayerBase(IntegrationMode integrationMode) {
         super(integrationMode);
         // Player status management when the webview is removed from or reinserted into the scene graph. Indeed, when
-        // this happens, the platform (especially browsers with iFrame) may stop the player and we are not automatically
+        // this happens, the platform (especially browsers with iFrame) may stop the player, and we are not automatically
         // notified of this.
         boolean hasIFrame = hasIFrame();
         boolean notificationSupport = getNavigationSupport().notification();
@@ -48,10 +48,10 @@ public abstract class WebVideoPlayerBase extends VideoPlayerBase {
             FXProperties.runOnPropertyChange(scene -> {
                 Status status = getStatus();
                 if (scene == null) { // Removed from the scene graph or DOM!
-                    noSceneStatus[0] = status; // memorising the status to eventually reapply it when it's reinserted
-                    // Browsers automatically stops videos in iFrame, but we didn't get a notification for it.
-                    // And for the other platforms, we also simulate the same behaviour, in order to notify the
-                    // player group of the change (see maybe-playing management for players with no notification support)
+                    noSceneStatus[0] = status; // memorizing the status to eventually reapply it when it's reinserted
+                    // Browsers automatically stop videos in iFrame, but we didn't get a notification for it.
+                    // And for the other platforms, we also simulate the same behavior to notify the player group of
+                    // the change (see maybe-playing management for players with no notification support)
                     switch (status) {
                         case READY:
                         case PLAYING:
@@ -254,6 +254,5 @@ public abstract class WebVideoPlayerBase extends VideoPlayerBase {
             callOnEndOfPlayingIfSet();
         }
     }
-
 
 }

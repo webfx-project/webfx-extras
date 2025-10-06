@@ -11,6 +11,7 @@ import dev.webfx.extras.webview.pane.WebViewPane;
 import dev.webfx.kit.util.properties.FXProperties;
 import dev.webfx.platform.resource.Resource;
 import dev.webfx.platform.util.Booleans;
+import dev.webfx.platform.util.Strings;
 import javafx.scene.paint.Color;
 import javafx.util.Duration;
 
@@ -209,12 +210,12 @@ public final class VideoJsPlayer extends SeamlessCapableWebVideoPlayer {
                     if (window.VideoPlayerManager) createPlayer(); else window.webfx_extras_videojs_functions.push(createPlayer);
                 }
                 """
-                .replace("%playerId%", playerId)
-                .replace("%playerType%", playerType)
-                .replace("%videoId%", videoId)
-                .replace("%clientId%", clientId)
-                .replace("%tracksParam%", tracksParam)
-                .replace("%script%", script)
+                .replace("%playerId%", Strings.toSafeString(playerId))
+                .replace("%script%", Strings.toSafeString(script))
+                .replace("%playerType%", Strings.toSafeString(playerType))
+                .replace("%videoId%", Strings.toSafeString(videoId))
+                .replace("%clientId%", Strings.toSafeString(clientId))
+                .replace("%tracksParam%", Strings.toSafeString(tracksParam))
                 .replace("%autoplay%", String.valueOf(autoplay))
                 .replace("%muted%", String.valueOf(muted))
             , new LoadOptions()

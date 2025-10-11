@@ -14,6 +14,7 @@ import javafx.scene.Node;
 import javafx.util.Duration;
 
 import java.util.function.Function;
+import java.util.stream.IntStream;
 
 /**
  * @author Bruno Salmon
@@ -96,28 +97,38 @@ public final class Animations {
     public static void shake(Node node) {
         DoubleProperty x = node.translateXProperty();
         double xIni = x.getValue(), xMin = xIni - 10, xMax = xIni + 10;
-        new Timeline(
-                new KeyFrame(Duration.millis(100),  new KeyValue(x, xMin)),
-                new KeyFrame(Duration.millis(200),  new KeyValue(x, xMax)),
-                new KeyFrame(Duration.millis(300),  new KeyValue(x, xMin)),
-                new KeyFrame(Duration.millis(400),  new KeyValue(x, xMax)),
-                new KeyFrame(Duration.millis(500),  new KeyValue(x, xMin)),
-                new KeyFrame(Duration.millis(600),  new KeyValue(x, xMax)),
-                new KeyFrame(Duration.millis(700),  new KeyValue(x, xMin)),
-                new KeyFrame(Duration.millis(800),  new KeyValue(x, xMax)),
-                new KeyFrame(Duration.millis(900),  new KeyValue(x, xMin)),
-                new KeyFrame(Duration.millis(1000), new KeyValue(x, xIni))
+        new Timeline(IntStream.range(1, 10).mapToObj(i ->
+            new KeyFrame(Duration.millis(100 * i), new KeyValue(x, i % 2 == 0 ? xMin : xMax))).toArray(KeyFrame[]::new)
         ).play();
     }
 
-    public static void fadeIn(Node node) {
-        node.setOpacity(0);
-        animateProperty(node.opacityProperty(), 1, Duration.seconds(0.7), EASE_BOTH_INTERPOLATOR);
+    public static Timeline fade(Node node, boolean fadeIn, boolean setInitialOpacity) {
+        if (setInitialOpacity)
+            node.setOpacity(fadeIn ? 0 : 1);
+        return animateProperty(node.opacityProperty(), fadeIn ? 1 : 0, Duration.seconds(fadeIn ? 0.7 : 0.4), EASE_BOTH_INTERPOLATOR);
     }
 
-    public static void fadeOut(Node node) {
-        animateProperty(node.opacityProperty(), 1, Duration.seconds(0.4), EASE_BOTH_INTERPOLATOR);
+    public static Timeline fadeIn(Node node) {
+        return fade(node, true, true);
     }
+
+    public static Timeline fadeOut(Node node) {
+        return fade(node, false, false);
+    }
+
+    public static Timeline fadeIn(Node node, boolean setVisibleFirst) {
+        if (setVisibleFirst)
+            node.setVisible(true);
+        return fadeIn(node);
+    }
+
+    public static Timeline fadeOut(Node node, boolean setInvisibleThen) {
+        Timeline timeline = fadeOut(node);
+        if (setInvisibleThen)
+            timeline.setOnFinished(e -> node.setVisible(false));
+        return timeline;
+    }
+
 
     // scrollToTop() feature that is partially implemented here (because we don't want to introduce a dependency to
     // javafx-control here), but its implementation is complemented by dev.webfx.extras.util.control.ControlUtil.

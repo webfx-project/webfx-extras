@@ -32,18 +32,12 @@ public class TranslateTransition implements Transition {
     @Override
     public Timeline createAndStartTransitionTimeline(Node oldContent, Node newContent, Region oldRegion, Region newRegion, Pane dualContainer, Supplier<Double> widthGetter, Supplier<Double> heightGetter, boolean reverse) {
         double width = widthGetter.get();
-        double initialTranslateX;
-        // Setting the initial translation (final is always 0)
-        if (direction == HPos.LEFT) // transition from right to left
+        double initialTranslateX, finalTranslateX = 0;
+        // Computing the initial translation (final is always 0)
+        if (direction == (reverse ? HPos.RIGHT : HPos.LEFT)) // transition from right to left
             initialTranslateX = width; // new content entering from the right
         else { // transition from left to right
             initialTranslateX = -width; // new content entering from the left
-        }
-        double finalTranslateX = 0;
-        if (reverse) {
-            double swap = initialTranslateX;
-            initialTranslateX = finalTranslateX;
-            finalTranslateX = swap;
         }
         dualContainer.setTranslateX(initialTranslateX);
         return Animations.animateProperty(dualContainer.translateXProperty(), finalTranslateX, Duration.seconds(0.7), Animations.EASE_BOTH_INTERPOLATOR, true);

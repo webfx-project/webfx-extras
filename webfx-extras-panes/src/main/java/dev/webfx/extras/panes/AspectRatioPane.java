@@ -64,8 +64,6 @@ public final class AspectRatioPane extends MonoClipPane {
 
     @Override
     protected void layoutChildren(double width, double height) {
-        if (content == null)
-            return;
         double w = width, h = height, arw = h * getAspectRatio(), arh = w / getAspectRatio();
         switch (getFitMode()) {
             case FIT_WIDTH: h = arh; break;

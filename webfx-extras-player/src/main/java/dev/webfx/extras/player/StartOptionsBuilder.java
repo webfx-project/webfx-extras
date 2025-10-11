@@ -22,6 +22,7 @@ public class StartOptionsBuilder {
     private LocalDateTime endDateTime;
     private Double aspectRatio;
     private Color playerColor;
+    private String tracks;
 
     public StartOptionsBuilder setAutoplay(Boolean autoplay) {
         this.autoplay = autoplay;
@@ -117,6 +118,15 @@ public class StartOptionsBuilder {
         return playerColor;
     }
 
+    public StartOptionsBuilder setTracks(String tracks) {
+        this.tracks = tracks;
+        return this;
+    }
+
+    public String getTracks() {
+        return tracks;
+    }
+
     public StartOptionsBuilder applyStartOptions(StartOptions so) {
         if (so == null)
             return this;
@@ -130,10 +140,11 @@ public class StartOptionsBuilder {
         endDateTime = Objects.coalesce(so.endDateTime(), endDateTime);
         aspectRatio = Objects.coalesce(so.aspectRatio(), aspectRatio);
         playerColor = Objects.coalesce(so.playerColor(), playerColor);
+        tracks = Objects.coalesce(so.getTracks(), tracks);
         return this;
     }
 
     public StartOptions build() {
-        return new StartOptionsImpl(autoplay, muted, loop, fullscreen, startTime, endTime, startDateTime, endDateTime, aspectRatio, playerColor);
+        return new StartOptionsImpl(autoplay, muted, loop, fullscreen, startTime, endTime, startDateTime, endDateTime, aspectRatio, playerColor, tracks);
     }
 }

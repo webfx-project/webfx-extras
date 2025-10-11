@@ -1,5 +1,6 @@
 package dev.webfx.extras.visual.controls;
 
+import dev.webfx.extras.visual.SelectionMode;
 import dev.webfx.kit.util.properties.FXProperties;
 import javafx.scene.Node;
 import dev.webfx.extras.visual.VisualResult;
@@ -34,7 +35,10 @@ public abstract class SelectableVisualResultControlSkinBase<C extends Selectable
 
     @Override
     protected void updateResult(VisualResult rs) {
-        visualControl.setVisualSelection(null);
+        // The default behavior is to reset the visual selection when the visual result changes, unless we are told
+        // not to do so (ex: ReactiveVisualMapper might want to control the selection in some cases).
+        if (!VisualSelection.isVisualSelectionResetPrevented())
+            visualControl.setVisualSelection(null);
         super.updateResult(rs);
     }
 
@@ -42,12 +46,16 @@ public abstract class SelectableVisualResultControlSkinBase<C extends Selectable
     protected void setUpBodyRow(ROW bodyRow, int rowIndex) {
         super.setUpBodyRow(bodyRow, rowIndex);
         bodyRow.setOnMouseClicked(e -> {
-            VisualSelection visualSelection = visualControl.getVisualSelection();
-            if (visualSelection == null || visualSelection.getSelectedRow() != rowIndex)
-                visualSelection = VisualSelection.createSingleRowSelection(rowIndex);
-            else
-                visualSelection = null;
-            visualControl.setVisualSelection(visualSelection);
+            if (visualControl.getSelectionMode() != SelectionMode.DISABLED) {
+                VisualSelection visualSelection = visualControl.getVisualSelection();
+                if (visualSelection == null ||
+                    // If the user clicks on the same row while holding the Ctrl key, we clear that row selection
+                    !(e.isControlDown() && visualSelection.getSelectedRow() != rowIndex))
+                    visualSelection = VisualSelection.createSingleRowSelection(rowIndex);
+                else
+                    visualSelection = null;
+                visualControl.setVisualSelection(visualSelection);
+            }
         });
     }
 }

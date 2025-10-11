@@ -21,8 +21,9 @@ public final class StartOptionsImpl implements StartOptions {
     private final LocalDateTime endDateTime;
     private final Double aspectRatio;
     private final Color playerColor;
+    private final String tracks;
 
-    public StartOptionsImpl(Boolean autoplay, Boolean muted, Boolean loop, Boolean fullscreen, Duration startTime, Duration endTime, LocalDateTime startDateTime, LocalDateTime endDateTime, Double aspectRatio, Color playerColor) {
+    public StartOptionsImpl(Boolean autoplay, Boolean muted, Boolean loop, Boolean fullscreen, Duration startTime, Duration endTime, LocalDateTime startDateTime, LocalDateTime endDateTime, Double aspectRatio, Color playerColor, String tracks) {
         this.autoplay = autoplay;
         this.muted = muted;
         this.loop = loop;
@@ -33,6 +34,7 @@ public final class StartOptionsImpl implements StartOptions {
         this.endDateTime = endDateTime;
         this.aspectRatio = aspectRatio;
         this.playerColor = playerColor;
+        this.tracks = tracks;
     }
 
     @Override
@@ -82,5 +84,10 @@ public final class StartOptionsImpl implements StartOptions {
 
     public Color playerColor() {
         return playerColor;
+    }
+
+    @Override
+    public String getTracks() {
+        return tracks;
     }
 }

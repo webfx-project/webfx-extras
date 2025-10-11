@@ -31,8 +31,9 @@ public final class Layouts {
     }
 
     public static GridPane createGoldLayout(Region child, double percentageWidth, double percentageHeight, Background background) {
-        boolean autoPaddingChild = isEmpty(child.getPadding()); // If no padding has been set on the child, we automatically set a 3% padding
+        boolean autoPaddingChild = isEmpty(child.getPadding()); // If no padding has been set on the child, we automatically set 3% padding
         GridPane goldPane = new GridPane();
+        goldPane.getStyleClass().add("gold-layout");
         goldPane.setAlignment(Pos.TOP_CENTER); // Horizontal alignment
         RowConstraints headerRowConstraints = new RowConstraints();
         // Making the gold pane invisible during a few animation frames because its height may not be stable on start
@@ -45,7 +46,7 @@ public final class Layouts {
                         child.setPrefHeight(gpHeight.doubleValue() * percentageHeight);
                     Platform.runLater(() -> {
                         goldPane.getRowConstraints().setAll(headerRowConstraints);
-                        // Setting a 3% breathing padding around the child (will appear in background color, such as transparent gray)
+                        // Setting 3% breathing padding around the child (will appear in background color, such as transparent gray)
                         set3PercentPadding(goldPane); // outside the child
                         if (autoPaddingChild)
                             set3PercentPadding(child); // inside the child
@@ -53,7 +54,7 @@ public final class Layouts {
                     return (gpHeight.doubleValue() - cHeight.doubleValue()) / 2.61;
                 }));
         if (percentageWidth != 0)
-            child.prefWidthProperty().bind(FXProperties.compute(goldPane.widthProperty(), gpWidth -> gpWidth.doubleValue() * percentageWidth));
+            child.prefWidthProperty().bind(goldPane.widthProperty().map(gpWidth -> gpWidth.doubleValue() * percentageWidth));
         goldPane.add(setMaxSizeToPref(child), 0, 1);
         if (background != null)
             goldPane.setBackground(background);
@@ -67,12 +68,28 @@ public final class Layouts {
     }
 
     public static Region createHGrowable() {
-        return setHGrowable(setMaxWidthToInfinite(new Region()));
+        return createHGrowable(Double.MAX_VALUE);
+    }
+
+    public static Region createHGrowable(double maxWidth) {
+        return setHGrowable(setMaxWidth(new Region(),  maxWidth));
     }
 
     public static <N extends Node> N setHGrowable(N node) {
         HBox.setHgrow(node, Priority.ALWAYS);
         return node;
+    }
+
+    public static Region createVSpace(double height) {
+        return setMinHeight(new Region(), height);
+    }
+
+    public static Region createVGrowable() {
+        return createVGrowable(Double.MAX_VALUE);
+    }
+
+    public static Region createVGrowable(double maxHeight) {
+        return setVGrowable(setMaxHeight(new Region(),  maxHeight));
     }
 
     public static <N extends Node> N setVGrowable(N node) {
@@ -89,8 +106,7 @@ public final class Layouts {
     }
 
     public static <N extends Region> N setMinSize(N region, double minWidth, double minHeight) {
-        region.setMinWidth(minWidth);
-        region.setMinHeight(minHeight);
+        region.setMinSize(minWidth, minHeight);
         return region;
     }
 
@@ -107,8 +123,7 @@ public final class Layouts {
     }
 
     public static <N extends Region> N setPrefSize(N region, double value) {
-        region.setPrefWidth(value);
-        region.setPrefHeight(value);
+        region.setPrefSize(value, value);
         return region;
     }
 
@@ -121,8 +136,7 @@ public final class Layouts {
     }
 
     private static <N extends Region> N setMaxSize(N region, double value) {
-        region.setMaxWidth(value);
-        region.setMaxHeight(value);
+        region.setMaxSize(value, value);
         return region;
     }
 
@@ -149,6 +163,13 @@ public final class Layouts {
     public static <N extends Region> N setMinMaxWidthToPref(N region) {
         setMinWidthToPref(region);
         setMaxWidthToPref(region);
+        return region;
+    }
+
+    public static <N extends Region> N setFixedWidth(N region, double value) {
+        region.setMinWidth(value);
+        region.setPrefWidth(value);
+        region.setMaxWidth(value);
         return region;
     }
 
@@ -185,6 +206,19 @@ public final class Layouts {
         return setMaxHeight(region, USE_PREF_SIZE);
     }
 
+    public static <N extends Region> N setMinMaxSizeToPref(N region) {
+        setMinMaxWidthToPref(region);
+        setMinMaxHeightToPref(region);
+        return region;
+    }
+
+    public static <N extends Region> N setFixedHeight(N region, double value) {
+        region.setMinHeight(value);
+        region.setPrefHeight(value);
+        region.setMaxHeight(value);
+        return region;
+    }
+
     public static <N extends Region> N setMinHeight(N region, double value) {
         region.setMinHeight(value);
         return region;
@@ -193,6 +227,11 @@ public final class Layouts {
     public static <N extends Region> N setMaxHeight(N region, double value) {
         region.setMaxHeight(value);
         return region;
+    }
+
+    public static <N extends Region> N setFixedSize(N region, double width, double height) {
+        setFixedWidth(region, width);
+        return setFixedHeight(region, height);
     }
 
     public static <N extends Node> N setManagedAndVisibleProperties(N node, boolean value) {
@@ -211,6 +250,12 @@ public final class Layouts {
         return bindManagedToVisibleProperty(node);
     }
 
+    public static void bindAllManagedAndVisiblePropertiesTo(ObservableValue<Boolean> visibleProperty, Node... nodes) {
+        for (Node node : nodes)
+            node.visibleProperty().bind(visibleProperty);
+        bindAllManagedToVisibleProperty(nodes);
+    }
+
     public static void bindAllManagedToVisibleProperty(Node... nodes) {
         Arrays.forEach(nodes, Layouts::bindManagedToVisibleProperty);
     }
@@ -218,6 +263,19 @@ public final class Layouts {
     public static void bindAllManagedToVisiblePropertyWithInitialValue(boolean initialVisibility, Node... nodes) {
         Arrays.forEach(nodes, node -> node.setVisible(initialVisibility));
         bindAllManagedToVisibleProperty(nodes);
+    }
+
+    public static void bindManagedPropertyLike(Node node, Node template) {
+        node.managedProperty().bind(template.managedProperty());
+    }
+
+    public static void bindVisiblePropertyLike(Node node, Node template) {
+        node.visibleProperty().bind(template.visibleProperty());
+    }
+
+    public static void bindManagedAndVisiblePropertiesLike(Node node, Node template) {
+        bindManagedPropertyLike(node, template);
+        bindVisiblePropertyLike(node, template);
     }
 
     public static <N extends Region> N setPadding(N content, double top, double right, double bottom, double left) {

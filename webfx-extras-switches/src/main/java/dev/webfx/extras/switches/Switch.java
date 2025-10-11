@@ -1,5 +1,7 @@
 package dev.webfx.extras.switches;
 
+import dev.webfx.kit.util.aria.AriaRole;
+import dev.webfx.kit.util.aria.Aria;
 import dev.webfx.kit.util.properties.FXProperties;
 import javafx.animation.Interpolator;
 import javafx.animation.KeyFrame;
@@ -26,6 +28,7 @@ public class Switch extends Pane {
         switchKnob = (Circle) getChildren().get(0);
         switchKnob.setLayoutY(RADIUS);
         getStyleClass().add("webfx-switch");
+        Aria.setAriaRole(this, AriaRole.SWITCH);
         switchKnob.getStyleClass().add("knob");
         setMinSize(WIDTH, 2 * RADIUS);
         setMaxSize(WIDTH, 2 * RADIUS);
@@ -46,14 +49,16 @@ public class Switch extends Pane {
     }
 
     private void updateSwitchUi(boolean animate) {
-        double layoutX = isSelected() ? WIDTH - RADIUS : RADIUS;
-        getStyleClass().remove(isSelected() ? "unselected" : "selected");
-        getStyleClass().add(isSelected() ? "selected" : "unselected");
+        boolean selected = isSelected();
+        double layoutX = selected ? WIDTH - RADIUS : RADIUS;
+        getStyleClass().remove(selected ? "unselected" : "selected");
+        getStyleClass().add(selected ? "selected" : "unselected");
         if (!animate) {
             switchKnob.setLayoutX(layoutX);
         } else {
             animateProperty(200, switchKnob.layoutXProperty(), layoutX);
         }
+        Aria.setAriaSelected(this, selected);
     }
 
     static <T> Timeline animateProperty(int durationMillis, WritableValue<T> target, T endValue) {

@@ -1,11 +1,15 @@
 package dev.webfx.extras.visual.controls.grid;
 
 import dev.webfx.extras.responsive.ResponsiveDesign;
+import dev.webfx.extras.responsive.ResponsiveLayout;
 import dev.webfx.extras.visual.VisualResult;
 import dev.webfx.extras.visual.controls.SelectableVisualResultControl;
 import dev.webfx.extras.visual.controls.grid.registry.VisualGridRegistry;
+import dev.webfx.extras.visual.controls.grid.skin.VisualGridSkin;
 import javafx.beans.property.*;
+import javafx.beans.value.ObservableValue;
 import javafx.geometry.Insets;
+import javafx.scene.control.Skin;
 
 /**
  * @author Bruno Salmon
@@ -19,6 +23,7 @@ public class VisualGrid extends SelectableVisualResultControl {
     private final DoubleProperty prefRowHeightProperty = new SimpleDoubleProperty(DEFAULT_ROW_HEIGHT);
     private final DoubleProperty maxRowHeightProperty = new SimpleDoubleProperty(USE_PREF_SIZE);
     private final ObjectProperty<Insets> cellMarginProperty = new SimpleObjectProperty<>(DEFAULT_CELL_MARGIN);
+    private final ObjectProperty<Insets> monoCellMarginProperty = new SimpleObjectProperty<>(DEFAULT_CELL_MARGIN);
 
     public VisualGrid() {
     }
@@ -103,21 +108,61 @@ public class VisualGrid extends SelectableVisualResultControl {
         cellMarginProperty.set(cellMargin);
     }
 
-    public static VisualGrid createVisualGridWithTableSkin() {
-        return new SkinnedVisualGrid(VisualGridTableSkin::new);
+    public Insets getMonoCellMargin() {
+        return monoCellMarginProperty.get();
     }
 
-    public static VisualGrid createVisualGridWithVerticalSkin() {
-        return new SkinnedVisualGrid(VisualGridVerticalSkin::new);
+    public ObjectProperty<Insets> monoCellMarginProperty() {
+        return monoCellMarginProperty;
+    }
+
+    public void setMonoCellMargin(Insets cellMargin) {
+        monoCellMarginProperty.set(cellMargin);
+    }
+
+    public static VisualGrid createVisualGridWithTableLayoutSkin() {
+        return new SkinnedVisualGrid(VisualGridSkin::new);
+    }
+
+    public static VisualGrid createVisualGridWithMonoColumnLayoutSkin() {
+        VisualGrid visualGrid = createVisualGridWithTableLayoutSkin();
+        VisualGridSkin skin = (VisualGridSkin) visualGrid.getSkin();
+        skin.setMonoColumnLayout();
+        return visualGrid;
     }
 
     public static VisualGrid createVisualGridWithResponsiveSkin() {
-        VisualGrid visualGrid = createVisualGridWithTableSkin();
+        VisualGrid visualGrid = createVisualGridWithTableLayoutSkin();
+        VisualGridSkin skin = (VisualGridSkin) visualGrid.getSkin();
         new ResponsiveDesign(visualGrid)
-                .addResponsiveLayout((VisualGridTableSkin) visualGrid.getSkin())
-                .addResponsiveLayout(new VisualGridVerticalSkin(visualGrid))
+                .addResponsiveLayout(new ResponsiveLayout() {
+                    @Override
+                    public boolean testResponsiveLayoutApplicability(double width) {
+                        return width >= skin.getTableLayoutMinWidth();
+                    }
+
+                    @Override
+                    public ObservableValue<?>[] getResponsiveTestDependencies() {
+                        return new ObservableValue[]{ skin.tableLayoutMinWidthProperty() };
+                    }
+
+                    @Override
+                    public void applyResponsiveLayout() {
+                        skin.setTableLayout();
+                    }
+                })
+                .addResponsiveLayout(skin::setMonoColumnLayout)
                 .start();
         return visualGrid;
+    }
+
+    public static boolean isMonoColumnLayout(VisualGrid visualGrid) {
+        Skin<?> skin = visualGrid.getSkin();
+        return skin instanceof VisualGridSkin s && s.isMonoColumnLayout();
+    }
+
+    public static boolean isTableLayout(VisualGrid visualGrid) {
+        return !isMonoColumnLayout(visualGrid);
     }
 
     static {

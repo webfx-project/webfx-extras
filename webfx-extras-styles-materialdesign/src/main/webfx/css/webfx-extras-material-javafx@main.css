@@ -1,4 +1,4 @@
-* {
+.root {
      /* Colors shared by different Material components */
      -webfx-material-input-text-fill: #1e1e1e;
      -webfx-material-idle-text-fill: #6d6d6d;

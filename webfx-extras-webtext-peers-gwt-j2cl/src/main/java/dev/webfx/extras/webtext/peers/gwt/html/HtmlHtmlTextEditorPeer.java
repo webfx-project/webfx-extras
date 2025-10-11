@@ -151,6 +151,9 @@ public final class HtmlHtmlTextEditorPeer
                 )
         ));
         resyncEditorFromNodeText(false);
+        // Note: this is the responsibility of this peer to actually set the JavaFX scene focus owner to this node when
+        // it actually gains the focus.
+        ckEditor.on("focus", e -> getNode().requestFocus());
         return true;
     }
 

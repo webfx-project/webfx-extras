@@ -31,8 +31,7 @@ public class Controls {
     public static ScrollPane setupVerticalScrollPane(ScrollPane scrollPane, Region content) {
         scrollPane.setContent(Layouts.setMinMaxWidthToPref(content));
         double verticalScrollbarExtraWidth = WebFxKitLauncher.getVerticalScrollbarExtraWidth();
-        content.prefWidthProperty().bind(
-            FXProperties.compute(scrollPane.widthProperty(), width -> {
+        content.prefWidthProperty().bind(scrollPane.widthProperty().map(width -> {
                 double contentWidth = width.doubleValue() - verticalScrollbarExtraWidth;
                 double maxWidth = content.getMaxWidth();
                 if (maxWidth > 0 && contentWidth > maxWidth)

@@ -69,19 +69,37 @@ public final class HtmlVisualGridPeer
                 UiScheduler.scheduleDeferred(() -> getElement().scrollTop = scrollTop);
         }, node.sceneProperty());
         node.setOnKeyPressed(e -> {
+            boolean up = false;
             switch (e.getCode()) {
-                case UP: onArrowKey(true, e); break;
-                case DOWN: onArrowKey(false, e); break;
+                case TAB: break;
+                case UP: up = true;
+                case DOWN: onArrowKey(up, e);
+                default: e.consume();
             }
         });
     }
 
     private void onArrowKey(boolean up, KeyEvent e) {
+        // 1) Changing the selection to the row above (if up) or below (if down)
         N node = getNode();
         VisualSelection visualSelection = node.getVisualSelection();
         int selectedRow = visualSelection.getSelectedRow() + (up ? -1 : +1);
         selectedRow = Math.max(0, Math.min(node.getVisualResult().getRowCount() - 1, selectedRow));
         node.setVisualSelection(VisualSelection.updateRowsSelection(visualSelection, node.getSelectionMode(), selectedRow, true, e.isControlDown(), e.isShiftDown()));
+        // 2) Making sure that the selected row is visible in the table viewport
+        HTMLTableRowElement row = tBody.rows.item(selectedRow);
+        ScrollIntoViewOptions options = ScrollIntoViewOptions.create();
+        options.setBlock("nearest");
+        row.scrollIntoView(options);
+        // 3) Last detail: if the selected row is visually at the top of the viewport, it may be hidden because behind
+        // the sticky table header. In this case, we need to scroll up a little bit more to make it visible.
+        if (node.isHeaderVisible()) { // This issue happens only if the table header is visible
+            double tHeadBottom = tHead.getBoundingClientRect().bottom;
+            double rowTop = row.getBoundingClientRect().top;
+            if (tHeadBottom > rowTop) { // detecting that the table header overlaps the selected row
+                getElement().scrollTop -= tHeadBottom - rowTop; // Scrolling up so the row goes down just under the table header
+            }
+        }
     }
 
     @Override
@@ -154,14 +172,14 @@ public final class HtmlVisualGridPeer
             for (int row = 0; row < rowCount; row++) {
                 HTMLTableRowElement tBodyRow = (HTMLTableRowElement) tBody.insertRow(-1);
                 int finalRow = row;
-                // Selection management on devices with mouse such as desktops
+                // Selection management on devices with the mouse, typically on desktops
                 tBodyRow.onmousedown = e -> {
                     MouseEvent me = (MouseEvent) e;
                     visualGrid.setVisualSelection(VisualSelection.updateRowsSelection(visualGrid.getVisualSelection(), visualGrid.getSelectionMode(), finalRow, me.button == 0, me.ctrlKey, me.shiftKey));
                     visualGrid.requestFocus(); // to enable keyPressed detection and therefore arrow selection navigation
                     return null;
                 };
-                // Selection management on touch devices such as mobiles
+                // Selection management on touch devices, typically on mobiles
                 tBodyRow.ontouchstart = e -> {
                     visualGrid.setVisualSelection(VisualSelection.updateRowsSelection(visualGrid.getVisualSelection(), visualGrid.getSelectionMode(), finalRow, true, e.ctrlKey, e.shiftKey));
                     visualGrid.requestFocus(); // to enable keyPressed detection and therefore arrow selection navigation

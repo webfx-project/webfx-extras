@@ -1,10 +1,16 @@
 package dev.webfx.extras.player.multi;
 
-import dev.webfx.extras.player.*;
-import dev.webfx.extras.player.impl.PlayerBase;
 import dev.webfx.extras.media.metadata.MediaMetadata;
+import dev.webfx.extras.player.FeatureSupport;
+import dev.webfx.extras.player.IntegrationMode;
+import dev.webfx.extras.player.Media;
+import dev.webfx.extras.player.Player;
+import dev.webfx.extras.player.impl.MediaViewWithOverlay;
+import dev.webfx.extras.player.impl.PlayerBase;
 import dev.webfx.platform.util.Arrays;
+import javafx.collections.ObservableList;
 import javafx.scene.Node;
+import javafx.scene.layout.Region;
 import javafx.scene.layout.StackPane;
 import javafx.util.Duration;
 
@@ -18,6 +24,7 @@ public final class MultiPlayer extends PlayerBase {
 
     private final List<Player> registeredPlayers = new ArrayList<>();
     private final StackPane multiMediaView = new StackPane();
+    private final MediaViewWithOverlay mediaViewWithOverlay = new MediaViewWithOverlay(multiMediaView);
     private Player selectedPlayer;
 
     public MultiPlayer() {
@@ -29,7 +36,7 @@ public final class MultiPlayer extends PlayerBase {
 
     public void registerPlayer(Player player) {
         registeredPlayers.add(player);
-        ((PlayerBase) player).setInMultiPlayer(true);
+        ((PlayerBase) player).setParentMultiPlayer(this);
     }
 
     public Player getSelectedPlayer() {
@@ -76,8 +83,18 @@ public final class MultiPlayer extends PlayerBase {
     }
 
     @Override
-    public Node getMediaView() {
-        return multiMediaView;
+    public Region getMediaView() {
+        return mediaViewWithOverlay.getContainer();
+    }
+
+    @Override
+    public ObservableList<Node> getOverlayChildren() {
+        return mediaViewWithOverlay.getOverlayChildren();
+    }
+
+    @Override
+    public boolean appRequestedOverlayChildren() {
+        return mediaViewWithOverlay.appRequestedOverlayChildren();
     }
 
     @Override
@@ -116,6 +133,12 @@ public final class MultiPlayer extends PlayerBase {
     }
 
     @Override
+    public void reload() {
+        if (selectedPlayer != null)
+            selectedPlayer.reload();
+    }
+
+    @Override
     public boolean isMediaVideo() {
         return selectedPlayer != null && selectedPlayer.isMediaVideo();
     }
@@ -138,13 +161,18 @@ public final class MultiPlayer extends PlayerBase {
 
     @Override
     public void requestFullscreen() {
-        if (selectedPlayer != null)
+        if (mediaViewWithOverlay.appRequestedOverlayChildren())
+            setFullscreen(mediaViewWithOverlay.requestFullscreen());
+        else if (selectedPlayer != null)
             selectedPlayer.requestFullscreen();
     }
 
     @Override
     public void cancelFullscreen() {
-        if (selectedPlayer != null)
+        if (mediaViewWithOverlay.isFullscreen()) {
+            if (mediaViewWithOverlay.exitFullscreen())
+                setFullscreen(false);
+        } else if (selectedPlayer != null)
             selectedPlayer.cancelFullscreen();
     }
 
@@ -172,4 +200,10 @@ public final class MultiPlayer extends PlayerBase {
             selectedPlayer.setOnEndOfPlaying(onEndOfPlaying);
     }
 
+    @Override
+    public String toString() {
+        return "MultiPlayer{" +
+            "selectedPlayer=" + selectedPlayer +
+            '}';
+    }
 }

@@ -3,9 +3,11 @@ package dev.webfx.extras.player.impl;
 import dev.webfx.extras.player.*;
 import dev.webfx.extras.player.multi.MultiPlayer;
 import dev.webfx.kit.util.properties.FXProperties;
+import dev.webfx.kit.util.properties.Unregisterable;
 import javafx.beans.property.*;
 import javafx.beans.value.ObservableValue;
 import javafx.scene.paint.Color;
+import javafx.stage.Stage;
 import javafx.util.Duration;
 
 import java.util.regex.Matcher;
@@ -24,7 +26,7 @@ public abstract class PlayerBase implements Player {
     private final BooleanProperty mutedProperty = FXProperties.newBooleanProperty(this::onMutedChange);
     private final BooleanProperty fullscreenProperty = FXProperties.newBooleanProperty(this::onFullscreenChange);
     protected StartOptions playingStartingOption;
-    protected boolean isInMultiPlayer;
+    protected MultiPlayer parentMultiPlayer;
 
     protected Runnable onEndOfPlaying;
 
@@ -99,14 +101,25 @@ public abstract class PlayerBase implements Player {
     }
 
     protected void onFullscreenChange() {
+        // If the player moved to fullscreen, we need to detect when it's leaving it, which is not necessary through a
+        // programmatic call to cancelFullscreen(), it can also be done through other means such as ESC key.
+        if (isFullscreen() && getMediaView().getScene().getWindow() instanceof Stage stage) {
+            Unregisterable[] unregisterable = { null };
+            unregisterable[0] = FXProperties.runOnPropertyChange(() -> {
+                if (!stage.isFullScreen()) {
+                    setFullscreen(false);
+                    unregisterable[0].unregister();
+                }
+            }, stage.fullScreenProperty());
+        }
     }
 
     protected void notifyPlayerGroup() {
-        // Notifying associated player group
+        // Notifying the associated player group
         PlayerGroup playerGroup = getPlayerGroup();
         if (playerGroup != null)
             playerGroup.onPlayerStateChange(this);
-        // Notifying global player group (if different)
+        // Notifying the global player group (if different)
         PlayerGroup globalPlayerGroup = Players.getGlobalPlayerGroup();
         if (globalPlayerGroup != playerGroup)
             globalPlayerGroup.onPlayerStateChange(this);
@@ -121,8 +134,13 @@ public abstract class PlayerBase implements Player {
             onEndOfPlaying.run();
     }
 
-    public void setInMultiPlayer(boolean inMultiPlayer) {
-        isInMultiPlayer = inMultiPlayer;
+    @Override
+    public MultiPlayer getParentMultiPlayer() {
+        return parentMultiPlayer;
+    }
+
+    public void setParentMultiPlayer(MultiPlayer parentMultiPlayer) {
+        this.parentMultiPlayer = parentMultiPlayer;
     }
 
     public void bindPlayerToMultiPlayer(MultiPlayer multiPlayer) {
@@ -139,7 +157,8 @@ public abstract class PlayerBase implements Player {
         currentTimeProperty.bind(player.currentTimeProperty());
         statusProperty.bind(player.statusProperty());
         bindMutedPropertyTo(player.mutedProperty());
-        fullscreenProperty.bind(player.fullscreenProperty());
+        // TODO: See if we can remove that cast
+        fullscreenProperty.bindBidirectional(((PlayerBase) player).fullscreenProperty);
     }
 
     protected void unbindMultiPlayerFromPlayer() {

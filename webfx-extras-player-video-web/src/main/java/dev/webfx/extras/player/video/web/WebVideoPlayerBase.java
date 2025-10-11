@@ -3,6 +3,7 @@ package dev.webfx.extras.player.video.web;
 import dev.webfx.extras.media.metadata.MediaMetadata;
 import dev.webfx.extras.player.*;
 import dev.webfx.extras.player.impl.MediaBase;
+import dev.webfx.extras.player.impl.MediaViewWithOverlay;
 import dev.webfx.extras.player.video.impl.VideoPlayerBase;
 import dev.webfx.extras.webview.pane.LoadOptions;
 import dev.webfx.extras.webview.pane.WebViewPane;
@@ -10,11 +11,14 @@ import dev.webfx.kit.launcher.WebFxKitLauncher;
 import dev.webfx.kit.util.properties.FXProperties;
 import dev.webfx.platform.console.Console;
 import dev.webfx.platform.util.Arrays;
+import dev.webfx.platform.util.Booleans;
 import dev.webfx.platform.util.Strings;
+import javafx.collections.ObservableList;
 import javafx.scene.Node;
 import javafx.scene.layout.Region;
-import javafx.scene.web.WebView;
 import javafx.util.Duration;
+
+import java.util.Objects;
 
 /**
  * @author Bruno Salmon
@@ -24,6 +28,9 @@ public abstract class WebVideoPlayerBase extends VideoPlayerBase {
     protected static final boolean IS_BROWSER = WebViewPane.isBrowser();
 
     protected final WebViewPane webViewPane = new WebViewPane();
+    private final MediaViewWithOverlay mediaViewWithOverlay = new MediaViewWithOverlay(webViewPane);
+
+    private String lastUrl = "";
 
     public WebVideoPlayerBase() {
         this(IntegrationMode.EMBEDDED);
@@ -32,7 +39,7 @@ public abstract class WebVideoPlayerBase extends VideoPlayerBase {
     public WebVideoPlayerBase(IntegrationMode integrationMode) {
         super(integrationMode);
         // Player status management when the webview is removed from or reinserted into the scene graph. Indeed, when
-        // this happens, the platform (especially browsers with iFrame) may stop the player and we are not automatically
+        // this happens, the platform (especially browsers with iFrame) may stop the player, and we are not automatically
         // notified of this.
         boolean hasIFrame = hasIFrame();
         boolean notificationSupport = getNavigationSupport().notification();
@@ -41,10 +48,10 @@ public abstract class WebVideoPlayerBase extends VideoPlayerBase {
             FXProperties.runOnPropertyChange(scene -> {
                 Status status = getStatus();
                 if (scene == null) { // Removed from the scene graph or DOM!
-                    noSceneStatus[0] = status; // memorising the status to eventually reapply it when it's reinserted
-                    // Browsers automatically stops videos in iFrame, but we didn't get a notification for it.
-                    // And for the other platforms, we also simulate the same behaviour, in order to notify the
-                    // player group of the change (see maybe-playing management for players with no notification support)
+                    noSceneStatus[0] = status; // memorizing the status to eventually reapply it when it's reinserted
+                    // Browsers automatically stop videos in iFrame, but we didn't get a notification for it.
+                    // And for the other platforms, we also simulate the same behavior to notify the player group of
+                    // the change (see maybe-playing management for players with no notification support)
                     switch (status) {
                         case READY:
                         case PLAYING:
@@ -79,8 +86,18 @@ public abstract class WebVideoPlayerBase extends VideoPlayerBase {
     }
 
     @Override
-    public Node getMediaView() {
-        return webViewPane;
+    public Region getMediaView() {
+        return mediaViewWithOverlay.getContainer();
+    }
+
+    @Override
+    public ObservableList<Node> getOverlayChildren() {
+        return mediaViewWithOverlay.getOverlayChildren();
+    }
+
+    @Override
+    public boolean appRequestedOverlayChildren() {
+        return mediaViewWithOverlay.appRequestedOverlayChildren();
     }
 
     @Override
@@ -93,10 +110,19 @@ public abstract class WebVideoPlayerBase extends VideoPlayerBase {
             stop();
         else {
             String url = generateMediaEmbedFullUrl(onLoadSuccessStatus == Status.PLAYING);
-            webViewPane.loadFromUrl(url, new LoadOptions().setOnLoadSuccess(() ->
-                setStatus(onLoadSuccessStatus))
-                , null);
+            if (!Objects.equals(lastUrl, url)) {
+                loadWebView(url, onLoadSuccessStatus);
+            }
         }
+    }
+
+    private void loadWebView(String url, Status onLoadSuccessStatus) {
+        webViewPane.loadFromUrl(url, new LoadOptions().setOnLoadSuccess(() -> {
+            webViewPane.setWindowMember("playerId", playerId);
+            webViewPane.setWindowMember(playerId, this);
+            setStatus(onLoadSuccessStatus);
+        }), null);
+        lastUrl = url;
     }
 
     @Override
@@ -134,13 +160,18 @@ public abstract class WebVideoPlayerBase extends VideoPlayerBase {
 
     @Override
     public void requestFullscreen() {
-        WebView webView = webViewPane.getWebView();
-        WebFxKitLauncher.requestNodeFullscreen(webView);
+        setFullscreen(mediaViewWithOverlay.requestFullscreen());
     }
 
     @Override
     public void cancelFullscreen() {
-        WebFxKitLauncher.exitFullscreen();
+        if (mediaViewWithOverlay.exitFullscreen())
+            setFullscreen(false);
+    }
+
+    @Override
+    public void reload() {
+        loadWebView(lastUrl, Status.READY);
     }
 
     @Override
@@ -181,7 +212,7 @@ public abstract class WebVideoPlayerBase extends VideoPlayerBase {
             url = url + "?" + Strings.removePrefix(sb.toString(), "&");
         Double aspectRatio = playingStartingOption.aspectRatio();
         if (aspectRatio != null) {
-            webViewPane.prefHeightProperty().bind(FXProperties.computeDeferred(webViewPane.widthProperty(), w -> w.doubleValue() / aspectRatio));
+            webViewPane.prefHeightProperty().bind(FXProperties.deferredProperty(webViewPane.widthProperty()).map(w -> w.doubleValue() / aspectRatio));
             webViewPane.setMinSize(Region.USE_PREF_SIZE, Region.USE_PREF_SIZE);
         } else {
             webViewPane.prefHeightProperty().unbind();
@@ -193,5 +224,35 @@ public abstract class WebVideoPlayerBase extends VideoPlayerBase {
     protected abstract String generateMediaEmbedRawUrl();
 
     protected abstract void appendUrlParameters(StartOptions so, StringBuilder sb);
+
+    // Callback methods called by web player in seamless mode
+
+    public void onReady() {
+        //Console.log("onReady()");
+        setStatus(Status.READY);
+        /*if (Booleans.isTrue(playingStartingOption.autoplay()))
+            seamless_play();*/
+    }
+
+    public void onPlay() {
+        //Console.log("onPlay()");
+        setStatus(Status.PLAYING);
+    }
+
+    public void onPause() {
+        //Console.log("onPause()");
+        if (getStatus() != Status.STOPPED)
+            setStatus(Status.PAUSED);
+    }
+
+    public void onEnd() {
+        //Console.log("onEnd()");
+        setStatus(Status.STOPPED);
+        if (Booleans.isTrue(playingStartingOption.loop())) {
+            play();
+        } else {
+            callOnEndOfPlayingIfSet();
+        }
+    }
 
 }

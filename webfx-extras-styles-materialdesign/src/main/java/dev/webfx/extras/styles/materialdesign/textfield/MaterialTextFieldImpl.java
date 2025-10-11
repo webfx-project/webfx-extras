@@ -28,10 +28,11 @@ import java.util.Objects;
  */
 public final class MaterialTextFieldImpl implements MaterialTextField {
 
-    private final static double BOTTOM_PADDING_BELOW_FLOATING_LABEL = 8;
-    private final static double BOTTOM_PADDING_BELOW_INPUT = 8;
-    private final static double PLACEHOLDER_LEFT_PADDING_FOR_NON_INPUT_TEXT = 8;
-    private final static double FLOATING_LABEL_SCALE_FACTOR = 0.85;
+    private static final double MIN_HEIGHT = 32;
+    private static final double BOTTOM_PADDING_BELOW_FLOATING_LABEL = 8;
+    private static final double BOTTOM_PADDING_BELOW_INPUT = 8;
+    private static final double PLACEHOLDER_LEFT_PADDING_FOR_NON_INPUT_TEXT = 8;
+    private static final double FLOATING_LABEL_SCALE_FACTOR = 0.85;
 
     private ObservableValue<String> inputProperty;
 
@@ -109,7 +110,7 @@ public final class MaterialTextFieldImpl implements MaterialTextField {
     private ObservableList<String> styleClass;
     private boolean recomputeLabelPositionOnNextLayoutPass;
 
-    private final Text labelText = new Text("W"); // not empty for first layout pass
+    private final Text labelText = new Text("W"); // not empty for the first layout pass
     private final Scale labelScale = new Scale();
     private double labelTextHeight;
     // floating label = when above the text input (or content)
@@ -146,6 +147,9 @@ public final class MaterialTextFieldImpl implements MaterialTextField {
 
     private void setContent(Region content, TextInputControl textInputControl, ObservableValue<String> inputProperty) {
         this.content = content;
+        // If not already set, setting a minimal height of 32px, otherwise it may look tiny if the content is empty
+        if (content.getMinHeight() < 0)
+            content.setMinHeight(MIN_HEIGHT);
         this.textInputControl = textInputControl;
         recomputeLabelPositionOnNextLayoutPass = true;
         this.inputProperty = inputProperty;
@@ -198,7 +202,7 @@ public final class MaterialTextFieldImpl implements MaterialTextField {
             // Releasing focus owner listener on scene change to prevent overload
             if (textInputControl == null) {
                 FXProperties.runOnPropertyChange(newScene -> {
-                        if (newScene != scene) // including null (most probable change when node is removed)
+                        if (newScene != scene) // including null (the most probable change when the node is removed)
                             animationTriggers.unregister();
                         else {
                             animationTriggers.register();

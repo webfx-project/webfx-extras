@@ -16,6 +16,10 @@ final class SkinnedVisualGrid extends VisualGrid {
         this.skinFactory = skinFactory;
         // Creating the skin now, otherwise the first layout may have a wrong cached pref size
         setSkin(createDefaultSkin());
+
+        // As opposed to the standard VisualGrid (mapped to HtmlVisualGrid), SkinnedVisualGrid has no keyboard navigation.
+        // So we prevent it from gaining the focus (but its children may gain it if they are able to).
+        setFocusTraversable(false);
     }
 
     @Override

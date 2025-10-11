@@ -1,5 +1,7 @@
 package dev.webfx.extras.player.audio.javafxmedia;
 
+import dev.webfx.extras.i18n.I18n;
+import dev.webfx.extras.i18n.controls.I18nControls;
 import dev.webfx.extras.media.metadata.MediaMetadata;
 import dev.webfx.extras.media.metadata.MetadataUtil;
 import dev.webfx.extras.panes.ScalePane;
@@ -9,8 +11,6 @@ import dev.webfx.extras.styles.bootstrap.Bootstrap;
 import dev.webfx.kit.util.properties.FXProperties;
 import dev.webfx.kit.util.properties.Unregisterable;
 import dev.webfx.platform.util.Objects;
-import dev.webfx.stack.i18n.I18n;
-import dev.webfx.stack.i18n.controls.I18nControls;
 import javafx.beans.property.LongProperty;
 import javafx.beans.property.SimpleLongProperty;
 import javafx.beans.property.SimpleStringProperty;
@@ -18,13 +18,9 @@ import javafx.beans.property.StringProperty;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.Cursor;
-import javafx.scene.Node;
 import javafx.scene.control.Label;
 import javafx.scene.control.ProgressBar;
-import javafx.scene.layout.HBox;
-import javafx.scene.layout.Pane;
-import javafx.scene.layout.StackPane;
-import javafx.scene.layout.VBox;
+import javafx.scene.layout.*;
 import javafx.scene.paint.Color;
 import javafx.scene.paint.Paint;
 import javafx.scene.shape.SVGPath;
@@ -61,7 +57,7 @@ public class AudioMediaView {
         FXProperties.runOnPropertyChange(this::playNewMedia, player.mediaProperty());
         Label title = new Label();
         title.textProperty().bind(titleProperty);
-        titleProperty.set(I18n.getI18nText(JavaFXMediaI18nKeys.ChooseAnAudioTrackForBehind));
+        titleProperty.bind(I18n.i18nTextProperty(JavaFXMediaI18nKeys.ChooseAnAudioTrackForBehind));
         title.setTextFill(Color.WHITE);
         title.getStyleClass().add(Bootstrap.H4);
         title.setMaxWidth(450);
@@ -72,8 +68,7 @@ public class AudioMediaView {
         Label durationLabel = new Label("00:00:00");
         durationLabel.getStyleClass().add("time");
         bindMediaPlayer();
-        durationLabel.textProperty().bind(FXProperties.compute(durationProperty, duration -> formatDuration(duration.longValue())));
-
+        durationLabel.textProperty().bind(durationProperty.map(duration -> formatDuration(duration.longValue())));
         HBox progressBarContainer = new HBox();
         progressBarContainer.setSpacing(10);
         progressBar.setPrefWidth(300);
@@ -119,18 +114,24 @@ public class AudioMediaView {
         buttonsHBox.getChildren().addAll(backwardButton, minus15sLabel, playPauseStackPane, plus15sLabel, forwardButton);
         container.getStyleClass().add("audio-player");
         container.getChildren().addAll(buttonsHBox, titleAndProgressBarVBox);
+        // This is necessary for WebFX (to prevent focus scrolling back to play button issue), but not in OpenJFX
+        container.setFocusTraversable(true);
+        progressBar.setFocusTraversable(true);
+        // TODO: Remove once WebFX behaves the same as OpenJFX
     }
 
     private void playNewMedia() {
         player.setOnEndOfPlaying(player::stop); // Forcing stop status (sometimes this doesn't happen automatically for any reason)
         seekX(0);
         MediaMetadata metadata = player.getMedia().getMetadata();
-        titleProperty.set(MetadataUtil.getTitle(metadata));
-        if (metadata != null)
+        titleProperty.unbind();
+        if (metadata != null) {
+            titleProperty.set(MetadataUtil.getTitle(metadata));
             durationProperty.set(MetadataUtil.getDurationMillis(metadata));
+        }
     }
 
-    public Node getContainer() {
+    public Region getContainer() {
         return container;
     }
 
@@ -242,7 +243,7 @@ public class AudioMediaView {
         long hours = durationMillis / (1000 * 60 * 60); // Calculate hours
         long minutes = (durationMillis / (1000 * 60)) % 60; // Calculate minutes
         long seconds = (durationMillis / 1000) % 60; // Calculate seconds
-
+     //   Console.log("AudioMediaView::formatDuration: " + hours + "h " + minutes + "m "  + seconds + "s ");
         return (hours < 10 ? "0" : "") + hours + ":" + (minutes < 10 ? "0" : "") + minutes + ":" + (seconds < 10 ? "0" : "") + seconds;
     }
 

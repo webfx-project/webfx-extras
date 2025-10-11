@@ -9,7 +9,7 @@ module webfx.extras.canvas.blob.openjfx {
     requires webfx.extras.canvas.blob;
     requires webfx.platform.async;
     requires webfx.platform.blob;
-    requires webfx.platform.file.java;
+    requires webfx.platform.file.jre;
 
     // Exported packages
     exports dev.webfx.extras.canvas.blob.spi.impl.openjfx;

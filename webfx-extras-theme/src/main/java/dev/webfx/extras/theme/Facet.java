@@ -1,6 +1,7 @@
 package dev.webfx.extras.theme;
 
 import dev.webfx.kit.util.properties.FXProperties;
+import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.Property;
 import javafx.beans.property.SimpleBooleanProperty;
 import javafx.beans.property.SimpleObjectProperty;
@@ -107,8 +108,8 @@ public class Facet {
 
     public Facet setBooleanFacetState(Object facetStateKey, boolean facetStateValue) {
         ObservableValue<Boolean> facetStateProperty = getOrCreateBooleanFacetStateProperty(facetStateKey);
-        if (facetStateProperty instanceof Property)
-            ((Property<Boolean>) facetStateProperty).setValue(facetStateValue);
+        if (facetStateProperty instanceof BooleanProperty bp)
+            bp.setValue(facetStateValue);
         return this;
     }
 

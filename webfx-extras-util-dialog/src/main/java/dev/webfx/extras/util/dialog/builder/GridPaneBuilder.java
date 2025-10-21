@@ -1,11 +1,12 @@
 package dev.webfx.extras.util.dialog.builder;
 
-import dev.webfx.platform.util.collection.Collections;
-import dev.webfx.platform.util.tuples.Pair;
 import dev.webfx.extras.i18n.controls.I18nControls;
 import dev.webfx.extras.util.dialog.DialogCallback;
+import dev.webfx.platform.util.collection.Collections;
+import dev.webfx.platform.util.tuples.Pair;
+import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.Property;
-import javafx.beans.property.SimpleObjectProperty;
+import javafx.beans.property.SimpleBooleanProperty;
 import javafx.beans.value.ChangeListener;
 import javafx.geometry.HPos;
 import javafx.geometry.Insets;
@@ -28,7 +29,7 @@ public final class GridPaneBuilder implements DialogBuilder {
     private int rowCount;
     private int colCount;
     private final List<Pair<Property, Object>> watchedUserProperties = new ArrayList<>();
-    private final Property<Boolean> noChangesProperty = new SimpleObjectProperty<>(true);
+    private final BooleanProperty noChangesProperty = new SimpleBooleanProperty(true);
     private final ChangeListener watchedUserPropertyListener = (observable, oldValue, newValue) ->
             noChangesProperty.setValue(Collections.noneMatch(watchedUserProperties, pair -> !Objects.equals(pair.get1().getValue(), pair.get2())));
     private DialogCallback dialogCallback;

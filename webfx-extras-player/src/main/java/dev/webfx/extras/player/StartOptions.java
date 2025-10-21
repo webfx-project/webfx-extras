@@ -30,4 +30,6 @@ public interface StartOptions {
 
     Color playerColor();
 
+    String getTracks();
+
 }

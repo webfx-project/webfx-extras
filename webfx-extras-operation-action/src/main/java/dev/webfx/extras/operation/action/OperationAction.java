@@ -7,7 +7,7 @@ import dev.webfx.platform.uischeduler.UiScheduler;
 import dev.webfx.platform.util.function.Factory;
 import dev.webfx.extras.action.impl.WritableAction;
 import dev.webfx.extras.exceptions.UserCancellationException;
-import dev.webfx.extras.operation.OperationUtil;
+import dev.webfx.extras.operation.OperationDirect;
 import javafx.beans.value.ObservableValue;
 import javafx.event.ActionEvent;
 import javafx.scene.Node;
@@ -41,7 +41,7 @@ public final class OperationAction<Rq, Rs> extends WritableAction {
             Console.log("Executing " + operationRequest);
             long t0 = System.currentTimeMillis();
             me[0].startShowingActionAsExecuting(operationRequest);
-            OperationUtil.executeOperation(operationRequest, topOperationExecutor)
+            OperationDirect.executeOperation(operationRequest, topOperationExecutor)
                 .inUiThread()
                 .onComplete(ar -> {
                     if (ar.succeeded()) {

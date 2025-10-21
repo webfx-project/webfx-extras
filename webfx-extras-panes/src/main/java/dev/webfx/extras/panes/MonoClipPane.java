@@ -71,8 +71,10 @@ public class MonoClipPane extends MonoPane {
 
     @Override
     protected void layoutChildren() {
-        super.layoutChildren();
-        resizeClipIfEnabled();
+        if (content != null && content.isManaged()) {
+            super.layoutChildren();
+            resizeClipIfEnabled();
+        }
     }
 
 }

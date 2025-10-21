@@ -47,10 +47,11 @@
     <modules>
         <module>webfx-extras-action</module>
         <module>webfx-extras-aria</module>
+        <module>webfx-extras-async</module>
         <module>webfx-extras-canvas</module>
         <module>webfx-extras-canvas-bar</module>
         <module>webfx-extras-canvas-blob</module>
-        <module>webfx-extras-canvas-blob-gwt-j2cl</module>
+        <module>webfx-extras-canvas-blob-elemental2</module>
         <module>webfx-extras-canvas-blob-openjfx</module>
         <module>webfx-extras-canvas-layer</module>
         <module>webfx-extras-canvas-pane</module>
@@ -59,7 +60,7 @@
         <module>webfx-extras-controlfactory</module>
         <module>webfx-extras-exceptions</module>
         <module>webfx-extras-filepicker</module>
-        <module>webfx-extras-filepicker-gwt-j2cl</module>
+        <module>webfx-extras-filepicker-elemental2</module>
         <module>webfx-extras-filepicker-openjfx</module>
         <module>webfx-extras-fonticons</module>
         <module>webfx-extras-fonticons-feather</module>
@@ -119,13 +120,13 @@
         <module>webfx-extras-visual</module>
         <module>webfx-extras-visual-charts</module>
         <module>webfx-extras-visual-charts-peers-base</module>
-        <module>webfx-extras-visual-charts-peers-gwt-j2cl-charba</module>
+        <module>webfx-extras-visual-charts-peers-elemental2-charba</module>
         <module>webfx-extras-visual-charts-peers-openjfx</module>
         <module>webfx-extras-visual-charts-registry</module>
         <module>webfx-extras-visual-charts-registry-spi</module>
         <module>webfx-extras-visual-controls</module>
         <module>webfx-extras-visual-grid</module>
-        <module>webfx-extras-visual-grid-peers-gwt-j2cl</module>
+        <module>webfx-extras-visual-grid-peers-elemental2</module>
         <module>webfx-extras-visual-grid-peers-base</module>
         <module>webfx-extras-visual-grid-peers-openjfx</module>
         <module>webfx-extras-visual-grid-registry</module>
@@ -133,7 +134,7 @@
         <module>webfx-extras-visual-peers-base</module>
         <module>webfx-extras-webtext</module>
         <module>webfx-extras-webtext-peers-base</module>
-        <module>webfx-extras-webtext-peers-gwt-j2cl</module>
+        <module>webfx-extras-webtext-peers-elemental2</module>
         <module>webfx-extras-webtext-peers-openjfx</module>
         <module>webfx-extras-webtext-registry</module>
         <module>webfx-extras-webtext-registry-spi</module>

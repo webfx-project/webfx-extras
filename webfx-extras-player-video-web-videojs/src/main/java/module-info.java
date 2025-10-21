@@ -5,7 +5,6 @@ module webfx.extras.player.video.web.videojs {
     // Direct dependencies modules
     requires transitive javafx.base;
     requires javafx.graphics;
-    requires javafx.web;
     requires webfx.extras.media.metadata;
     requires webfx.extras.player;
     requires transitive webfx.extras.player.video;

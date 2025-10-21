@@ -1,0 +1,4 @@
+.webfx-videojs-container {
+    display: grid;
+    place-items: center;
+}

@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project>
+
+    <providers>
+        <provider interface="dev.webfx.extras.filepicker.spi.FilePickerProvider">dev.webfx.extras.filepicker.spi.impl.elemental2.Elemental2FilePickerProvider</provider>
+    </providers>
+
+    <exported-packages>
+        <source-packages/>
+    </exported-packages>
+
+    <dependencies>
+        <used-by-source-modules>
+            <undetected-module>javafx-base</undetected-module>
+        </used-by-source-modules>
+    </dependencies>
+
+</project>

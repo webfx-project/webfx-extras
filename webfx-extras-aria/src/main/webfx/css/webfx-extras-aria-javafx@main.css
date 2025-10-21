@@ -25,6 +25,8 @@ ToggleButton.aria-toggle.fired {
     -fx-text-fill: -webfx-aria-toggle-button-text-fill-fired;
 }
 
-ToggleButton.aria-toggle SVGPath { /* TODO: check if it's the best place */
+/* Automatically applying the same color as the text to SVG icons used inside the toggle buttons. */
+/* Commented as some icons don't have fill but stroke instead => using specific rules in modality-frontoffice-mainframe-javafx@main.css
+ToggleButton.aria-toggle SVGPath { !* TODO: completely remove? *!
     -fx-fill: -fx-text-fill;
-}
+}*/

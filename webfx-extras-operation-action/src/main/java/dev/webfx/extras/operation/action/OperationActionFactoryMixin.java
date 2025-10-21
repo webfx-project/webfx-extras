@@ -7,7 +7,7 @@ import dev.webfx.extras.action.ActionGroup;
 import dev.webfx.extras.action.ActionGroupBuilder;
 import dev.webfx.extras.action.impl.SeparatorAction;
 import dev.webfx.extras.operation.HasOperationExecutor;
-import dev.webfx.extras.operation.OperationUtil;
+import dev.webfx.extras.operation.OperationDirect;
 import dev.webfx.platform.async.AsyncFunction;
 import dev.webfx.platform.async.Future;
 import dev.webfx.platform.util.function.Factory;
@@ -24,7 +24,7 @@ public interface OperationActionFactoryMixin extends HasOperationExecutor {
     }
 
     default <Rq, Rs> Future<Rs> executeOperation(Rq operationRequest) {
-        return OperationUtil.executeOperation(operationRequest, getOperationExecutor());
+        return OperationDirect.executeOperation(operationRequest, getOperationExecutor());
     }
 
     default OperationActionRegistry getOperationActionRegistry() {

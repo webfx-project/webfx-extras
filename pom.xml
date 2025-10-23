@@ -70,6 +70,7 @@
         <module>webfx-extras-geometry</module>
         <module>webfx-extras-i18n</module>
         <module>webfx-extras-i18n-ast</module>
+        <module>webfx-extras-i18n-ast-provider</module>
         <module>webfx-extras-i18n-controls</module>
         <module>webfx-extras-imagestore</module>
         <module>webfx-extras-jsonimage</module>

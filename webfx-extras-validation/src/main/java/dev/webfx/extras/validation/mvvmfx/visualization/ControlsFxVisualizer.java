@@ -57,6 +57,10 @@ public class ControlsFxVisualizer extends ValidationVisualizerBase {
 			decoration.applyRequiredDecoration(control);
 		}
 	}
+
+    public void applyRequiredDecoration(Control control) {
+        applyRequiredVisualization(control, true);
+    }
 	
 	@Override
 	void applyVisualization(Control control, Optional<dev.webfx.extras.validation.mvvmfx.ValidationMessage> messageOptional, boolean required) {

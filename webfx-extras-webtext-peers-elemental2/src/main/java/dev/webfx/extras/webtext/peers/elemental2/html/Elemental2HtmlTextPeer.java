@@ -4,7 +4,7 @@ import dev.webfx.extras.webtext.HtmlText;
 import dev.webfx.extras.webtext.peers.base.HtmlTextPeerBase;
 import dev.webfx.extras.webtext.peers.base.HtmlTextPeerMixin;
 import dev.webfx.extras.webtext.util.WebTextUtil;
-import dev.webfx.kit.mapper.peers.javafxcontrols.gwtj2cl.html.HtmlControlPeer;
+import dev.webfx.kit.mapper.peers.javafxcontrols.elemental2.html.HtmlControlPeer;
 import dev.webfx.kit.mapper.peers.javafxgraphics.HasNoChildrenPeers;
 import dev.webfx.kit.mapper.peers.javafxgraphics.emul_coupling.HasSizeChangedCallback;
 import dev.webfx.kit.mapper.peers.javafxgraphics.elemental2.html.NormalWhiteSpacePeer;

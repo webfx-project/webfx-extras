@@ -52,9 +52,10 @@ public final class ValidationSupport {
 
     private static final ObservableStringValue DEFAULT_REQUIRED_MESSAGE = new SimpleStringProperty("This field is required");
 
+    private boolean alwaysShowRequiredDecorations = false;
+    private final List<Node> requiredNodes = new ArrayList<>();
     private final List<Validator> validators = new ArrayList<>();
     private final List<Node> validatorErrorDecorationNodes = new ArrayList<>();
-    private final List<Node> requiredNodes = new ArrayList<>();
     private final BooleanProperty validatingProperty = new SimpleBooleanProperty();
     private Node popOverContentNode;
     private Node popOverOwnerNode;
@@ -86,10 +87,17 @@ public final class ValidationSupport {
             }
         });
         validators.clear();
+        showRequiredDecorationsIfAlways();
     }
 
-    public void showRequiredDecorations() {
-        requiredNodes.forEach(this::showRequiredDecoration);
+    public void setAlwaysShowRequiredDecorations(boolean alwaysShowRequiredDecorations) {
+        this.alwaysShowRequiredDecorations = alwaysShowRequiredDecorations;
+        showRequiredDecorationsIfAlways();
+    }
+
+    private void showRequiredDecorationsIfAlways() {
+        if (alwaysShowRequiredDecorations)
+            requiredNodes.forEach(this::showRequiredDecoration);
     }
 
     public boolean isEmpty() {

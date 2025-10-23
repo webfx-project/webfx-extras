@@ -1,6 +1,0 @@
-/* We dont want any background or border for the FilePicker button */
-
-.file-picker fx-button {
-    --fx-background-color: transparent;
-    --fx-border-style: none;
-}

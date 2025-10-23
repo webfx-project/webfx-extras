@@ -12,11 +12,13 @@ import javafx.beans.property.Property;
 import javafx.beans.property.SimpleObjectProperty;
 import javafx.beans.value.ObservableValue;
 import javafx.geometry.HPos;
+import javafx.geometry.Insets;
 import javafx.geometry.Point2D;
 import javafx.geometry.VPos;
 import javafx.scene.Node;
 import javafx.scene.control.ScrollPane;
 import javafx.scene.layout.*;
+import javafx.scene.paint.Color;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -26,12 +28,12 @@ import java.util.List;
  */
 public final class DialogUtil {
 
-    private final static Property<Background> dialogBackgroundProperty = new SimpleObjectProperty<>();
+    private final static Property<Background> dialogBackgroundProperty = new SimpleObjectProperty<>(new Background(new BackgroundFill(Color.WHITE, new CornerRadii(20), new Insets(3))));
     public static Property<Background> dialogBackgroundProperty() {
         return dialogBackgroundProperty;
     }
 
-    private final static Property<Border> dialogBorderProperty = new SimpleObjectProperty<>();
+    private final static Property<Border> dialogBorderProperty = new SimpleObjectProperty<>(new Border(new BorderStroke(Color.LIGHTGRAY, BorderStrokeStyle.SOLID, new CornerRadii(20), new BorderWidths(4))));
     public static Property<Border> dialogBorderProperty() {
         return dialogBorderProperty;
     }

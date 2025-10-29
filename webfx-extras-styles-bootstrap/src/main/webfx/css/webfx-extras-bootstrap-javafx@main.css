@@ -492,6 +492,37 @@
     -fx-background-radius: 12;
 }
 
+/* Admin Module Badge Variants - Semantic Colors */
+.badge-operation {
+    -fx-background-color: #E0F7FA;
+    -fx-text-fill: #006064;
+    -fx-background-radius: 12;
+}
+
+.badge-operation-group {
+    -fx-background-color: #FFF3E0;
+    -fx-text-fill: #E65100;
+    -fx-background-radius: 12;
+}
+
+.badge-rule {
+    -fx-background-color: #E8F5E9;
+    -fx-text-fill: #1B5E20;
+    -fx-background-radius: 12;
+}
+
+.badge-role {
+    -fx-background-color: #EDE7F6;
+    -fx-text-fill: #4527A0;
+    -fx-background-radius: 12;
+}
+
+.badge-user {
+    -fx-background-color: #E3F2FD;
+    -fx-text-fill: #0D47A1;
+    -fx-background-radius: 12;
+}
+
 /* Alert / Info Box Styles - left border only, no full border */
 .alert-info, .info-box {
     -fx-background-color: #e3f2fd;

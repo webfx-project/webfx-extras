@@ -582,4 +582,23 @@ public final class ValidationSupport {
             DEFAULT_REQUIRED_MESSAGE
         );
     }
+
+    public void addAlphanumericNoSpacesValidation(TextField textField, Node where, ObservableStringValue errorMessage) {
+        // Pattern to match only letters and numbers, no spaces or special characters
+        String alphanumericPattern = "^[a-zA-Z0-9]+$";
+        Pattern pattern = Pattern.compile(alphanumericPattern);
+
+        addValidationRule(
+            Bindings.createBooleanBinding(() -> {
+                String input = textField.getText();
+                // Allow empty input (use addRequiredInput for non-empty validation)
+                if (input == null || input.isEmpty()) {
+                    return true;
+                }
+                return pattern.matcher(input).matches();
+            }, textField.textProperty()),
+            where,
+            errorMessage
+        );
+    }
 }

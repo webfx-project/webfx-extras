@@ -4,25 +4,34 @@ import dev.webfx.extras.fastpixelreaderwriter.FastPixelReaderWriter;
 import dev.webfx.kit.mapper.peers.javafxgraphics.elemental2.html.ImageDataHelper;
 import javafx.scene.image.Image;
 import org.teavm.jso.canvas.ImageData;
+import org.teavm.jso.typedarrays.Uint8ClampedArray;
 
 /**
  * @author Bruno Salmon
  */
 public final class TeaVMFastPixelReaderWriter implements FastPixelReaderWriter {
 
+    private static final int RED_OFFSET   = 0;
+    private static final int GREEN_OFFSET = 1;
+    private static final int BLUE_OFFSET  = 2;
+    private static final int ALPHA_OFFSET = 3;
+
     private final Image image;
-    private final ImageData imageData;
+    private final Uint8ClampedArray data;
+    private final int width;
     private final int maxIndex;
     private int index = -4;
+    private boolean peerCanvasDirty;
 
     public TeaVMFastPixelReaderWriter(Image image) {
         this.image = image;
+        width = (int) image.getWidth();
         // ImageDataHelper returns an elemental2.dom.ImageData, but it's basically a reference to the JS ImageData
         elemental2.dom.ImageData orCreateImageDataAssociatedWithImage = ImageDataHelper.getOrCreateImageDataAssociatedWithImage(image);
         // So we can cast it to the TeaVM JSO ImageData, because it's also basically a reference to the JS ImageData
-        imageData = (ImageData) (Object) orCreateImageDataAssociatedWithImage;
+        ImageData imageData = (ImageData) (Object) orCreateImageDataAssociatedWithImage;
+        data = imageData.getData();
         maxIndex = imageData.getData().getLength() - 4;
-        image.setPeerCanvasDirty(true);
     }
 
     @Override
@@ -32,7 +41,7 @@ public final class TeaVMFastPixelReaderWriter implements FastPixelReaderWriter {
 
     @Override
     public void goToPixel(int x, int y) {
-        index = 4 * (y * imageData.getWidth() + x);
+        index = 4 * (y * width + x);
     }
 
     @Override
@@ -45,45 +54,46 @@ public final class TeaVMFastPixelReaderWriter implements FastPixelReaderWriter {
 
     @Override
     public int getRed() {
-        return imageData.getData().get(index);
+        return data.get(index + RED_OFFSET);
     }
 
     @Override
     public int getGreen() {
-        return imageData.getData().get(index + 1);
+        return data.get(index + GREEN_OFFSET);
     }
 
     @Override
     public int getBlue() {
-        return imageData.getData().get(index + 2);
+        return data.get(index + BLUE_OFFSET);
     }
 
     @Override
     public int getOpacity() {
-        return imageData.getData().get(index + 3);
+        return data.get(index + ALPHA_OFFSET);
     }
 
     @Override
     public void setRed(int red) {
-        imageData.getData().set(index, red);
-        image.setPeerCanvasDirty(true);
+        data.set(index + RED_OFFSET, red);
     }
 
     @Override
     public void setGreen(int green) {
-        imageData.getData().set(index + 1, green);
-        image.setPeerCanvasDirty(true);
+        data.set(index + GREEN_OFFSET, green);
     }
 
     @Override
     public void setBlue(int blue) {
-        imageData.getData().set(index + 2, blue);
-        image.setPeerCanvasDirty(true);
+        data.set(index + BLUE_OFFSET, blue);
     }
 
     @Override
     public void setOpacity(int opacity) {
-        imageData.getData().set(index + 3, opacity);
+        data.set(index + ALPHA_OFFSET, opacity);
+    }
+
+    @Override
+    public void writeCache() {
         image.setPeerCanvasDirty(true);
     }
 }

@@ -2,6 +2,7 @@ package dev.webfx.extras.fastpixelreaderwriter.spi.impl.elemental2;
 
 import dev.webfx.extras.fastpixelreaderwriter.FastPixelReaderWriter;
 import dev.webfx.kit.mapper.peers.javafxgraphics.elemental2.html.ImageDataHelper;
+import elemental2.core.Uint8ClampedArray;
 import elemental2.dom.ImageData;
 import javafx.scene.image.Image;
 
@@ -10,16 +11,23 @@ import javafx.scene.image.Image;
  */
 public final class Elemental2FastPixelReaderWriter implements FastPixelReaderWriter {
 
+    private static final int RED_OFFSET   = 0;
+    private static final int GREEN_OFFSET = 1;
+    private static final int BLUE_OFFSET  = 2;
+    private static final int ALPHA_OFFSET = 3;
+
     private final Image image;
-    private final ImageData imageData;
+    private final int width;
+    private final Uint8ClampedArray data;
     private final int maxIndex;
     private int index = -4;
 
     public Elemental2FastPixelReaderWriter(Image image) {
         this.image = image;
-        imageData = ImageDataHelper.getOrCreateImageDataAssociatedWithImage(image);
+        width = (int) image.getWidth();
+        ImageData imageData = ImageDataHelper.getOrCreateImageDataAssociatedWithImage(image);
+        data = imageData.data;
         maxIndex = imageData.data.length - 4;
-        image.setPeerCanvasDirty(true);
     }
 
     @Override
@@ -29,7 +37,7 @@ public final class Elemental2FastPixelReaderWriter implements FastPixelReaderWri
 
     @Override
     public void goToPixel(int x, int y) {
-        index = 4 * (y * imageData.width + x);
+        index = 4 * (y * width + x);
     }
 
     @Override
@@ -42,45 +50,46 @@ public final class Elemental2FastPixelReaderWriter implements FastPixelReaderWri
 
     @Override
     public int getRed() {
-        return imageData.data.getAt(index).intValue();
+        return data.getAt(index + RED_OFFSET).intValue();
     }
 
     @Override
     public int getGreen() {
-        return imageData.data.getAt(index + 1).intValue();
+        return data.getAt(index + GREEN_OFFSET).intValue();
     }
 
     @Override
     public int getBlue() {
-        return imageData.data.getAt(index + 2).intValue();
+        return data.getAt(index + BLUE_OFFSET).intValue();
     }
 
     @Override
     public int getOpacity() {
-        return imageData.data.getAt(index + 3).intValue();
+        return data.getAt(index + ALPHA_OFFSET).intValue();
     }
 
     @Override
     public void setRed(int red) {
-        imageData.data.setAt(index, (double) red);
-        image.setPeerCanvasDirty(true);
+        data.setAt(index + RED_OFFSET, (double) red);
     }
 
     @Override
     public void setGreen(int green) {
-        imageData.data.setAt(index + 1, (double) green);
-        image.setPeerCanvasDirty(true);
+        data.setAt(index + GREEN_OFFSET, (double) green);
     }
 
     @Override
     public void setBlue(int blue) {
-        imageData.data.setAt(index + 2, (double) blue);
-        image.setPeerCanvasDirty(true);
+        data.setAt(index + BLUE_OFFSET, (double) blue);
     }
 
     @Override
     public void setOpacity(int opacity) {
-        imageData.data.setAt(index + 3, (double) opacity);
+        data.setAt(index + ALPHA_OFFSET, (double) opacity);
+    }
+
+    @Override
+    public void writeCache() {
         image.setPeerCanvasDirty(true);
     }
 }

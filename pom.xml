@@ -59,6 +59,9 @@
         <module>webfx-extras-cell</module>
         <module>webfx-extras-controlfactory</module>
         <module>webfx-extras-exceptions</module>
+        <module>webfx-extras-fastpixelreaderwriter</module>
+        <module>webfx-extras-fastpixelreaderwriter-elemental2</module>
+        <module>webfx-extras-fastpixelreaderwriter-openjfx</module>
         <module>webfx-extras-filepicker</module>
         <module>webfx-extras-filepicker-elemental2</module>
         <module>webfx-extras-filepicker-openjfx</module>

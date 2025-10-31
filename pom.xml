@@ -62,6 +62,7 @@
         <module>webfx-extras-fastpixelreaderwriter</module>
         <module>webfx-extras-fastpixelreaderwriter-elemental2</module>
         <module>webfx-extras-fastpixelreaderwriter-openjfx</module>
+        <module>webfx-extras-fastpixelreaderwriter-teavm</module>
         <module>webfx-extras-filepicker</module>
         <module>webfx-extras-filepicker-elemental2</module>
         <module>webfx-extras-filepicker-openjfx</module>

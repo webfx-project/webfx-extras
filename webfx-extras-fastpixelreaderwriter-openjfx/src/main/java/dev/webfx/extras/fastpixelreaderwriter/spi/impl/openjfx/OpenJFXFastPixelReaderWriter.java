@@ -8,6 +8,11 @@ import javafx.scene.image.*;
  */
 public final class OpenJFXFastPixelReaderWriter implements FastPixelReaderWriter {
 
+    private static final int RED_OFFSET   = 2;
+    private static final int GREEN_OFFSET = 1;
+    private static final int BLUE_OFFSET  = 0;
+    private static final int ALPHA_OFFSET = 3;
+
     private final Image image;
     private final PixelReader pixelReader;
     private final PixelWriter pixelWriter;
@@ -62,7 +67,7 @@ public final class OpenJFXFastPixelReaderWriter implements FastPixelReaderWriter
 
     private int getCachePos() {
         if (!cachePosValid) {
-            cachePos = 4 * x + 4 * y * width;
+            cachePos = 4 * (x + y * width);
             cachePosValid = true;
         }
         return cachePos;
@@ -89,10 +94,11 @@ public final class OpenJFXFastPixelReaderWriter implements FastPixelReaderWriter
             } else {
                 if (newA == 0)
                     newR = newG = newB = 0;
-                cache[getCachePos()] = (byte) newB;
-                cache[cachePos +1]   = (byte) newG;
-                cache[cachePos +2]   = (byte) newR;
-                cache[cachePos +3]   = (byte) newA;
+                getCachePos();
+                cache[cachePos + RED_OFFSET]   = (byte) newR;
+                cache[cachePos + GREEN_OFFSET] = (byte) newG;
+                cache[cachePos + BLUE_OFFSET]  = (byte) newB;
+                cache[cachePos + ALPHA_OFFSET] = (byte) newA;
             }
         }
         cleanPixelChanges();
@@ -106,22 +112,22 @@ public final class OpenJFXFastPixelReaderWriter implements FastPixelReaderWriter
 
     @Override
     public int getRed() {
-        return newR != -1 ? newR : cache != null ? cache[getCachePos() + 2] : readArgb() >> 16 & 0xff;
+        return newR != -1 ? newR : cache != null ? cache[getCachePos() + RED_OFFSET] : readArgb() >> 16 & 0xff;
     }
 
     @Override
     public int getGreen() {
-        return newG != -1 ? newG : cache != null ? cache[getCachePos() + 1] :  readArgb() >> 8 & 0xff;
+        return newG != -1 ? newG : cache != null ? cache[getCachePos() + GREEN_OFFSET] :  readArgb() >> 8 & 0xff;
     }
 
     @Override
     public int getBlue() {
-        return newB != -1 ? newB : cache != null ? cache[getCachePos()] : readArgb() & 0xff;
+        return newB != -1 ? newB : cache != null ? cache[getCachePos() + BLUE_OFFSET] : readArgb() & 0xff;
     }
 
     @Override
     public int getOpacity() {
-        return newA != -1 ? newA : cache != null ? cache[getCachePos() + 3] : readArgb() >> 24 & 0xff;
+        return newA != -1 ? newA : cache != null ? cache[getCachePos() + ALPHA_OFFSET] : readArgb() >> 24 & 0xff;
     }
 
     @Override
@@ -145,9 +151,11 @@ public final class OpenJFXFastPixelReaderWriter implements FastPixelReaderWriter
     }
 
     @Override
-    public boolean createCache() {
-        if (cache == null && pixelWriter != null)
+    public boolean createCache(boolean copyImageData) {
+        if (cache == null && pixelWriter != null) {
             cache = new byte[4 * width * height];
+            // No need to copy the image data for the OpenJFX implementation because we can use the pixel reader instead
+        }
         return cache != null;
     }
 

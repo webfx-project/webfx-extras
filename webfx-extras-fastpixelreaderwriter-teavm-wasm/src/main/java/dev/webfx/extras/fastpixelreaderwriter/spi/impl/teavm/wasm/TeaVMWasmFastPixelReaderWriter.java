@@ -4,7 +4,7 @@ import dev.webfx.extras.fastpixelreaderwriter.FastPixelReaderWriter;
 import dev.webfx.kit.mapper.peers.javafxgraphics.elemental2.html.ImageDataHelper;
 import javafx.scene.image.Image;
 import org.teavm.jso.canvas.ImageData;
-import org.teavm.jso.typedarrays.Uint8ClampedArray;
+import org.teavm.jso.typedarrays.Int8Array;
 
 /**
  * @author Bruno Salmon
@@ -18,8 +18,8 @@ public final class TeaVMWasmFastPixelReaderWriter implements FastPixelReaderWrit
 
     private final Image image;
     private final int width, height;
-    private final Uint8ClampedArray data;
-    private Uint8ClampedArray cache;
+    private final Int8Array data;
+    private byte[] cache;
     private int x = -1, y, cachePos;
     private boolean cachePosValid;
     private int newA, newR, newG, newB; // Used for writing
@@ -29,10 +29,11 @@ public final class TeaVMWasmFastPixelReaderWriter implements FastPixelReaderWrit
         width = (int) image.getWidth();
         height = (int) image.getHeight();
         // ImageDataHelper returns an elemental2.dom.ImageData, but it's basically a reference to the JS ImageData
-        elemental2.dom.ImageData orCreateImageDataAssociatedWithImage = ImageDataHelper.getOrCreateImageDataAssociatedWithImage(image);
+        elemental2.dom.ImageData elemental2ImageData = ImageDataHelper.getOrCreateImageDataAssociatedWithImage(image);
         // So we can cast it to the TeaVM JSO ImageData, because it's also basically a reference to the JS ImageData
-        ImageData imageData = (ImageData) (Object) orCreateImageDataAssociatedWithImage;
-        data = imageData.getData();
+        ImageData teaVMImageData = (ImageData) (Object) elemental2ImageData;
+        // Wrapping into an Int8Array for compatibility with Java byte[] cache
+        data = new Int8Array(teaVMImageData.getData().getBuffer());
         cleanPixelChanges();
     }
 
@@ -95,19 +96,17 @@ public final class TeaVMWasmFastPixelReaderWriter implements FastPixelReaderWrit
                 if (newB == -1)
                     newB = getBlue();
             }
-            createCache();
             getCachePos();
-            cache.set(cachePos + BLUE_OFFSET,  newB);
-            cache.set(cachePos + GREEN_OFFSET, newG);
-            cache.set(cachePos + RED_OFFSET,   newR);
-            cache.set(cachePos + ALPHA_OFFSET, newA);
+            cache[cachePos + BLUE_OFFSET]  = (byte) newB;
+            cache[cachePos + GREEN_OFFSET] = (byte) newG;
+            cache[cachePos + RED_OFFSET]   = (byte) newR;
+            cache[cachePos + ALPHA_OFFSET] = (byte) newA;
         }
         cleanPixelChanges();
     }
 
     private int getColor(int offset) {
-        Uint8ClampedArray array = cache != null ? cache : data;
-        return array.get(getCachePos() + offset);
+        return cache[getCachePos() + offset] & 0xFF;
     }
 
     @Override
@@ -159,10 +158,12 @@ public final class TeaVMWasmFastPixelReaderWriter implements FastPixelReaderWrit
     }
 
     @Override
-    public boolean createCache() {
+    public boolean createCache(boolean copyImageData) {
         if (cache == null) {
-            cache = new Uint8ClampedArray(4 * width * height);
-            cache.set(data);
+            if (copyImageData)
+                cache = data.copyToJavaArray();
+            else
+                cache = new byte[4 * width * height];
         }
         return true;
     }
@@ -170,8 +171,8 @@ public final class TeaVMWasmFastPixelReaderWriter implements FastPixelReaderWrit
     @Override
     public void writeCache() {
         if (cache != null) {
-            image.setPeerCanvasDirty(true);
             data.set(cache);
+            image.setPeerCanvasDirty(true);
         }
     }
 }

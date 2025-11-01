@@ -44,11 +44,14 @@ public interface FastPixelReaderWriter extends FastPixelReader {
         setBlue(blue);
     }
 
-    default boolean createCache() {
+    default boolean createCache(boolean copyImageData) {
+        // default implementations with no cache
         return false;
     }
 
-    default void writeCache() {}
+    default void writeCache() {
+        // default implementations with no cache
+    }
 
     // Service part
 

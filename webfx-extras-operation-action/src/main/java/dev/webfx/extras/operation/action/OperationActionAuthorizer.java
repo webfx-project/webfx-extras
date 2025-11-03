@@ -11,6 +11,10 @@ import java.util.function.Function;
  */
 public interface OperationActionAuthorizer {
 
-    <C, Rq> ObservableBooleanValue authorizedOperationProperty(Function<C, Rq> operationRequestFactory, AsyncFunction<Rq, Boolean> authorizationFunction, ObservableValue<C> contextProperty);
+    <OA, Rq> ObservableBooleanValue authorizedOperationProperty(
+        ObservableValue<OA> operationActionProperty,
+        Function<OA, Rq> operationRequestFactory,
+        AsyncFunction<Rq, Boolean> authorizationFunction
+    );
 
 }

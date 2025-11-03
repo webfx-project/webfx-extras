@@ -346,36 +346,64 @@
 .badge.danger{
     --fx-text-fill: var(--badge-danger-txt);
     background-color: var(--badge-danger-bg);
+    color: var(--badge-danger-txt);
+}
+.badge.danger fx-text {
+    color: var(--badge-danger-txt);
 }
 
 .badge.success{
     --fx-text-fill: var(--badge-success-txt);
     background-color: var(--badge-success-bg);
+    color: var(--badge-success-txt);
+}
+.badge.success fx-text {
+    color: var(--badge-success-txt);
 }
 
 .badge.warning{
     --fx-text-fill: var(--badge-warning-txt);
     background-color: var(--badge-warning-bg);
+    color: var(--badge-warning-txt);
+}
+.badge.warning fx-text {
+    color: var(--badge-warning-txt);
 }
 
 .badge.info{
     --fx-text-fill: var(--badge-info-txt);
     background-color: var(--badge-info-bg);
+    color: var(--badge-info-txt);
+}
+.badge.info fx-text {
+    color: var(--badge-info-txt);
 }
 
 .badge.secondary{
     --fx-text-fill: var(--badge-secondary-txt);
     background-color: var(--badge-secondary-bg);
+    color: var(--badge-secondary-txt);
+}
+.badge.secondary fx-text {
+    color: var(--badge-secondary-txt);
 }
 
 .badge.primary{
     --fx-text-fill: var(--badge-primary-txt);
     background-color: var(--badge-primary-bg);
+    color: var(--badge-primary-txt);
+}
+.badge.primary fx-text {
+    color: var(--badge-primary-txt);
 }
 
 .badge.default{
     --fx-text-fill: var(--badge-default-txt);
     background-color: var(--badge-default-bg);
+    color: var(--badge-default-txt);
+}
+.badge.default fx-text {
+    color: var(--badge-default-txt);
 }
 
 /* Modern Badge Variants (Light backgrounds for better readability) */
@@ -384,11 +412,17 @@
     color: #00b8d4;
     border-radius: 12px;
 }
+.badge-light-info fx-text {
+    color: #00b8d4;
+}
 
 .badge-light-success {
     background-color: #e8f5e9;
     color: #4caf50;
     border-radius: 12px;
+}
+.badge-light-success fx-text {
+    color: #4caf50;
 }
 
 .badge-light-warning {
@@ -396,11 +430,17 @@
     color: #ffa726;
     border-radius: 12px;
 }
+.badge-light-warning fx-text {
+    color: #ffa726;
+}
 
 .badge-light-danger {
     background-color: #ffebee;
     color: #ff5252;
     border-radius: 12px;
+}
+.badge-light-danger fx-text {
+    color: #ff5252;
 }
 
 .badge-light-gray, .badge-gray {
@@ -408,11 +448,19 @@
     color: #666;
     border-radius: 12px;
 }
+.badge-light-gray fx-text,
+.badge-gray fx-text {
+    color: #666;
+}
 
 .badge-light-purple, .badge-purple {
     background-color: #f3e5f5;
     color: #9c27b0;
     border-radius: 12px;
+}
+.badge-light-purple fx-text,
+.badge-purple fx-text {
+    color: #9c27b0;
 }
 
 /* Admin Module Badge Variants - Semantic Colors */
@@ -421,11 +469,17 @@
     color: #006064;
     border-radius: 12px;
 }
+.badge-operation fx-text {
+    color: #006064;
+}
 
 .badge-operation-group {
     background-color: #FFF3E0;
     color: #E65100;
     border-radius: 12px;
+}
+.badge-operation-group fx-text {
+    color: #E65100;
 }
 
 .badge-rule {
@@ -433,17 +487,26 @@
     color: #1B5E20;
     border-radius: 12px;
 }
+.badge-rule fx-text {
+    color: #1B5E20;
+}
 
 .badge-role {
     background-color: #EDE7F6;
     color: #4527A0;
     border-radius: 12px;
 }
+.badge-role fx-text {
+    color: #4527A0;
+}
 
 .badge-user {
     background-color: #E3F2FD;
     color: #0D47A1;
     border-radius: 12px;
+}
+.badge-user fx-text {
+    color: #0D47A1;
 }
 
 /* Alert / Info Box Styles - left border only, no full border */

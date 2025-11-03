@@ -94,6 +94,13 @@ public interface Bootstrap {
         return node;
     }
 
+    static String[] combineStyles(String firstStyle, String... additionalStyles) {
+        String[] combined = new String[additionalStyles.length + 1];
+        combined[0] = firstStyle;
+        System.arraycopy(additionalStyles, 0, combined, 1, additionalStyles.length);
+        return combined;
+    }
+
     static <N extends Node> N padding(N node, String... styles) {
         return padding(node, DEFAULT_H_PADDING, DEFAULT_V_PADDING, styles);
     }

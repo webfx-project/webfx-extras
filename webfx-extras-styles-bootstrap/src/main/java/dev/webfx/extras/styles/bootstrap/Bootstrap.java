@@ -35,14 +35,6 @@ public interface Bootstrap {
     String BTN_DANGER = "btn-danger";
 
     String BADGE = "badge";
-    String BADGE_LIGHT_INFO = "badge-light-info";
-    String BADGE_LIGHT_SUCCESS = "badge-light-success";
-    String BADGE_LIGHT_WARNING = "badge-light-warning";
-    String BADGE_LIGHT_DANGER = "badge-light-danger";
-    String BADGE_GRAY = "badge-gray";
-    String BADGE_LIGHT_GRAY = "badge-light-gray";
-    String BADGE_PURPLE = "badge-purple";
-    String BADGE_LIGHT_PURPLE = "badge-light-purple";
 
     String ALERT = "alert";
     String ALERT_INFO = "alert-info";
@@ -89,6 +81,9 @@ public interface Bootstrap {
     double LARGE_H_PADDING = 16;
     double LARGE_V_PADDING = 10;
 
+    double BADGE_H_PADDING = 8;
+    double BADGE_V_PADDING = 3;
+
     static <N extends Node> N style(N node, String... styles) {
         Collections.addIfNotContainsOrRemove(node.getStyleClass(), true, styles);
         return node;
@@ -111,6 +106,10 @@ public interface Bootstrap {
             region.setPadding(new Insets(vPadding, hPadding, vPadding, hPadding));
         }
         return style(node, styles);
+    }
+
+    static <N extends Node> N badgePadding(N badge, String... styles) {
+        return padding(badge, BADGE_H_PADDING, BADGE_V_PADDING, styles);
     }
 
     static <N extends Node> N large(N node) {
@@ -145,7 +144,7 @@ public interface Bootstrap {
     }
 
     static <N extends Node> N badge(N badge, String... styles) {
-        return addBadgeStyle(padding(badge, styles));
+        return addBadgeStyle(badgePadding(badge, styles));
     }
 
 
@@ -171,39 +170,6 @@ public interface Bootstrap {
 
     static <N extends Node> N warningBadge(N badge) {
         return badge(badge, WARNING);
-    }
-
-    // Modern badge variants with light backgrounds
-    static <N extends Node> N badgeLightInfo(N badge) {
-        return style(badge, BADGE_LIGHT_INFO);
-    }
-
-    static <N extends Node> N badgeLightSuccess(N badge) {
-        return style(badge, BADGE_LIGHT_SUCCESS);
-    }
-
-    static <N extends Node> N badgeLightWarning(N badge) {
-        return style(badge, BADGE_LIGHT_WARNING);
-    }
-
-    static <N extends Node> N badgeLightDanger(N badge) {
-        return style(badge, BADGE_LIGHT_DANGER);
-    }
-
-    static <N extends Node> N badgeGray(N badge) {
-        return style(badge, BADGE_GRAY);
-    }
-
-    static <N extends Node> N badgeLightGray(N badge) {
-        return style(badge, BADGE_LIGHT_GRAY);
-    }
-
-    static <N extends Node> N badgePurple(N badge) {
-        return style(badge, BADGE_PURPLE);
-    }
-
-    static <N extends Node> N badgeLightPurple(N badge) {
-        return style(badge, BADGE_LIGHT_PURPLE);
     }
 
     // Alert / Info Box styles with padding

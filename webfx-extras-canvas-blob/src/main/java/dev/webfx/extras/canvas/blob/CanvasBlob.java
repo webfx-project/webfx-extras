@@ -21,4 +21,8 @@ public final class CanvasBlob {
         return getProvider().createCanvasBlob(canvas);
     }
 
+    public static Future<Blob> createCanvasBlob(Canvas canvas, String mimeType) {
+        return getProvider().createCanvasBlob(canvas, mimeType);
+    }
+
 }

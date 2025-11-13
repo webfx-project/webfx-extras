@@ -16,11 +16,6 @@ import java.io.IOException;
 public class OpenJFXCanvasBlobProvider implements CanvasBlobProvider {
 
     @Override
-    public Future<Blob> createCanvasBlob(javafx.scene.canvas.Canvas canvas) {
-        return createCanvasBlob(canvas, "image/png"); // Default to PNG
-    }
-
-    @Override
     public Future<Blob> createCanvasBlob(javafx.scene.canvas.Canvas canvas, String mimeType) {
         WritableImage snapshot = canvas.snapshot(null, null);
         // Convert MIME type to ImageIO format name
@@ -38,7 +33,8 @@ public class OpenJFXCanvasBlobProvider implements CanvasBlobProvider {
     }
 
     private String mimeTypeToFormat(String mimeType) {
-        if (mimeType == null) return "png";
+        if (mimeType == null)
+            return "png";
         return switch (mimeType.toLowerCase()) {
             case "image/jpeg", "image/jpg" -> "jpg";
             case "image/png" -> "png";

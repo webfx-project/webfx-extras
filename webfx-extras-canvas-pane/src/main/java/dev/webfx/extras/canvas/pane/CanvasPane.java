@@ -2,6 +2,7 @@ package dev.webfx.extras.canvas.pane;
 
 import dev.webfx.extras.canvas.HasCanvas;
 import dev.webfx.extras.util.animation.Animations;
+import javafx.animation.Timeline;
 import javafx.scene.canvas.Canvas;
 import javafx.scene.layout.Pane;
 
@@ -16,6 +17,7 @@ public class CanvasPane extends Pane {
     protected double requestedCanvasHeight = -1;
     protected boolean enableHeightAnimation = true;
     protected boolean skipAnimationOnVisibilityChange = true;
+    private Timeline heightAnimationTimeline;
     private boolean wasVisible;
 
     public CanvasPane(HasCanvas hasCanvas, CanvasRefresher canvasRefresher) {
@@ -42,7 +44,9 @@ public class CanvasPane extends Pane {
             // We also update the pref height property for this canvas pane to match the requested canvas height.
             // This change can eventually be animated to create a smooth transition to that new height (note that this
             // animation changes the height of the canvas pane only, not the height of the canvas => no time layout required).
-            Animations.animateProperty(prefHeightProperty(), requestedCanvasHeight, shouldAnimateHeightChange());
+            if (heightAnimationTimeline != null) // Stopping the possible previous animation
+                heightAnimationTimeline.stop();
+            heightAnimationTimeline = Animations.animateProperty(prefHeightProperty(), requestedCanvasHeight, shouldAnimateHeightChange());
         }
     }
 

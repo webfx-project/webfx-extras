@@ -456,3 +456,47 @@
  }
 
 
+
+
+
+
+
+
+
+
+
+
+/* Alert / Info Box Styles - left border only, no full border */
+.alert-info, .info-box {
+    -fx-background-color: #e3f2fd;
+    -fx-border-color: transparent transparent transparent #2196f3;
+    -fx-border-width: 0 0 0 4;
+    -fx-background-radius: 4;
+    -fx-text-fill: #1976d2;
+}
+
+.alert-success {
+    -fx-background-color: #e8f5e9;
+    -fx-border-color: transparent transparent transparent #4caf50;
+    -fx-border-width: 0 0 0 4;
+    -fx-background-radius: 4;
+    -fx-text-fill: #2e7d32;
+}
+
+.alert-warning {
+    -fx-background-color: #fff3e0;
+    -fx-border-color: transparent transparent transparent #ff9800;
+    -fx-border-width: 0 0 0 4;
+    -fx-background-radius: 4;
+    -fx-text-fill: #e65100;
+}
+
+.alert-danger {
+    -fx-background-color: #ffebee;
+    -fx-border-color: transparent transparent transparent #f44336;
+    -fx-border-width: 0 0 0 4;
+    -fx-background-radius: 4;
+    -fx-text-fill: #c62828;
+}
+
+

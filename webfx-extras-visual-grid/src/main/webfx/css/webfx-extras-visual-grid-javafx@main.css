@@ -33,6 +33,18 @@ VisualGrid {
     -fx-padding: 1.4mm 1.4mm 0.6mm 1.4mm;
 }
 
+.table-row-cell:selected {
+    -fx-background: -webfx-visualgrid-selection-color;
+}
+
+.table-row-cell:selected .table-cell {
+   -fx-text-fill: -fx-text-inner-color;
+}
+
+/**************************
+*** VisualGridTableSkin ***
+**************************/
+
 .grid .scroll-pane {
     -fx-padding: 0;
 }
@@ -47,10 +59,6 @@ VisualGrid {
     -fx-border-width: 0 1px 0 0;
 }
 
-.table-row-cell:selected {
-    -fx-background: -webfx-visualgrid-selection-color;
-}
-
-.table-row-cell:selected .table-cell {
-   -fx-text-fill: -fx-text-inner-color;
+.grid-row.selected {
+    -fx-background-color: -webfx-visualgrid-selection-color;
 }

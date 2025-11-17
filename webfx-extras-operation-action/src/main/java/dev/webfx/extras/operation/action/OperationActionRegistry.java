@@ -6,6 +6,7 @@ import dev.webfx.extras.action.ActionTuner;
 import dev.webfx.extras.action.impl.WritableAction;
 import dev.webfx.extras.operation.HasOperationCode;
 import dev.webfx.kit.util.properties.FXProperties;
+import dev.webfx.platform.async.AsyncBiFunction;
 import dev.webfx.platform.async.AsyncFunction;
 import dev.webfx.platform.async.Future;
 import dev.webfx.platform.console.Console;
@@ -29,14 +30,14 @@ import java.util.function.Function;
  * disabled and visible properties). It allows a complete code separation between the action handling declaration from
  * one side and the graphical properties declaration from the other side.
  * For example, from one side the action handling can be declared typically as follows:
- *      OperationAction myOperationAction = newOperationAction(() -> new MyOperationRequest(myArguments));
+ * OperationAction myOperationAction = newOperationAction(() -> new MyOperationRequest(myArguments));
  * This code just wants an action executing myOperationRequest without telling how this action appears in the user interface.
  * From the other side (another part of the application, usually the initialization code), its graphical properties can
  * be declared and registered typically as follows:
- *      Action myGraphicalAction = newAction(...);
- *      OperationActionRegistry.getInstance().registerOperationGraphicalAction(MyOperationRequest.class, registerOperationGraphicalAction);
+ * Action myGraphicalAction = newAction(...);
+ * OperationActionRegistry.getInstance().registerOperationGraphicalAction(MyOperationRequest.class, registerOperationGraphicalAction);
  * or if MyOperationRequest implements HasOperationCode:
- *      OperationActionRegistry.getInstance().registerOperationGraphicalAction(myOperationCode, registerOperationGraphicalAction)
+ * OperationActionRegistry.getInstance().registerOperationGraphicalAction(myOperationCode, registerOperationGraphicalAction)
  * In this second code, graphical properties can be read from a file or DB listing all operations and bound to I18n. In
  * this case, none of the graphical properties are hardcoded, they are completely dynamic.
  * When both sides have been executed, myOperationAction used in the first code is graphically displayed as myGraphicalAction.
@@ -99,15 +100,15 @@ public final class OperationActionRegistry {
                 if (request != null)
                     return authorizationFunction.apply(request);
                 // If the request is null, this is because no operation action with that code has yet been registered, so we
-                // don't know what operation it is yet, so we return not authorized by default (if this action is shown in a
+                // don't know what operation it is yet. So we return not authorized by default (if this action is shown in a
                 // button, the button will be invisible (or at least disabled) until the operation action is registered
                 return Future.succeededFuture(false);
             }
         };
         return AUTHORIZER.authorizedOperationProperty(
-                operationRequestFactory
-                , embedAuthorizationFunction
-                , executableOperationActionNotifyingProperty(operationCode) // reactive property (will change when operation action is registered, causing a new authorization evaluation)
+            executableOperationActionNotifyingProperty(operationCode) // reactive property (will change when operation action is registered, causing a new authorization evaluation)
+            , operationRequestFactory
+            , embedAuthorizationFunction
         );
     }
 
@@ -117,7 +118,7 @@ public final class OperationActionRegistry {
             for (Iterator<WeakReference<OperationAction>> it = operationActions.iterator(); it.hasNext(); ) {
                 OperationAction oa = it.next().get();
                 if (oa == null) {
-                    logDebug(operationCodeOrRequestClass +  " operation action was garbage-collected");
+                    logDebug(operationCodeOrRequestClass + " operation action was garbage-collected");
                     it.remove();
                 } else {
                     processor.accept(oa);
@@ -140,7 +141,7 @@ public final class OperationActionRegistry {
 
     private OperationActionRegistry registerOperationAction(Object operationCodeOrRequestClass, OperationAction operationAction) {
         synchronized (registeredOperationActions) {
-            boolean[] alreadyRegistered = { false };
+            boolean[] alreadyRegistered = {false};
             processRegisteredOperationActions(operationCodeOrRequestClass, oa -> {
                 if (oa == operationAction)
                     alreadyRegistered[0] = true;
@@ -250,7 +251,8 @@ public final class OperationActionRegistry {
     }
 
     private ObservableValue<OperationAction> executableOperationActionNotifyingProperty(Object operationCode) {
-        ObjectProperty<OperationAction> property = executableOperationActionNotifyingProperties.computeIfAbsent(operationCode, k -> new SimpleObjectProperty<>());
+        ObjectProperty<OperationAction> property =
+            executableOperationActionNotifyingProperties.computeIfAbsent(operationCode, k -> new SimpleObjectProperty<>());
         // If the property is not yet set to the registration action, we try to do it now (this will cause the authorized
         // property returned by authorizedOperationActionProperty() to be reevaluated)
         if (property.get() == null) {

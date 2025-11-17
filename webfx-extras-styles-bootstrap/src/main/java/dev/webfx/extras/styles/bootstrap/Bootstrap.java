@@ -36,6 +36,13 @@ public interface Bootstrap {
 
     String BADGE = "badge";
 
+    String ALERT = "alert";
+    String ALERT_INFO = "alert-info";
+    String ALERT_SUCCESS = "alert-success";
+    String ALERT_WARNING = "alert-warning";
+    String ALERT_DANGER = "alert-danger";
+    String INFO_BOX = "info-box";
+
     String TEXT = "txt"; // Note: txt is used instead of text to avoid conflict with javafx.scene.text.Text
 
     // TODO: remove text-xxx classes (use text & xxx combination instead)
@@ -74,9 +81,19 @@ public interface Bootstrap {
     double LARGE_H_PADDING = 16;
     double LARGE_V_PADDING = 10;
 
+    double BADGE_H_PADDING = 8;
+    double BADGE_V_PADDING = 3;
+
     static <N extends Node> N style(N node, String... styles) {
         Collections.addIfNotContainsOrRemove(node.getStyleClass(), true, styles);
         return node;
+    }
+
+    static String[] combineStyles(String firstStyle, String... additionalStyles) {
+        String[] combined = new String[additionalStyles.length + 1];
+        combined[0] = firstStyle;
+        System.arraycopy(additionalStyles, 0, combined, 1, additionalStyles.length);
+        return combined;
     }
 
     static <N extends Node> N padding(N node, String... styles) {
@@ -89,6 +106,10 @@ public interface Bootstrap {
             region.setPadding(new Insets(vPadding, hPadding, vPadding, hPadding));
         }
         return style(node, styles);
+    }
+
+    static <N extends Node> N badgePadding(N badge, String... styles) {
+        return padding(badge, BADGE_H_PADDING, BADGE_V_PADDING, styles);
     }
 
     static <N extends Node> N large(N node) {
@@ -123,7 +144,7 @@ public interface Bootstrap {
     }
 
     static <N extends Node> N badge(N badge, String... styles) {
-        return addBadgeStyle(padding(badge, styles));
+        return addBadgeStyle(badgePadding(badge, styles));
     }
 
 
@@ -151,7 +172,41 @@ public interface Bootstrap {
         return badge(badge, WARNING);
     }
 
+    // Alert / Info Box styles with padding
+    static <N extends Node> N alertInfo(N node) {
+        if (node instanceof Region) {
+            ((Region) node).setPadding(new Insets(16));
+        }
+        return style(node, ALERT_INFO);
+    }
 
+    static <N extends Node> N alertSuccess(N node) {
+        if (node instanceof Region) {
+            ((Region) node).setPadding(new Insets(16));
+        }
+        return style(node, ALERT_SUCCESS);
+    }
+
+    static <N extends Node> N alertWarning(N node) {
+        if (node instanceof Region) {
+            ((Region) node).setPadding(new Insets(16));
+        }
+        return style(node, ALERT_WARNING);
+    }
+
+    static <N extends Node> N alertDanger(N node) {
+        if (node instanceof Region) {
+            ((Region) node).setPadding(new Insets(16));
+        }
+        return style(node, ALERT_DANGER);
+    }
+
+    static <N extends Node> N infoBox(N node) {
+        if (node instanceof Region) {
+            ((Region) node).setPadding(new Insets(16));
+        }
+        return style(node, INFO_BOX);
+    }
 
     static <N extends Node> N largeButton(N button, String... styles) {
         return addButtonStyle(largeResize(button, styles));

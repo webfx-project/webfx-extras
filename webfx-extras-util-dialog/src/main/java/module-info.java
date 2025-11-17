@@ -20,5 +20,6 @@ module webfx.extras.util.dialog {
     exports dev.webfx.extras.util.alert;
     exports dev.webfx.extras.util.dialog;
     exports dev.webfx.extras.util.dialog.builder;
+    exports dev.webfx.extras.util.dialog.i18n;
 
 }

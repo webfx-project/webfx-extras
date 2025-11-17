@@ -52,6 +52,8 @@ public final class ValidationSupport {
 
     private static final ObservableStringValue DEFAULT_REQUIRED_MESSAGE = new SimpleStringProperty("This field is required");
 
+    private boolean alwaysShowRequiredDecorations = false;
+    private final List<Node> requiredNodes = new ArrayList<>();
     private final List<Validator> validators = new ArrayList<>();
     private final List<Node> validatorErrorDecorationNodes = new ArrayList<>();
     private final BooleanProperty validatingProperty = new SimpleBooleanProperty();
@@ -80,11 +82,22 @@ public final class ValidationSupport {
         validatorErrorDecorationNodes.forEach(this::uninstallNodeDecorator);
         validatorErrorDecorationNodes.clear();
         validators.forEach(validator -> {
-            if (validator instanceof ObservableRuleBasedValidator) {
-                ((ObservableRuleBasedValidator) validator).clear();
+            if (validator instanceof ObservableRuleBasedValidator observableValidator) {
+                observableValidator.clear();
             }
         });
         validators.clear();
+        showRequiredDecorationsIfAlways();
+    }
+
+    public void setAlwaysShowRequiredDecorations(boolean alwaysShowRequiredDecorations) {
+        this.alwaysShowRequiredDecorations = alwaysShowRequiredDecorations;
+        showRequiredDecorationsIfAlways();
+    }
+
+    private void showRequiredDecorationsIfAlways() {
+        if (alwaysShowRequiredDecorations)
+            requiredNodes.forEach(this::showRequiredDecoration);
     }
 
     public boolean isEmpty() {
@@ -117,7 +130,7 @@ public final class ValidationSupport {
     }
 
     private static boolean testNotEmpty(Object value) {
-        return value != null && (!(value instanceof String) || !((String) value).trim().isEmpty());
+        return value != null && (!(value instanceof String s) || !s.trim().isEmpty());
     }
 
     public ObservableBooleanValue addValidationRule(ObservableValue<Boolean> validProperty, Node node, ObservableStringValue errorMessage) {
@@ -127,7 +140,7 @@ public final class ValidationSupport {
     public ObservableBooleanValue addValidationRule(ObservableValue<Boolean> validProperty, Node node, ObservableStringValue errorMessageProperty, boolean required) {
         ObservableRuleBasedValidator validator = new ObservableRuleBasedValidator();
         ObservableBooleanValue finalValidProperty = // when true, no decorations are displayed on the node
-                Bindings.createBooleanBinding(() ->
+            Bindings.createBooleanBinding(() ->
                     !validatingProperty.get() // no decoration displayed if not validation
                     || validProperty.getValue() // no decoration displayed if the node is valid
                     || !isShowing(node) // no decoration displayed if the node is not showing
@@ -137,21 +150,20 @@ public final class ValidationSupport {
         validators.add(validator);
         validatorErrorDecorationNodes.add(node);
         installNodeDecorator(node, validator, required);
-        // The following code is to remove the error message after being displayed and the user is re-typing
-        if (node instanceof TextInputControl) {
+        // The following code is to remove the error message after being displayed, and the user is re-typing
+        if (node instanceof TextInputControl tic) {
             FXProperties.runOnPropertiesChange(
                 () -> {
                     validator.validateBooleanRule(true, errorValidationMessage);
                     uninstallNodeDecorator(node);
                 }
-            , ((TextInputControl) node).textProperty()); // ex of dependencies: textField.textProperty()
+                , tic.textProperty()); // ex of dependencies: textField.textProperty()
         }
         return finalValidProperty;
     }
 
     private void installNodeDecorator(Node node, ObservableRuleBasedValidator validator, boolean required) {
-        if (node instanceof Control) {
-            Control control = (Control) node;
+        if (node instanceof Control control) {
             ControlsFxVisualizer validationVisualizer = new ControlsFxVisualizer();
             validationVisualizer.setDecoration(new GraphicValidationDecoration() {
                 @Override
@@ -166,7 +178,7 @@ public final class ValidationSupport {
                 protected Collection<Decoration> createValidationDecorations(ValidationMessage message) {
                     boolean isTextInput = node instanceof TextInputControl;
                     boolean isButton = node instanceof Button;
-                    // isInside flag will determine if we position the decoration inside the node or not (ie outside)
+                    // isInside flag will determine if we position the decoration inside the node or not (i.e., outside)
                     boolean isInside;
                     if (isTextInput) // inside for text inputs
                         isInside = true;
@@ -174,10 +186,10 @@ public final class ValidationSupport {
                         Parent parent = node.getParent();
                         while (parent instanceof Pane && !(parent instanceof VBox) && !(parent instanceof HBox))
                             parent = parent.getParent();
-                        isInside = parent instanceof VBox && ((VBox) parent).isFillWidth();
+                        isInside = parent instanceof VBox vBox && vBox.isFillWidth();
                     }
                     double xRelativeOffset = isInside ? -1 : 1; // positioning the decoration inside the control for button and text input
-                    double xOffset = isInside && isButton ?  -20 : 0; // moving the decoration before the drop down arrow
+                    double xOffset = isInside && isButton ? -20 : 0; // moving the decoration before the drop-down arrow
                     return java.util.Collections.singletonList(
                         new GraphicDecoration(createDecorationNode(message),
                             Pos.CENTER_RIGHT,
@@ -199,12 +211,21 @@ public final class ValidationSupport {
             });
             validationVisualizer.initVisualization(validator.getValidationStatus(), control, required);
             node.getProperties().put("validationVisualizer", validationVisualizer);
+            if (required)
+                requiredNodes.add(node);
+        }
+    }
+
+    private void showRequiredDecoration(Node node) {
+        if (node instanceof Control control) {
+            ControlsFxVisualizer validationVisualizer = (ControlsFxVisualizer) node.getProperties().get("validationVisualizer");
+            if (validationVisualizer != null)
+                validationVisualizer.applyRequiredDecoration(control);
         }
     }
 
     private void uninstallNodeDecorator(Node node) {
-        if (node instanceof Control) {
-            Control control = (Control) node;
+        if (node instanceof Control control) {
             ControlsFxVisualizer validationVisualizer = (ControlsFxVisualizer) node.getProperties().get("validationVisualizer");
             if (validationVisualizer != null)
                 validationVisualizer.removeDecorations(control);
@@ -254,16 +275,11 @@ public final class ValidationSupport {
         showPopOverNow();
         if (!node.getProperties().containsKey("popOverListen")) {
             node.getProperties().put("popOverListen", true);
-            node.sceneProperty().addListener(observable -> {
+            FXProperties.runOnPropertiesChange(() -> {
                 if (popOverOwnerNode == node) {
                     showPopOverNow();
                 }
-            });
-            node.parentProperty().addListener(observable -> {
-                if (popOverOwnerNode == node) {
-                    showPopOverNow();
-                }
-            });
+            }, node.sceneProperty(), node.parentProperty());
         }
     }
 
@@ -272,15 +288,11 @@ public final class ValidationSupport {
         String emailPattern = "^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,6}$";
         Pattern pattern = Pattern.compile(emailPattern);
         // Create the validation rule
-        // Create the validation rule
         addValidationRule(
-            Bindings.createBooleanBinding(
-                () -> {
-                    String text = emailInput.getText();
-                    return text != null && pattern.matcher(text).matches();
-                },
-                emailInput.textProperty()
-            ),
+            Bindings.createBooleanBinding(() -> {
+                String text = emailInput.getText();
+                return text != null && pattern.matcher(text).matches();
+            }, emailInput.textProperty()),
             where,
             errorMessage
         );
@@ -291,8 +303,7 @@ public final class ValidationSupport {
         addValidationRule(
             Bindings.createBooleanBinding(
                 () -> !emailInput.getText().equalsIgnoreCase(forbiddenValue),
-                emailInput.textProperty()
-            ),
+                emailInput.textProperty()),
             where,
             errorMessage
         );
@@ -304,18 +315,15 @@ public final class ValidationSupport {
         // 2. A custom bunny: URL with videoId and zoneId required
         String urlPattern =
             "^(https?://[^\\s]+)$" +                                 // Match normal URLs
-                "|^(bunny:(?=.*\\bvideoId=[^&\\s]+)(?=.*\\bzoneId=[^&\\s]+)(.*))$";  // Match bunny: URLs with required params
+            "|^(bunny:(?=.*\\bvideoId=[^&\\s]+)(?=.*\\bzoneId=[^&\\s]+)(.*))$";  // Match bunny: URLs with required params
 
         Pattern pattern = Pattern.compile(urlPattern);
 
         addValidationRule(
-            Bindings.createBooleanBinding(
-                () -> {
-                    String input = urlInput.getText();
-                    return input != null && pattern.matcher(input).matches();
-                },
-                urlInput.textProperty()
-            ),
+            Bindings.createBooleanBinding(() -> {
+                String input = urlInput.getText();
+                return input != null && pattern.matcher(input).matches();
+            }, urlInput.textProperty()),
             where,
             errorMessage
         );
@@ -323,89 +331,77 @@ public final class ValidationSupport {
 
     public void addMinimumDurationValidation(TextField timeInput, Node where, ObservableStringValue errorMessage) {
         addValidationRule(
-            Bindings.createBooleanBinding(
-                () -> {
-                    try {
-                        String input = timeInput.getText();
-                        if (input == null || input.isEmpty()) return true; // Allow empty input
-                        int value = Integer.parseInt(input);  // Try to parse the input to an integer
-                        return value >= 60;  // Validate if the integer is at least 60
-                    } catch (NumberFormatException e) {
-                        return false;  // Invalid if input is not a valid integer
-                    }
-                },
-                timeInput.textProperty()
-            ),
+            Bindings.createBooleanBinding(() -> {
+                try {
+                    String input = timeInput.getText();
+                    if (input == null || input.isEmpty()) return true; // Allow empty input
+                    int value = Integer.parseInt(input);  // Try to parse the input to an integer
+                    return value >= 60;  // Validate if the integer is at least 60
+                } catch (NumberFormatException e) {
+                    return false;  // Invalid if input is not a valid integer
+                }
+            }, timeInput.textProperty()),
             where,
             errorMessage
         );
     }
 
-    public void  addMinimumDurationValidationIfOtherTextFieldNotNull (TextField timeInput, TextField linkedTextField, Node where, ObservableStringValue errorMessage) {
-        {
-            addValidationRule(
-                Bindings.createBooleanBinding(
-                    () -> {
-                        try {
-                            String input = timeInput.getText();
-                            if (linkedTextField==null || Objects.equals(linkedTextField.getText(), "") || input == null || input.isEmpty()) return true; // Allow empty input
-                            int value = Integer.parseInt(input);  // Try to parse the input to an integer
-                            return value >= 60;  // Validate if the integer is at least 60
-                        } catch (NumberFormatException e) {
-                            return false;  // Invalid if input is not a valid integer
-                        }
-                    },
-                    timeInput.textProperty()
-                ),
-                where,
-                errorMessage
-            );
-        }
+    public void addMinimumDurationValidationIfOtherTextFieldNotNull(TextField timeInput, TextField linkedTextField, Node where, ObservableStringValue errorMessage) {
+        addValidationRule(
+            Bindings.createBooleanBinding(() -> {
+                try {
+                    String input = timeInput.getText();
+                    if (linkedTextField == null || Objects.equals(linkedTextField.getText(), "") || input == null || input.isEmpty())
+                        return true; // Allow empty input
+                    int value = Integer.parseInt(input);  // Try to parse the input to an integer
+                    return value >= 60;  // Validate if the integer is at least 60
+                } catch (NumberFormatException e) {
+                    return false;  // Invalid if input is not a valid integer
+                }
+            }, timeInput.textProperty()),
+            where,
+            errorMessage
+        );
     }
 
     public void addUrlOrEmptyValidation(TextField urlInput, ObservableStringValue errorMessage) {
         // Looser but practical pattern for URLs including non-ASCII and punctuation
         String urlPattern = "^(https?|srt|rtmp|rtsp)://[^\\s]+$";
-        Pattern pattern = Pattern.compile(urlPattern);//Not emulated for now: , Pattern.CASE_INSENSITIVE | Pattern.UNICODE_CASE);
+        Pattern pattern = Pattern.compile(urlPattern); //Not emulated for now: Pattern.CASE_INSENSITIVE | Pattern.UNICODE_CASE;
 
         addValidationRule(
-            Bindings.createBooleanBinding(
-                () -> {
-                    String input = urlInput.getText();
-                    return input == null || input.isEmpty() || pattern.matcher(input).matches();
-                },
-                urlInput.textProperty()
-            ),
+            Bindings.createBooleanBinding(() -> {
+                String input = urlInput.getText();
+                return input == null || input.isEmpty() || pattern.matcher(input).matches();
+            }, urlInput.textProperty()),
             urlInput,
             errorMessage
         );
     }
 
-
-
     public void addNonEmptyValidation(TextField textField, Node where, ObservableStringValue errorMessage) {
         // Create the validation rule
         addValidationRule(
-                Bindings.createBooleanBinding(
-                        () -> !textField.getText().trim().isEmpty(),
-                        textField.textProperty()
-                ),
-                where,
-                errorMessage);
+            Bindings.createBooleanBinding(() ->
+                    !textField.getText().trim().isEmpty(),
+                textField.textProperty()),
+            where,
+            errorMessage);
     }
 
     public void addDateValidation(TextField textField, DateTimeFormatter dateFormatter, Node where, ObservableStringValue errorMessage) {
         // Create the validation rule
         addValidationRule(
-                Bindings.createBooleanBinding(() -> {
-                    try {
-                        dateFormatter.parse(textField.getText().trim());
-                        return true;
-                    } catch (DateTimeParseException e) {
-                        return false;
-                    }}, textField.textProperty()),
-                where,
-                errorMessage
+            Bindings.createBooleanBinding(() -> {
+                try {
+                    dateFormatter.parse(textField.getText().trim());
+                    return true;
+                } catch (DateTimeParseException e) {
+                    return false;
+                }
+            }, textField.textProperty()),
+            where,
+            errorMessage
         );
     }
 
@@ -450,27 +446,25 @@ public final class ValidationSupport {
     public void addLegalAgeValidation(TextField textField, DateTimeFormatter dateFormatter, int legalAge, Node where, ObservableStringValue errorMessage) {
         // Create the validation rule
         addValidationRule(
-                Bindings.createBooleanBinding(() -> {
-                    try {
-                        LocalDate birthDate = LocalDate.parse(textField.getText().trim(), dateFormatter);
-                        LocalDate now = LocalDate.now();
-                        return birthDate.plusYears(legalAge).isBefore(now) || birthDate.plusYears(legalAge).isEqual(now);
-                    } catch (DateTimeParseException e) {
-                        return false;
-                    }
-                }, textField.textProperty()),
-                where,
-                errorMessage
+            Bindings.createBooleanBinding(() -> {
+                try {
+                    LocalDate birthDate = LocalDate.parse(textField.getText().trim(), dateFormatter);
+                    LocalDate now = LocalDate.now();
+                    return birthDate.plusYears(legalAge).isBefore(now) || birthDate.plusYears(legalAge).isEqual(now);
+                } catch (DateTimeParseException e) {
+                    return false;
+                }
+            }, textField.textProperty()),
+            where,
+            errorMessage
         );
     }
 
     public void addPasswordMatchValidation(TextField passwordField, TextField repeatPasswordField, ObservableStringValue errorMessageProperty) {
         addValidationRule(
-            Bindings.createBooleanBinding(
-                () -> passwordField.getText().equals(repeatPasswordField.getText()),
-                passwordField.textProperty(),
-                repeatPasswordField.textProperty()
-            ),
+            Bindings.createBooleanBinding(() ->
+                    passwordField.getText().equals(repeatPasswordField.getText()),
+                passwordField.textProperty(), repeatPasswordField.textProperty()),
             repeatPasswordField,
             errorMessageProperty,
             true
@@ -479,17 +473,18 @@ public final class ValidationSupport {
 
     public void addPasswordStrengthValidation(TextField passwordField, ObservableStringValue errorMessage) {
         addValidationRule(
-            Bindings.createBooleanBinding(
-                () -> checkPasswordStrength(passwordField.getText()),
-                passwordField.textProperty()
-            ),
+            Bindings.createBooleanBinding(() ->
+                    checkPasswordStrength(passwordField.getText()),
+                passwordField.textProperty()),
             passwordField,
             errorMessage,
             true
         );
     }
+
     /**
      * Checks if a password meets strength requirements.
+     *
      * @param password the password to validate.
      * @return true if the password meets the requirements, false otherwise.
      */
@@ -519,24 +514,6 @@ public final class ValidationSupport {
         }
         return true;
     }
-
-/*
-    private PopOver popOver;
-    private void showPopOverNow() {
-        if (popOver != null && popOver.getOwnerNode() != popOverOwnerNode) {
-            popOver.hide();
-            popOver = null;
-        }
-        if (popOver == null && isShowing(popOverOwnerNode)) {
-            popOver = new PopOver();
-            popOver.setContentNode(popOverContentNode);
-            popOver.setArrowLocation(PopOver.ArrowLocation.BOTTOM_LEFT);
-            //Platform.runLater(() -> {
-                popOver.show(popOverOwnerNode, -(popOverOwnerNode instanceof ImageView ? ((ImageView) popOverOwnerNode).getImage().getHeight() : 0) + 4);
-            //});
-        }
-    }
-*/
 
     private GraphicDecoration popOverDecoration;
     private Node popOverDecorationTarget;
@@ -579,33 +556,49 @@ public final class ValidationSupport {
 
     public void addPasswordValidation(TextField passwordInput, Label passwordLabel, ObservableStringValue errorMessage) {
         addValidationRule(
-                Bindings.createBooleanBinding(
-                        () -> passwordInput.getText().length() >= 8,
-                        passwordInput.textProperty()
-                ),
-                passwordLabel,
-                errorMessage
+            Bindings.createBooleanBinding(
+                () -> passwordInput.getText().length() >= 8,
+                passwordInput.textProperty()
+            ),
+            passwordLabel,
+            errorMessage
         );
     }
 
     public void addRequiredInputIfOtherTextFieldNotNull(TextField requiredTextField, TextField linkedTextField, TextField node) {
         addValidationRule(
-            Bindings.createBooleanBinding(
-                () -> {
-                    // If linkedTextField is null or its text is null or empty, skip validation
-                    if (linkedTextField == null || linkedTextField.getText() == null || linkedTextField.getText().isEmpty()) {
-                        return true;
-                    }
+            Bindings.createBooleanBinding(() -> {
+                // If `linkedTextField` is null or its text is null or empty, skip validation
+                if (linkedTextField == null || linkedTextField.getText() == null || linkedTextField.getText().isEmpty()) {
+                    return true;
+                }
 
-                    // If linkedTextField has text, requiredTextField must also have text
-                    return requiredTextField != null
-                        && requiredTextField.getText() != null
-                        && !requiredTextField.getText().isEmpty();
-                },
-                linkedTextField.textProperty(), requiredTextField.textProperty()
-            ),
+                // If `linkedTextField` has text, `requiredTextField` must also have text
+                return requiredTextField != null
+                       && requiredTextField.getText() != null
+                       && !requiredTextField.getText().isEmpty();
+            }, linkedTextField.textProperty(), requiredTextField.textProperty()),
             node,
             DEFAULT_REQUIRED_MESSAGE
+        );
+    }
+
+    public void addAlphanumericNoSpacesValidation(TextField textField, Node where, ObservableStringValue errorMessage) {
+        // Pattern to match only letters and numbers, no spaces or special characters
+        String alphanumericPattern = "^[a-zA-Z0-9]+$";
+        Pattern pattern = Pattern.compile(alphanumericPattern);
+
+        addValidationRule(
+            Bindings.createBooleanBinding(() -> {
+                String input = textField.getText();
+                // Allow empty input (use addRequiredInput for non-empty validation)
+                if (input == null || input.isEmpty()) {
+                    return true;
+                }
+                return pattern.matcher(input).matches();
+            }, textField.textProperty()),
+            where,
+            errorMessage
         );
     }
 }

@@ -9,6 +9,10 @@ import javafx.scene.canvas.Canvas;
  */
 public interface CanvasBlobProvider {
 
-    Future<Blob> createCanvasBlob(Canvas canvas);
+    default Future<Blob> createCanvasBlob(Canvas canvas) {
+        return createCanvasBlob(canvas, "image/png");
+    }
+
+    Future<Blob> createCanvasBlob(Canvas canvas, String mimeType);
 
 }

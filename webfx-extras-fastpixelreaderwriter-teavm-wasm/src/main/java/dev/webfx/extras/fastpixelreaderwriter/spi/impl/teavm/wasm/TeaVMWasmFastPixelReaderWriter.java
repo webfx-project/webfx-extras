@@ -83,7 +83,7 @@ public final class TeaVMWasmFastPixelReaderWriter implements FastPixelReaderWrit
     }
 
     private void applyPixelChanges() {
-        if ((newA != -1 || newR != -1 || newG != -1 || newB != -1)) {
+        if (cache != null && (newA != -1 || newR != -1 || newG != -1 || newB != -1)) {
             if (newA == -1)
                 newA = getOpacity();
             if (newA == 0)
@@ -106,6 +106,7 @@ public final class TeaVMWasmFastPixelReaderWriter implements FastPixelReaderWrit
     }
 
     private int getColor(int offset) {
+        createCache(true);
         return cache[getCachePos() + offset] & 0xFF;
     }
 

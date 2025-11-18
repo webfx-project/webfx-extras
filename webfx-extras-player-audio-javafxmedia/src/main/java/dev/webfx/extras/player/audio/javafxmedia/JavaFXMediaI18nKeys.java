@@ -3,7 +3,7 @@ package dev.webfx.extras.player.audio.javafxmedia;
 
 public interface JavaFXMediaI18nKeys {
 
-    Object ChooseAnAudioTrackForBehind = "ChooseAnAudioTrackForBehind";
     Object AbrSecond = "AbrSecond";
+    Object ChooseAnAudioTrackForBehind = "ChooseAnAudioTrackForBehind";
 
 }

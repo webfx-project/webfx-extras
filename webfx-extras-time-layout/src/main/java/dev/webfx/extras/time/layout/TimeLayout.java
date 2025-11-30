@@ -67,4 +67,10 @@ public interface TimeLayout<C, T> extends CanLayout,
     }
 
     void processVisibleChildren(javafx.geometry.Bounds visibleArea, double layoutOriginX, double layoutOriginY, BiConsumer<C, Bounds> childProcessor);
+
+    // If the child belongs to a parent row that is not fully expanded, then this method should return the bounds of the
+    // that parent row that can be used for clipping the child
+    default Bounds getClippingParentRowBounds(C child) {
+        return null;
+    }
 }

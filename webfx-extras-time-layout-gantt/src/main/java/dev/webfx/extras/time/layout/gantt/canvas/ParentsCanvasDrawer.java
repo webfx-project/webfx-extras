@@ -15,6 +15,7 @@ import dev.webfx.extras.time.layout.impl.TimeLayoutUtil;
 import javafx.geometry.BoundingBox;
 import javafx.scene.canvas.Canvas;
 import javafx.scene.canvas.GraphicsContext;
+import javafx.scene.paint.Color;
 import javafx.scene.paint.Paint;
 import javafx.stage.Screen;
 
@@ -83,10 +84,10 @@ public final class ParentsCanvasDrawer {
         lastVirtualViewPortY = 0;
         if (childrenDrawer != null) {
             childrenDrawer.addOnBeforeDraw(() ->
-                    onBeforeChildrenDraw(ganttLayout.getParentHeaderWidth(), childrenDrawer.getLayoutOriginY())
+                onBeforeChildrenDraw(ganttLayout.getParentHeaderWidth(), childrenDrawer.getLayoutOriginY())
             );
             childrenDrawer.addOnAfterDraw(() ->
-                    onAfterChildrenDraw(ganttLayout.getParentHeaderWidth(), childrenDrawer.getLayoutOriginY())
+                onAfterChildrenDraw(ganttLayout.getParentHeaderWidth(), childrenDrawer.getLayoutOriginY())
             );
             if (childrenDrawer instanceof HasCanvasInteractionManager) {
                 CanvasInteractionManager canvasInteractionManager = ((HasCanvasInteractionManager) childrenDrawer).getCanvasInteractionManager();
@@ -199,13 +200,13 @@ public final class ParentsCanvasDrawer {
     private void drawAll(double virtualCanvasWidth, double virtualViewPortY, boolean afterChildrenPass) {
         lastVirtualCanvasWidth = virtualCanvasWidth;
         lastVirtualViewPortY = virtualViewPortY;
-        // The only thing we draw before the children are the horizontal & vertical strokes, if set to be drawn in the
+        // The only things we draw before the children are the horizontal and vertical strokes, if set to be drawn in the
         // background. If they are not set so, and we are in that background pass (ie before drawing children), we can
         // return immediately as there is nothing to draw in that pass (this prevents looping for nothing).
         if (!afterChildrenPass &&
-                (horizontalStroke == null || horizontalStrokeForeground) &&
-                (verticalStroke == null || verticalStrokeForeground) &&
-                (!ganttLayout.isTetrisPacking() || tetrisAreaFill == null))
+            (horizontalStroke == null || horizontalStrokeForeground) &&
+            (verticalStroke == null || verticalStrokeForeground) &&
+            (!ganttLayout.isTetrisPacking() || tetrisAreaFill == null))
             return;
         GraphicsContext gc = canvas.getGraphicsContext2D();
         // The area to clear is on the left (up to virtualCanvasWidth)
@@ -226,9 +227,9 @@ public final class ParentsCanvasDrawer {
 
     private void drawGrandparentsWithTheirParentsAndStrokes(List<GrandparentRow> grandparentRows, GraphicsContext gc, boolean afterChildrenPass) {
         TimeLayoutUtil.processVisibleObjectBounds(
-                grandparentRows,
-                true, drawingArea, 0, lastVirtualViewPortY,
-                (grandparentRow, b) -> drawGrandparentWithItsParentAndStrokes(grandparentRow, gc, afterChildrenPass)
+            grandparentRows,
+            true, drawingArea, 0, lastVirtualViewPortY,
+            (grandparentRow, b) -> drawGrandparentWithItsParentAndStrokes(grandparentRow, gc, afterChildrenPass)
         );
     }
 
@@ -254,10 +255,10 @@ public final class ParentsCanvasDrawer {
     private void prepareStateForRotatedDraw(MutableBounds header, GraphicsContext gc, HeaderRotation rotation) {
         headerCoordinatesBeforeRotate.copyCoordinates(header);
         gc.save();
-        // Rotating the canvas using the bounds center as the pivot point
+        // Rotating the canvas using the bound center as the pivot point
         gc.translate(header.getCenterX(), header.getCenterY());
         gc.rotate(rotation.getAngle());
-        // Translating the canvas from the bounds centre so the bounds origin will be (0, 0)
+        // Translating the canvas from the bound center, so the bound origin will be (0, 0)
         double w = header.getWidth();
         double h = header.getHeight();
         // Rotating the bounds -> inverting width & height and setting origin to (0, 0)
@@ -281,12 +282,13 @@ public final class ParentsCanvasDrawer {
 
     private <C> void drawParentsAndStrokes(List<ParentRow<C>> parentRows, GraphicsContext gc, boolean afterChildrenPass) {
         TimeLayoutUtil.processVisibleObjectBounds(
-                parentRows,
-                true, drawingArea, 0, lastVirtualViewPortY,
-                (parentRow, b) -> drawParentAndStrokes(parentRow, gc, afterChildrenPass));
+            parentRows,
+            true, drawingArea, 0, lastVirtualViewPortY,
+            (parentRow, b) -> drawParentAndStrokes(parentRow, gc, afterChildrenPass));
     }
 
     private void drawParentAndStrokes(ParentRow<?> parentRow, GraphicsContext gc, boolean afterChildrenPass) {
+        // Filling the parent row with tetrisAreaFill if needed (before drawing children)
         if (!afterChildrenPass && ganttLayout.isTetrisPacking() && tetrisAreaFill != null) {
             gc.setFill(tetrisAreaFill);
             gc.fillRect(parentRow.getMinX(), parentRow.getMinY(), parentRow.getWidth(), parentRow.getHeight());
@@ -300,6 +302,14 @@ public final class ParentsCanvasDrawer {
         }
         // We draw the parent row only once, and it's after children
         if (afterChildrenPass) {
+            // If the parentRow is not fully expanded, we clip it to prevent drawing outside it
+            boolean clipping = parentRow.isPartiallyOrFullyCollapsed();
+            if (clipping) {
+                gc.save();
+                gc.beginPath();
+                gc.rect(parentRow.getMinX(), parentRow.getMinY(), parentRow.getWidth(), parentRow.getHeight());
+                gc.clip();
+            }
             MutableBounds header = parentRow.getHeader();
             HeaderRotation rotation = parentHeaderRotation;
             boolean rotated = rotation.isRotated();
@@ -309,25 +319,52 @@ public final class ParentsCanvasDrawer {
             parentDrawer.drawChild(parent, header, gc);
             if (rotated)
                 restoreStateAfterRotatedDraw(header, gc);
+            int rowsCount = parentRow.getRowsCount();
             if (childRowHeaderDrawer != null) {
                 if (ganttLayout.isParentHeaderOnLeft())
                     childRowHeaderBounds.setX(ganttLayout.getParentHeaderMaxX());
                 else
                     childRowHeaderBounds.setX(ganttLayout.getParentHeaderMinX() - childRowHeaderWidth);
                 if (ganttLayout.isParentHeaderOnTop())
-                    childRowHeaderBounds.setY(header.getMaxY() + ganttLayout.getVSpacing());
+                    childRowHeaderBounds.setY(header.getMaxY());
                 else
-                    childRowHeaderBounds.setY(parentRow.getY() + ganttLayout.getVSpacing());
+                    childRowHeaderBounds.setY(parentRow.getY() + 1);
                 childRowHeaderBounds.setWidth(childRowHeaderWidth);
-                childRowHeaderBounds.setHeight(ganttLayout.getChildFixedHeight());
+                childRowHeaderBounds.setHeight(ganttLayout.getChildFixedHeight() + ganttLayout.getVSpacing());
                 childRowHeaderBounds.setObject(parent);
-                for (int i = 0; i < parentRow.getRowsCount(); i++) {
+                for (int i = 0; i < rowsCount; i++) {
                     childRowHeaderDrawer.drawChild(i, childRowHeaderBounds, gc);
-                    childRowHeaderBounds.setY(childRowHeaderBounds.getY() + childRowHeaderBounds.getHeight() + ganttLayout.getVSpacing());
+                    // Preparing the next child row header bounds
+                    childRowHeaderBounds.setY(childRowHeaderBounds.getY() + childRowHeaderBounds.getHeight());
+                    // breaking the loop if outside the clipping area (= parent row).
+                    if (clipping && childRowHeaderBounds.getMinY() > parentRow.getMaxY())
+                        break;
                 }
             }
+            // Drawing chevron when relevant (possibly animated)
+            if (ganttLayout.isParentRowCollapseEnabled() && rowsCount > 1) {
+                gc.setFill(Color.BLACK);
+                Bounds chevronLocalBounds = ganttLayout.getParentRowCollapseChevronLocalBounds();
+                double x0 = parentRow.getMinX() + chevronLocalBounds.getMinX(), x1 = parentRow.getMinX() + chevronLocalBounds.getMaxX();
+                double y0 = parentRow.getMinY() + chevronLocalBounds.getMinY(), y1 = parentRow.getMinY() + chevronLocalBounds.getMaxY();
+                double expandFactor = parentRow.getExpandFactor();
+                if (expandFactor != 1) {
+                    double xc = (x0 + x1) / 2, yc = (y0 + y1) / 2;
+                    gc.translate(xc, yc);
+                    gc.rotate(90 * (expandFactor - 1));
+                    gc.translate(-xc, -yc);
+                }
+                gc.beginPath();
+                gc.moveTo(x0, y0);
+                gc.lineTo(x1, y0);
+                gc.lineTo((x0 + x1) / 2, y1);
+                gc.fill();
+            }
+            if (clipping)
+                gc.restore();
         }
     }
+
     private final double STROKE_WIDTH = 1d / Screen.getPrimary().getOutputScaleX();
 
     private void drawHorizontalStrokes(Bounds b, GraphicsContext gc) {

@@ -68,6 +68,11 @@ public final class LocalDateGanttLayout<C> extends GanttLayoutImpl<C, LocalDate>
     }
 
     @Override
+    public LocalDateGanttLayout<C> setParentRowCollapseEnabled(boolean parentRowCollapseEnabled) {
+        return (LocalDateGanttLayout<C>) super.setParentRowCollapseEnabled(parentRowCollapseEnabled);
+    }
+
+    @Override
     public LocalDateGanttLayout<C> setInclusiveChildStartTimeReader(Function<C, LocalDate> startTimeReader) {
         return (LocalDateGanttLayout<C>) super.setInclusiveChildStartTimeReader(startTimeReader);
     }

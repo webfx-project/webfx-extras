@@ -12,6 +12,7 @@ module webfx.extras.time.layout.gantt {
     requires webfx.extras.time;
     requires transitive webfx.extras.time.layout;
     requires webfx.extras.time.window;
+    requires webfx.extras.util.animation;
     requires webfx.kit.util;
 
     // Exported packages

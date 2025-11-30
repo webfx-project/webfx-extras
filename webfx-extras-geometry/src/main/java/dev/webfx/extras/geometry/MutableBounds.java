@@ -10,6 +10,16 @@ public class MutableBounds implements Bounds {
     private double x, y, width, height;
     private javafx.geometry.Bounds fxBounds;
 
+    public MutableBounds() {
+    }
+
+    public MutableBounds(double x, double y, double width, double height) {
+        this.x = x;
+        this.y = y;
+        this.width = width;
+        this.height = height;
+    }
+
     public double getX() {
         return x;
     }

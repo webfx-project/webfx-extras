@@ -9,6 +9,7 @@
         <used-by-source-modules>
             <undetected-module>javafx-base</undetected-module>
             <module transitive="true">webfx-extras-time-layout</module>
+            <module>webfx-extras-util-animation</module>
         </used-by-source-modules>
     </dependencies>
 

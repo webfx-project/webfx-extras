@@ -38,7 +38,7 @@ public class TimeCanvasInteractionHandler<T extends Temporal> implements CanvasI
         mousePressedStart = timeWindow.getTimeWindowStart();
         mousePressedDuration = TimeWindowUtil.getTimeWindowDuration(timeWindow, temporalUnit);
         mouseDragged = false;
-        updateCanvasCursor(e, true, canvas);
+        //updateCanvasCursor(e, true, canvas); // Commented to prevent showing the hand when clicking on the collapsing chevron
         return false; // -> Stopping propagation (next handlers won't be called)
     }
 
@@ -65,7 +65,7 @@ public class TimeCanvasInteractionHandler<T extends Temporal> implements CanvasI
         boolean wasPressedHere = mousePressedStart != null;
         if (wasPressedHere) {
             selectObjectAt(e.getX(), e.getY());
-            updateCanvasCursor(e, false, canvas);
+            //updateCanvasCursor(e, false, canvas); // Commented to prevent showing the hand when clicking on the parent row
             mousePressedStart = null;
             return false; // -> Stopping propagation
         }
@@ -114,11 +114,11 @@ public class TimeCanvasInteractionHandler<T extends Temporal> implements CanvasI
     }
 
     public static void disableScrollTimeWindowOnCanvas(Canvas canvas) {
-        canvas.getProperties().put("disableScollTimeWindow", true);
+        canvas.getProperties().put("disableScrollTimeWindow", true);
     }
 
     public static boolean isScrollTimeWindowDisabledOnCanvas(Canvas canvas) {
-        return Objects.equals(canvas.getProperties().get("disableScollTimeWindow"), true);
+        return Objects.equals(canvas.getProperties().get("disableScrollTimeWindow"), true);
     }
 
 }

@@ -1,6 +1,11 @@
 package dev.webfx.extras.time.layout.gantt.impl;
 
 import dev.webfx.extras.time.layout.impl.ObjectBounds;
+import dev.webfx.extras.util.animation.Animations;
+import javafx.animation.Timeline;
+import javafx.beans.property.DoubleProperty;
+import javafx.beans.property.SimpleDoubleProperty;
+import javafx.util.Duration;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -13,12 +18,26 @@ import java.util.stream.Stream;
 public final class ParentRow<C> extends EnclosingRow<ParentRow<C>> {
 
     private final Object parent;
-    ParentRow<C> aboveParentRow; // Note: will be null for first row under a grandparent row
+    ParentRow<C> aboveParentRow; // Note: will be null for the first row under a grandparent row
     GrandparentRow grandparentRow;
     private final GanttLayoutImpl<C, ?> ganttLayout;
     private final List<GanttChildBounds<C, ?>> childrenBounds = new ArrayList<>();
     private List<List<GanttChildBounds<C, ?>>> tetrisRows, oldTetrisRows;
 
+    // Collapse/Expand feature
+    private boolean collapsed = false;
+    private Timeline collapseExpandTimeline;
+    // Expand factor: 1 = fully expanded (i.e., all rows visible), 0 = fully collapsed (i.e., 1 row visible only)
+    private final DoubleProperty expandFactorProperty = new SimpleDoubleProperty(1) {
+        @Override
+        protected void invalidated() {
+            // We invalidate the vertical layout to force a recomputation of the parent rows and children
+            ganttLayout.invalidateVerticalLayout(); // Will also trigger the canvas redrawn
+            // Note: the above could be optimized because 1) the parent rows and children above this one don't need to
+            // be repositioned, and 2) the parent rows and children below this one only need to be shifted by the same
+            // amount. However, it's not worth the effort, as the whole vertical computation is fast enough so far.
+        }
+    };
 
     public ParentRow(Object parent, ParentRow<C> aboveParentRow, GanttLayoutImpl<C, ?> ganttLayout) {
         super(ganttLayout);
@@ -183,4 +202,48 @@ public final class ParentRow<C> extends EnclosingRow<ParentRow<C>> {
         return Stream.empty();
     }
 
+    // -------------------------------------------- Collapse/Expand feature --------------------------------------------
+
+    public double getExpandFactor() {
+        return expandFactorProperty.get();
+    }
+
+    public boolean isPartiallyOrFullyCollapsed() {
+        return getExpandFactor() < 1;
+    }
+
+    /**
+     * Collapses this parent row with animation, showing only the first row of children.
+     */
+    public void collapse() {
+        collapse(true);
+    }
+
+    /**
+     * Collapses this parent row with animation, showing only the first row of children.
+     */
+    public void collapse(boolean collapse) {
+        if (collapsed != collapse) {
+            // Stop any ongoing animation
+            if (collapseExpandTimeline != null)
+                collapseExpandTimeline.stop();
+            // Animate to minimum height
+            collapseExpandTimeline = Animations.animateProperty(expandFactorProperty, collapse ? 0 : 1, Duration.millis(300));
+            collapsed = collapse;
+        }
+    }
+
+    /**
+     * Expands this parent row with animation, showing all rows of children.
+     */
+    public void expand() {
+        collapse(false);
+    }
+
+    /**
+     * Toggles between collapsed and expanded state with animation.
+     */
+    public void toggleCollapse() {
+        collapse(!collapsed);
+    }
 }

@@ -71,6 +71,7 @@ public class GanttLayoutImpl<C, T extends Temporal> extends TimeLayoutBase<C, T>
 
     // Fields used for the collapse/expand feature
     private boolean parentRowCollapseEnabled;
+    private boolean parentRowInitiallyCollapsed;
     private final Bounds parentRowCollapseChevronLocalBounds = new MutableBounds(5, 8, 10, 5);
 
     public GanttLayoutImpl(TemporalUnit temporalUnit) {
@@ -274,20 +275,6 @@ public class GanttLayoutImpl<C, T extends Temporal> extends TimeLayoutBase<C, T>
         return tetrisPacking;
     }
 
-    public GanttLayoutImpl<C, T> setParentRowCollapseEnabled(boolean parentRowCollapseEnabled) {
-        this.parentRowCollapseEnabled = parentRowCollapseEnabled;
-        return this;
-    }
-
-    public boolean isParentRowCollapseEnabled() {
-        return parentRowCollapseEnabled;
-    }
-
-    public Bounds getParentRowCollapseChevronLocalBounds() {
-        return parentRowCollapseChevronLocalBounds;
-    }
-
-
     @Override
     public int getRowIndexInParentRow(C child) {
         int childIndex = children.indexOf(child);
@@ -312,6 +299,29 @@ public class GanttLayoutImpl<C, T extends Temporal> extends TimeLayoutBase<C, T>
             return parentRow.streamChildrenAtRowIndex(rowIndex);
         return Stream.empty();
     }
+
+    public GanttLayoutImpl<C, T> setParentRowCollapseEnabled(boolean parentRowCollapseEnabled) {
+        this.parentRowCollapseEnabled = parentRowCollapseEnabled;
+        return this;
+    }
+
+    public boolean isParentRowInitiallyCollapsed() {
+        return parentRowInitiallyCollapsed;
+    }
+
+    public GanttLayoutImpl<C, T> setParentRowInitiallyCollapsed(boolean parentRowInitiallyCollapsed) {
+        this.parentRowInitiallyCollapsed = parentRowInitiallyCollapsed;
+        return this;
+    }
+
+    public boolean isParentRowCollapseEnabled() {
+        return parentRowCollapseEnabled;
+    }
+
+    public Bounds getParentRowCollapseChevronLocalBounds() {
+        return parentRowCollapseChevronLocalBounds;
+    }
+
 
     @Override
     public BooleanProperty parentsProvidedProperty() {

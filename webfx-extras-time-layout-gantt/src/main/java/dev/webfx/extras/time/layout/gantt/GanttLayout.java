@@ -43,6 +43,16 @@ public interface GanttLayout<C, T extends Temporal> extends TimeLayout<C, T> {
 
     Stream<C> streamChildrenInParentRowAtRowIndex(Object parent, int rowIndex);
 
+    GanttLayout<C, T> setParentRowCollapseEnabled(boolean parentRowCollapseEnabled);
+
+    boolean isParentRowInitiallyCollapsed();
+
+    GanttLayout<C, T> setParentRowInitiallyCollapsed(boolean parentRowInitiallyCollapsed);
+
+    boolean isParentRowCollapseEnabled();
+
+    Bounds getParentRowCollapseChevronLocalBounds();
+
     BooleanProperty parentsProvidedProperty();
 
     GanttLayout<C, T> setParentsProvided(boolean parentsProvided);

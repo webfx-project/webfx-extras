@@ -44,6 +44,8 @@ public final class ParentRow<C> extends EnclosingRow<ParentRow<C>> {
         this.parent = parent;
         this.aboveParentRow = aboveParentRow;
         this.ganttLayout = ganttLayout;
+        if (ganttLayout.isParentRowInitiallyCollapsed())
+            expandFactorProperty.set(0);
     }
 
     @Override

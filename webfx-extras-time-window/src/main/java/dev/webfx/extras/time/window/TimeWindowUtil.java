@@ -47,9 +47,9 @@ public final class TimeWindowUtil {
     }
 
     public static <T extends Temporal> void ensureTimeRangeVisible(TimeWindow<T> timeWindow, T rangeStart, T rangeEnd, TemporalUnit temporalUnit) {
-        // If the time range is before or after the time window, then it's not visible and we need to shift the time window
+        // If the time range is before or after the time window, then it's not visible, and we need to shift the time window
         if (temporalUnit.between(rangeEnd, timeWindow.getTimeWindowStart()) > 0 || temporalUnit.between(timeWindow.getTimeWindowEnd(), rangeStart) > 0) {
-            // If the range is to big to fit in the time window, we start the time window to the range start
+            // If the range is too big to fit in the time window, we start the time window to the range start
             long rangeDuration = temporalUnit.between(rangeStart, rangeEnd);
             if (rangeDuration > getTimeWindowDuration(timeWindow, temporalUnit)) {
                 setTimeWindowStart(timeWindow, rangeStart, temporalUnit);

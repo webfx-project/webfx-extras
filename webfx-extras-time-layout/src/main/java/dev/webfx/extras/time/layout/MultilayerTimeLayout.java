@@ -7,6 +7,8 @@ import dev.webfx.extras.time.window.ListenableTimeWindow;
 
 public interface MultilayerTimeLayout<T> extends ListenableTimeWindow<T>, CanLayout, HasTimeProjector<T>, InteractiveMultilayer<TimeLayout<?, T>> {
 
+    void setCanvasDirtyMarker(Runnable canvasDirtyMarker);
+
     static <T> MultilayerTimeLayout<T> create() {
         return new MultilayerTimeLayoutImpl<>();
     }

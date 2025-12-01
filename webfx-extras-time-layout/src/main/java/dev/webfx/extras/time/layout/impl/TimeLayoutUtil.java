@@ -10,25 +10,25 @@ import java.util.function.BiConsumer;
  */
 public class TimeLayoutUtil {
 
-    public static <O, OB extends ObjectBounds<O>, B extends Bounds> void processVisibleObjectBounds(List<OB> objectBounds, boolean ascY, javafx.geometry.Bounds visibleArea, double layoutOriginX, double layoutOriginY, BiConsumer<O, B> objectProcessor) {
+    public static <O, OB extends ObjectBounds<O>, B extends Bounds> void processVisibleObjectBounds(List<OB> objectBounds, boolean ascY, javafx.geometry.Bounds visibleArea, double originX, double originY, BiConsumer<O, B> objectProcessor) {
         for (OB ob : objectBounds) {
             if (ascY) {
-                if (ob.getY() - layoutOriginY > visibleArea.getMaxY())
+                if (ob.getY() - originY > visibleArea.getMaxY())
                     break;
-                if (ob.getMaxY() - layoutOriginY < visibleArea.getMinY())
+                if (ob.getMaxY() - originY < visibleArea.getMinY())
                     continue;
             }
-            processObjectIfVisible(ob.getObject(), ob, visibleArea, layoutOriginX, layoutOriginY, (BiConsumer<O, OB>) objectProcessor);
+            processObjectIfVisible(ob.getObject(), ob, visibleArea, originX, originY, (BiConsumer<O, OB>) objectProcessor);
         }
     }
 
-    public static <O, B extends Bounds> void processObjectIfVisible(O object, B objectBounds, javafx.geometry.Bounds visibleArea, double layoutOriginX, double layoutOriginY, BiConsumer<O, B> objectProcessor) {
+    public static <O, B extends Bounds> void processObjectIfVisible(O object, B objectBounds, javafx.geometry.Bounds visibleArea, double originX, double originY, BiConsumer<O, B> objectProcessor) {
         // Here is the object position in the layout coordinates:
         double layoutX = objectBounds.getMinX();
         double layoutY = objectBounds.getMinY();
         // Here is the object position in the canvas coordinates:
-        double canvasX = layoutX - layoutOriginX;
-        double canvasY = layoutY - layoutOriginY;
+        double canvasX = layoutX - originX;
+        double canvasY = layoutY - originY;
         // Skipping that object if it is not visible in the draw area
         if (visibleArea != null && !visibleArea.intersects(canvasX, canvasY, objectBounds.getWidth(), objectBounds.getHeight()))
             return; // This improves performance, as canvas operations can take time (even outside canvas)

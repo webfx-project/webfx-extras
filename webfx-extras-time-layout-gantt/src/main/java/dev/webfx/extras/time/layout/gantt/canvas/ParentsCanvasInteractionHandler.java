@@ -92,7 +92,7 @@ public class ParentsCanvasInteractionHandler implements CanvasInteractionHandler
         if (parentRow != null) {
             if (ganttLayout.isParentRowCollapseEnabled()) {
                 Bounds chevronLocalBounds = ganttLayout.getParentRowCollapseChevronLocalBounds();
-                if (new MutableBounds(parentRow.getMinX() + chevronLocalBounds.getMinX(), parentRow.getMinY() + chevronLocalBounds.getMinY(), chevronLocalBounds.getWidth(), chevronLocalBounds.getHeight()).contains(e.getX(), e.getY())) {
+                if (new MutableBounds(parentRow.getMinX() + chevronLocalBounds.getMinX(), parentRow.getMinY() + chevronLocalBounds.getMinY(), chevronLocalBounds.getWidth(), chevronLocalBounds.getHeight()).contains(e.getX(), y)) {
                     parentRow.toggleCollapse();
                     return false;
                 }

@@ -803,33 +803,36 @@ public class GanttLayoutImpl<C, T extends Temporal> extends TimeLayoutBase<C, T>
     }
 
     @Override
-    protected void processVisibleChildrenNow(javafx.geometry.Bounds visibleArea, double layoutOriginX, double layoutOriginY, BiConsumer<C, Bounds> childProcessor) {
+    protected void processVisibleChildrenNow(javafx.geometry.Bounds visibleArea, double originX, double originY, BiConsumer<C, Bounds> childProcessor) {
         checkSyncTree();
         if (!grandparentRows.isEmpty())
-            processVisibleChildrenInGrandparentRows(grandparentRows, visibleArea, layoutOriginX, layoutOriginY, childProcessor);
+            processVisibleChildrenInGrandparentRows(grandparentRows, visibleArea, originX, originY, childProcessor);
         else
-            processVisibleChildrenInParentRows(parentRows, visibleArea, layoutOriginX, layoutOriginY, childProcessor);
+            processVisibleChildrenInParentRows(parentRows, visibleArea, originX, originY, childProcessor);
     }
 
-    private void processVisibleChildrenInGrandparentRows(List<GrandparentRow> grandparentRows, javafx.geometry.Bounds visibleArea, double layoutOriginX, double layoutOriginY, BiConsumer<C, Bounds> childProcessor) {
+    private void processVisibleChildrenInGrandparentRows(List<GrandparentRow> grandparentRows, javafx.geometry.Bounds visibleArea, double originX, double originY, BiConsumer<C, Bounds> childProcessor) {
         TimeLayoutUtil.processVisibleObjectBounds(
             grandparentRows,
-            true, visibleArea, layoutOriginX, layoutOriginY,
-            (grandparentRow, b) -> processVisibleChildrenInParentRows(grandparentRow.getParentRows(), visibleArea, layoutOriginX, layoutOriginY, childProcessor)
+            // Since the translation animation doesn't apply to the grandparent rows, we correct originX accordingly
+            true, visibleArea, originX - getTimeWindowTranslateX(), originY,
+            (grandparentRow, b) -> processVisibleChildrenInParentRows(grandparentRow.getParentRows(), visibleArea, originX, originY, childProcessor)
         );
     }
 
-    private void processVisibleChildrenInParentRows(List<ParentRow<C>> parentRows, javafx.geometry.Bounds visibleArea, double layoutOriginX, double layoutOriginY, BiConsumer<C, Bounds> childProcessor) {
+    private void processVisibleChildrenInParentRows(List<ParentRow<C>> parentRows, javafx.geometry.Bounds visibleArea, double originX, double originY, BiConsumer<C, Bounds> childProcessor) {
         TimeLayoutUtil.processVisibleObjectBounds(
             parentRows,
-            true, visibleArea, layoutOriginX, layoutOriginY,
-            (parentRow, b) -> processVisibleChildrenInParentRow(parentRow, visibleArea, layoutOriginX, layoutOriginY, childProcessor));
+            // Since the translation animation doesn't apply to the parent rows, we correct originX accordingly
+            true, visibleArea, originX - getTimeWindowTranslateX(), originY,
+            (parentRow, b) -> processVisibleChildrenInParentRow(parentRow, visibleArea, originX, originY, childProcessor));
     }
 
-    private void processVisibleChildrenInParentRow(ParentRow<C> parentRow, javafx.geometry.Bounds visibleArea, double layoutOriginX, double layoutOriginY, BiConsumer<C, Bounds> childProcessor) {
+    private void processVisibleChildrenInParentRow(ParentRow<C> parentRow, javafx.geometry.Bounds visibleArea, double originX, double originY, BiConsumer<C, Bounds> childProcessor) {
         TimeLayoutUtil.processVisibleObjectBounds(
             parentRow.getChildrenBounds(),
-            false, visibleArea, layoutOriginX, layoutOriginY,
+            // Since the translation animation applies to the children, we don't correct originX
+            false, visibleArea, originX, originY,
             childProcessor);
     }
 

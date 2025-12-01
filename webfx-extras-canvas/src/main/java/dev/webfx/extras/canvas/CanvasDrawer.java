@@ -4,9 +4,9 @@ import javafx.geometry.BoundingBox;
 import javafx.geometry.Bounds;
 
 public interface CanvasDrawer extends HasCanvas,
-        HasDrawCountProperty,
-        HasLayoutOriginProperties,
-        HasDrawAreaProperties {
+    HasDrawCountProperty,
+    HasOriginCoordinates,
+    HasDrawAreaProperties {
 
     default Bounds getDrawAreaOrCanvasBounds() {
         Bounds drawAreaBounds = getDrawAreaBounds();

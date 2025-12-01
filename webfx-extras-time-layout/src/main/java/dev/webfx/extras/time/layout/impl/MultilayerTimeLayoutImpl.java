@@ -30,6 +30,7 @@ public class MultilayerTimeLayoutImpl<T> extends ListenableTimeWindowImpl<T> imp
     private final ObjectProperty<Object> selectedChildProperty = new SimpleObjectProperty<>();
     private TimeLayout<?, T> selectedChildLayer;
     private final DirtyMarker layoutDirtyMarker = new DirtyMarker(this::layout);
+    private Runnable canvasDirtyMarker;
 
     @Override
     public DoubleProperty widthProperty() {
@@ -59,6 +60,7 @@ public class MultilayerTimeLayoutImpl<T> extends ListenableTimeWindowImpl<T> imp
     @Override
     public MultilayerTimeLayoutImpl<T> setTimeProjector(TimeProjector<T> timeProjector) {
         this.timeProjector = timeProjector;
+        // Passing the time projector to existing layers (will be also set on layers added later)
         if (timeProjector != null)
             layers.forEach(layer -> layer.setTimeProjector(timeProjector));
         return this;
@@ -68,6 +70,8 @@ public class MultilayerTimeLayoutImpl<T> extends ListenableTimeWindowImpl<T> imp
     public void addLayer(TimeLayout<?, T> layer) {
         if (timeProjector != null)
             layer.setTimeProjector(timeProjector);
+        else
+            timeProjector = layer.getTimeProjector();
         layers.add(layer);
         try (TimeWindowTransaction closable = TimeWindowTransaction.open()) {
             layer.timeWindowStartProperty().bind(timeWindowStartProperty);
@@ -75,6 +79,8 @@ public class MultilayerTimeLayoutImpl<T> extends ListenableTimeWindowImpl<T> imp
         layer.timeWindowEndProperty().bind(timeWindowEndProperty);
         layer.widthProperty().bind(widthProperty);
         FXProperties.runOnPropertyChange(child -> onLayerChildSelected(child, layer), layer.selectedChildProperty());
+        if (canvasDirtyMarker != null)
+            layer.setCanvasDirtyMarker(canvasDirtyMarker);
         layer.getChildren().addListener((ListChangeListener<Object>) c -> markLayoutAsDirty());
         if (!layer.getChildren().isEmpty())
             markLayoutAsDirty();
@@ -110,6 +116,8 @@ public class MultilayerTimeLayoutImpl<T> extends ListenableTimeWindowImpl<T> imp
             setHeight(getVisibleLayersMaxBottom());
         layoutDirtyMarker.markAsClean();
         layoutCountProperty.set(newLayoutCount); // may trigger onAfterLayout runnable(s)
+        if (canvasDirtyMarker != null)
+            canvasDirtyMarker.run();
     }
 
     private double getVisibleLayersMaxBottom() {
@@ -159,4 +167,9 @@ public class MultilayerTimeLayoutImpl<T> extends ListenableTimeWindowImpl<T> imp
         return selectedChildLayer;
     }
 
+    @Override
+    public void setCanvasDirtyMarker(Runnable canvasDirtyMarker) {
+        this.canvasDirtyMarker = canvasDirtyMarker;
+        layers.forEach(layer -> layer.setCanvasDirtyMarker(canvasDirtyMarker));
+    }
 }

@@ -34,13 +34,15 @@ public class MultilayerTimeCanvasDrawer<T extends Temporal> extends CanvasDrawer
         this.multilayerTimeLayout = multilayerTimeLayout;
         this.temporalUnit = temporalUnit;
         // We automatically redraw the canvas on each new layout pass
-        multilayerTimeLayout.addOnAfterLayout(this::markDrawAreaAsDirty);
+        multilayerTimeLayout.setCanvasDirtyMarker(this::markDrawAreaAsDirty);
+        // We apply the same translation animation as the time layout
+        TimeCanvasUtil.bindTranslateXAnimation(multilayerTimeLayout, this);
     }
 
     public <C> void setLayerChildDrawer(TimeLayout<C, T> timeLayout, ChildDrawer<C> childDrawer) {
         childDrawers.put(timeLayout, childDrawer);
         // We automatically redraw the canvas when the child selection changes to reflect the new selection
-        timeLayout.selectedChildProperty().addListener(observable -> markDrawAreaAsDirty());
+        timeLayout.setCanvasDirtyMarker(this::markDrawAreaAsDirty);
     }
 
     @Override
@@ -50,7 +52,7 @@ public class MultilayerTimeCanvasDrawer<T extends Temporal> extends CanvasDrawer
         Collections.forEach(multilayerTimeLayout.getLayers(), layer -> {
             if (layer.isVisible()) {
                 ChildDrawer<?> childDrawer = childDrawers.get(layer);
-                TimeCanvasDrawer.drawVisibleChildren(bounds, getLayoutOriginX(), getLayoutOriginY(), (TimeLayout) layer, (ChildDrawer) childDrawer, gc);
+                TimeCanvasDrawer.drawVisibleChildren(bounds, getOriginX(), getOriginY(), (TimeLayout) layer, (ChildDrawer) childDrawer, gc);
             }
         });
     }

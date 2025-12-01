@@ -6,6 +6,7 @@ import dev.webfx.extras.canvas.layer.interact.CanvasInteractionManager;
 import dev.webfx.extras.canvas.layer.interact.HasCanvasInteractionManager;
 import dev.webfx.extras.geometry.Bounds;
 import dev.webfx.extras.geometry.MutableBounds;
+import dev.webfx.extras.time.layout.canvas.TimeCanvasUtil;
 import dev.webfx.extras.time.layout.gantt.HeaderRotation;
 import dev.webfx.extras.time.layout.gantt.impl.GanttLayoutImpl;
 import dev.webfx.extras.time.layout.gantt.impl.GrandparentRow;
@@ -83,11 +84,13 @@ public final class ParentsCanvasDrawer {
         lastVirtualCanvasWidth = canvas.getWidth();
         lastVirtualViewPortY = 0;
         if (childrenDrawer != null) {
+            // We apply the same translation animation as the time layout
+            TimeCanvasUtil.bindTranslateXAnimation(ganttLayout, childrenDrawer);
             childrenDrawer.addOnBeforeDraw(() ->
-                onBeforeChildrenDraw(ganttLayout.getParentHeaderWidth(), childrenDrawer.getLayoutOriginY())
+                onBeforeChildrenDraw(ganttLayout.getParentHeaderWidth(), childrenDrawer.getOriginY())
             );
             childrenDrawer.addOnAfterDraw(() ->
-                onAfterChildrenDraw(ganttLayout.getParentHeaderWidth(), childrenDrawer.getLayoutOriginY())
+                onAfterChildrenDraw(ganttLayout.getParentHeaderWidth(), childrenDrawer.getOriginY())
             );
             if (childrenDrawer instanceof HasCanvasInteractionManager) {
                 CanvasInteractionManager canvasInteractionManager = ((HasCanvasInteractionManager) childrenDrawer).getCanvasInteractionManager();
@@ -381,7 +384,8 @@ public final class ParentsCanvasDrawer {
         gc.setLineWidth(STROKE_WIDTH);
         T t0 = ganttLayout.getTimeWindowStart();
         while (t0.until(ganttLayout.getTimeWindowEnd(), ChronoUnit.DAYS) >= 0) {
-            double x0 = ganttLayout.getTimeProjector().timeToX(t0, true, false);
+            // Since the vertical strokes apply to children, we correct their position during a possible translateX animation
+            double x0 = ganttLayout.getTimeProjector().timeToX(t0, true, false) - childrenDrawer.getOriginTranslateX();
             if (x0 > b.getMinX())
                 gc.strokeLine(x0, b.getMinY(), x0, b.getMaxY());
             t0 = (T) t0.plus(1, ChronoUnit.DAYS);

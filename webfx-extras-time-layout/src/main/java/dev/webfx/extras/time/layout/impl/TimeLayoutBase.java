@@ -222,6 +222,7 @@ public abstract class TimeLayoutBase<C, T> extends ListenableTimeWindowImpl<T> i
         invalidateHorizontalLayout(); // because x is a time projection (invalid times => invalid x)
     }
 
+    @Override
     public void invalidateHorizontalLayout() {
         horizontalVersion++;
         markLayoutAsDirty();
@@ -354,14 +355,14 @@ public abstract class TimeLayoutBase<C, T> extends ListenableTimeWindowImpl<T> i
     }
 
     @Override
-    public void processVisibleChildren(javafx.geometry.Bounds visibleArea, double layoutOriginX, double layoutOriginY, BiConsumer<C, Bounds> childProcessor) {
+    public void processVisibleChildren(javafx.geometry.Bounds visibleArea, double originX, double originY, BiConsumer<C, Bounds> childProcessor) {
         if (!isVisible() || visibleArea.getWidth() == 0 || visibleArea.getHeight() == 0)
             return;
         layoutIfDirty(); // ensuring the layout is done
-        processVisibleChildrenNow(visibleArea, layoutOriginX, layoutOriginY, childProcessor);
+        processVisibleChildrenNow(visibleArea, originX, originY, childProcessor);
     }
 
-    protected void processVisibleChildrenNow(javafx.geometry.Bounds visibleArea, double layoutOriginX, double layoutOriginY, BiConsumer<C, Bounds> childProcessor) {
-        TimeLayoutUtil.processVisibleObjectBounds(childrenBounds, false, visibleArea, layoutOriginX, layoutOriginY, childProcessor);
+    protected void processVisibleChildrenNow(javafx.geometry.Bounds visibleArea, double originX, double originY, BiConsumer<C, Bounds> childProcessor) {
+        TimeLayoutUtil.processVisibleObjectBounds(childrenBounds, false, visibleArea, originX, originY, childProcessor);
     }
 }

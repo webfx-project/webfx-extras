@@ -1,5 +1,6 @@
 package dev.webfx.extras.time.window;
 
+import javafx.beans.property.DoubleProperty;
 import javafx.beans.property.ObjectProperty;
 
 import java.util.Objects;
@@ -34,16 +35,19 @@ public interface TimeWindow<T> {
     default void bindTimeWindow(TimeWindow<T> otherTimeWindow) {
         timeWindowStartProperty().bind(otherTimeWindow.timeWindowStartProperty());
         timeWindowEndProperty().bind(otherTimeWindow.timeWindowEndProperty());
+        timeWindowTranslateXProperty().bind(otherTimeWindow.timeWindowTranslateXProperty());
     }
 
     default void bindTimeWindowBidirectional(TimeWindow<T> otherTimeWindow) {
         timeWindowStartProperty().bindBidirectional(otherTimeWindow.timeWindowStartProperty());
         timeWindowEndProperty().bindBidirectional(otherTimeWindow.timeWindowEndProperty());
+        timeWindowTranslateXProperty().bindBidirectional(otherTimeWindow.timeWindowTranslateXProperty());
     }
 
     default void unbindTimeWindow() {
         timeWindowStartProperty().unbind();
         timeWindowEndProperty().unbind();
+        timeWindowTranslateXProperty().unbind();
     }
 
     default void setTimeWindow(T timeWindowStart, T timeWindowEnd) {
@@ -61,6 +65,16 @@ public interface TimeWindow<T> {
             }
             setTimeWindowEnd(timeWindowEnd);
         }
+    }
+
+    DoubleProperty timeWindowTranslateXProperty();
+
+    default double getTimeWindowTranslateX() {
+        return timeWindowTranslateXProperty().get();
+    }
+
+    default void setTimeWindowTranslateX(double translateX) {
+        timeWindowTranslateXProperty().set(translateX);
     }
 
 }

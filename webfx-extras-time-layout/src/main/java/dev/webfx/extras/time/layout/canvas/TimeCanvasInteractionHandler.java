@@ -21,9 +21,9 @@ public class TimeCanvasInteractionHandler<T extends Temporal> implements CanvasI
     private final TimeWindow<T> timeWindow;
     private final TemporalUnit temporalUnit;
     private final CanSelectChild<?> canSelectChild;
-    private double mousePressedX;
-    private T mousePressedStart;
-    private long mousePressedDuration;
+    private double mousePressedStartX;
+    private T mousePressedTimeWindowStart;
+    private long mousePressedTimeWindowDuration;
     private boolean mouseDragged;
 
     public TimeCanvasInteractionHandler(TimeWindow<T> timeWindow, TemporalUnit temporalUnit, CanSelectChild<?> canSelectChild) {
@@ -34,9 +34,9 @@ public class TimeCanvasInteractionHandler<T extends Temporal> implements CanvasI
 
     @Override
     public boolean handleMousePressed(MouseEvent e, Canvas canvas) {
-        mousePressedX = e.getX();
-        mousePressedStart = timeWindow.getTimeWindowStart();
-        mousePressedDuration = TimeWindowUtil.getTimeWindowDuration(timeWindow, temporalUnit);
+        mousePressedTimeWindowStart = timeWindow.getTimeWindowStart();
+        mousePressedTimeWindowDuration = TimeWindowUtil.getTimeWindowDuration(timeWindow, temporalUnit);
+        mousePressedStartX = e.getX();
         mouseDragged = false;
         //updateCanvasCursor(e, true, canvas); // Commented to prevent showing the hand when clicking on the collapsing chevron
         return false; // -> Stopping propagation (next handlers won't be called)
@@ -44,14 +44,16 @@ public class TimeCanvasInteractionHandler<T extends Temporal> implements CanvasI
 
     @Override
     public boolean handleMouseDragged(MouseEvent e, Canvas canvas) {
-        boolean wasPressedHere = mousePressedStart != null;
+        boolean wasPressedHere = mousePressedTimeWindowStart != null;
         if (wasPressedHere) {
-            double deltaX = mousePressedX - e.getX();
-            double dayWidth = canvas.getWidth() / mousePressedDuration;
+            double mouseDraggedEndX = e.getX();
+            double dayWidth = canvas.getWidth() / mousePressedTimeWindowDuration;
+            double deltaX = mouseDraggedEndX - mousePressedStartX;
+            deltaX += Math.signum(deltaX) * dayWidth / 2;
             long deltaDay = (long) (deltaX / dayWidth);
-            if (deltaDay != 0) {
-                T start = (T) mousePressedStart.plus(deltaDay, temporalUnit);
-                TimeWindowUtil.setTimeWindowStartAndDuration(timeWindow, start, mousePressedDuration, temporalUnit);
+            T start = (T) mousePressedTimeWindowStart.minus(deltaDay, temporalUnit);
+            if (!Objects.equals(start, timeWindow.getTimeWindowStart())) {
+                TimeWindowUtil.setTimeWindowStartAndDuration(timeWindow, start, mousePressedTimeWindowDuration, temporalUnit);
                 mouseDragged = true;
             }
             updateCanvasCursor(e, true, canvas);
@@ -62,11 +64,11 @@ public class TimeCanvasInteractionHandler<T extends Temporal> implements CanvasI
 
     @Override
     public boolean handleMouseClicked(MouseEvent e, Canvas canvas) {
-        boolean wasPressedHere = mousePressedStart != null;
+        boolean wasPressedHere = mousePressedTimeWindowStart != null;
         if (wasPressedHere) {
             selectObjectAt(e.getX(), e.getY());
             //updateCanvasCursor(e, false, canvas); // Commented to prevent showing the hand when clicking on the parent row
-            mousePressedStart = null;
+            mousePressedTimeWindowStart = null;
             return false; // -> Stopping propagation
         }
         return true; // Otherwise ok to continue propagation

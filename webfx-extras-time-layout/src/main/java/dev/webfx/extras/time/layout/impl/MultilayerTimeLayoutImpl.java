@@ -12,7 +12,6 @@ import dev.webfx.kit.util.properties.FXProperties;
 import javafx.beans.property.*;
 import javafx.beans.value.ObservableIntegerValue;
 import javafx.collections.FXCollections;
-import javafx.collections.ListChangeListener;
 import javafx.collections.ObservableList;
 
 /**
@@ -81,7 +80,8 @@ public class MultilayerTimeLayoutImpl<T> extends ListenableTimeWindowImpl<T> imp
         FXProperties.runOnPropertyChange(child -> onLayerChildSelected(child, layer), layer.selectedChildProperty());
         if (canvasDirtyMarker != null)
             layer.setCanvasDirtyMarker(canvasDirtyMarker);
-        layer.getChildren().addListener((ListChangeListener<Object>) c -> markLayoutAsDirty());
+        //layer.getChildren().addListener((ListChangeListener<Object>) c -> markLayoutAsDirty());
+        layer.addOnAfterLayout(this::updateHeight);
         if (!layer.getChildren().isEmpty())
             markLayoutAsDirty();
     }
@@ -112,12 +112,16 @@ public class MultilayerTimeLayoutImpl<T> extends ListenableTimeWindowImpl<T> imp
         layoutCountProperty.set(-newLayoutCount); // may trigger onBeforeLayout runnable(s)
         layers.forEach(CanLayout::layout);
         // Automatically updating this layout height
-        if (!heightProperty.isBound())
-            setHeight(getVisibleLayersMaxBottom());
+        updateHeight();
         layoutDirtyMarker.markAsClean();
         layoutCountProperty.set(newLayoutCount); // may trigger onAfterLayout runnable(s)
         if (canvasDirtyMarker != null)
             canvasDirtyMarker.run();
+    }
+
+    private void updateHeight() {
+        if (!heightProperty.isBound())
+            setHeight(getVisibleLayersMaxBottom());
     }
 
     private double getVisibleLayersMaxBottom() {

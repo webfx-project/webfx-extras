@@ -5,7 +5,7 @@ import dev.webfx.platform.uischeduler.UiScheduler;
 
 /**
  * This utility class offers a markAsDirty() method that will run the passed cleaner runnable in the next animation
- * frame. For performance optimisation, the cleaner will run only once even if many calls to markAsDirty() are made.
+ * frame. For performance optimization, the cleaner will run only once even if many calls to markAsDirty() are made.
  * This can be used to postpone time-consuming operations, such as layout or canvas redraw.
  *
  * @author Bruno Salmon

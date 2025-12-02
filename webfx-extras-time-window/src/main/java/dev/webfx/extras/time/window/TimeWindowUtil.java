@@ -8,6 +8,8 @@ import java.time.temporal.TemporalUnit;
  */
 public final class TimeWindowUtil {
 
+    // Note: all parameters must be of the same temporal unit (timeWindow, start, end, duration, etc...)
+
     public static <T extends Temporal> long getTimeWindowDuration(TimeWindow<T> timeWindow, TemporalUnit temporalUnit) {
         return temporalUnit.between(timeWindow.getTimeWindowStart(), timeWindow.getTimeWindowEnd()) + 1;
     }
@@ -19,7 +21,7 @@ public final class TimeWindowUtil {
     }
 
     public static <T extends Temporal> void setTimeWindowStartAndDuration(TimeWindow<T> timeWindow, T start, long duration, TemporalUnit temporalUnit) {
-        timeWindow.setTimeWindow(start, (T) start.plus(duration, temporalUnit));
+        timeWindow.setTimeWindow(start, (T) start.plus(duration - 1, temporalUnit));
     }
 
     public static <T extends Temporal> void setTimeWindowCenterAndDuration(TimeWindow<T> timeWindow, T middle, long duration, TemporalUnit temporalUnit) {

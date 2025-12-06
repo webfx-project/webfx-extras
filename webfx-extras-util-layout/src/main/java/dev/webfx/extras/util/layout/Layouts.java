@@ -240,6 +240,11 @@ public final class Layouts {
         return node;
     }
 
+    public static void setAllManagedAndVisibleProperties(boolean value, Node... nodes) {
+        for (Node node : nodes)
+            setManagedAndVisibleProperties(node, value);
+    }
+
     public static <N extends Node> N bindManagedToVisibleProperty(N node) {
         node.managedProperty().bind(node.visibleProperty());
         return node;

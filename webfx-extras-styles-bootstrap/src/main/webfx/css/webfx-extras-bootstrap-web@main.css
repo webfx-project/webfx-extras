@@ -85,7 +85,8 @@
     font-size: var(--bootstrap-font-size);
     --fx-svg-path-fill: var(--fx-text-fill);
 
-    /* Using the same color as text for the possible progress indicator inside bootstrap buttons */
+    /* Using the same color as text for the possible spinner or progress indicator inside bootstrap buttons */
+    --fx-spinner-color: var(--fx-text-fill);
     --fx-progress-indicator-color: var(--fx-text-fill);
 }
 

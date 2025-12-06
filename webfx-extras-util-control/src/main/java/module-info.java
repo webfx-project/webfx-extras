@@ -11,6 +11,7 @@ module webfx.extras.util.control {
     requires webfx.extras.util.layout;
     requires webfx.kit.launcher;
     requires webfx.kit.util;
+    requires webfx.platform.useragent;
 
     // Exported packages
     exports dev.webfx.extras.util.control;

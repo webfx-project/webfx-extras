@@ -1,16 +1,23 @@
 package dev.webfx.extras.util.control;
 
+import dev.webfx.extras.panes.MonoPane;
 import dev.webfx.extras.panes.ScalePane;
 import dev.webfx.extras.util.animation.Animations;
 import dev.webfx.extras.util.layout.Layouts;
 import dev.webfx.kit.launcher.WebFxKitLauncher;
 import dev.webfx.kit.util.properties.FXProperties;
+import dev.webfx.platform.useragent.UserAgent;
+import javafx.animation.Interpolator;
+import javafx.animation.Timeline;
+import javafx.beans.property.IntegerProperty;
+import javafx.beans.property.SimpleIntegerProperty;
 import javafx.collections.ObservableList;
 import javafx.geometry.VPos;
 import javafx.scene.Node;
 import javafx.scene.Parent;
 import javafx.scene.control.*;
 import javafx.scene.layout.Region;
+import javafx.scene.shape.SVGPath;
 
 import java.util.function.Consumer;
 import java.util.function.Predicate;
@@ -204,6 +211,37 @@ public class Controls {
         pi.setPrefSize(size, size);
         pi.setMaxSize(size, size);
         return pi;
+    }
+
+    public static Region createSpinner(double size) {
+        return createSpinner(size, 0);
+    }
+
+    public static Region createSpinner(double size, double padding) {
+        SVGPath svgPath = new SVGPath();
+        svgPath.setContent("M48.8.7C45.1.8 41.3 1.3 37.6 2.3 20.6 6.9 7.2 20.2 2.6 37.3 2.2 38.8 2.5 40.4 3.2 41.7 4 43.1 5.3 44.1 6.8 44.5 9.9 45.3 13.1 43.4 13.9 40.3 17.4 27.3 27.6 17.1 40.6 13.6 50.2 11 60.3 12.4 68.7 17.1L64.5 19.5C63 20.4 62.1 22 62 23.7 62 25.5 62.8 27.1 64.3 28.1L88.8 44.2C90.1 45.1 91.7 45.1 93.1 44.4 94.4 43.6 95.2 42.1 95.1 40.6L93.3 11.3C93.2 9.5 92.2 8 90.7 7.1 89.2 6.3 87.3 6.3 85.8 7.2L80.1 10.5C71 3.8 60 .3 48.8.7ZM8.8 55.2C7.6 55.1 6.5 55.6 5.7 56.4 4.9 57.2 4.5 58.4 4.6 59.5L6.3 88.8C6.4 90.5 7.4 92.1 9 92.9 10.5 93.8 12.4 93.7 13.9 92.9L19.6 89.6C31.6 98.6 47.3 101.7 62 97.8 79.1 93.2 92.5 79.8 97 62.8 97.9 59.7 96 56.5 92.9 55.6 91.4 55.2 89.8 55.4 88.5 56.2 87.1 57 86.1 58.3 85.7 59.8 82.3 72.8 72.1 83 59 86.5 49.4 89.1 39.4 87.7 30.9 83L35.1 80.6C36.6 79.7 37.6 78.1 37.7 76.4 37.7 74.6 36.8 73 35.4 72L10.9 55.9C10.3 55.4 9.5 55.2 8.8 55.2Z");
+        svgPath.getStyleClass().add("webfx-extras-spinner");
+        MonoPane monoPane = new MonoPane(svgPath);
+        Layouts.setFixedSize(monoPane, 100, 100);
+        ScalePane scalePane = new ScalePane(monoPane);
+        Layouts.setFixedSize(scalePane, size, size);
+        Region spinner = padding == 0 ? scalePane : Layouts.setPadding(new MonoPane(scalePane), padding);
+        if (!UserAgent.isBrowser()) { // Web CSS manages rotation in the browser
+            // Programmatic animation for OpenJFX
+            Timeline[] rotationTimeline = { null };
+            IntegerProperty rotationCountProperty = new SimpleIntegerProperty();
+            FXProperties.runOnPropertiesChange(() -> {
+                boolean shouldRotate = spinner.getScene() != null && spinner.isVisible();
+                boolean isRotating = rotationTimeline[0] != null && !rotationTimeline[0].getStatus().equals(Timeline.Status.STOPPED);
+                if (isRotating && !shouldRotate) {
+                    rotationTimeline[0].stop();
+                } else if (shouldRotate && !isRotating) {
+                    rotationTimeline[0] = Animations.animateProperty(spinner.rotateProperty(), 360 * (rotationCountProperty.get() + 1), Interpolator.LINEAR);
+                    Animations.setOrCallOnTimelineFinished(rotationTimeline[0], e -> rotationCountProperty.set(rotationCountProperty.get() + 1));
+                }
+            }, spinner.sceneProperty(), spinner.visibleProperty(), rotationCountProperty);
+        }
+        return spinner;
     }
 
     public static void onSkinReady(Control control, Runnable runnable) {

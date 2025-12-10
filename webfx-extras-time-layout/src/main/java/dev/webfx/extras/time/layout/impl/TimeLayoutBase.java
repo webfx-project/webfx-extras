@@ -1,6 +1,7 @@
 package dev.webfx.extras.time.layout.impl;
 
 import dev.webfx.extras.geometry.Bounds;
+import dev.webfx.extras.time.layout.MultilayerTimeLayout;
 import dev.webfx.extras.time.layout.TimeLayout;
 import dev.webfx.extras.time.projector.TimeProjector;
 import dev.webfx.extras.time.window.impl.ListenableTimeWindowImpl;
@@ -52,6 +53,7 @@ public abstract class TimeLayoutBase<C, T> extends ListenableTimeWindowImpl<T> i
     private ObjectProperty<C> selectedChildProperty;
     protected TimeProjector<T> timeProjector;
     public int timeVersion, horizontalVersion, verticalVersion;
+    private MultilayerTimeLayout<T> parent;
 
     public TimeLayoutBase() {
         children.addListener(this::onChildrenChanged);
@@ -190,8 +192,15 @@ public abstract class TimeLayoutBase<C, T> extends ListenableTimeWindowImpl<T> i
 
     @Override
     public void markLayoutAsDirty() {
-        if (!isLayouting())
+        if (parent != null)
+            parent.markLayoutAsDirty();
+        else if (!isLayouting())
             layoutDirtyMarker.markAsDirty();
+    }
+
+    @Override
+    public void setParent(MultilayerTimeLayout<T> parent) {
+        this.parent = parent;
     }
 
     @Override

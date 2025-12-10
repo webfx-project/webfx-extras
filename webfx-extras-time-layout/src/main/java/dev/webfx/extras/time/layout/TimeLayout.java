@@ -64,6 +64,8 @@ public interface TimeLayout<C, T> extends CanLayout,
 
     void invalidateHorizontalLayout();
 
+    void setParent(MultilayerTimeLayout<T> parent);
+
     // Output methods
 
     ChildBounds<C, T> getChildBounds(int childIndex);

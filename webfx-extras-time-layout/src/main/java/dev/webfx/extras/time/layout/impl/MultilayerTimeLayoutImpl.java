@@ -80,8 +80,9 @@ public class MultilayerTimeLayoutImpl<T> extends ListenableTimeWindowImpl<T> imp
         FXProperties.runOnPropertyChange(child -> onLayerChildSelected(child, layer), layer.selectedChildProperty());
         if (canvasDirtyMarker != null)
             layer.setCanvasDirtyMarker(canvasDirtyMarker);
+        layer.setParent(this);
         //layer.getChildren().addListener((ListChangeListener<Object>) c -> markLayoutAsDirty());
-        layer.addOnAfterLayout(this::updateHeight);
+        //layer.addOnAfterLayout(this::updateHeight);
         if (!layer.getChildren().isEmpty())
             markLayoutAsDirty();
     }

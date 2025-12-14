@@ -65,19 +65,19 @@
 
 .btn {
     /* Applying the same style as other buttons (same rules as fx-button in javafx-graphics WebFX CSS) */
-    --fx-border-style: var(--fx-button-border-style);
+    /*--fx-border-style: var(--fx-button-border-style);
     --fx-border-color: var(--fx-button-border-color);
     --fx-border-radius: var(--fx-button-border-radius);
-    --fx-border-width: var(--fx-button-border-width);
-    --fx-background-color: var(--fx-button-background-color);
-    --fx-background-radius: var(--fx-button-background-radius);
-    --fx-background-image: var(--fx-button-background-image);
-    --fx-background-position: var(--fx-button-background-position);
+    --fx-border-width: var(--fx-button-border-width);*/
+    /*--fx-background-color: var(--fx-button-background-color);*/
+    /*--fx-background-radius: var(--fx-button-background-radius);*/
+    /*--fx-background-image: var(--fx-button-background-image);*/
+    /*--fx-background-position: var(--fx-button-background-position);
     --fx-background-repeat: var(--fx-button-background-repeat);
-    --fx-background-size: var(--fx-button-background-size);
+    --fx-background-size: var(--fx-button-background-size);*/
 
-    --fx-button-border-width: 1px;
-    --fx-button-border-radius: 4px;
+    --fx-border-width: 1px;
+    --fx-border-radius: 4px;
 
     cursor: pointer;
     font-weight: normal;
@@ -96,7 +96,7 @@
 
 .btn-default, .btn.default, .default .btn {
     --fx-text-fill: var(--bootstrap-grey7);
-    --fx-button-background-color: var(--bootstrap-white);
+    --fx-background-color: var(--bootstrap-white);
     --fx-border-color: var(--bootstrap-grey3);
 }
 
@@ -105,79 +105,79 @@
 }
 
 .btn-default:hover, .btn.default:hover, .default .btn:hover {
-    --fx-button-background-color: var(--bootstrap-grey1);
+    --fx-background-color: var(--bootstrap-grey1);
     --fx-border-color: var(--bootstrap-grey5);
 }
 
 .btn-primary, .btn.primary, .primary .btn {
     --fx-text-fill: var(--bootstrap-white);
-    --fx-button-background-color: var(--bootstrap-blue5);
+    --fx-background-color: var(--bootstrap-blue5);
     --fx-border-color: var(--bootstrap-blue6);
 }
 
 .btn-primary:hover:not(.disabled), .btn.primary:hover:not(.disabled), .primary .btn:hover:not(.disabled) {
     --fx-text-fill: var(--bootstrap-white);
-    --fx-button-background-color: var(--bootstrap-blue8);
+    --fx-background-color: var(--bootstrap-blue8);
     --fx-border-color: var(--bootstrap-blue9);
 }
 
 .btn-secondary, .btn.secondary, .secondary .btn {
     --fx-text-fill: var(--bootstrap-white);
-    --fx-button-background-color: var(--bootstrap-grey4);
+    --fx-background-color: var(--bootstrap-grey4);
     --fx-border-color: var(--bootstrap-grey5);
 }
 
 .btn-secondary:hover:not(.disabled), .btn.secondary:hover:not(.disabled), .secondary .btn:hover:not(.disabled) {
     --fx-text-fill: var(--bootstrap-white);
-    --fx-button-background-color: var(--bootstrap-grey5);
+    --fx-background-color: var(--bootstrap-grey5);
     --fx-border-color: var(--bootstrap-grey6);
 }
 
 .btn-success, .btn.success, .success .btn {
     --fx-text-fill: var(--bootstrap-white);
-    --fx-button-background-color: var(--bootstrap-green1);
+    --fx-background-color: var(--bootstrap-green1);
     --fx-border-color: var(--bootstrap-green2);
 }
 
 .btn-success:hover:not(.disabled), .btn.success:hover:not(.disabled), .success .btn:hover:not(.disabled) {
     --fx-text-fill: var(--bootstrap-white);
-    --fx-button-background-color: var(--bootstrap-green3);
+    --fx-background-color: var(--bootstrap-green3);
     --fx-border-color: var(--bootstrap-green4);
 }
 
 .btn-info, .btn.info, .info .btn {
     --fx-text-fill: var(--bootstrap-white);
-    --fx-button-background-color: var(--bootstrap-blue1);
+    --fx-background-color: var(--bootstrap-blue1);
     --fx-border-color: var(--bootstrap-blue2);
 }
 
 .btn-info:hover:not(.disabled), .btn.info:hover:not(.disabled), .info .btn:hover:not(.disabled) {
     --fx-text-fill: var(--bootstrap-white);
-    --fx-button-background-color: var(--bootstrap-blue3);
+    --fx-background-color: var(--bootstrap-blue3);
     --fx-border-color: var(--bootstrap-blue4);
 }
 
 .btn-warning, .btn.warning, .warning .btn {
     --fx-text-fill: var(--bootstrap-white);
-    --fx-button-background-color: var(--bootstrap-orange1);
+    --fx-background-color: var(--bootstrap-orange1);
     --fx-border-color: var(--bootstrap-orange2);
 }
 
 .btn-warning:hover:not(.disabled), .btn.warning:hover:not(.disabled), .warning .btn:hover:not(.disabled) {
     --fx-text-fill: var(--bootstrap-white);
-    --fx-button-background-color: var(--bootstrap-orange3);
+    --fx-background-color: var(--bootstrap-orange3);
     --fx-border-color: var(--bootstrap-orange4);
 }
 
 .btn-danger, .btn.danger, .danger .btn {
     --fx-text-fill: var(--bootstrap-white);
-    --fx-button-background-color: var(--bootstrap-red1);
+    --fx-background-color: var(--bootstrap-red1);
     --fx-border-color: var(--bootstrap-red2);
 }
 
 .btn-danger:hover:not(.disabled), .btn.danger:hover:not(.disabled), .danger .btn:hover:not(.disabled) {
     --fx-text-fill: var(--bootstrap-white);
-    --fx-button-background-color: var(--bootstrap-red3);
+    --fx-background-color: var(--bootstrap-red3);
     --fx-border-color: var(--bootstrap-red4);
 }
 
@@ -212,9 +212,9 @@
 }
 
 
-.btn-block {
+/*.btn-block {
     width: 100%;
-}
+}*/
 
 .b, .strong {
     font-weight: bold;

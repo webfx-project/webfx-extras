@@ -41,7 +41,7 @@ final class GanttChildBounds<C, T extends Temporal> extends ChildBounds<C, T> {
     }
 
     public int getRowIndexInParentRow() {
-        if (rowIndexInParentRow == -1) {
+        if (rowIndexInParentRow == -1 && parentRow != null) {
             ganttLayout.checkSyncTree();
             rowIndexInParentRow = parentRow.computeChildTetrisRowIndex(this);
         }
@@ -59,7 +59,7 @@ final class GanttChildBounds<C, T extends Temporal> extends ChildBounds<C, T> {
             return true;
         if (minX < otherMinX) // if this block starts before the other block,
             return maxX > otherMinX; // it overlaps the other block when its end reaches at least the start of that other block
-        else // otherwise (ie if this blocks starts after the other block start),
+        else // otherwise (i.e., if this blocks starts after the start of the other block),
             return otherMaxX > minX;
     }
 

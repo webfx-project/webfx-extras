@@ -535,11 +535,15 @@ public class GanttLayoutImpl<C, T extends Temporal> extends TimeLayoutBase<C, T>
         } else { // Otherwise (general case) we compute y to reflect its row index within the parent row
             double vSpacing = getVSpacing();
             int childRowIndex = gcb.getRowIndexInParentRow();
-            y = gcb.getParentRow().getY() // top position of enclosing parent row
-                + vSpacing // top spacing
-                + (childHeight + vSpacing) * childRowIndex; // vertical shift of that particular child
-            if (isParentHeaderOnTop())
-                y += parentHeaderHeight;
+            if (childRowIndex == -1) // May happen if the parent is not yet set (ex: dates inside the recurring events loaded before the events themselves)
+                y = -Double.MAX_VALUE; // To ensure it's not yet drawn in the visible area
+            else {
+                y = gcb.getParentRow().getY() // top position of enclosing parent row
+                    + vSpacing // top spacing
+                    + (childHeight + vSpacing) * childRowIndex; // vertical shift of that particular child
+                if (isParentHeaderOnTop())
+                    y += parentHeaderHeight;
+            }
         }
         cb.setY(y);
     }

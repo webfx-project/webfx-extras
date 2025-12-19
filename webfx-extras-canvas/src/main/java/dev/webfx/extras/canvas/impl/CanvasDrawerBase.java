@@ -83,6 +83,8 @@ public abstract class CanvasDrawerBase implements CanvasDrawer {
     @Override
     public void drawArea() {
         int newDrawCount = getDrawCount() + 1;
+        // Ensuring we start with identity transform (if for some reason the previous draw left a non-identity transform)
+        gc.setTransform(1,0,0,1,0,0);
         clearArea();
         drawCountProperty.set(-newDrawCount); // may trigger onBeforeDraw runnable(s)
         drawObjectsInArea();

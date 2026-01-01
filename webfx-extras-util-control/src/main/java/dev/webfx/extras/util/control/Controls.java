@@ -25,7 +25,7 @@ import java.util.function.Predicate;
 /**
  * @author Bruno Salmon
  */
-public class Controls {
+public final class Controls {
 
     public static ScrollPane createVerticalScrollPane(Region content) {
         return setupVerticalScrollPane(createScrollPane(), content);
@@ -242,6 +242,22 @@ public class Controls {
             }, spinner.sceneProperty(), spinner.visibleProperty(), rotationCountProperty);
         }
         return spinner;
+    }
+
+    public static Region createButtonSizeSpinner() {
+        return createSpinner(16); // Or should it be 20 (previous value in AsyncSpinner)
+    }
+
+    public static Region createSectionSizeSpinner() {
+        return createSpinner(32); // was 50
+    }
+
+    public static Region createDialogSizeSpinner() {
+        return createSpinner(64);
+    }
+
+    public static Region createPageSizeSpinner() {
+        return createSpinner(80);
     }
 
     public static void onSkinReady(Control control, Runnable runnable) {

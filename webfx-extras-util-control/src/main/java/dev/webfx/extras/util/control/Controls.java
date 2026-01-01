@@ -253,11 +253,11 @@ public final class Controls {
     }
 
     public static Region createDialogSizeSpinner() {
-        return createSpinner(64);
+        return createSpinner(64, 64);
     }
 
     public static Region createPageSizeSpinner() {
-        return createSpinner(80);
+        return createSpinner(80, 80);
     }
 
     public static void onSkinReady(Control control, Runnable runnable) {

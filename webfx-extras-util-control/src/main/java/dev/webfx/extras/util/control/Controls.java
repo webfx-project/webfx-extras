@@ -245,7 +245,7 @@ public final class Controls {
     }
 
     public static Region createButtonSizeSpinner() {
-        return createSpinner(16); // Or should it be 20 (previous value in AsyncSpinner)
+        return createSpinner(20); // was 16
     }
 
     public static Region createSectionSizeSpinner() {

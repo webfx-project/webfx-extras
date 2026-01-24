@@ -337,16 +337,15 @@ public final class FlexPane extends Pane {
 
                 double h = rowNode.prefHeight(rowNodeWidth);
                 rowMaxHeight = Math.max(rowMaxHeight, h);
-                /*if (apply)
-                    layoutInArea(rowNode, snapPositionX(x), snapPositionY(y), snapSizeX(x + rowNodeWidth) - snapPositionX(x), snapSizeY(h), 0, flexBoxItem.margin, hpos, VPos.TOP);*/
                 flexBoxItem.layoutX = x;
                 flexBoxItem.layoutWidth = rowNodeWidth;
                 x += rowNodeWidth + horizontalSpace;
             }
+            x -= horizontalSpace;
 
             if (apply) {
-                double remainingSpaceX = isDistributeRemainingRowSpace() ? (width - x) / (rowItems.size() + 1) : hpos == HPos.CENTER ? (width - x) / 2 : hpos == HPos.RIGHT ? width - x : 0;
-                double deltaLayoutX = remainingSpaceX;
+                double remainingSpaceX = isDistributeRemainingRowSpace() ? (width - x) / (rowItems.size() + 1) : 0;
+                double deltaLayoutX = isDistributeRemainingRowSpace() ? remainingSpaceX : hpos == HPos.CENTER ? (width - x) / 2 : hpos == HPos.RIGHT ? width - x : 0;
                 for (FlexBoxItem flexBoxItem : rowItems) {
                     Node rowNode = flexBoxItem.node;
                     flexBoxItem.layoutX += deltaLayoutX;

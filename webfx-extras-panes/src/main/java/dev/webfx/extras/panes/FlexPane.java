@@ -3,8 +3,10 @@ package dev.webfx.extras.panes;
 import dev.webfx.kit.util.properties.FXProperties;
 import javafx.beans.InvalidationListener;
 import javafx.beans.property.*;
+import javafx.geometry.HPos;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
+import javafx.geometry.VPos;
 import javafx.scene.Node;
 import javafx.scene.layout.Pane;
 
@@ -309,6 +311,8 @@ public final class FlexPane extends Pane {
         double y = padding.getTop() + (isSpaceTop() ? verticalSpace : 0);
         int i = 0;
         int noGridRows = grid.size();
+        HPos hpos = getAlignment().getHpos();
+        VPos vpos = getAlignment().getVpos();
 
         for (Integer rowIndex : grid.keySet()) { // Iterating over all rows
             flexBoxRow = grid.get(rowIndex); // The row
@@ -334,19 +338,19 @@ public final class FlexPane extends Pane {
                 double h = rowNode.prefHeight(rowNodeWidth);
                 rowMaxHeight = Math.max(rowMaxHeight, h);
                 /*if (apply)
-                    layoutInArea(rowNode, snapPositionX(x), snapPositionY(y), snapSizeX(x + rowNodeWidth) - snapPositionX(x), snapSizeY(h), 0, flexBoxItem.margin, getAlignment().getHpos(), VPos.TOP);*/
+                    layoutInArea(rowNode, snapPositionX(x), snapPositionY(y), snapSizeX(x + rowNodeWidth) - snapPositionX(x), snapSizeY(h), 0, flexBoxItem.margin, hpos, VPos.TOP);*/
                 flexBoxItem.layoutX = x;
                 flexBoxItem.layoutWidth = rowNodeWidth;
                 x += rowNodeWidth + horizontalSpace;
             }
 
             if (apply) {
-                double remainingSpaceX = isDistributeRemainingRowSpace() ? (width - x) / (rowItems.size() + 1) : 0;
+                double remainingSpaceX = isDistributeRemainingRowSpace() ? (width - x) / (rowItems.size() + 1) : hpos == HPos.CENTER ? (width - x) / 2 : hpos == HPos.RIGHT ? width - x : 0;
                 double deltaLayoutX = remainingSpaceX;
                 for (FlexBoxItem flexBoxItem : rowItems) {
                     Node rowNode = flexBoxItem.node;
                     flexBoxItem.layoutX += deltaLayoutX;
-                    layoutInArea(rowNode, snapPositionX(flexBoxItem.layoutX), snapPositionY(y), snapSizeX(flexBoxItem.layoutX + flexBoxItem.layoutWidth) - snapPositionX(flexBoxItem.layoutX), snapSizeY(rowMaxHeight), 0, flexBoxItem.margin, getAlignment().getHpos(), getAlignment().getVpos());
+                    layoutInArea(rowNode, snapPositionX(flexBoxItem.layoutX), snapPositionY(y), snapSizeX(flexBoxItem.layoutX + flexBoxItem.layoutWidth) - snapPositionX(flexBoxItem.layoutX), snapSizeY(rowMaxHeight), 0, flexBoxItem.margin, hpos, vpos);
                     deltaLayoutX += remainingSpaceX;
                 }
             }

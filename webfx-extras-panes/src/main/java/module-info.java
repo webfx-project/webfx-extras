@@ -10,6 +10,7 @@ module webfx.extras.panes {
     requires webfx.kit.util;
     requires webfx.kit.util.aria;
     requires webfx.platform.console;
+    requires webfx.platform.useragent;
     requires webfx.platform.util;
 
     // Exported packages

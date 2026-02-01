@@ -1,47 +1,47 @@
 /* Bootstrap style */
 .root {
-    -bootstrap-white: #fff ;
-    
-    -bootstrap-grey1: #e6e6e6 ;
-    -bootstrap-grey2: #d4d4d4 ;
-    -bootstrap-grey3: #ccc ;
-    -bootstrap-grey4: #adadad ;
-    -bootstrap-grey5: #8c8c8c ;
-    -bootstrap-grey6: #777777 ;
-    -bootstrap-grey7: #333 ;
+    -bootstrap-white: #fff;
 
-    -bootstrap-blue1: #5bc0de ;
-    -bootstrap-blue2: #46b8da ;
-    -bootstrap-blue3: #31b0d5 ;
-    -bootstrap-blue4: #269abc ;
-    -bootstrap-blue5: #337ab7 ;
-    -bootstrap-blue6: #2e6da4 ;
-    -bootstrap-blue7: #1b6d85 ;
-    -bootstrap-blue8: #286090 ;
-    -bootstrap-blue9: #204d74 ;
-    -bootstrap-blue10: #122b40 ;
-    -bootstrap-blue11: #31708f ;
+    -bootstrap-grey1: #e6e6e6;
+    -bootstrap-grey2: #d4d4d4;
+    -bootstrap-grey3: #ccc;
+    -bootstrap-grey4: #adadad;
+    -bootstrap-grey5: #8c8c8c;
+    -bootstrap-grey6: #777777;
+    -bootstrap-grey7: #333;
 
-    -bootstrap-green1: #5cb85c ;
-    -bootstrap-green2: #4cae4c ;
-    -bootstrap-green3: #449d44 ;
-    -bootstrap-green4: #398439 ;
-    -bootstrap-green5: #255625 ;
-    -bootstrap-green6: #3c763d ;
+    -bootstrap-blue1: #5bc0de;
+    -bootstrap-blue2: #46b8da;
+    -bootstrap-blue3: #31b0d5;
+    -bootstrap-blue4: #269abc;
+    -bootstrap-blue5: #337ab7;
+    -bootstrap-blue6: #2e6da4;
+    -bootstrap-blue7: #1b6d85;
+    -bootstrap-blue8: #286090;
+    -bootstrap-blue9: #204d74;
+    -bootstrap-blue10: #122b40;
+    -bootstrap-blue11: #31708f;
 
-    -bootstrap-orange1: #f0ad4e ;
-    -bootstrap-orange2: #eea236 ;
-    -bootstrap-orange3: #ec971f ;
-    -bootstrap-orange4: #d58512 ;
-    -bootstrap-orange5: #985f0d ;
-    -bootstrap-orange6: #8a6d3b ;
+    -bootstrap-green1: #5cb85c;
+    -bootstrap-green2: #4cae4c;
+    -bootstrap-green3: #449d44;
+    -bootstrap-green4: #398439;
+    -bootstrap-green5: #255625;
+    -bootstrap-green6: #3c763d;
 
-    -bootstrap-red1: #d9534f ;
-    -bootstrap-red2: #d43f3a ;
-    -bootstrap-red3: #c9302c ;
-    -bootstrap-red4: #ac2925 ;
-    -bootstrap-red5: #761c19 ;
-    -bootstrap-red6: #a94442 ;
+    -bootstrap-orange1: #f0ad4e;
+    -bootstrap-orange2: #eea236;
+    -bootstrap-orange3: #ec971f;
+    -bootstrap-orange4: #d58512;
+    -bootstrap-orange5: #985f0d;
+    -bootstrap-orange6: #8a6d3b;
+
+    -bootstrap-red1: #d9534f;
+    -bootstrap-red2: #d43f3a;
+    -bootstrap-red3: #c9302c;
+    -bootstrap-red4: #ac2925;
+    -bootstrap-red5: #761c19;
+    -bootstrap-red6: #a94442;
 
     -badge-default-bg: -bootstrap-white;
     -badge-default-txt: -bootstrap-grey7;
@@ -77,6 +77,9 @@
     -fx-border-radius: 4px;
     -fx-background-radius: 4px;
     /*-fx-min-width: 80px;*/ /* hardcoded for web support */
+
+    /* Using the same color as text for the possible spinner inside bootstrap buttons */
+    -fx-spinner-color: -fx-text-fill;
 }
 
 .btn:hover {
@@ -106,7 +109,7 @@
 }
 
 .btn-primary .svg-path, .btn .svg-path {
-    -fx-fill: inherit;  /* Inherit the fill color from the parent (btn-primary) */
+    -fx-fill: inherit; /* Inherit the fill color from the parent (btn-primary) */
 }
 
 .btn-primary .progress-indicator, .btn .progress-indicator {
@@ -132,7 +135,7 @@
 }
 
 .btn-secondary .svg-path {
-    -fx-fill: inherit;  /* Inherit the fill color from the parent (btn-primary) */
+    -fx-fill: inherit; /* Inherit the fill color from the parent (btn-primary) */
 }
 
 .btn-secondary .progress-indicator {
@@ -154,7 +157,7 @@
 }
 
 .btn-success .svg-path {
-    -fx-fill: inherit;  /* Inherit the fill color from the parent (btn-primary) */
+    -fx-fill: inherit; /* Inherit the fill color from the parent (btn-primary) */
 }
 
 .btn-success .progress-indicator {
@@ -168,7 +171,7 @@
     -fx-border-color: -bootstrap-green4;
 }
 
-.btn-info,  .btn.info, .info .btn {
+.btn-info, .btn.info, .info .btn {
     -fx-text-fill: -bootstrap-white;
     -fx-fill: -bootstrap-white;
     -fx-background-color: -bootstrap-blue1;
@@ -180,14 +183,14 @@
 }
 
 .btn-info .svg-path {
-    -fx-fill: inherit;  /* Inherit the fill color from the parent (btn-primary) */
+    -fx-fill: inherit; /* Inherit the fill color from the parent (btn-primary) */
 }
 
 .btn-info:hover, .btn.info:hover, .info .btn:hover {
     -fx-text-fill: -bootstrap-white;
     -fx-fill: -bootstrap-white;
     -fx-background-color: -bootstrap-blue3;
-    -fx-border-color: -bootstrap-blue4; 
+    -fx-border-color: -bootstrap-blue4;
 }
 
 .btn-warning, .btn.warning, .warning .btn {
@@ -198,7 +201,7 @@
 }
 
 .btn-warning .svg-path {
-    -fx-fill: inherit;  /* Inherit the fill color from the parent (btn-primary) */
+    -fx-fill: inherit; /* Inherit the fill color from the parent (btn-primary) */
 }
 
 .btn-warning .progress-indicator {
@@ -222,7 +225,7 @@
 }
 
 .btn-danger .svg-path {
-    -fx-fill: inherit;  /* Inherit the fill color from the parent (btn-primary) */
+    -fx-fill: inherit; /* Inherit the fill color from the parent (btn-primary) */
 }
 
 .btn-danger .progress-indicator {
@@ -413,57 +416,47 @@
     -fx-background-radius: 14px;
 }
 
-.badge.danger{
-     -fx-text-fill: -badge-danger-txt;
-     -fx-fill: -badge-danger-txt;
-     -fx-background-color: -badge-danger-bg;
- }
+.badge.danger {
+    -fx-text-fill: -badge-danger-txt;
+    -fx-fill: -badge-danger-txt;
+    -fx-background-color: -badge-danger-bg;
+}
 
- .badge.success{
-      -fx-text-fill: -badge-success-txt;
-      -fx-fill: -badge-success-txt;
-      -fx-background-color: -badge-success-bg;
-  }
+.badge.success {
+    -fx-text-fill: -badge-success-txt;
+    -fx-fill: -badge-success-txt;
+    -fx-background-color: -badge-success-bg;
+}
 
-  .badge.warning{
-        -fx-text-fill: -badge-warning-txt;
-        -fx-fill: -badge-warning-txt;
-        -fx-background-color: -badge-warning-bg;
-   }
+.badge.warning {
+    -fx-text-fill: -badge-warning-txt;
+    -fx-fill: -badge-warning-txt;
+    -fx-background-color: -badge-warning-bg;
+}
 
-   .badge.info{
-           -fx-text-fill: -badge-info-txt;
-           -fx-fill: -badge-info-txt;
-           -fx-background-color: -badge-info-bg;
-      }
+.badge.info {
+    -fx-text-fill: -badge-info-txt;
+    -fx-fill: -badge-info-txt;
+    -fx-background-color: -badge-info-bg;
+}
 
-   .badge.secondary{
-         -fx-text-fill: -badge-secondary-txt;
-         -fx-fill: -badge-secondary-txt;
-         -fx-background-color: -badge-secondary-bg;
-    }
+.badge.secondary {
+    -fx-text-fill: -badge-secondary-txt;
+    -fx-fill: -badge-secondary-txt;
+    -fx-background-color: -badge-secondary-bg;
+}
 
- .badge.primary{
-     -fx-text-fill: -badge-primary-txt;
-     -fx-fill: -badge-primary-txt;
-     -fx-background-color: -badge-primary-bg;
- }
+.badge.primary {
+    -fx-text-fill: -badge-primary-txt;
+    -fx-fill: -badge-primary-txt;
+    -fx-background-color: -badge-primary-bg;
+}
 
- .badge.default{
-     -fx-text-fill: -badge-default-txt;
-     -fx-fill: -badge-default-txt;
-     -fx-background-color: -badge-default-bg;
- }
-
-
-
-
-
-
-
-
-
-
+.badge.default {
+    -fx-text-fill: -badge-default-txt;
+    -fx-fill: -badge-default-txt;
+    -fx-background-color: -badge-default-bg;
+}
 
 
 /* Alert / Info Box Styles - left border only, no full border */

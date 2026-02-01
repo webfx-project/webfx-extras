@@ -34,7 +34,7 @@ public class BarDrawer {
     private double iconSvgWidth, iconSvgHeight; // temporary settings provided by application until WebFX can correctly measure SVGPath width & height
     private Pos iconPos;
     private HPos iconHAlignment;
-    private VPos iconVAlignement;
+    private VPos iconVAlignment;
     private double iconTranslateX;
     private double iconTranslateY;
 
@@ -130,8 +130,8 @@ public class BarDrawer {
         return this;
     }
 
-    public BarDrawer setIconVAlignement(VPos iconVAlignement) {
-        this.iconVAlignement = iconVAlignement;
+    public BarDrawer setIconVAlignment(VPos iconVAlignment) {
+        this.iconVAlignment = iconVAlignment;
         return this;
     }
 
@@ -142,7 +142,7 @@ public class BarDrawer {
         return setIconImage(iconImage)
                 .setIconPos(iconPos)
                 .setIconHAlignment(iconHAlignment)
-                .setIconVAlignement(iconVAlignement);
+                .setIconVAlignment(iconVAlignement);
     }
 
     public BarDrawer setIcon(Image iconImage, Pos iconPos, HPos iconHAlignment, VPos iconVAlignement) {
@@ -157,7 +157,7 @@ public class BarDrawer {
         return setIconSVGPath(iconSvgPath, iconSvgWidth, iconSvgHeight)
                 .setIconPos(iconPos)
                 .setIconHAlignment(iconHAlignment)
-                .setIconVAlignement(iconVAlignement);
+                .setIconVAlignment(iconVAlignement);
     }
 
     public BarDrawer setIcon(SVGPath iconSvgPath, double iconSvgWidth, double iconSvgHeight, Pos iconPos, HPos iconHAlignment, VPos iconVAlignement) {
@@ -178,7 +178,7 @@ public class BarDrawer {
     }
 
     private boolean isIconSet() {
-        return (iconImage != null || iconSvgPath != null) && iconPos != null && iconHAlignment != null && iconVAlignement != null;
+        return (iconImage != null || iconSvgPath != null) && iconPos != null && iconHAlignment != null && iconVAlignment != null;
     }
 
     public BarDrawer drawBar(Bounds b, GraphicsContext gc) {
@@ -245,7 +245,7 @@ public class BarDrawer {
             case CENTER: y = b.getCenterY(); break;
             case BOTTOM: y = b.getMaxY();    break;
         }
-        switch (iconVAlignement) {
+        switch (iconVAlignment) {
             case TOP:                break;
             case BASELINE:
             case CENTER: y -= h / 2; break;

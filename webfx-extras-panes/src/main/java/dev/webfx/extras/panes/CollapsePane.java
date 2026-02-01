@@ -2,8 +2,8 @@ package dev.webfx.extras.panes;
 
 import dev.webfx.extras.util.animation.Animations;
 import dev.webfx.extras.util.layout.Layouts;
-import dev.webfx.kit.util.aria.AriaRole;
 import dev.webfx.kit.util.aria.Aria;
+import dev.webfx.kit.util.aria.AriaRole;
 import dev.webfx.kit.util.properties.FXProperties;
 import javafx.animation.Timeline;
 import javafx.beans.property.*;
@@ -18,6 +18,7 @@ import javafx.scene.shape.Circle;
 import javafx.scene.shape.SVGPath;
 import javafx.scene.shape.StrokeLineCap;
 import javafx.scene.shape.StrokeLineJoin;
+
 
 /**
  * A Pane that can be collapsed (and then expanded) programmatically or through user interaction (see static methods).
@@ -168,11 +169,19 @@ public class CollapsePane extends MonoClipPane {
 
     private void doExpand() {
         setWidthOrHeightComputationMode(USE_COMPUTED_SIZE);
-        double width = getWidth();
-        double minHeight = minHeight(width);
-        double prefHeight = prefHeight(width);
-        double maxHeight = maxHeight(width);
-        expandedWidthOrHeight = Layouts.boundedSize(minHeight, prefHeight, maxHeight);
+        if (isHorizontal()) {
+            double height = getHeight();
+            double minWidth = minWidth(height);
+            double prefWidth = prefWidth(height);
+            double maxWidth = maxWidth(height);
+            expandedWidthOrHeight = Layouts.boundedSize(minWidth, prefWidth, maxWidth);
+        } else {
+            double width = getWidth();
+            double minHeight = minHeight(width);
+            double prefHeight = prefHeight(width);
+            double maxHeight = maxHeight(width);
+            expandedWidthOrHeight = Layouts.boundedSize(minHeight, prefHeight, maxHeight);
+        }
         widthOrHeightDuringCollapseAnimation = expandedWidthOrHeight;
         if (expandedWidthOrHeight > 0) {
             animateWidthOrHeight(expandedWidthOrHeight);
@@ -181,15 +190,19 @@ public class CollapsePane extends MonoClipPane {
 
     private void setWidthOrHeightComputationMode(double widthOrHeightComputationMode) {
         if (isHorizontal()) {
-            setMinWidth(widthOrHeightComputationMode);
             if (widthOrHeightComputationMode == USE_COMPUTED_SIZE)
                 setPrefWidth(USE_COMPUTED_SIZE);
-            setMaxWidth(widthOrHeightComputationMode);
+            else {
+                setMinWidth(widthOrHeightComputationMode);
+                setMaxWidth(widthOrHeightComputationMode);
+            }
         } else {
-            setMinHeight(widthOrHeightComputationMode);
             if (widthOrHeightComputationMode == USE_COMPUTED_SIZE)
                 setPrefHeight(USE_COMPUTED_SIZE);
-            setMaxHeight(widthOrHeightComputationMode);
+            else {
+                setMinHeight(widthOrHeightComputationMode);
+                setMaxHeight(widthOrHeightComputationMode);
+            }
         }
     }
 
@@ -198,8 +211,17 @@ public class CollapsePane extends MonoClipPane {
             timeline.stop();
         setWidthOrHeightComputationMode(USE_PREF_SIZE);
         transitingProperty.set(true);
-        timeline = Animations.animateProperty(isHorizontal() ? prefWidthProperty() : prefHeightProperty(), finalValue, isAnimate());
+        // Making a translation effect for horizontal sliding (ex: Mobile left menu). TODO: add a boolean property for this effect
+        if (content != null && isHorizontal() && isAnimate() && getCollapseSide() == Side.RIGHT) {
+            if (finalValue > 0)
+                content.translateXProperty().bind(widthProperty().subtract(finalValue));
+            else
+                content.translateXProperty().bind(widthProperty().subtract(getWidth()));
+        }
+        timeline = Animations.animateProperty(isHorizontal() ? prefWidthProperty() : prefHeightProperty(), finalValue);
         Animations.setOrCallOnTimelineFinished(timeline, e -> {
+            if (content != null)
+                content.translateXProperty().unbind();
             if (finalValue > 0) {
                 setWidthOrHeightComputationMode(USE_COMPUTED_SIZE);
             }

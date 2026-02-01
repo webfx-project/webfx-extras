@@ -8,6 +8,8 @@ import java.time.temporal.TemporalUnit;
  */
 public final class TimeWindowUtil {
 
+    // Note: all parameters must be of the same temporal unit (timeWindow, start, end, duration, etc...)
+
     public static <T extends Temporal> long getTimeWindowDuration(TimeWindow<T> timeWindow, TemporalUnit temporalUnit) {
         return temporalUnit.between(timeWindow.getTimeWindowStart(), timeWindow.getTimeWindowEnd()) + 1;
     }
@@ -19,7 +21,7 @@ public final class TimeWindowUtil {
     }
 
     public static <T extends Temporal> void setTimeWindowStartAndDuration(TimeWindow<T> timeWindow, T start, long duration, TemporalUnit temporalUnit) {
-        timeWindow.setTimeWindow(start, (T) start.plus(duration, temporalUnit));
+        timeWindow.setTimeWindow(start, (T) start.plus(duration - 1, temporalUnit));
     }
 
     public static <T extends Temporal> void setTimeWindowCenterAndDuration(TimeWindow<T> timeWindow, T middle, long duration, TemporalUnit temporalUnit) {
@@ -47,9 +49,9 @@ public final class TimeWindowUtil {
     }
 
     public static <T extends Temporal> void ensureTimeRangeVisible(TimeWindow<T> timeWindow, T rangeStart, T rangeEnd, TemporalUnit temporalUnit) {
-        // If the time range is before or after the time window, then it's not visible and we need to shift the time window
+        // If the time range is before or after the time window, then it's not visible, and we need to shift the time window
         if (temporalUnit.between(rangeEnd, timeWindow.getTimeWindowStart()) > 0 || temporalUnit.between(timeWindow.getTimeWindowEnd(), rangeStart) > 0) {
-            // If the range is to big to fit in the time window, we start the time window to the range start
+            // If the range is too big to fit in the time window, we start the time window to the range start
             long rangeDuration = temporalUnit.between(rangeStart, rangeEnd);
             if (rangeDuration > getTimeWindowDuration(timeWindow, temporalUnit)) {
                 setTimeWindowStart(timeWindow, rangeStart, temporalUnit);

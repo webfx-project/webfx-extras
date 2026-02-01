@@ -601,4 +601,24 @@ public final class ValidationSupport {
             errorMessage
         );
     }
+
+    public void addOptionalEmailValidation(TextField emailInput, Node where, ObservableStringValue errorMessage) {
+        // Define the email pattern
+        String emailPattern = "^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,6}$";
+        Pattern pattern = Pattern.compile(emailPattern);
+        // Create the validation rule
+        addValidationRule(
+            Bindings.createBooleanBinding(() -> {
+                String text = emailInput.getText();
+                // Allow empty input (email is optional)
+                if (text == null || text.trim().isEmpty()) {
+                    return true;
+                }
+                // If not empty, validate format
+                return pattern.matcher(text.trim()).matches();
+            }, emailInput.textProperty()),
+            where,
+            errorMessage
+        );
+    }
 }

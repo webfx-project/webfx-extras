@@ -17,8 +17,10 @@ public abstract class CanvasDrawerBase implements CanvasDrawer {
 
     protected final Canvas canvas;
     protected final GraphicsContext gc;
-    private final DoubleProperty layoutOriginXProperty = FXProperties.newDoubleProperty(this::markDrawAreaAsDirty);
-    private final DoubleProperty layoutOriginYProperty = FXProperties.newDoubleProperty(this::markDrawAreaAsDirty);
+    private final DoubleProperty originLayoutXProperty = FXProperties.newDoubleProperty(this::markDrawAreaAsDirty);
+    private final DoubleProperty originLayoutYProperty = FXProperties.newDoubleProperty(this::markDrawAreaAsDirty);
+    private final DoubleProperty originTranslateXProperty = FXProperties.newDoubleProperty(this::markDrawAreaAsDirty);
+    private final DoubleProperty originTranslateYProperty = FXProperties.newDoubleProperty(this::markDrawAreaAsDirty);
     private final ObjectProperty<Bounds> drawAreaBoundsProperty = FXProperties.newObjectProperty(this::markDrawAreaAsDirty);
     private final ObjectProperty<Paint> drawAreaBackgroundFillProperty = FXProperties.newObjectProperty(this::markDrawAreaAsDirty);
     private final IntegerProperty drawCountProperty = new SimpleIntegerProperty();
@@ -39,13 +41,23 @@ public abstract class CanvasDrawerBase implements CanvasDrawer {
     }
 
     @Override
-    public DoubleProperty layoutOriginXProperty() {
-        return layoutOriginXProperty;
+    public DoubleProperty originLayoutXProperty() {
+        return originLayoutXProperty;
     }
 
     @Override
-    public DoubleProperty layoutOriginYProperty() {
-        return layoutOriginYProperty;
+    public DoubleProperty originLayoutYProperty() {
+        return originLayoutYProperty;
+    }
+
+    @Override
+    public DoubleProperty originTranslateXProperty() {
+        return originTranslateXProperty;
+    }
+
+    @Override
+    public DoubleProperty originTranslateYProperty() {
+        return originTranslateYProperty;
     }
 
     @Override
@@ -71,6 +83,8 @@ public abstract class CanvasDrawerBase implements CanvasDrawer {
     @Override
     public void drawArea() {
         int newDrawCount = getDrawCount() + 1;
+        // Ensuring we start with identity transform (if for some reason the previous draw left a non-identity transform)
+        gc.setTransform(1,0,0,1,0,0);
         clearArea();
         drawCountProperty.set(-newDrawCount); // may trigger onBeforeDraw runnable(s)
         drawObjectsInArea();

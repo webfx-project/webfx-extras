@@ -1,0 +1,6 @@
+.transition-pane-dual-container {
+    --fx-translate-x: 0;
+
+    transform: translateX(var(--fx-translate-x));
+
+}

@@ -1,0 +1,17 @@
+:root {
+    --fx-spinner-color: var(--fx-theme-color);
+}
+
+.webfx-extras-spinner {
+    animation: webfx-extras-spinner-rotate 1s linear infinite;
+    --fx-svg-path-fill: var(--fx-spinner-color);
+}
+
+@keyframes webfx-extras-spinner-rotate {
+    0% {
+        transform: rotate(0deg);
+    }
+    100% {
+        transform: rotate(360deg);
+    }
+}

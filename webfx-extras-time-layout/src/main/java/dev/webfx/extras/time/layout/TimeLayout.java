@@ -56,6 +56,16 @@ public interface TimeLayout<C, T> extends CanLayout,
 
     TimeLayout<C, T> setChildEndTimeReader(Function<C, T> childEndTimeReader, boolean exclusive);
 
+    default TimeLayout<C, T> setCanvasDirtyMarker(Runnable canvasDirtyMarker) {
+        addOnAfterLayout(canvasDirtyMarker);
+        selectedChildProperty().addListener(observable -> canvasDirtyMarker.run());
+        return this;
+    }
+
+    void invalidateHorizontalLayout();
+
+    void setParent(MultilayerTimeLayout<T> parent);
+
     // Output methods
 
     ChildBounds<C, T> getChildBounds(int childIndex);
@@ -66,5 +76,11 @@ public interface TimeLayout<C, T> extends CanLayout,
         processVisibleChildren(null, 0, 0, childProcessor);
     }
 
-    void processVisibleChildren(javafx.geometry.Bounds visibleArea, double layoutOriginX, double layoutOriginY, BiConsumer<C, Bounds> childProcessor);
+    void processVisibleChildren(javafx.geometry.Bounds visibleArea, double originX, double originY, BiConsumer<C, Bounds> childProcessor);
+
+    // If the child belongs to a parent row that is not fully expanded, then this method should return the bounds of the
+    // that parent row that can be used for clipping the child
+    default Bounds getClippingParentRowBounds(C child) {
+        return null;
+    }
 }

@@ -6,13 +6,13 @@ import dev.webfx.extras.action.ActionTuner;
 import dev.webfx.extras.action.impl.WritableAction;
 import dev.webfx.extras.operation.HasOperationCode;
 import dev.webfx.kit.util.properties.FXProperties;
-import dev.webfx.platform.async.AsyncBiFunction;
 import dev.webfx.platform.async.AsyncFunction;
 import dev.webfx.platform.async.Future;
 import dev.webfx.platform.console.Console;
 import dev.webfx.platform.scheduler.Scheduled;
 import dev.webfx.platform.uischeduler.UiScheduler;
 import dev.webfx.platform.util.collection.Collections;
+import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.ObjectProperty;
 import javafx.beans.property.SimpleBooleanProperty;
 import javafx.beans.property.SimpleObjectProperty;
@@ -72,6 +72,8 @@ public final class OperationActionRegistry {
 
     private Scheduled bindScheduled;
     private Consumer<OperationAction> operationActionGraphicalPropertiesUpdater;
+
+    private final BooleanProperty loadedProperty = new SimpleBooleanProperty(false);
 
     public static void setAuthorizer(OperationActionAuthorizer authorizer) {
         AUTHORIZER = authorizer;
@@ -292,6 +294,18 @@ public final class OperationActionRegistry {
         if (LOG_DEBUG) {
             Console.log("[OperationActionRegistry] - " + message);
         }
+    }
+
+    public boolean isLoaded() {
+        return loadedProperty.get();
+    }
+
+    public ObservableBooleanValue loadedProperty() {
+        return loadedProperty;
+    }
+
+    public void setLoaded(boolean loaded) {
+        loadedProperty.set(loaded);
     }
 
 }

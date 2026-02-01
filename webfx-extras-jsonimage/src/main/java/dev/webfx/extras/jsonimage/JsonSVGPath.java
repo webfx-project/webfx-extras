@@ -38,7 +38,7 @@ public final class JsonSVGPath {
                 else
                     result = Color.web(paintText);
             } catch (Exception e) {
-                Console.log(e);
+                Console.error(e);
             }
         }
         return result;

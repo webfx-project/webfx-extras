@@ -1,0 +1,7 @@
+.root {
+    -fx-spinner-color: -fx-theme-color;
+}
+
+.webfx-extras-spinner {
+    -fx-fill: -fx-spinner-color;
+}

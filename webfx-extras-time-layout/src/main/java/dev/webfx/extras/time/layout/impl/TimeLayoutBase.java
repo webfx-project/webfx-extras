@@ -1,6 +1,7 @@
 package dev.webfx.extras.time.layout.impl;
 
 import dev.webfx.extras.geometry.Bounds;
+import dev.webfx.extras.time.layout.MultilayerTimeLayout;
 import dev.webfx.extras.time.layout.TimeLayout;
 import dev.webfx.extras.time.projector.TimeProjector;
 import dev.webfx.extras.time.window.impl.ListenableTimeWindowImpl;
@@ -52,6 +53,7 @@ public abstract class TimeLayoutBase<C, T> extends ListenableTimeWindowImpl<T> i
     private ObjectProperty<C> selectedChildProperty;
     protected TimeProjector<T> timeProjector;
     public int timeVersion, horizontalVersion, verticalVersion;
+    private MultilayerTimeLayout<T> parent;
 
     public TimeLayoutBase() {
         children.addListener(this::onChildrenChanged);
@@ -190,8 +192,15 @@ public abstract class TimeLayoutBase<C, T> extends ListenableTimeWindowImpl<T> i
 
     @Override
     public void markLayoutAsDirty() {
-        if (!isLayouting())
+        if (parent != null)
+            parent.markLayoutAsDirty();
+        else if (!isLayouting())
             layoutDirtyMarker.markAsDirty();
+    }
+
+    @Override
+    public void setParent(MultilayerTimeLayout<T> parent) {
+        this.parent = parent;
     }
 
     @Override
@@ -222,6 +231,7 @@ public abstract class TimeLayoutBase<C, T> extends ListenableTimeWindowImpl<T> i
         invalidateHorizontalLayout(); // because x is a time projection (invalid times => invalid x)
     }
 
+    @Override
     public void invalidateHorizontalLayout() {
         horizontalVersion++;
         markLayoutAsDirty();
@@ -354,14 +364,14 @@ public abstract class TimeLayoutBase<C, T> extends ListenableTimeWindowImpl<T> i
     }
 
     @Override
-    public void processVisibleChildren(javafx.geometry.Bounds visibleArea, double layoutOriginX, double layoutOriginY, BiConsumer<C, Bounds> childProcessor) {
+    public void processVisibleChildren(javafx.geometry.Bounds visibleArea, double originX, double originY, BiConsumer<C, Bounds> childProcessor) {
         if (!isVisible() || visibleArea.getWidth() == 0 || visibleArea.getHeight() == 0)
             return;
         layoutIfDirty(); // ensuring the layout is done
-        processVisibleChildrenNow(visibleArea, layoutOriginX, layoutOriginY, childProcessor);
+        processVisibleChildrenNow(visibleArea, originX, originY, childProcessor);
     }
 
-    protected void processVisibleChildrenNow(javafx.geometry.Bounds visibleArea, double layoutOriginX, double layoutOriginY, BiConsumer<C, Bounds> childProcessor) {
-        TimeLayoutUtil.processVisibleObjectBounds(childrenBounds, false, visibleArea, layoutOriginX, layoutOriginY, childProcessor);
+    protected void processVisibleChildrenNow(javafx.geometry.Bounds visibleArea, double originX, double originY, BiConsumer<C, Bounds> childProcessor) {
+        TimeLayoutUtil.processVisibleObjectBounds(childrenBounds, false, visibleArea, originX, originY, childProcessor);
     }
 }

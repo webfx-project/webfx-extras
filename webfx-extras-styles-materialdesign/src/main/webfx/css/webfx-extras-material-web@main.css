@@ -14,32 +14,30 @@
     --webfx-material-focused-line-fill: var(--webfx-material-focused-fill);
 }
 
-/* Applying CSS variables to material components */
+/* Applying CSS variables to material components (new single-host system) */
 
-.material > fx-border {
-    border: none;
-}
-
-.material > fx-background {
-    background-color: var(--webfx-material-background-color);
-    border-radius: 0;
+/* Host with class .material: set background and neutralize border via variables */
+.material {
+    --fx-background-color: var(--webfx-material-background-color);
+    --fx-border-radius: 0;
+    --fx-border-style: none;
+    --fx-border-width: 0;
 }
 
 .material-label {
     color: var(--webfx-material-label-fill);
 }
 
-.material-line > fx-border { /* is actually a JavaFX Region */
-    /* Using a border (not background) because there is a dotted style for the disabled state */
-    border-color: var(--webfx-material-line-fill);
-    border-style: var(--webfx-material-line-border-style);
-    border-width: 0;
-    border-bottom-width: 1px;
+.material-line { /* is actually a JavaFX Region */
+    /* Using the border overlay (via variables) to support dotted style for disabled state */
+    --fx-border-color: var(--webfx-material-line-fill);
+    --fx-border-style: var(--webfx-material-line-border-style);
+    --fx-border-width: 0 0 1px 0; /* only bottom */
 }
 
-.material-focused-line > fx-background { /* is actually a JavaFX Region */
-    /* Using a background is enough (no need for a border) */
-    background-color: var(--webfx-material-focused-line-fill);
+.material-focused-line { /* is actually a JavaFX Region */
+    /* Using background only (no need for a border) */
+    --fx-background-color: var(--webfx-material-focused-line-fill);
 }
 
 /* Changing CSS variables values in dependence of material state */

@@ -1,6 +1,6 @@
 package dev.webfx.extras.time.projector;
 
-import javafx.application.Platform;
+import dev.webfx.platform.uischeduler.UiScheduler;
 import javafx.scene.Node;
 
 /**
@@ -9,7 +9,8 @@ import javafx.scene.Node;
 public class PairedTimeProjector<T> extends TranslatedTimeProjector<T> {
 
     private final Node otherNode, thisNode;
-    private double cachedNodesDeltaX = Double.NaN;
+    private double nodesDeltaX;
+    private int nodesDeltaXAnimationFrameNumber;
 
     public PairedTimeProjector(TimeProjector<T> otherTimeProjector, Node otherNode, Node thisNode) {
         super(otherTimeProjector);
@@ -19,11 +20,12 @@ public class PairedTimeProjector<T> extends TranslatedTimeProjector<T> {
 
     @Override
     public double getTranslateX() {
-        if (Double.isNaN(cachedNodesDeltaX)) {
-            cachedNodesDeltaX = thisNode.localToScene(0, 0).getX() - otherNode.localToScene(0, 0).getX();
-            Platform.runLater(() -> cachedNodesDeltaX = Double.NaN);
+        int animationFrameNumber = UiScheduler.getAnimationFrameNumber();
+        if (nodesDeltaXAnimationFrameNumber != animationFrameNumber) { // might be dirty
+            nodesDeltaX = thisNode.localToScene(0, 0).getX() - otherNode.localToScene(0, 0).getX();
+            nodesDeltaXAnimationFrameNumber = animationFrameNumber;
         }
-        return cachedNodesDeltaX;
+        return nodesDeltaX;
     }
 
 }

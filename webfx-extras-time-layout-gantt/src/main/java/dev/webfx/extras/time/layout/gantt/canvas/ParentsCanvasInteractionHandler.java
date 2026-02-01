@@ -1,11 +1,16 @@
 package dev.webfx.extras.time.layout.gantt.canvas;
 
 import dev.webfx.extras.canvas.layer.interact.CanvasInteractionHandler;
+import dev.webfx.extras.geometry.Bounds;
+import dev.webfx.extras.geometry.MutableBounds;
+import dev.webfx.extras.time.layout.gantt.impl.EnclosingRow;
 import dev.webfx.extras.time.layout.gantt.impl.GanttLayoutImpl;
 import dev.webfx.extras.time.layout.gantt.impl.ParentRow;
 import javafx.scene.Cursor;
 import javafx.scene.canvas.Canvas;
 import javafx.scene.input.MouseEvent;
+
+import java.util.List;
 
 /**
  * @author Bruno Salmon
@@ -34,6 +39,11 @@ public class ParentsCanvasInteractionHandler implements CanvasInteractionHandler
         // Showing a hand cursor when hovering a clickable header (it's clickable when a click handler is set on the header)
         if (parentsCanvasDrawer.getChildRowHeaderClickHandler() != null && isHoveringChildRowHeader(e, canvas, false)) {
             canvas.setCursor(Cursor.HAND);
+            return false;
+        }
+        // Showing a default cursor when hovering a header (grandparent, parent or child row header)
+        if (isHoveringChildRowHeader(e, canvas, false) || isHoveringParentHeader(e) || isHoveringGrandparentHeader(e)) {
+            canvas.setCursor(Cursor.DEFAULT);
             return false;
         }
         return true; // Ok to continue propagation
@@ -68,7 +78,7 @@ public class ParentsCanvasInteractionHandler implements CanvasInteractionHandler
             parentsCanvasDrawer.setChildRowHeaderWidth(childRowHeaderDragWidth(e, canvas));
             return false; // Stopping propagation
         }
-        return true; // Otherwise ok to continue propagation
+        return !isHoveringParentHeader(e) && !isHoveringGrandparentHeader(e); // Otherwise ok to continue propagation
     }
 
     @Override
@@ -77,14 +87,21 @@ public class ParentsCanvasInteractionHandler implements CanvasInteractionHandler
             draggingGrandparentHeaderSlider = draggingParentHeaderSlider = draggingChildRowHeaderSlider = false;
             return false; // Stopping propagation
         }
-        if (parentsCanvasDrawer.getChildRowHeaderClickHandler() != null && isHoveringChildRowHeader(e, canvas, false)) {
-            double y = e.getY() + parentsCanvasDrawer.getLastVirtualViewPortY();
-            ParentRow<?> parentRow = ganttLayout.getParentRowAtY(y);
-            if (parentRow != null) {
+        double y = e.getY() + parentsCanvasDrawer.getLastVirtualViewPortY();
+        ParentRow<?> parentRow = ganttLayout.getParentRowAtY(y);
+        if (parentRow != null) {
+            if (ganttLayout.isParentRowCollapseEnabled()) {
+                Bounds chevronLocalBounds = ganttLayout.getParentRowCollapseChevronLocalBounds();
+                if (new MutableBounds(parentRow.getMinX() + chevronLocalBounds.getMinX(), parentRow.getMinY() + chevronLocalBounds.getMinY(), chevronLocalBounds.getWidth(), chevronLocalBounds.getHeight()).contains(e.getX(), y)) {
+                    parentRow.toggleCollapse();
+                    return false;
+                }
+            }
+            if (parentsCanvasDrawer.getChildRowHeaderClickHandler() != null && isHoveringChildRowHeader(e, canvas, false)) {
                 int rowIndex = parentRow.getChildRowIndexAtY(y);
                 parentsCanvasDrawer.getChildRowHeaderClickHandler().accept(parentRow.getParent(), rowIndex);
+                return false;
             }
-            return false;
         }
         return true; // Otherwise ok to continue propagation
     }
@@ -110,8 +127,8 @@ public class ParentsCanvasInteractionHandler implements CanvasInteractionHandler
     }
 
     private boolean isHoveringSlider(MouseEvent e, double sliderX) {
-        // We consider the mouse is hovering it when closer than 10px from it
-        return (Math.abs(e.getX() - sliderX) < 10);
+        // We consider the mouse is hovering it when closer than 5 px from it
+        return (Math.abs(e.getX() - sliderX) < 5);
     }
 
     private boolean isHoveringHeader(MouseEvent e, double headerBorder1X, double headerBorder2X) {
@@ -173,7 +190,15 @@ public class ParentsCanvasInteractionHandler implements CanvasInteractionHandler
     }
 
     private boolean isHoveringGrandparentHeader(MouseEvent e) {
-        return ganttLayout.getGrandparentRows().stream().anyMatch(gr -> gr.getHeader().contains(0, e.getY() + parentsCanvasDrawer.getLastVirtualViewPortY()));
+        return isHoveringHeader(e, ganttLayout.getGrandparentRows());
+    }
+
+    private boolean isHoveringParentHeader(MouseEvent e) {
+        return isHoveringHeader(e, ganttLayout.getParentRows());
+    }
+
+    private boolean isHoveringHeader(MouseEvent e, List<? extends EnclosingRow<?>> rows) {
+        return rows.stream().anyMatch(gr -> gr.getHeader().contains(e.getX(), e.getY() + parentsCanvasDrawer.getLastVirtualViewPortY()));
     }
 
     private double grandparentHeaderDragWidth(MouseEvent e, Canvas canvas) {

@@ -65,19 +65,19 @@
 
 .btn {
     /* Applying the same style as other buttons (same rules as fx-button in javafx-graphics WebFX CSS) */
-    --fx-border-style: var(--fx-button-border-style);
+    /*--fx-border-style: var(--fx-button-border-style);
     --fx-border-color: var(--fx-button-border-color);
     --fx-border-radius: var(--fx-button-border-radius);
-    --fx-border-width: var(--fx-button-border-width);
-    --fx-background-color: var(--fx-button-background-color);
-    --fx-background-radius: var(--fx-button-background-radius);
-    --fx-background-image: var(--fx-button-background-image);
-    --fx-background-position: var(--fx-button-background-position);
+    --fx-border-width: var(--fx-button-border-width);*/
+    /*--fx-background-color: var(--fx-button-background-color);*/
+    /*--fx-background-radius: var(--fx-button-background-radius);*/
+    /*--fx-background-image: var(--fx-button-background-image);*/
+    /*--fx-background-position: var(--fx-button-background-position);
     --fx-background-repeat: var(--fx-button-background-repeat);
-    --fx-background-size: var(--fx-button-background-size);
+    --fx-background-size: var(--fx-button-background-size);*/
 
-    --fx-button-border-width: 1px;
-    --fx-button-border-radius: 4px;
+    --fx-border-width: 1px;
+    --fx-border-radius: 4px;
 
     cursor: pointer;
     font-weight: normal;
@@ -85,7 +85,8 @@
     font-size: var(--bootstrap-font-size);
     --fx-svg-path-fill: var(--fx-text-fill);
 
-    /* Using the same color as text for the possible progress indicator inside bootstrap buttons */
+    /* Using the same color as text for the possible spinner or progress indicator inside bootstrap buttons */
+    --fx-spinner-color: var(--fx-text-fill);
     --fx-progress-indicator-color: var(--fx-text-fill);
 }
 
@@ -95,7 +96,7 @@
 
 .btn-default, .btn.default, .default .btn {
     --fx-text-fill: var(--bootstrap-grey7);
-    --fx-button-background-color: var(--bootstrap-white);
+    --fx-background-color: var(--bootstrap-white);
     --fx-border-color: var(--bootstrap-grey3);
 }
 
@@ -104,79 +105,79 @@
 }
 
 .btn-default:hover, .btn.default:hover, .default .btn:hover {
-    --fx-button-background-color: var(--bootstrap-grey1);
+    --fx-background-color: var(--bootstrap-grey1);
     --fx-border-color: var(--bootstrap-grey5);
 }
 
 .btn-primary, .btn.primary, .primary .btn {
     --fx-text-fill: var(--bootstrap-white);
-    --fx-button-background-color: var(--bootstrap-blue5);
+    --fx-background-color: var(--bootstrap-blue5);
     --fx-border-color: var(--bootstrap-blue6);
 }
 
 .btn-primary:hover:not(.disabled), .btn.primary:hover:not(.disabled), .primary .btn:hover:not(.disabled) {
     --fx-text-fill: var(--bootstrap-white);
-    --fx-button-background-color: var(--bootstrap-blue8);
+    --fx-background-color: var(--bootstrap-blue8);
     --fx-border-color: var(--bootstrap-blue9);
 }
 
 .btn-secondary, .btn.secondary, .secondary .btn {
     --fx-text-fill: var(--bootstrap-white);
-    --fx-button-background-color: var(--bootstrap-grey4);
+    --fx-background-color: var(--bootstrap-grey4);
     --fx-border-color: var(--bootstrap-grey5);
 }
 
 .btn-secondary:hover:not(.disabled), .btn.secondary:hover:not(.disabled), .secondary .btn:hover:not(.disabled) {
     --fx-text-fill: var(--bootstrap-white);
-    --fx-button-background-color: var(--bootstrap-grey5);
+    --fx-background-color: var(--bootstrap-grey5);
     --fx-border-color: var(--bootstrap-grey6);
 }
 
 .btn-success, .btn.success, .success .btn {
     --fx-text-fill: var(--bootstrap-white);
-    --fx-button-background-color: var(--bootstrap-green1);
+    --fx-background-color: var(--bootstrap-green1);
     --fx-border-color: var(--bootstrap-green2);
 }
 
 .btn-success:hover:not(.disabled), .btn.success:hover:not(.disabled), .success .btn:hover:not(.disabled) {
     --fx-text-fill: var(--bootstrap-white);
-    --fx-button-background-color: var(--bootstrap-green3);
+    --fx-background-color: var(--bootstrap-green3);
     --fx-border-color: var(--bootstrap-green4);
 }
 
 .btn-info, .btn.info, .info .btn {
     --fx-text-fill: var(--bootstrap-white);
-    --fx-button-background-color: var(--bootstrap-blue1);
+    --fx-background-color: var(--bootstrap-blue1);
     --fx-border-color: var(--bootstrap-blue2);
 }
 
 .btn-info:hover:not(.disabled), .btn.info:hover:not(.disabled), .info .btn:hover:not(.disabled) {
     --fx-text-fill: var(--bootstrap-white);
-    --fx-button-background-color: var(--bootstrap-blue3);
+    --fx-background-color: var(--bootstrap-blue3);
     --fx-border-color: var(--bootstrap-blue4);
 }
 
 .btn-warning, .btn.warning, .warning .btn {
     --fx-text-fill: var(--bootstrap-white);
-    --fx-button-background-color: var(--bootstrap-orange1);
+    --fx-background-color: var(--bootstrap-orange1);
     --fx-border-color: var(--bootstrap-orange2);
 }
 
 .btn-warning:hover:not(.disabled), .btn.warning:hover:not(.disabled), .warning .btn:hover:not(.disabled) {
     --fx-text-fill: var(--bootstrap-white);
-    --fx-button-background-color: var(--bootstrap-orange3);
+    --fx-background-color: var(--bootstrap-orange3);
     --fx-border-color: var(--bootstrap-orange4);
 }
 
 .btn-danger, .btn.danger, .danger .btn {
     --fx-text-fill: var(--bootstrap-white);
-    --fx-button-background-color: var(--bootstrap-red1);
+    --fx-background-color: var(--bootstrap-red1);
     --fx-border-color: var(--bootstrap-red2);
 }
 
 .btn-danger:hover:not(.disabled), .btn.danger:hover:not(.disabled), .danger .btn:hover:not(.disabled) {
     --fx-text-fill: var(--bootstrap-white);
-    --fx-button-background-color: var(--bootstrap-red3);
+    --fx-background-color: var(--bootstrap-red3);
     --fx-border-color: var(--bootstrap-red4);
 }
 
@@ -211,9 +212,9 @@
 }
 
 
-.btn-block {
+/*.btn-block {
     width: 100%;
-}
+}*/
 
 .b, .strong {
     font-weight: bold;
@@ -237,13 +238,13 @@
 }
 
 .h1, .h2, .h3, .h4, .h5, .h6 {
-    color: inherit;
+    --fx-text-fill: inherit;
     /*fill: inherit;*/
 }
 
 .h1 .small, .h2 .small, .h3 .small, .h4 .small, .h5 .small, .h6 .small {
     font-weight: normal;
-    color: var(--bootstrap-grey6);
+    --fx-text-fill: var(--bootstrap-grey6);
     --fx-svg-path-fill: var(--bootstrap-grey6);
 }
 
@@ -340,109 +341,70 @@
 }
 
 .badge {
-    border-radius: 14px;
+    --fx-border-radius: 14px;
 }
 
-.badge.danger{
+.badge.danger {
     --fx-text-fill: var(--badge-danger-txt);
-    background-color: var(--badge-danger-bg);
-    color: var(--badge-danger-txt);
-}
-.badge.danger fx-text {
-    color: var(--badge-danger-txt);
+    --fx-background-color: var(--badge-danger-bg);
 }
 
-.badge.success{
+.badge.success {
     --fx-text-fill: var(--badge-success-txt);
-    background-color: var(--badge-success-bg);
-    color: var(--badge-success-txt);
-}
-.badge.success fx-text {
-    color: var(--badge-success-txt);
+    --fx-background-color: var(--badge-success-bg);
 }
 
-.badge.warning{
+.badge.warning {
     --fx-text-fill: var(--badge-warning-txt);
-    background-color: var(--badge-warning-bg);
-    color: var(--badge-warning-txt);
-}
-.badge.warning fx-text {
-    color: var(--badge-warning-txt);
+    --fx-background-color: var(--badge-warning-bg);
 }
 
-.badge.info{
+.badge.info {
     --fx-text-fill: var(--badge-info-txt);
-    background-color: var(--badge-info-bg);
-    color: var(--badge-info-txt);
-}
-.badge.info fx-text {
-    color: var(--badge-info-txt);
+    --fx-background-color: var(--badge-info-bg);
 }
 
-.badge.secondary{
+.badge.secondary {
     --fx-text-fill: var(--badge-secondary-txt);
-    background-color: var(--badge-secondary-bg);
-    color: var(--badge-secondary-txt);
-}
-.badge.secondary fx-text {
-    color: var(--badge-secondary-txt);
+    --fx-background-color: var(--badge-secondary-bg);
 }
 
-.badge.primary{
+.badge.primary {
     --fx-text-fill: var(--badge-primary-txt);
-    background-color: var(--badge-primary-bg);
-    color: var(--badge-primary-txt);
-}
-.badge.primary fx-text {
-    color: var(--badge-primary-txt);
+    --fx-background-color: var(--badge-primary-bg);
 }
 
-.badge.default{
+.badge.default {
     --fx-text-fill: var(--badge-default-txt);
-    background-color: var(--badge-default-bg);
-    color: var(--badge-default-txt);
+    --fx-background-color: var(--badge-default-bg);
 }
-.badge.default fx-text {
-    color: var(--badge-default-txt);
-}
-
-
-
-
-
-
-
-
-
-
-
 
 
 /* Alert / Info Box Styles - left border only, no full border */
 .alert-info, .info-box {
-    background-color: #e3f2fd;
+    --fx-background-color: #e3f2fd;
     border-left: 4px solid #2196f3;
     border-radius: 4px;
-    color: #1976d2;
+    --fx-text-fill: #1976d2;
 }
 
 .alert-success {
-    background-color: #e8f5e9;
+    --fx-background-color: #e8f5e9;
     border-left: 4px solid #4caf50;
     border-radius: 4px;
-    color: #2e7d32;
+    --fx-text-fill: #2e7d32;
 }
 
 .alert-warning {
-    background-color: #fff3e0;
+    --fx-background-color: #fff3e0;
     border-left: 4px solid #ff9800;
     border-radius: 4px;
-    color: #e65100;
+    --fx-text-fill: #e65100;
 }
 
 .alert-danger {
-    background-color: #ffebee;
+    --fx-background-color: #ffebee;
     border-left: 4px solid #f44336;
     border-radius: 4px;
-    color: #c62828;
+    --fx-text-fill: #c62828;
 }

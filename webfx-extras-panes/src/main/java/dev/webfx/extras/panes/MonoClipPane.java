@@ -52,12 +52,10 @@ public class MonoClipPane extends MonoPane {
 
     protected void resizeClip() {
         double width = getWidth(), height = getHeight();
-        if (clip instanceof Rectangle) {
-            Rectangle r = (Rectangle) clip;
+        if (clip instanceof Rectangle r) {
             r.setWidth(width);
             r.setHeight(height);
-        } else if (clip instanceof Circle) {
-            Circle c = (Circle) clip;
+        } else if (clip instanceof Circle c) {
             c.setCenterX(width / 2);
             c.setCenterY(height / 2);
             c.setRadius(Math.min(width, height) / 2);

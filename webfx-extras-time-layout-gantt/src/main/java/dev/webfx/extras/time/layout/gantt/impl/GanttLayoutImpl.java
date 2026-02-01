@@ -59,7 +59,7 @@ public class GanttLayoutImpl<C, T extends Temporal> extends TimeLayoutBase<C, T>
 
     // Internal version management
     int childrenTreeVersion, builtChildrenTreeVersion; // impact the whole tree (grandparents + parents + children)
-    int providedTreeVersion, builtProvidedTreeVersion; // impact grandparents + parents only (used only if parents are provided)
+    int providedTreeVersion, builtProvidedTreeVersion; // impact grandparents and parents only (used only if parents are provided)
     int parentRowHorizontalVersion, parentHeaderHorizontalVersion;
     int grandparentHeaderHorizontalVersion;
 
@@ -68,6 +68,11 @@ public class GanttLayoutImpl<C, T extends Temporal> extends TimeLayoutBase<C, T>
     private Map<Object, ParentRow<C>> oldParentToParentRowMap;
     private GrandparentRow lastGrandparentRow;
     private ParentRow<C> lastParentRow;
+
+    // Fields used for the collapse/expand feature
+    private boolean parentRowCollapseEnabled;
+    private boolean parentRowInitiallyCollapsed;
+    private final Bounds parentRowCollapseChevronLocalBounds = new MutableBounds(5, 8, 10, 5);
 
     public GanttLayoutImpl(TemporalUnit temporalUnit) {
         setTimeProjector(new LinearTimeWindowProjector<>(this, temporalUnit, this::getWidth));
@@ -295,6 +300,29 @@ public class GanttLayoutImpl<C, T extends Temporal> extends TimeLayoutBase<C, T>
         return Stream.empty();
     }
 
+    public GanttLayoutImpl<C, T> setParentRowCollapseEnabled(boolean parentRowCollapseEnabled) {
+        this.parentRowCollapseEnabled = parentRowCollapseEnabled;
+        return this;
+    }
+
+    public boolean isParentRowInitiallyCollapsed() {
+        return parentRowInitiallyCollapsed;
+    }
+
+    public GanttLayoutImpl<C, T> setParentRowInitiallyCollapsed(boolean parentRowInitiallyCollapsed) {
+        this.parentRowInitiallyCollapsed = parentRowInitiallyCollapsed;
+        return this;
+    }
+
+    public boolean isParentRowCollapseEnabled() {
+        return parentRowCollapseEnabled;
+    }
+
+    public Bounds getParentRowCollapseChevronLocalBounds() {
+        return parentRowCollapseChevronLocalBounds;
+    }
+
+
     @Override
     public BooleanProperty parentsProvidedProperty() {
         return parentsProvidedProperty;
@@ -401,7 +429,7 @@ public class GanttLayoutImpl<C, T extends Temporal> extends TimeLayoutBase<C, T>
             grandparentToGrandparentRowMap = new HashMap<>();
             parentToParentRowMap = new HashMap<>();
         }
-        // Clearing the cache (so they keep only live instances), but keeping a reference to old cache to allow recycling
+        // Clearing the cache (so they keep only live instances), but keeping a reference to the old cache to allow recycling
         lastParentRow = null;
         lastGrandparentRow = null;
     }
@@ -423,22 +451,22 @@ public class GanttLayoutImpl<C, T extends Temporal> extends TimeLayoutBase<C, T>
     }
 
     private void syncChildBranches(GanttChildBounds<C, T> cb) {
-        // Reading parent & grandparent of that child
+        // Reading parent and grandparent of that child
         Object parent = childParentReader == null ? null : childParentReader.apply(cb.getObject());
         Object grandparent = childGrandparentReader != null ? childGrandparentReader.apply(cb.getObject()) :
             parent != null && parentGrandparentReader != null ? parentGrandparentReader.apply(parent) : null;
-        // Getting or creating the grandparent row if grandparent exists
+        // Getting or creating the grandparent row if the grandparent exists
         if (!isParentsProvided())
             syncGrandparentBranch(grandparent);
-        // Now same for parent row, however we accept null parents (children with null parents will be on the same
-        // row with no parent on the left). First we check if the parent row already exists
+        // Now same for parent row, however, we accept null parents (children with null parents will be on the same
+        // row with no parent on the left). First, we check if the parent row already exists
         syncParentBranches(parent, false);
         cb.setParent(parent);
         cb.setParentRow(lastParentRow); // will add this child to parentRow as well
     }
 
     private void syncGrandparentBranch(Object grandparent) {
-        // Getting or creating the grandparent row if grandparent exists
+        // Getting or creating the grandparent row if the grandparent exists
         GrandparentRow grandparentRow = null;
         if (grandparent != null) {
             // Checking if it already exists
@@ -455,11 +483,11 @@ public class GanttLayoutImpl<C, T extends Temporal> extends TimeLayoutBase<C, T>
                     grandparentRow.setRecycling(true); // Entering in recycling mode
                     grandparentRow.setAboveGrandparentRow(lastGrandparentRow); // Resetting aboveGrandparentRow
                 }
-                // Now that we have a grandparent row (either new or recycled), we memorise it in the cache
+                // Now that we have a grandparent row (either new or recycled), we memorize it in the cache
                 grandparentToGrandparentRowMap.put(grandparent, grandparentRow);
                 // And add it to the grandparent rows
                 grandparentRows.add(grandparentRow);
-                // A new grandparent row introduce a break in the parent rows (next parent row should have aboveParentRow = null
+                // A new grandparent row introduces a break in the parent rows (the next parent row should have aboveParentRow = null)
                 lastParentRow = null;
             }
         }
@@ -467,7 +495,7 @@ public class GanttLayoutImpl<C, T extends Temporal> extends TimeLayoutBase<C, T>
     }
 
     private void syncParentBranches(Object parent, boolean syncFromProvidedParents) {
-        ParentRow<C> parentRow = parentToParentRowMap.get(parent); // Note that provided parent are already in that cache
+        ParentRow<C> parentRow = parentToParentRowMap.get(parent); // Note that provided parents are already in that cache
         if (!isParentsProvided() || syncFromProvidedParents) {
             if (parentRow == null) { // We create a new parent row if it doesn't exist
                 parentRow = oldParentToParentRowMap.get(parent);
@@ -489,9 +517,8 @@ public class GanttLayoutImpl<C, T extends Temporal> extends TimeLayoutBase<C, T>
      ********************************************* Children layout *****************************************************
      ******************************************************************************************************************/
 
-    // Note: the default implementation to layout children horizontally using the time projector is already good for the
-    // GanttLayout. We just need to change how to layout children vertically.
-
+    // Note: the default implementation to lay out children horizontally using the time projector is already good for the
+    // GanttLayout. We just need to change how to lay out children vertically.
     @Override
     public void layoutChildVertically(ChildBounds<C, T> cb) {
         // 1) Computing child height
@@ -508,11 +535,15 @@ public class GanttLayoutImpl<C, T extends Temporal> extends TimeLayoutBase<C, T>
         } else { // Otherwise (general case) we compute y to reflect its row index within the parent row
             double vSpacing = getVSpacing();
             int childRowIndex = gcb.getRowIndexInParentRow();
-            y = gcb.getParentRow().getY() // top position of enclosing parent row
-                + vSpacing // top spacing
-                + (childHeight + vSpacing) * childRowIndex; // vertical shift of that particular child
-            if (isParentHeaderOnTop())
-                y += parentHeaderHeight;
+            if (childRowIndex == -1) // May happen if the parent is not yet set (ex: dates inside the recurring events loaded before the events themselves)
+                y = -Double.MAX_VALUE; // To ensure it's not yet drawn in the visible area
+            else {
+                y = gcb.getParentRow().getY() // top position of enclosing parent row
+                    + vSpacing // top spacing
+                    + (childHeight + vSpacing) * childRowIndex; // vertical shift of that particular child
+                if (isParentHeaderOnTop())
+                    y += parentHeaderHeight;
+            }
         }
         cb.setY(y);
     }
@@ -532,7 +563,7 @@ public class GanttLayoutImpl<C, T extends Temporal> extends TimeLayoutBase<C, T>
     }
 
     private double getParentRowMinX() {
-        // Other cases (left, top & bottom)
+        // Other cases (left, top and bottom)
         if (isGrandparentHeaderOnLeft())
             return getGrandparentHeaderMaxX();
         return getGrandparentRowMinX();
@@ -552,18 +583,7 @@ public class GanttLayoutImpl<C, T extends Temporal> extends TimeLayoutBase<C, T>
     // -------------------------------------------- Vertical layout ----------------------------------------------------
     void layoutParentRowVertically(ParentRow<C> pr) {
         // 1) Computing parent row height
-        double height;
-        if (isParentFixedHeight()) {
-            height = getParentFixedHeight();
-        } else if (isChildFixedHeight()) {
-            double childHeight = getChildFixedHeight();
-            double vSpacing = getVSpacing();
-            height = vSpacing // top spacing
-                     + (childHeight + vSpacing) * pr.getRowsCount(); // total of children in that parent row
-        } else
-            height = 0; // TODO: what to do in this case?
-        if (isParentHeaderOnTopOrBottom())
-            height += parentHeaderHeight;
+        double height = computeParentRowHeight(pr);
         // 2) Computing parent row y position
         pr.setHeight(height);
         double y;
@@ -577,6 +597,25 @@ public class GanttLayoutImpl<C, T extends Temporal> extends TimeLayoutBase<C, T>
         } else
             y = getTopY();
         pr.setY(y);
+    }
+
+    private double computeParentRowHeight(ParentRow<C> pr) {
+        double height;
+        if (isParentFixedHeight()) {
+            height = getParentFixedHeight();
+        } else if (isChildFixedHeight()) {
+            double childHeight = getChildFixedHeight();
+            double vSpacing = getVSpacing();
+            double rowsCount = pr.getRowsCount(); // total of children in that parent row
+            if (pr.isPartiallyOrFullyCollapsed())
+                rowsCount = 1 + (rowsCount - 1) * pr.getExpandFactor();
+            height = vSpacing // top spacing
+                     + (childHeight + vSpacing) * rowsCount;
+        } else
+            height = 0; // TODO: what to do in this case?
+        if (isParentHeaderOnTopOrBottom())
+            height += parentHeaderHeight;
+        return height;
     }
 
     // ============================================ Parent header ======================================================
@@ -736,9 +775,9 @@ public class GanttLayoutImpl<C, T extends Temporal> extends TimeLayoutBase<C, T>
         EnclosingRow<?> lastEnclosingRow = null;
         if (!isParentsProvided() && childrenBounds == null)
             return 0;
-        if (!grandparentRows.isEmpty()) // equivalent but more efficient than last parent row
+        if (!grandparentRows.isEmpty()) // equivalent but more efficient than using the last parent row
             lastEnclosingRow = grandparentRows.get(grandparentRows.size() - 1);
-        else if (!parentRows.isEmpty()) // last parent row ok when no grandparent
+        else if (!parentRows.isEmpty()) // Ok to use the last parent row when there is no grandparent
             lastEnclosingRow = parentRows.get(parentRows.size() - 1);
         if (lastEnclosingRow == null)
             return 0;
@@ -768,34 +807,49 @@ public class GanttLayoutImpl<C, T extends Temporal> extends TimeLayoutBase<C, T>
     }
 
     @Override
-    protected void processVisibleChildrenNow(javafx.geometry.Bounds visibleArea, double layoutOriginX, double layoutOriginY, BiConsumer<C, Bounds> childProcessor) {
+    protected void processVisibleChildrenNow(javafx.geometry.Bounds visibleArea, double originX, double originY, BiConsumer<C, Bounds> childProcessor) {
         checkSyncTree();
         if (!grandparentRows.isEmpty())
-            processVisibleChildrenInGrandparentRows(grandparentRows, visibleArea, layoutOriginX, layoutOriginY, childProcessor);
+            processVisibleChildrenInGrandparentRows(grandparentRows, visibleArea, originX, originY, childProcessor);
         else
-            processVisibleChildrenInParentRows(parentRows, visibleArea, layoutOriginX, layoutOriginY, childProcessor);
+            processVisibleChildrenInParentRows(parentRows, visibleArea, originX, originY, childProcessor);
     }
 
-    private void processVisibleChildrenInGrandparentRows(List<GrandparentRow> grandparentRows, javafx.geometry.Bounds visibleArea, double layoutOriginX, double layoutOriginY, BiConsumer<C, Bounds> childProcessor) {
+    private void processVisibleChildrenInGrandparentRows(List<GrandparentRow> grandparentRows, javafx.geometry.Bounds visibleArea, double originX, double originY, BiConsumer<C, Bounds> childProcessor) {
         TimeLayoutUtil.processVisibleObjectBounds(
             grandparentRows,
-            true, visibleArea, layoutOriginX, layoutOriginY,
-            (grandparentRow, b) -> processVisibleChildrenInParentRows(grandparentRow.getParentRows(), visibleArea, layoutOriginX, layoutOriginY, childProcessor)
+            // Since the translation animation doesn't apply to the grandparent rows, we correct originX accordingly
+            true, visibleArea, originX - getTimeWindowTranslateX(), originY,
+            (grandparentRow, b) -> processVisibleChildrenInParentRows(grandparentRow.getParentRows(), visibleArea, originX, originY, childProcessor)
         );
     }
 
-    private void processVisibleChildrenInParentRows(List<ParentRow<C>> parentRows, javafx.geometry.Bounds visibleArea, double layoutOriginX, double layoutOriginY, BiConsumer<C, Bounds> childProcessor) {
+    private void processVisibleChildrenInParentRows(List<ParentRow<C>> parentRows, javafx.geometry.Bounds visibleArea, double originX, double originY, BiConsumer<C, Bounds> childProcessor) {
         TimeLayoutUtil.processVisibleObjectBounds(
             parentRows,
-            true, visibleArea, layoutOriginX, layoutOriginY,
-            (parentRow, b) -> processVisibleChildrenInParentRow(parentRow, visibleArea, layoutOriginX, layoutOriginY, childProcessor));
+            // Since the translation animation doesn't apply to the parent rows, we correct originX accordingly
+            true, visibleArea, originX - getTimeWindowTranslateX(), originY,
+            (parentRow, b) -> processVisibleChildrenInParentRow(parentRow, visibleArea, originX, originY, childProcessor));
     }
 
-    private void processVisibleChildrenInParentRow(ParentRow<C> parentRow, javafx.geometry.Bounds visibleArea, double layoutOriginX, double layoutOriginY, BiConsumer<C, Bounds> childProcessor) {
+    private void processVisibleChildrenInParentRow(ParentRow<C> parentRow, javafx.geometry.Bounds visibleArea, double originX, double originY, BiConsumer<C, Bounds> childProcessor) {
         TimeLayoutUtil.processVisibleObjectBounds(
             parentRow.getChildrenBounds(),
-            false, visibleArea, layoutOriginX, layoutOriginY,
+            // Since the translation animation applies to the children, we don't correct originX
+            false, visibleArea, originX, originY,
             childProcessor);
     }
 
+    @Override
+    public Bounds getClippingParentRowBounds(C child) {
+        if (childParentReader != null) {
+            Object parent = childParentReader.apply(child);
+            if (parent != null) {
+                ParentRow<C> parentRow = parentToParentRowMap.get(parent);
+                if (parentRow != null && parentRow.isPartiallyOrFullyCollapsed())
+                    return parentRow;
+            }
+        }
+        return null;
+    }
 }

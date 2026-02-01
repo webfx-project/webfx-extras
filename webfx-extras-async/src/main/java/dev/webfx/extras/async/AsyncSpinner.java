@@ -42,7 +42,7 @@ public final class AsyncSpinner {
             Node graphic = null;
             if (button == buttons[0]) {
                 if (display) {
-                    graphic = Controls.createProgressIndicator(20);
+                    graphic = Controls.createButtonSizeSpinner();
                     // Memorizing the previous graphic before changing it
                     button.getProperties().put(BUTTON_GRAPHIC_MEMO_PROPERTIES_KEY, button.getGraphic());
                 } else {

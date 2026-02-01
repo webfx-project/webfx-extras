@@ -225,7 +225,7 @@ public final class VisualSelection {
         return new SimpleObjectProperty<>() {
             @Override
             public void bind(ObservableValue<? extends VisualSelection> newObservable) {
-                Console.log("⚠️ WARNING: please use bindBidirectional() rather than bind() when binding VisualSelection");
+                Console.warn("Please use bindBidirectional() rather than bind() when binding VisualSelection");
                 super.bind(newObservable);
             }
         };

@@ -66,13 +66,13 @@ public abstract class WebVideoPlayerBase extends VideoPlayerBase {
                         case PAUSED:
                             if (hasIFrame) {
                                 if (webViewPane.isLoading()) {
-                                    Console.log("⚠️ Video iFrame already reloading after reinsertion into DOM with status = " + status);
+                                    Console.warn("Video iFrame already reloading after reinsertion into DOM with status = " + status);
                                 } else {
-                                    Console.log("⚠️ Reloading video iFrame after reinsertion into DOM with status = " + status);
+                                    Console.warn("Reloading video iFrame after reinsertion into DOM with status = " + status);
                                     display(status); // will reload
                                 }
                             } else { // no need to reload when not an iFrame
-                                Console.log("⚠️ Restoring video status after reinsertion into scene graph with status = " + status);
+                                Console.warn("Restoring video status after reinsertion into scene graph with status = " + status);
                                 setStatus(status);
                             }
                     }

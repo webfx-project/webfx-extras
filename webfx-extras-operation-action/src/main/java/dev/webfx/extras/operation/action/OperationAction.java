@@ -50,7 +50,7 @@ public final class OperationAction<Rq, Rs> extends WritableAction {
                         if (ar.cause() instanceof UserCancellationException) {
                             Console.log("User cancelled execution of " + operationRequest);
                         } else {
-                            Console.log("An error occurred while executing " + operationRequest, ar.cause());
+                            Console.error("An error occurred while executing " + operationRequest, ar.cause());
                         }
                     }
                     me[0].stopShowingActionAsExecuting(operationRequest, ar.cause());

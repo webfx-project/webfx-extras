@@ -378,7 +378,7 @@ public class I18nProviderImpl implements I18nProvider {
                 // Asking the dictionary loader to load these messages in that language
                 dictionaryLoader.loadDictionary(language, messageKeysToLoad)
                     .onFailure(e -> {
-                        Console.log(e);
+                        Console.error(e);
                         dictionaryProperty.set(null); // necessary to force default dictionary fallback and not keep previous language applied
                     })
                     .onSuccess(dictionary -> {
@@ -404,7 +404,7 @@ public class I18nProviderImpl implements I18nProvider {
                         }
                         if (unfoundKeys != null) {
                             blacklistedKeys.addAll(unfoundKeys);
-                            Console.log("⚠️ I18n keys not found (now blacklisted): " + Collections.toStringCommaSeparated(unfoundKeys));
+                            Console.warn("I18n keys not found (now blacklisted): " + Collections.toStringCommaSeparated(unfoundKeys));
                         }
                         // If the requested language has changed in the meantime, we might need to reload another dictionary!
                         if (!language.equals(getLanguage())) {

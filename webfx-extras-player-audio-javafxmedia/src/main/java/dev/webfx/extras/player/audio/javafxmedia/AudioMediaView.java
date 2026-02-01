@@ -28,6 +28,8 @@ import javafx.scene.shape.StrokeLineCap;
 import javafx.scene.shape.StrokeLineJoin;
 import javafx.util.Duration;
 
+import static dev.webfx.extras.player.audio.javafxmedia.JavaFXMediaCssSelectors.*;
+
 public class AudioMediaView {
 
     private static final double PLAYER_WIDTH = 700;
@@ -62,17 +64,17 @@ public class AudioMediaView {
         title.getStyleClass().add(Bootstrap.H4);
         title.setMaxWidth(450);
         elapsedTimeLabel = new Label("00:00:00");
-        elapsedTimeLabel.getStyleClass().add("time");
+        elapsedTimeLabel.getStyleClass().add(time);
         //We put a min width here because when we play, the width can change, depending on if it displays 1 et 8.
         elapsedTimeLabel.setMinWidth(60);
         Label durationLabel = new Label("00:00:00");
-        durationLabel.getStyleClass().add("time");
+        durationLabel.getStyleClass().add(time);
         bindMediaPlayer();
         durationLabel.textProperty().bind(durationProperty.map(duration -> formatDuration(duration.longValue())));
         HBox progressBarContainer = new HBox();
         progressBarContainer.setSpacing(10);
         progressBar.setPrefWidth(300);
-        progressBar.getStyleClass().add("progress-bar");
+        progressBar.getStyleClass().add(progress_bar);
         progressBar.setOnMouseClicked(e -> seekX(e.getX()));
         progressBar.setOnMouseDragged(e -> seekX(e.getX()));
         progressBar.setCursor(Cursor.HAND);
@@ -112,7 +114,7 @@ public class AudioMediaView {
         plus15sLabel.setScaleY(0.8);
         plus15sLabel.setTextFill(Color.WHITE);
         buttonsHBox.getChildren().addAll(backwardButton, minus15sLabel, playPauseStackPane, plus15sLabel, forwardButton);
-        container.getStyleClass().add("audio-player");
+        container.getStyleClass().add(audio_player);
         container.getChildren().addAll(buttonsHBox, titleAndProgressBarVBox);
         // This is necessary for WebFX (to prevent focus scrolling back to play button issue), but not in OpenJFX
         container.setFocusTraversable(true);

@@ -10,6 +10,9 @@
         <used-by-source-modules/>
     </dependencies>
 
-    <i18n javaKeysClass="dev.webfx.extras.player.audio.javafxmedia.JavaFXMediaI18nKeys"/>
+    <java-ui-api package="dev.webfx.extras.player.audio.javafxmedia" prefix="JavaFXMedia">
+        <i18n/>
+        <css/>
+    </java-ui-api>
 
 </project>

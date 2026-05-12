@@ -1,6 +1,6 @@
 package dev.webfx.extras.type;
 
-import java.util.Date;
+import java.time.*;
 
 /**
  * @author Bruno Salmon
@@ -16,8 +16,12 @@ public enum PrimType implements Type {
     LONG,
     FLOAT,
     DOUBLE,
-    // Date
-    DATE;
+    // Dates
+    LOCAL_DATE,
+    LOCAL_DATE_TIME,
+    LOCAL_TIME,
+    INSTANT,
+    YEAR_MONTH;
 
     public boolean isString() {
         return this == STRING;
@@ -28,7 +32,7 @@ public enum PrimType implements Type {
     }
 
     public boolean isDate() {
-        return this == DATE;
+        return this == LOCAL_DATE;
     }
 
     public boolean isNumber() {
@@ -47,8 +51,6 @@ public enum PrimType implements Type {
             return INTEGER;
         if (value instanceof Long)
             return LONG;
-        if (value instanceof Date)
-            return DATE;
         if (value instanceof Float)
             return FLOAT;
         if (value instanceof Double)
@@ -57,6 +59,16 @@ public enum PrimType implements Type {
             return BYTE;
         if (value instanceof Short)
             return SHORT;
+        if (value instanceof LocalDate)
+            return LOCAL_DATE;
+        if (value instanceof LocalDateTime)
+            return LOCAL_DATE_TIME;
+        if (value instanceof LocalTime)
+            return LOCAL_TIME;
+        if (value instanceof Instant)
+            return INSTANT;
+        if (value instanceof YearMonth)
+            return YEAR_MONTH;
         return null;
     }
 

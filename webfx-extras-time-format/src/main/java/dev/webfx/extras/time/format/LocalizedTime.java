@@ -298,6 +298,19 @@ public final class LocalizedTime {
     // LocalTime formatting
 
     public static String formatLocalTime(LocalTime time, FormatStyle timeFormatStyle) {
+        // Avoid DateTimeFormatter's "a" (AM/PM) pattern — GWT's java.time emulation
+        // doesn't derive AM/PM correctly from LocalTime, causing e.g. 16:00 → "4:00 AM".
+        // Compute AM/PM directly from the hour field instead.
+        if (timeFormatStyle == FormatStyle.SHORT && getLocale().getLanguage().equals("en")) {
+            int hour = time.getHour();
+            int minute = time.getMinute();
+            int displayHour = hour % 12;
+            if (displayHour == 0) displayHour = 12;
+            String minuteStr = minute < 10 ? "0" + minute : Integer.toString(minute);
+            String amPm = hour < 12 ? "AM" : "PM";
+            return displayHour + ":" + minuteStr + " " + amPm;
+        }
+        // Other cases => we follow the standard logic
         return formatLocalTime(time, timeFormatter(timeFormatStyle));
     }
 
